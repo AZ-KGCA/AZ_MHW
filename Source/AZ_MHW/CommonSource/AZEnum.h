@@ -35,7 +35,7 @@ UENUM(BlueprintType)
 enum class EGameModeFlag : uint8
 {
 	None,
-
+	Launcher,
 	Login,
 	Lobby,
 	InGame

@@ -15,6 +15,7 @@
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
 
+#include  "Engine/GameInstance.h"
 //FIXME 병합시 삭제
 #include <GameFramework/Character.h>
 

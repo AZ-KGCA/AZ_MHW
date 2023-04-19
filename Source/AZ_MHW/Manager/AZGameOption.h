@@ -19,4 +19,7 @@ public:
 
 public:
 	void Init();
+
+	// AZHUD_Lancher에서 호출
+	void InitGameOption();
 };

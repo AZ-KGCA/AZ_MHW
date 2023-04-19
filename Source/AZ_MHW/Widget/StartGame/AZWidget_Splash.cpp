@@ -1,0 +1,39 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "AZ_MHW/Widget/StartGame/AZWidget_Splash.h"
+
+#include "Kismet/KismetSystemLibrary.h"
+#include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Login/AZLoginMgr.h"
+
+void UAZWidget_Splash::Init()
+{
+	Super::Init();
+
+	// 게임 화면 꺼지는거(모바일) 방지
+	UKismetSystemLibrary::ControlScreensaver(false);
+
+	splash_ani = GetWidgetAnimation(TEXT("Splash_Ani"));
+}
+
+void UAZWidget_Splash::OnOpen(bool immediately)
+{
+	Super::OnOpen(immediately);
+	if (splash_ani)
+	{
+		PlayAnimation(splash_ani);
+	}
+
+	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::Splash);
+}
+
+void UAZWidget_Splash::OnAnimationFinished_Implementation(const UWidgetAnimation* animation)
+{
+	Super::OnAnimationFinished_Implementation(animation);
+
+	if (animation == splash_ani)
+	{
+		AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::WaitingForAnyKey);
+	}
+}

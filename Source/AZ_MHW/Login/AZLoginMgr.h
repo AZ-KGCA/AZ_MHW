@@ -20,6 +20,7 @@ public:
 	{
 		GameExit,
 		Splash,						// 시작 로고.
+		WaitingForAnyKey,			// 아무키나 눌러주세요.
 		LoginPageStart,				// LoginPage 시작점.
 		ConnectLoginServerReady,	// 사용자 입력(ID, Password, Touch)를 기다린다.
 		ConnectLoginServer,			// 로그인 서버 접속.
@@ -29,6 +30,7 @@ public:
 		PlayerSelect,				// 플레이어 선택.(생성, 삭제도 할 수 있음)
 		GameMapLoading,				// 게임맵 로딩.
 		GameMapEnter,				// 게임맵 입장 완료
+
 
 		None
 	};
