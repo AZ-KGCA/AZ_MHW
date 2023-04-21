@@ -18,12 +18,14 @@ void AAZHUD::BeginDestroy()
     Super::BeginDestroy();
 }
 
-void AAZHUD::EndPlay(const EEndPlayReason::Type end_play_reson)
+void AAZHUD::EndPlay(const EEndPlayReason::Type end_play_reason)
 {
+    Super::EndPlay(end_play_reason);
 }
 
 void AAZHUD::Tick(float delta_seconds)
 {
+    Super::Tick(delta_seconds);
 }
 
 void AAZHUD::OnTouchEmptySpace()

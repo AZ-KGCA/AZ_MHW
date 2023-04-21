@@ -35,8 +35,9 @@ public:
 	virtual void PostLoad() override;
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
-	virtual void EndPlay(const EEndPlayReason::Type end_play_reson) override;
-	virtual void Tick(float delta_seconds);
+	virtual void EndPlay(const EEndPlayReason::Type end_play_reason) override;
+	virtual void Tick(float delta_seconds) override;
+	
 	virtual void OnTouchEmptySpace();
 	virtual void InitHUD();
 
@@ -47,7 +48,7 @@ public:
 	{
 		bool is_get_widget = false;
 		FAZWidgetData* widget_data = GetSubWidgetData(widget_name_enum);
-		if (widget_data == nullptr;)
+		if (widget_data == nullptr)
 		{
 			return nullptr;
 		}
@@ -65,6 +66,4 @@ public:
 
 		return nullptr;
 	}
-
-
 };

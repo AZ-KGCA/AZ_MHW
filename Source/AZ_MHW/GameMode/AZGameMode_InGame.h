@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -13,5 +13,8 @@ UCLASS()
 class AZ_MHW_API AAZGameMode_InGame : public AAZGameMode
 {
 	GENERATED_BODY()
-	
+public:
+	AAZGameMode_InGame();
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 };

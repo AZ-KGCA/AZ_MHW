@@ -107,3 +107,8 @@ Plugins/**/Intermediate/*
 
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore,unrealengine
 
+#JBrainRider
+.idea/*
+#World Partition Data
+Content/__ExternalActors__/*
+Content/__ExternalObjects__/*

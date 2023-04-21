@@ -19,16 +19,16 @@ public:
 	enum class ESequence : uint8
 	{
 		GameExit,
-		Splash,						// ½ÃÀÛ ·Î°í.
-		LoginPageStart,				// LoginPage ½ÃÀÛÁ¡.
-		ConnectLoginServerReady,	// »ç¿ëÀÚ ÀÔ·Â(ID, Password, Touch)¸¦ ±â´Ù¸°´Ù.
-		ConnectLoginServer,			// ·Î±×ÀÎ ¼­¹ö Á¢¼Ó.
-		AuthLoginServer,			// ·Î±×ÀÎ ¼­¹ö ÀÎÁõ.
-		AuthGameServer,				// °ÔÀÓ ¼­¹ö Á¢¼Ó ¹× ÀÎÁõ.
-		PlayerSelectEnter,			// Ä³¸¯ÅÍ ¼±ÅÃÃ¢.(»ı¼ºµÈ ÇÃ·¹ÀÌ¾î ¸®½ºÆ® ¿äÃ»)
-		PlayerSelect,				// ÇÃ·¹ÀÌ¾î ¼±ÅÃ.(»ı¼º, »èÁ¦µµ ÇÒ ¼ö ÀÖÀ½)
-		GameMapLoading,				// °ÔÀÓ¸Ê ·Îµù.
-		GameMapEnter,				// °ÔÀÓ¸Ê ÀÔÀå ¿Ï·á
+		Splash,						// ì‹œì‘ ë¡œê³ .
+		LoginPageStart,				// LoginPage ì‹œì‘ì .
+		ConnectLoginServerReady,	// ì‚¬ìš©ì ì…ë ¥(ID, Password, Touch)ë¥¼ ê¸°ë‹¤ë¦°ë‹¤.
+		ConnectLoginServer,			// ë¡œê·¸ì¸ ì„œë²„ ì ‘ì†.
+		AuthLoginServer,			// ë¡œê·¸ì¸ ì„œë²„ ì¸ì¦.
+		AuthGameServer,				// ê²Œì„ ì„œë²„ ì ‘ì† ë° ì¸ì¦.
+		PlayerSelectEnter,			// ìºë¦­í„° ì„ íƒì°½.(ìƒì„±ëœ í”Œë ˆì´ì–´ ë¦¬ìŠ¤íŠ¸ ìš”ì²­)
+		PlayerSelect,				// í”Œë ˆì´ì–´ ì„ íƒ.(ìƒì„±, ì‚­ì œë„ í•  ìˆ˜ ìˆìŒ)
+		GameMapLoading,				// ê²Œì„ë§µ ë¡œë”©.
+		GameMapEnter,				// ê²Œì„ë§µ ì…ì¥ ì™„ë£Œ
 
 		None
 	};
@@ -37,7 +37,7 @@ private:
 	ESequence sequence_;
 	ESequence login_page_start_sequence_;
 
-	// ¼­¹ö ¼±ÅÃ °ü·Ã
+	// ì„œë²„ ì„ íƒ ê´€ë ¨
 	int32 recent_server_id_;
 	int32 game_auth_serial_;
 	FString server_ip_[(int32)ESocketHolderType::Max];

@@ -1,10 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "AZGameInstance.generated.h"
+
 
 /**
  * 
@@ -21,6 +22,7 @@ public:
 	UPROPERTY() class UAZMapMgr* map_mgr;
 	UPROPERTY() class UAZHUDDataMgr* hud_data_mgr;
 	UPROPERTY() class UAZGameOption* game_option;
+	UPROPERTY() class UAZInputMgr* input_mgr;
 
 public:
 	UAZGameInstance();
@@ -47,10 +49,10 @@ public:
 
 	class UAZGameState* GetCurGameState();
 
-	// FIXME (º´ÇÕ ½Ã ¼öÁ¤ ÇÊ¿ä)
+	// FIXME (ë³‘í•© ì‹œ ìˆ˜ì • í•„ìš”)
 	UFUNCTION(BlueprintCallable, Category = "AZ")
 	APlayerController* GetPlayerController();
-	// FIXME (º´ÇÕ ½Ã ¼öÁ¤ ÇÊ¿ä)
+	// FIXME (ë³‘í•© ì‹œ ìˆ˜ì • í•„ìš”)
 	ACharacter* GetPlayer();
 
 	UFUNCTION()
