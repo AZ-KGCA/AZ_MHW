@@ -10,3 +10,8 @@ FGameOptionSaveData* UAZGameOption::option_save_data = nullptr;
 void UAZGameOption::Init()
 {
 }
+
+void UAZGameOption::InitGameOption()
+{
+	// FIXME (추후 옵션 로드 작업 하기)
+}

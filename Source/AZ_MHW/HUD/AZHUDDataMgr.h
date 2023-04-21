@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "AZ_MHW/HUD/AZHUDDefine.h"
+#include "AZ_MHW/Widget/AZWidget.h"
 #include "AZHUDDataMgr.generated.h"
 
 UENUM()
@@ -38,11 +39,11 @@ public:
 	bool disable_world_rendering = false;
 
 protected:
-	//UPROPERTY()
-	//TWeakObjectPtr<>
+	UPROPERTY()
+	TWeakObjectPtr<UAZWidget> widget_ptr;
 };
 
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class AZ_MHW_API UAZHUDDataMgr : public UObject
 {
 	GENERATED_BODY()
@@ -50,4 +51,21 @@ class AZ_MHW_API UAZHUDDataMgr : public UObject
 public:
 	void Init();
 	void Reset();
+	FAZWidgetData* GetWidgetData(EUIName ui_name_enum);
+	const FAZWidgetData* GetWidgetData(EUIName ui_name_enum) const;
+	FAZWidgetData* GetSubWidgetData(ESubUIName ui_name_enum);
+	TMap<EUIName, FAZWidgetData>& GetWidgetDatas() { return widget_datas; }
+
+	EAZWidgetDataRequestState GetWidgetDataRequestState(EUIName ui_name);
+	bool RequestWidgetData(EUIName ui_name);
+	void OnSuccessWidgetDataRequest(EUIName ui_name);
+	void OnFailedWidgetDataRequest(EUIName ui_name);
+
+private:
+	void InitWidgetData(EUILayer ui_layer, EUIName ui_name, bool is_stay_in_viewport, bool disable_world_rendering, FString widget_path);
+	void InitWidgetDataRequestState(EUIName ui_name);
+
+	TMap<EUIName, FAZWidgetData> widget_datas;
+	TMap<ESubUIName, FAZWidgetData> sub_widget_datas;
+	TMap<EUIName, EAZWidgetDataRequestState> widget_data_request_states;
 };

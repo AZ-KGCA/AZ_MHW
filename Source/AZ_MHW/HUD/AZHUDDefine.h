@@ -71,18 +71,24 @@ enum class EUILayer : uint8
 	World,
 	Scene,
 	Popup,
+	Top,
 	Max
 };
 
 enum class ESubUIName : uint16
 {
-
+	None = 0,
+	Max
 };
 
 enum class EUIName : uint16
 {
 	None = 0,
 	AZWidget_Splash,
+	AZWidget_Black,
+	AZWidget_BlackInOut,
 	AZWidget_Login,
-	AZWidget_Loading
+	AZWidget_Loading,
+	AZWidget_Waiting,
+	AZWidget_InGame,
 };
