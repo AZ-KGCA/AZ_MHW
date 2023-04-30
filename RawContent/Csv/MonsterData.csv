@@ -1,0 +1,3 @@
+﻿monster_id,~desc_monster,behavior_type,~desc_behavior_type,base_hp,sight_radius,sight_lose_radius,sight_fov,sight_max_age,~desc_sight_max_age,sight_auto_success_range,patrol_range,patrol_delay,~desc_patrol_delay,percept_radius,behavior_tree_filename,blackboard_data_filename,~desc_filename
+int,string,string,string,int,int,int,int,int,string,int,int,int,string,int,string,string,string
+0,Rathalos,Hostile,enum__EMonsterBehaviorType,1000,2000,2500,110,3000,milliseconds,1000,2000,15000,milliseconds,2500,Rathalos,Rathalos,prefix_BT_BD_

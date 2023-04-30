@@ -21,6 +21,7 @@ private:
 
 public:
 	UPROPERTY() class UAZTableMgr* table_mgr;
+	UPROPERTY() class UAZMonsterMgr* monster_mgr;
 	static UAZGameSingleton* instance();
 	void Init();
 };

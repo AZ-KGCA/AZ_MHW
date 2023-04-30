@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "type_traits"
 #include "UObject/NoExportTypes.h"
 #include "AZ_MHW/CommonSource/MagicEnum/magic_enum.hpp"
 #include "AZ_MHW/CommonSource/MagicEnum/magic_enum_switch.hpp"
 #include "AZUtility.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogShipping, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(AZMonster, Log, All);
+
 /**
  * 
  */
@@ -21,9 +24,34 @@ public:
 	template<typename EType>
 	static FString EnumToString(EType type)
 	{
+		static_assert(std::is_enum_v<EType>, "Non-Enum class is being used");
 		auto type_str = magic_enum::enum_name(type);
 		FString test(type_str.data());
 		return test;
 	}
-	
+	template<typename EType>
+	static EType StringToEnum(FString enum_string)
+	{
+		// Returns the enum value of the string or the first enum element if unavailable
+		static_assert(std::is_enum_v<EType>, "Non-Enum class is being used");
+		return magic_enum::enum_cast<EType>(TCHAR_TO_UTF8(*enum_string)).value_or(magic_enum::enum_value<EType>(0));
+	}
+	template<typename EType>
+	static EType StringArrToBitMaskEnum(TArray<FString> enum_string_arr)
+	{
+		// Converts an array of enum strings into a bit masked enum type
+		static_assert(std::is_enum_v<EType>, "Non-Enum class is being used");
+		auto enum_value = magic_enum::enum_value<EType>(0);
+		
+		if (!(enum_string_arr[0] == "NULL" || enum_string_arr[0] == "None"))
+		{
+			for (const auto enum_str : enum_string_arr)
+			{
+				enum_value |= UAZUtility::StringToEnum<EType>(enum_str);
+			}
+		}
+		return enum_value;
+	}
+	static float MillisecondsToSeconds(const int32 milliseconds);
+	static float PerTenThousandToPerHundred(const int32 per_ten_thousand);
 };

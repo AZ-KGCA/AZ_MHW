@@ -1,0 +1,3 @@
+action_id,monster_id,~desc_monster,animation_name,montage_section_name,triggers,~desc_triggers,conditions,~desc_conditions,condition_min_health_ratio,~desc_condition_min_health_ratio,condition_max_health_ratio,~desc_condition_max_health_ratio
+int,int,string,string,string,array_string,string,array_string,string,int,string,int,string
+0,0,Rathalos,d,d,d,enum_MonsterActionTriggerType,d,enum_MonsterActionConditionType,0,per_ten_thousand,0,per_ten_thousand

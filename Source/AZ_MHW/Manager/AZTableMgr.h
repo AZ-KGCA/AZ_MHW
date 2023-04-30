@@ -90,6 +90,22 @@ public:
 		return true;
 	}
 	template<class Table>
+   TArray<const Table*> GetTable()
+	{
+		TArray<const Table*> result;
+		const uint32 hash_code = typeid(Table).hash_code();
+		if (map_table_.Contains(hash_code) == false)
+		{
+			return result;
+		}
+		auto tables = map_table_.Find(hash_code);
+		for (auto& table : *tables)
+		{
+			result.Add(Cast<Table>(table.Value));
+		}
+		return result;
+	}
+	template<class Table>
 	TArray<const Table*> GetData(TFunctionRef<bool (const Table*)> Match)
 	{
 		TArray<const Table*> result;
@@ -127,5 +143,4 @@ public:
 	}
 	void LoadAll();
 	void LoadComplete();
-
 };
