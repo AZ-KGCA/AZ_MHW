@@ -47,7 +47,7 @@ AAZGameMode* AAZHUD::GetGameMode()
 
 void AAZHUD::OnSceneOpened()
 {
-	// FIXME ¾À º¯°æ½Ã ÀÎÇ²À» º¯°æ
+	// FIXME ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç²ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	//if (AZGameInstance && AZGameInstance->InputMgr)
 	//{
 	//    AZGameInstance->InputMgr->CheckSceneStack();
@@ -56,7 +56,7 @@ void AAZHUD::OnSceneOpened()
 
 void AAZHUD::OnSceneClosed()
 {
-	// FIXME ¾À º¯°æ½Ã ÀÎÇ²À» º¯°æ
+	// FIXME ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç²ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 }
 
 void AAZHUD::RaiseOnTopFromStack(EUIName ui_name)
@@ -132,8 +132,8 @@ void AAZHUD::_OpenUI(UAZWidget* widget, FAZWidgetData* widget_data, bool is_imme
 
 	if (widget->IsInViewport())
 	{
-		widget->RemoveFromViewport();
-		// À§Á¬ Áß¿¡ ÀÖ´Ù¸ç Áö¿öÁØ´Ù.
+		widget->RemoveFromViewport();// AZHUD.cpp(135): [C4996] 'UUserWidget::RemoveFromViewport': RemoveFromViewport is deprecated. Use RemoveFromParent instead. Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ß¿ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½.
 		for (EUIName& scene_name : scenes_stack)
 		{
 			if (AZSceneData* scene_data = GetSceneData(scene_name))
@@ -302,15 +302,15 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 		return;
 	}
 
-	// ½ºÅÃÀÌ 1°³ ³²¾ÒÀ» ¶§ popÀ» ÇÏ·Á°í ÇÒ¶§ Exit popup È£Ãâ ÇÏµµ·Ï ÃßÈÄ ±¸Çö
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ popï¿½ï¿½ ï¿½Ï·ï¿½ï¿½ï¿½ ï¿½Ò¶ï¿½ Exit popup È£ï¿½ï¿½ ï¿½Ïµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (1 >= scenes_stack.Num() && is_back_button == true)
 	{
-		// FIXME µÚ·Î°¡±â ½Ã È®ÀÎ
+		// FIXME ï¿½Ú·Î°ï¿½ï¿½ï¿½ ï¿½ï¿½ È®ï¿½ï¿½
 		//if (ScenesStack[0] == EUIName::LHWidget_CharacterCreate)
 		//    LHGameInstance->LoginMgr->ChangeSequenceLoginPage();
 		//else
 		//{
-		//    // ÆË¾÷À» ¶ç¿ì¸é µÉ °Í 
+		//    // ï¿½Ë¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ 
 		//}
 		//return;
 	}
@@ -326,7 +326,7 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 			}
 			else
 			{
-				// ´Ù¸¥ ¾ÀÀ» ¿­¾î¼­ ´ÝÈú ¶§ ¿­·ÁÀÖ´Ü ÆË¾÷µéÀ» ´Ý¾ÆÁÜ
+				// ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½î¼­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½Ë¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ý¾ï¿½ï¿½ï¿½
 				CloseUI((EUIName)ui_widget_data->widget_id, true, false);
 				cur_scene_data->child_widget_names.Pop();
 			}
@@ -349,7 +349,7 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 			scenes_stack.Pop();
 			if (scenes_stack.Num() > 0)
 			{
-				//¼øÂ÷ÀûÀ¸·Î º¹¿øÇØÁÜ
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				OpenScene<UAZWidget>(scenes_stack.Top());
 			}
 		}

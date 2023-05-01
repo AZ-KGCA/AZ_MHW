@@ -82,7 +82,6 @@ public:
 			{
 				return false;
 			}
-
 			data_container.Add(key, table);
 		}
 		

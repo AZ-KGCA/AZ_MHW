@@ -23,6 +23,7 @@ public:
 	UPROPERTY() class UAZHUDDataMgr* hud_data_mgr;
 	UPROPERTY() class UAZGameOption* game_option;
 	UPROPERTY() class UAZInputMgr* input_mgr;
+	UPROPERTY() class UAZPlayerAssetMgr* playerAsset_mgr;
 
 public:
 	UAZGameInstance();

@@ -2,8 +2,8 @@ root = true
 
 #All files
 [*]
-#charset = utf-8
-charset = utf-8-bom
+charset = utf-8
+#charset = utf-8-bom
 
 #shader files
 [*.hlsl]

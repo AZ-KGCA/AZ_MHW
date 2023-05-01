@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -22,14 +22,12 @@
 
 #pragma endregion
 /**
- * PlayerControllerBase Class
+ * 모든 PlayerController Base
  * 
  * Menu(Login)
- * CreateCharacter
+ * CreateCharacter()
  * Lobby(Town)
  * InGame(Wild)
- * Sequence
- * 
  */
 UCLASS()
 class AZ_MHW_API AAZPlayerController : public APlayerController
@@ -42,18 +40,13 @@ public:
 #pragma region Inherited function
 protected:
 	/** */
+	virtual void BeginPlay() override;
+	/** */
 	virtual void OnPossess(APawn* InPawn) override;
 	/** */
 	virtual void SetupInputComponent() override;
 #pragma endregion
 public:
-	/** */
-	void AddInputMappingContext(FName IMCName) const; 
-	/** */ 
-	void RemoveInputMappingContext(FName IMCName) const;
-	/** */
-	void ClearInputMappingContext() const;
-	
 	//UPROPERTY(BlueprintReadOnly) AAZCameraManager* CameraMgr;
 	//UPROPERTY(BlueprintReadOnly) AAZHUDManager* HUDMgr;
 	//UPROPERTY(BlueprintReadOnly) AAZPlayerState* State;

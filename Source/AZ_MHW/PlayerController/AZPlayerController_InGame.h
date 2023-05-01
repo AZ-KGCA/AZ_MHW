@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,6 +15,7 @@
 #pragma region ForwardDeclaration
 class UInputAction;
 class UInputMappingContext;
+
 class UAZAnimInstance_Player;
 class AAZPlayerState;
 class AAZPlayer_Playable;
@@ -59,15 +60,15 @@ protected:
 	
 #pragma endregion 
 public:
-	/** 소유 플레이어 */
+	/** 소유 플레이어 캐릭터*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	AAZPlayer_Playable* PlayableCharacter;
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	UAZAnimInstance_Player* PlayableAnimInstance;
-	/** 변경할 대상 */
+	/** 소유 플레이어 정보*/
 	UPROPERTY(EditAnywhere)
 	AAZPlayerState* PlayablePlayerState;
-	/** 원격 플레이어 */
+	/** 원격 플레이어 캐릭터*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	TMap<int32, AAZPlayer_Remotable*> RemotableCharacterMap;
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
@@ -75,14 +76,15 @@ public:
 	/** 원격으로 전송받을 값 */
 	UPROPERTY(EditAnywhere)
 	TMap<int32, AAZPlayerState*> RemoteblePlayerStateMap;
-	/** 서버에서 호출? */
+
+	/** 서버에서 호출, 원격 캐릭터생성 */
 	UFUNCTION()
 	void CloneRemotePlayer(int32 Guid, AAZPlayerState* OtherPlayerState);
 #pragma region//Input Event function
 public:
 	//ToDo:CameraManager만들고 Player_Playable에서 여기로 옮기기?
 	//void ActionLook(const FInputActionValue& Value);//카메라 조종
-	void ActionDirection();
+	void ActionInputDirection();
 	
 	/** MeleeContext */
 	void ActionMoveForward_Start();	//W

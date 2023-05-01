@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -20,14 +20,18 @@
 
 #pragma endregion 
 #pragma region Struct
-/** 플레이어 캐릭터의 액션 상태*/
+/** 플레이어 액션(인풋) 상태 <-컨트롤러가 갱신
+ * 이외에도 추가할 것,
+ * 아이템목록불러오기 메뉴 키도 추가하되, 서버에서는 처리안하기.
+ */
 USTRUCT(BlueprintType)
 struct FAZPlayerActionState
 {
 	GENERATED_USTRUCT_BODY()
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector Direction;
+	FVector InputDirection;//캐릭터의 입력방향(플레이어의 시선방향(월드방향)기준 + 입력벡터)
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bMoveForward:1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -47,39 +51,46 @@ struct FAZPlayerActionState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bDashHold:1;
 	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//uint32 bDashOnce:1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bDashOnce:1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bDodge:1;
+	uint32 bEvade:1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bUseItem:1;
 	FAZPlayerActionState()
 	{
 		//bitfield = Initializer 선언초기화 문법은 C++20에서가능
 		//비트필드는 생성자에서 초기화해야한다.
-		Direction = FVector::Zero();
-		bMoveForward = false;
-		bMoveBack = false;
-		bMoveLeft = false;
-		bMoveRight = false;
-
-		bNormalAttack = false;
-		bSpecialAttack = false;
-
-		bUniqueWeaponAction = false;
+		InputDirection = FVector::Zero();//플레이어가 인지하는 입력방향
 		
-		bDashHold = false;
+		bMoveForward = false;//W
+		bMoveBack = false;//S
+		bMoveLeft = false;//A
+		bMoveRight = false;//D
+
+		bNormalAttack = false;//MLB
+		bSpecialAttack = false;//MRB
+
+		bUniqueWeaponAction = false;//Ctrl
 		
-		bDashOnce = false;
-		bDodge = false;
-		bUseItem = false;
+		bDashHold = false;//Shift
+		
+		bEvade = false;//Space
+		bUseItem = false;//E
+
+		//bDashOnce = false;//게임에 없던데
 	}
 };
-/** 플레이어 캐릭터의 상태*/
+/** 플레이어 캐릭터의 상태<-플레이어 캐릭터가 갱신
+ * 
+ */
 USTRUCT(BlueprintType)
 struct FAZPlayerCharacterState
 {
 	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRotator CharacterDirection;//현재 캐릭터의 시야방향
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MaxHealthPoint;//체력
@@ -94,28 +105,68 @@ struct FAZPlayerCharacterState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 CurrentSharpness;//예리도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 ActionSpeed;//스피드
+	int32 ActionSpeed;//스피드 10000배 (Cast<float>)
 
 	//방어도?
 	//저항력?
 	//회피도
 	//디버프목록?(Enum?)
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bHit:1;//피격상태
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bGround:1;//지면상태인지(얼마나 떨어졋는지?)
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//uint32 bAirborne:1;//절벽인지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bSlide:1;//미끄러지는 중인지
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//uint32 bClimb:1;//등반액션인지
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//uint32 bSwing:1;//스윙액션인지
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//uint32 bSwim:1;//수영액션인지
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bCommon:1;//일반상태인지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bCrouch:1;//일반상태의 웅크리기
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bEvade:1;//회피중인지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bAction:1;//액션상태
+	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//uint32 bMount:1;//마운트상태
+	
 	
 	FAZPlayerCharacterState()
 	{
+		CharacterDirection = FRotator::ZeroRotator;
+
 		MaxHealthPoint = 100;
 		CurrentHealthPoint = 100;
 		MaxStamina = 100;
 		CurrentStamina = 100;
 		MaxSharpness = 100;
 		CurrentSharpness = 50;
-		ActionSpeed = 1500;
+		
+		ActionSpeed = 15000;//10000배
+
 		bHit = false;
+		bGround = true;
+		bSlide = false;
+
+		bCommon = true;
+		bCrouch = false;
+		bEvade = false;
+		bAction = false;
 	}
 };
-/** 플레이어 캐릭터의 장비 상태*/
+/** 플레이어 캐릭터의 장비 상태
+ * 
+ */
 USTRUCT(BlueprintType)
 struct FAZPlayerEquipmentState
 {
@@ -123,6 +174,7 @@ struct FAZPlayerEquipmentState
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 FaceItemID;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 HairItemID;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -135,13 +187,19 @@ struct FAZPlayerEquipmentState
 	int32 ArmItemID;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 LegItemID;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 WeaponTypeID;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 WeaponItemID;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//int32 SecondWeaponItemID;
+	
 	//슬롯에 낀 소비아이템품목
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 ConsumeItemID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 AmmoItemID;
 	
 	FAZPlayerEquipmentState()
 	{
@@ -155,7 +213,10 @@ struct FAZPlayerEquipmentState
 		
 		WeaponTypeID = 0;//0~13 무기종류
 		WeaponItemID = 0;//무기아이디
-		ConsumeItemID = 10001;
+		//SecondWeaponItemID = 0;//무기아이디
+		
+		AmmoItemID = 0;
+		ConsumeItemID = 101;
 	}
 };
 /** 플레이어 제스쳐? 표정? 머리색? 피부색? */
@@ -193,13 +254,12 @@ public:
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//int32 UserControlState;
 	
-	//캐릭터 행동상태(애니메이션)
-	//액션상태값이 변동되면 서버로 보낸다.
-	//원격PC는 상태값을 받아 움직인다.
+	//플레이어 입력상태(애니메이션)
+	//원격PC는 입력상태값을 받아서 움직인다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FAZPlayerActionState ActionState;
 	
-	//이 구조체는 위젯 정보용이다.(공식의 처리(가감) 서버에서 처리된다.)
+	//이 구조체는 위젯 정보용이다.(공식의 처리(실제 체크, 가감) 서버에서 처리된다.)
 	//캐릭터 상태(HP, 스태미나, 예리도 등)
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FAZPlayerCharacterState CharacterState;

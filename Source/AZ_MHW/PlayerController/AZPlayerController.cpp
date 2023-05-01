@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AZPlayerController.h"
@@ -12,7 +12,11 @@ AAZPlayerController::AAZPlayerController()
 {
 	
 }
-
+void AAZPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	PRINT_FUNCTION();
+}
 void AAZPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -38,52 +42,3 @@ void AAZPlayerController::SetupInputComponent()
 	*/
 }
 
-void AAZPlayerController::AddInputMappingContext(FName IMCName) const
-{
-	UAZInputMgr* InputMgr = AZGameInstance->input_mgr;//GetGameInstance<UAZGameInstance>()->input_mgr;
-	if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-	{
-		if(const auto& InputMappingContext = InputMgr->InputMappingContextMap.Find(IMCName))
-		{
-			if(const auto& ContextPriority = InputMgr->InputMappingContextPriorityMap.Find(IMCName))
-			{
-				EnhancedInputLocalPlayerSubsystem->AddMappingContext(*InputMappingContext, *ContextPriority);
-			}
-		}
-		else
-		{
-			PRINT_LOG("Don't Add InputMappingContext");
-			//인풋매핑컨텍스트 없음
-		}
-	}
-}
-
-void AAZPlayerController::RemoveInputMappingContext(FName IMCName) const
-{
-	UAZInputMgr* InputMgr = AZGameInstance->input_mgr;
-	if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-	{
-		if(const auto& InputMappingContext = InputMgr->InputMappingContextMap.Find(IMCName))
-		{
-			EnhancedInputLocalPlayerSubsystem->RemoveMappingContext(*InputMappingContext);
-		}
-		else
-		{
-			PRINT_LOG("Don't Find InputMappingContext");
-			//인풋매핑컨텍스트 없음
-		}
-	}
-}
-
-void AAZPlayerController::ClearInputMappingContext() const
-{
-	if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-	{
-		EnhancedInputLocalPlayerSubsystem ->ClearAllMappings();
-	}
-	else
-	{
-		PRINT_LOG("Don't Find EnhancedInputLocalPlayerSubsystem");
-		//인풋매핑컨텍스트 없음
-	}
-}

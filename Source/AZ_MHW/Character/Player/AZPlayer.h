@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -13,7 +13,6 @@
 
 #pragma endregion 
 #pragma region ForwardDeclaration
-class AAZPlayerState;
 #pragma endregion
 #pragma region Enum
 
@@ -26,7 +25,7 @@ class AAZPlayerState;
  * 플레이어블과 리모트의 차이는 직접 명령을 받느냐 아니냐의 차이
  * 리소스의 포인터만 들고있다. 
  */
-UCLASS()
+UCLASS(Abstract)
 class AZ_MHW_API AAZPlayer : public AAZCharacter
 {
 	GENERATED_BODY()
@@ -41,7 +40,7 @@ protected:
 	/** */
 	virtual void BeginPlay() override;
 	/** */
-	//virtual void PossessedBy(AController* NewController) override;
+	virtual void PossessedBy(AController* NewController) override;
 	/** */
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	/** */
@@ -51,8 +50,10 @@ public:
 	//모든 플레이어 캐릭터가 가지는 게임요소들
 	//UCapsuleComponent//SceneComponent(Physics)
 	//UCharacterMovement//MovementComponent
-	//SkeletalMeshComponent* //NoneVisible Animation BaseBone
+	//SkeletalMeshComponent* //Animation BaseBone
 
+	//UPROPERTY() TMap<FName, USkeletalMeshComponent*> Parts;
+	//Parts
 	UPROPERTY() USkeletalMeshComponent* Head;
 	UPROPERTY() USkeletalMeshComponent* Hair;
 	UPROPERTY() USkeletalMeshComponent* Face;
@@ -60,31 +61,20 @@ public:
 	UPROPERTY() USkeletalMeshComponent* Arm;
 	UPROPERTY() USkeletalMeshComponent* Waist;
 	UPROPERTY() USkeletalMeshComponent* Leg;
-	//UPROPERTY()
-	//TMap<FName, USkeletalMeshComponent*> Parts;
-
-	/** bForceUpdate이미 붙은 컴포넌트도 또 호출할 것인가
-	 */
-	UFUNCTION(BlueprintCallable)
-	void SetCombineSKMeshParts(bool bForceUpdate);
 	
-	//일반상태->전투상태(무기종류별)
-	//IMC변경
-	//GetMesh()->AnimInstance를 변경
+	
 
+	UFUNCTION() void UpdateSKMeshParts();
+	
+	/** bForceUpdate이미 붙어 있는 컴포넌트도 또 호출할 것인가 */
+	UFUNCTION() void SetCombineSKMeshParts(bool bForceUpdate);
+	
 	//임시
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UAnimInstance> CommonAnimInstanceClass;
-	
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UAnimInstance> WeaponAnimInstanceClass;
+	TSubclassOf<UAnimInstance> BodyAnimInstanceClass;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UAnimInstance> FaceAnimInstanceClass;
-	//애니메이션이 변경되는 경우(일반이냐 무기냐)
-	//void ChangeAnimInstance(FName AinmName);
-	//TMap<FName,TSubclassOf<UAnimInstance> *> AnimationMap;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	AAZPlayerState* AZPlayerState;
+	
 };

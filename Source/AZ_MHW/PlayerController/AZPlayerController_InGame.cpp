@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "PlayerController/AZPlayerController_InGame.h"
@@ -19,17 +19,18 @@ AAZPlayerController_InGame::AAZPlayerController_InGame()
 
 }
 
+
 void AAZPlayerController_InGame::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
 
 	PlayableCharacter = Cast<AAZPlayer_Playable>(aPawn);
-	//TODO: Controller 생성마다 State저장 ->AAZController로 옮기기
 	PlayablePlayerState = Cast<AAZPlayerState>(PlayableCharacter->GetPlayerState());
 }
 
 void AAZPlayerController_InGame::CloneRemotePlayer(int32 Guid, AAZPlayerState* OtherPlayerState)
 {
+	//id GetWorld()->SpawnActor<AAZPlayer_Remotable>();
 	
 }
 
@@ -38,79 +39,84 @@ void AAZPlayerController_InGame::CloneRemotePlayer(int32 Guid, AAZPlayerState* O
 
 void AAZPlayerController_InGame::SetupInputComponent()
 {
-	ClearInputMappingContext();
-	AddInputMappingContext(FName(TEXT("UI")));
+	Super::SetupInputComponent();
+	AZGameInstance->input_mgr->ClearInputMappingContext(GetLocalPlayer());
+	//AZGameInstance->input_mgr->AddInputMappingContext(TEXT("UI"), GetLocalPlayer());
+	AZGameInstance->input_mgr->AddInputMappingContext(TEXT("InGame"), GetLocalPlayer());
+	//Camera Rotate Action
+	
+	//TODO: 임시 무기 종류시, 종류에 따라 매핑하기
+	AZGameInstance->input_mgr->AddInputMappingContext(TEXT("MeleeWeapons"), GetLocalPlayer());
+	//AZGameInstance->input_mgr->AddInputMappingContext(TEXT("RangedWeapons"), GetLocalPlayer());
+	
 	//AddInputContextMapping(FName(TEXT("Sequence")));
-	AddInputMappingContext(FName(TEXT("InGame")));
 	//AddInputContextMapping(FName(TEXT("Common")));
 	
-	//TODO: 임시 무기발도시, 종류에 따라 매핑하기
-	AddInputMappingContext(FName(TEXT("Melee")));
-	//AddInputMappingContext(FName(TEXT("Ranged")));
-	//AddInputMappingContext(FName(TEXT("Sheathe")));
-	//AddInputMappingContext(FName(TEXT("ClutchClaw")));
-	//AddInputMappingContext(FName(TEXT("Vehicle")));
 	
-	Super::SetupInputComponent();
+	
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
+		UAZInputMgr* InputMgr=AZGameInstance->input_mgr;
 		//W
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("MoveForward"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveForward_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("MoveForward"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveForward_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("MoveForward"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveForward_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("MoveForward"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveForward_End);
 		//S
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("MoveBack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveBack_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("MoveBack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveBack_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("MoveBack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveBack_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("MoveBack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveBack_End);
 		//A
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("MoveLeft"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveLeft_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("MoveLeft"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveLeft_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("MoveLeft"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveLeft_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("MoveLeft"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveLeft_End);
 		//D
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("MoveRight"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveRight_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("MoveRight"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveRight_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("MoveRight"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveRight_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("MoveRight"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveRight_End);
 		//WASD Direction
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("Direction"),ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDirection);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("InputDirection"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionInputDirection);
+		
 		//MLB
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("NormalAttack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionNormalAttack_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("NormalAttack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionNormalAttack_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("NormalAttack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionNormalAttack_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("NormalAttack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionNormalAttack_End);
 		//MRB
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("SpecialAttack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionSpecialAttack_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("SpecialAttack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionSpecialAttack_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("SpecialAttack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionSpecialAttack_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("SpecialAttack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionSpecialAttack_End);
 
 		//LCtrl
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("UniqueAction"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUniqueAction_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("UniqueAction"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUniqueAction_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("UniqueAction"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUniqueAction_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("UniqueAction"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUniqueAction_End);
 		//LShift
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("DashHold"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDashHold_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("DashHold"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDashHold_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("DashHold"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDashHold_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("DashHold"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDashHold_End);
 		
 		//Space
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("Dodge"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDodge_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("Dodge"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDodge_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("Dodge"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDodge_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("Dodge"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDodge_End);
 		//B
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("DashOnce"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDashOnce_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("DashOnce"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDashOnce_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("DashOnce"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDashOnce_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("DashOnce"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDashOnce_End);
 		//E
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("UseItem"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUseItem_Start);
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("UseItem"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUseItem_End);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("UseItem"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUseItem_Start);
+		EnhancedInputComponent->BindAction(InputMgr->GetInputAction("UseItem"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUseItem_End);
 	}
 }
 
-void AAZPlayerController_InGame::ActionDirection()
+void AAZPlayerController_InGame::ActionInputDirection()
 {
+	//키입력
 	const int MovementX = (static_cast<int>(PlayablePlayerState->ActionState.bMoveBack) - static_cast<int>(PlayablePlayerState->ActionState.bMoveForward));
 	const int MovementY = (static_cast<int>(PlayablePlayerState->ActionState.bMoveLeft) - static_cast<int>(PlayablePlayerState->ActionState.bMoveRight));
+	//키입력방향
 	const FVector2D MovementVector(MovementX, MovementY);
-	
+	//현재 카메라방향
 	const FRotator Rotation = GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	//카메라 방향에 대한 입력방향(플레이어가 인지하는 방향)
 	const FVector MovementDirection = (RightDirection * MovementVector.Y + ForwardDirection * MovementVector.X).GetSafeNormal();
-	PlayablePlayerState->ActionState.Direction = -MovementDirection;
+	PlayablePlayerState->ActionState.InputDirection = -MovementDirection;
 }
 
 void AAZPlayerController_InGame::ActionMoveForward_Start()
 {
-	//누를 수 있거나, 이미 눌리고 있거나
 	PlayablePlayerState->ActionState.bMoveForward = true;
 }
 
@@ -190,28 +196,17 @@ void AAZPlayerController_InGame::ActionDashHold_End()
 	PlayablePlayerState->ActionState.bDashHold = false;
 }
 
-void AAZPlayerController_InGame::ActionDashOnce_Start()
-{
-	PlayablePlayerState->ActionState.bDashOnce = true;
-}
-
-void AAZPlayerController_InGame::ActionDashOnce_End()
-{
-	PlayablePlayerState->ActionState.bDashOnce = false;
-}
-
 void AAZPlayerController_InGame::ActionDodge_Start()
 {
-	PlayablePlayerState->ActionState.bDodge = true;
+	PlayablePlayerState->ActionState.bEvade = true;
 }
 
 void AAZPlayerController_InGame::ActionDodge_End()
 {
-	PlayablePlayerState->ActionState.bDodge = false;
+	PlayablePlayerState->ActionState.bEvade = false;
 }
 
 //delegate만들어서 아이템사용로직 붙힐 수 있게 하기
-//OnUseItem
 void AAZPlayerController_InGame::ActionUseItem_Start()
 {
 	PlayablePlayerState->ActionState.bUseItem = true;
@@ -220,4 +215,14 @@ void AAZPlayerController_InGame::ActionUseItem_Start()
 void AAZPlayerController_InGame::ActionUseItem_End()
 {
 	PlayablePlayerState->ActionState.bUseItem = false;
+}
+
+void AAZPlayerController_InGame::ActionDashOnce_Start()
+{
+	//PlayablePlayerState->ActionState.bDashOnce = true;
+}
+
+void AAZPlayerController_InGame::ActionDashOnce_End()
+{
+	//PlayablePlayerState->ActionState.bDashOnce = false;
 }

@@ -11,12 +11,15 @@
 #include "GameInstance/AZGameInstance.h"
 #include "Manager/AZInputMgr.h"
 #include "AnimInstance/AZAnimInstance_Player.h"
+#include "PlayerController/AZPlayerController_InGame.h"
 
 #include "PlayerState/AZPlayerState.h"
 //#include <InputActionValue.h>
 
 AAZPlayer_Playable::AAZPlayer_Playable()
-{	
+{
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -38,9 +41,28 @@ void AAZPlayer_Playable::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) 
 	{
-		EnhancedInputComponent->BindAction(DEREF_IAMAP("Look"), ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionLook);
+		EnhancedInputComponent->BindAction(AZGameInstance->input_mgr->GetInputAction("Look"), ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionLook);
 		//...
 	}
+}
+
+void AAZPlayer_Playable::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	PlayablePlayerState = Cast<AAZPlayerState>(GetPlayerState());
+	PlayablePlayerController = Cast<AAZPlayerController_InGame>(NewController);
+}
+
+void AAZPlayer_Playable::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	//유니티처럼 게임오브젝트를 하나 더만들어서 액터에 붙히고, 통신하게끔
+	//시야각감지(플레이어 시선방향 45도 앞 상호작용 객체 쿼리)
+	//거리감지(객체에 마다의 거리체크후 쿼리)
+
+	PlayablePlayerState->CharacterState.CharacterDirection = GetRootComponent()->GetComponentRotation();
 }
 
 
@@ -56,27 +78,9 @@ void AAZPlayer_Playable::ActionLook(const FInputActionValue& Value)
 	}
 }
 
-/*
-*void AAZPlayer_Playable::ActionWASD(const FInputActionValue& Value)
+void AAZPlayer_Playable::AnimNotify_OnUseItem()
 {
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-		// get right vector
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		// add movement
-		//g회전
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
-	}
+	OnUseItem.Broadcast();
+	
 }
-*/
+

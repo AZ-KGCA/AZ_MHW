@@ -10,16 +10,10 @@
 
 #pragma endregion
 #pragma region // TypeDefine
-DECLARE_MULTICAST_DELEGATE(FOnActionStartDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnEnableInputDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnEnableActionDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnActionEndDelegate);
 
-DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnCastingCheckDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnDisableCheckDelegate);
 #pragma endregion 
 #pragma region //ForwardDeclaration
+class AAZPlayer;
 class AAZPlayerState;
 #pragma endregion
 #pragma region //Enum
@@ -30,10 +24,10 @@ class AAZPlayerState;
 #pragma endregion
 /**
  * 플레이어 애니메이션블루프린트의 뼈대
- * 상태별(일반), 무기(무기)별 ABP(AnimBluePrint)로 생성
- * 상태값으로 애니메이션을 실행
+ * Controller(Input)와 Character(Event)로 변경된 State(Data)를 캐싱
+ * Data를 해석해 해당 틱에 실행할 AnimGraph를 실행
  */
-UCLASS()
+UCLASS(Abstract)
 class AZ_MHW_API UAZAnimInstance_Player : public UAZAnimInstance
 {
 	GENERATED_BODY()
@@ -44,72 +38,54 @@ public:
 #pragma region //Inherited function
 protected:
 	/** */
-	virtual  void NativeUpdateAnimation(float DeltaSeconds) override;
+	virtual void NativeInitializeAnimation() override;
+	/** */
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 #pragma endregion
-public:
-	/** 몬스터나 NPC도 사용하게 부모로 옮길 것*/
-	/** 애니메이션 실행시 1번*/
-	UFUNCTION() void AnimNotify_OnActionStart();//액션 시작. 입력비활성화, 액션비활성화
-	FOnActionStartDelegate OnActionStart;
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint32 bCanAction:1;
-	/** 애니메이션 입력값 받기 2번*/
-	UFUNCTION() void AnimNotify_OnEnableInput();//미리 입력할 수 있는 값을 조건
-	FOnEnableInputDelegate OnEnableInput;
-	/** 애니메이션 입력 가능 3번*/
-	UFUNCTION() void AnimNotify_OnEnableAction();//연계입력시 연계액션가능시점
-	FOnEnableActionDelegate OnEnableAction;
-	/** 애니메이션 종료(몽타주) 4번*/
-	UFUNCTION() void AnimNotify_OnActionEnd();//액션이 끝났으니 처음부터
-	FOnActionEndDelegate OnActionEnd;
-	/** 애니메이션 공격 체크*/
-	UFUNCTION() void AnimNotify_OnAttackHitCheck();
-	FOnAttackHitCheckDelegate OnAttackHitCheck;
-	/** 애니메이션 캐스팅 체크
-	 * 
+public://
+	/** 블루 프린트(AnimGraph)용 AnimInstance 변수
+	 * 결과적으로 해당 변수들을 컨트롤 하는 것으로 애니메이션을 모두 컨트롤 할 수 있다.
 	 */
-	UFUNCTION() void AnimNotify_OnCastingCheck();
-	FOnAttackHitCheckDelegate OnCastingCheck;
-	/** 애니메이션 상태이상 해제 체크*/
-	UFUNCTION() void AnimNotify_OnDisableCheck();
-	FOnAttackHitCheckDelegate OnDisableCheck;
-
-	
-	UPROPERTY(BlueprintReadOnly)
-	uint32 bIsHit:1;
-	
+	//둘다 False면 시퀀스모드
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsBlend;//블렌드 모드
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsMontage;//몽타주 모드
 	
 	UPROPERTY(BlueprintReadWrite)
-	AAZPlayerState* AZPlayerStateCache;
+	UAnimSequence* CurrentAnimSequence;//현재 애님 시퀀스
 	UPROPERTY(BlueprintReadWrite)
-	UAnimMontage* CurrentMontage;
+	UBlendSpace* CurrentBlendSpace;//현재 블렌드 스페이스
 	UPROPERTY(BlueprintReadWrite)
-	FName NextMontageSectionName;
-	
-	UPROPERTY(BlueprintReadOnly)
-	TMap<FName, UAnimMontage*> MontageMap;
-	
+	UAnimMontage* CurrentAnimMontage;//현재 애님 몽타주
+	UPROPERTY(BlueprintReadWrite)
+	float CurrentAnimPlayRate;//현재 애님 재생속도
+
+	UPROPERTY(BlueprintReadWrite)
+	FName CurrentMontageName;//현재 몽타주 이름
+	UPROPERTY(BlueprintReadWrite)
+	FName CurrentSectionName;//현재 섹션 이름
+	UPROPERTY(BlueprintReadWrite)
+	FName NextSectionName;//다음 섹션 이름
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 CurrentBParam_X;//Permyriad
+	UPROPERTY(BlueprintReadWrite)
+	int32 CurrentBParam_Y;//Permyriad
+
+	//종료조건(키, 트리거),지연 액션(현재 액션이 종료),강제 액션
+	void SetMontage(FName MontageName);
+	void SetNextMontage(FName MontageName);
+	void SetSection(FName SectionName = TEXT("Default"));
+	void SetNextSection(FName SectionName = TEXT("Default"));
+	void SetBlendSpace(FName BlendSpaceName);//
+	void SetSequence(FName SequenceName);//
+	void SetPlayRate(float PlayRate = 1.5f);
 
 
-
-
-
-
-
-
-	
-public://C++로 옮길것
-	/** 플레이어 입력값으로 방향체크 */
-	UFUNCTION(BlueprintCallable)
-	FVector GetVelocity(bool Forward, bool Back, bool Left, bool Right) const;
-
-	
-public://블루 프린트
-	/** 디자이너용 비트마스크 생성
-	 * 테이블로 뺄수도 있음
-	 */
-
-	//FName(현재 섹션 + 입력 = 액션)
-	//UPROPERTY() TMap<FName, int32> ActionBitMaskMap;
+	//플레이어 스테이트에 넣을만한것
+	//UPROPERTY(BlueprintReadOnly) FVector StartRootPosition;//모션을 시작한 위치
+	//UPROPERTY(BlueprintReadOnly) FRotator StartRootRotation;//모션을 시작한 방향
+	//UPROPERTY(BlueprintReadOnly) FVector FinalRootPosition;//모션종료후 최종 위치 //Montage에서 후크
+	//UPROPERTY(BlueprintReadOnly) FRotator FinalRootRotation;//모션종료후 최종 방향
 };
