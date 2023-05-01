@@ -25,5 +25,11 @@ public:
 		FString test(type_str.data());
 		return test;
 	}
+	template<typename EType>
+	static EType StringToEnum(const FString& string)
+	{
+		auto type = magic_enum::enum_cast<EType>(TCHAR_TO_UTF8(*string));
+		return type;
+	}
 	
 };
