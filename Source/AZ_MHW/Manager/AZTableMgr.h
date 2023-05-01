@@ -5,7 +5,13 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include <typeinfo>
+#include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZTableMgr.generated.h"
+
+#define GetTableByIndex(TableType, index) GetGameSingleton()->table_mgr->GetData<TableType>(index)
+#define GetTable(TableType) GetGameSingleton()->table_mgr->GetData<TableType>();
+
+
 
 UCLASS(Blueprintable, BlueprintType)
 class AZ_MHW_API UAZTableMgr : public UObject
@@ -13,6 +19,7 @@ class AZ_MHW_API UAZTableMgr : public UObject
 	GENERATED_BODY()
 	
 private:
+	UPROPERTY() TArray<const UObject*> map_array_;
 	TMap<uint32, TMap<int32, const UObject*>> map_table_;
 
 public:
@@ -82,7 +89,7 @@ public:
 			{
 				return false;
 			}
-
+			map_array_.Add(table);
 			data_container.Add(key, table);
 		}
 		
@@ -124,6 +131,23 @@ public:
 			return nullptr;
 		}
 		return Cast<Table>(*table);
+	}
+
+	template<class Table>
+	TArray<const Table*> GetData()
+	{
+		TArray<const Table*> result;
+		uint32 hash_code = typeid(Table).hash_code();
+		if (map_table_.Contains(hash_code) == false)
+		{
+			return result;
+		}
+		auto tables = map_table_.Find(hash_cod);
+		for (auto& table : *tables)
+		{
+			result.Add(Cast<Table>(table.Value));
+		}
+		return result;
 	}
 	void LoadAll();
 	void LoadComplete();
