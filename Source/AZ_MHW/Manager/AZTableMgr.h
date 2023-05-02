@@ -70,9 +70,11 @@ public:
 				continue;
 			}
 
+			int32 offset = 0;
 			for (const int32 index : except_index)
 			{
-				cols.RemoveAt(index);
+				cols.RemoveAt(index - offset);
+				++offset;
 			}
 
 			TMap<FString, FString> col_values;
