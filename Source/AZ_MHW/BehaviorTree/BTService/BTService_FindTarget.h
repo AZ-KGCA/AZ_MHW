@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -21,6 +21,6 @@ class AZ_MHW_API UBTService_FindTarget : public UBTService
 	virtual void TickNode(UBehaviorTreeComponent& owner_comp, uint8* node_memory, float delta_seconds) override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = Blackboard)
+	UPROPERTY(EditAnywhere, Category = "AZ | Blackboard")
 	struct FBlackboardKeySelector blackboard_key;
 };

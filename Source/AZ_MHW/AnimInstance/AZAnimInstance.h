@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -18,6 +18,6 @@ public:
 	virtual void NativeInitializeAnimation() override;
 
 public:
-	UPROPERTY(BlueprintReadOnly, Category = General)
+	UPROPERTY(BlueprintReadOnly, Category = AZ)
 	TWeakObjectPtr<AAZCharacter> owner_;
 };

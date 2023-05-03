@@ -1,13 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/BehaviorTree/BTDecorator/BTDecorator_IsMovable.h"
-#include "AZ_MHW/BehaviorTree/AZAIDefine.h"
 #include "AZ_MHW/CommonSource/AZEnum.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/Controller/AZAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-
+// -----------------------------
+// CURRENTLY NOT IN USE
+// -----------------------------
 UBTDecorator_IsMovable::UBTDecorator_IsMovable()
 {
 	NodeName = TEXT("IsMovable");

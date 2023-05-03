@@ -1,10 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTDecorator.h"
 #include "BTDecorator_IsInCombat.generated.h"
+
+// -----------------------------
+// CURRENTLY NOT IN USE
+// -----------------------------
 
 class UBlackboardComponent;
 
@@ -27,6 +31,6 @@ public:
 #endif
 
 private:
-	UPROPERTY(EditAnywhere, Category = Blackboard)
+	UPROPERTY(EditAnywhere, Category = "AZ | Blackboard")
 	FBlackboardKeySelector blackboard_key;
 };

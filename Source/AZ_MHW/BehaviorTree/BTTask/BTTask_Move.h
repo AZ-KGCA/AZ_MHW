@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -31,7 +31,7 @@ private:
 	UPROPERTY(VisibleAnywhere) int32 path_index_;
 	UPROPERTY(VisibleAnywhere) TArray<FVector> path_points_;
 
-	class AAZMonster* owner_;
+	TWeakObjectPtr<class AAZMonster> owner_;
 
 private:
 	FAIRequestID move_request_id_;

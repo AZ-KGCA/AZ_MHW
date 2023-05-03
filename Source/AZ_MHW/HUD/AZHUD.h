@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -77,7 +77,7 @@ public:
 
 		if (GetCurSceneNameEnum() == EUIName::AZWidget_InGame)
 		{
-			//FIXME Å¬¸®¾î ·ÎÁ÷ »ðÀÔ
+			//FIXME Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		}
 
 		cur_scene_name_enum = widget_name_enum;
@@ -91,7 +91,7 @@ public:
 			CloseScene(prev_scene_data->widget_name_enum, false, false);
 		}
 
-		// ¿­°íÀÚ ÇÏ´Â Scene¿¡ ½ºÅÃÀÌ Á¸ÀçÇÏ¸é º¹¿ø
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ Sceneï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (cur_scene_data->child_widget_names.Num())
 		{
 			if (is_need_restore == true)
@@ -173,7 +173,7 @@ public:
 				return nullptr;
 			}
 			widget->SetWidgetNameEnum(widget_name_enum);
-			if (is_get_widget == false) // »ý¼ºµÇ¾ú´Ù.
+			if (is_get_widget == false) // ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½.
 			{
 				widget->Init();
 			}

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/AnimInstance/AZAnimInstance_Monster.h"
@@ -7,6 +7,11 @@
 void UAZAnimInstance_Monster::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
+}
+
+void UAZAnimInstance_Monster::NativeUpdateAnimation(float delta_seconds)
+{
+	Super::NativeUpdateAnimation(delta_seconds);
 }
 
 FORCEINLINE AAZMonster* UAZAnimInstance_Monster::CastMonster()

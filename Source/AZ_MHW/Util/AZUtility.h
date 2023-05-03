@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -9,6 +9,7 @@
 #include "AZ_MHW/CommonSource/MagicEnum/magic_enum_switch.hpp"
 #include "AZUtility.generated.h"
 
+#define PRINT_FUNCTION()	UE_LOG(AZMonster, Log, TEXT("Function Called: %s"), __FUNCTIONW__)
 DECLARE_LOG_CATEGORY_EXTERN(LogShipping, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(AZMonster, Log, All);
 
@@ -53,5 +54,5 @@ public:
 		return enum_value;
 	}
 	static float MillisecondsToSeconds(const int32 milliseconds);
-	static float PerTenThousandToPerHundred(const int32 per_ten_thousand);
+	static float PerTenThousandToPerOne(const int32 per_ten_thousand);
 };

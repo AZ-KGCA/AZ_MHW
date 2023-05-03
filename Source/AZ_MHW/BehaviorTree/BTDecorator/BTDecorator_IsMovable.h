@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -6,9 +6,9 @@
 #include "BehaviorTree/BTDecorator.h"
 #include "BTDecorator_IsMovable.generated.h"
 
-/**
- * 
- */
+// -----------------------------
+// CURRENTLY NOT IN USE
+// -----------------------------
 UCLASS()
 class AZ_MHW_API UBTDecorator_IsMovable : public UBTDecorator
 {
@@ -28,6 +28,6 @@ public:
 #endif
 
 private:
-	UPROPERTY(EditAnywhere, Category = Blackboard)
+	UPROPERTY(EditAnywhere, Category = "AZ | Blackboard")
 	FBlackboardKeySelector blackboard_key;
 };

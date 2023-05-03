@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -24,9 +24,10 @@ private:
 	EBTNodeResult::Type SelectCombatAction(AAZMonster* owner, UBlackboardComponent* blackboard);
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Condition | NonCombat") bool is_player_in_range;
+	/* only used in non combat mode*/
+	UPROPERTY(EditAnywhere, Category = "AZ | Condition") bool is_player_in_range;
 	
-	UPROPERTY(EditAnywhere, Category = Blackboard) struct FBlackboardKeySelector key_is_triggered_by_sight;
-	UPROPERTY(EditAnywhere, Category = Blackboard) struct FBlackboardKeySelector key_action_mode;
-	UPROPERTY(EditAnywhere, Category = Blackboard) struct FBlackboardKeySelector key_target_character;
+	UPROPERTY(EditAnywhere, Category = "AZ | Blackboard") struct FBlackboardKeySelector key_is_triggered_by_sight;
+	UPROPERTY(EditAnywhere, Category = "AZ | Blackboard") struct FBlackboardKeySelector key_action_mode;
+	UPROPERTY(EditAnywhere, Category = "AZ | Blackboard") struct FBlackboardKeySelector key_target_character;
 };

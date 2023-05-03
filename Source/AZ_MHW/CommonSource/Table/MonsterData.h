@@ -23,7 +23,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 patrol_delay;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 percept_radius;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString behavior_tree_filename;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString blackboard_data_filename;
 
 public:
 	virtual void Load(TMap<FString, FString>& data) final;

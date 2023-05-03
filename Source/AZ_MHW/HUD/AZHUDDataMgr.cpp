@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/HUD/AZHUDDataMgr.h"
@@ -14,9 +14,9 @@ void UAZHUDDataMgr::Init()
 {
 	widget_datas.Empty();
 
-	// ±âº» °ËÀº ¹ÙÅÁ
+	// ï¿½âº» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	InitWidgetData(EUILayer::Scene, EUIName::None, false, false, TEXT(""));
-	// °ËÁ¤¹ÙÅÁÈ­¸é
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_Login, false, false, TEXT(""));
 	// InOut
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_BlackInOut, true, false, TEXT(""));
@@ -54,17 +54,17 @@ bool UAZHUDDataMgr::RequestWidgetData(EUIName ui_name)
 	EAZWidgetDataRequestState current_state = GetWidgetDataRequestState(ui_name);
 	if (current_state == EAZWidgetDataRequestState::Completed)
 	{
-		//Data°¡ ¼öÁýµÈ »óÅÂ, À§Á¬À» ¿¬´Ù.
+		//Dataï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 		return true;
 	}
 
 	if (current_state == EAZWidgetDataRequestState::Requested)
 	{
-		// Data°¡ ¿äÃ» ÁßÀÎ »óÅÂ, ±â´Ù¸²
+		// Dataï¿½ï¿½ ï¿½ï¿½Ã» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½Ù¸ï¿½
 		return false;
 	}
 
-	// FIXME (¼ÒÄÏ ¿¬µ¿½Ã È®ÀÎÇÏ±â) Data¸¦ ¿äÃ»ÇÑ´Ù.
+	// FIXME (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï±ï¿½) Dataï¿½ï¿½ ï¿½ï¿½Ã»ï¿½Ñ´ï¿½.
 	//if (auto* socketHolder = LHGameInstance->GetSocketHolder(ESocketHolderType::Gate))
 	//{
 	//	switch (uiName)
@@ -127,7 +127,7 @@ UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget)
 	if (widget == nullptr)
 	{
 		UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(widget_full_path);
-		// FIXME È®ÀÎÇÊ¿ä
+		// FIXME È®ï¿½ï¿½ï¿½Ê¿ï¿½
 		widget_ptr = CreateWidget<UAZWidget>(load_class->GetWorld()->GetGameInstance(), load_class);
 		widget = widget_ptr.Get();
 		bGetWidget = false;
@@ -139,7 +139,7 @@ UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget)
 
 	if (widget == nullptr)
 	{
-		//·Î±× Ãß°¡
+		//ï¿½Î±ï¿½ ï¿½ß°ï¿½
 	}
 	return widget;
 }

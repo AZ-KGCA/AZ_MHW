@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -32,7 +32,7 @@ public:
 	virtual void Init(EGameState init_state_id);
 
 	virtual void OnStart();
-	// ¼ø¼ö °¡»óÇÔ¼ö ¸ÅÅ©·Î(¸¶Ä¡ °¡»ó ÇÔ¼ö¸¦ ¼±¾ðÇÑ ÇÔ¼ö¿¡¼­µµ ±¸ÇöÇØ ÁÖ´Â ´À³¦)
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ ï¿½ï¿½Å©ï¿½ï¿½(ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½)
 	virtual void BeginState() PURE_VIRTUAL(UAZGameState::BeginState(),);
 	virtual void EndState() PURE_VIRTUAL(UAZGameState::EndState(), );
 	virtual void Update(float delta_seconds) PURE_VIRTUAL(UAZGameState::Update(),);
@@ -54,9 +54,9 @@ public:
 	bool IsBlockChangeTo(EGameState state_id);
 
 protected:
-	// FIXME (º´ÇÕ½Ã º¯°æ ÇÊ¿ä)
+	// FIXME (ï¿½ï¿½ï¿½Õ½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½)
 	ACharacter* GetPlayer();
-	// FIXME (º´ÇÕ½Ã º¯°æ ÇÊ¿ä)
+	// FIXME (ï¿½ï¿½ï¿½Õ½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½)
 	APlayerController* GetPlayerController();
 	class AAZHUD* GetHUD();
 

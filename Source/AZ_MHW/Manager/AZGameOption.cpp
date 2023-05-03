@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/Manager/AZGameOption.h"
@@ -13,5 +13,5 @@ void UAZGameOption::Init()
 
 void UAZGameOption::InitGameOption()
 {
-	// FIXME (ÃßÈÄ ¿É¼Ç ·Îµå ÀÛ¾÷ ÇÏ±â)
+	// FIXME (ï¿½ï¿½ï¿½ï¿½ ï¿½É¼ï¿½ ï¿½Îµï¿½ ï¿½Û¾ï¿½ ï¿½Ï±ï¿½)
 }

@@ -63,9 +63,4 @@ void UMonsterData::Load(TMap<FString, FString>& data)
 	{
 		behavior_tree_filename = **value_ptr;
 	}
-	value_ptr = data.Find("blackboard_data_filename");
-	if (value_ptr != nullptr)
-	{
-		blackboard_data_filename = **value_ptr;
-	}
 }

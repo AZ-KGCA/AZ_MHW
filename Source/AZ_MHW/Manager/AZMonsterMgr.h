@@ -31,7 +31,6 @@ public:
 
 	// Behavior tree assets getter functions
 	class UBehaviorTree* GetBehaviorTree(FName filename);
-	class UBlackboardData* GetBlackboardData(FName filename);
 	
 private:
 	// Table maps
@@ -40,7 +39,6 @@ private:
 	TMap<int32, TMap<int32, FMonsterNonCombatActionInfo>> monster_noncombat_action_info_map_; 
 	TMap<int32, TMap<int32, FMonsterCombatActionInfo>> monster_combat_action_info_map_;
 
-	// Behavior tree related asset maps
-	TMap<FName, UBehaviorTree*> behavior_tree_map_;
-	TMap<FName, UBlackboardData*> blackboard_data_map_;
+	// Behavior tree asset map
+	UPROPERTY() TMap<FName, UBehaviorTree*> behavior_tree_map_;
 };

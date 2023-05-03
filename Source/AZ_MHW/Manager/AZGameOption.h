@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -20,6 +20,6 @@ public:
 public:
 	void Init();
 
-	// AZHUD_Lancher¿¡¼­ È£Ãâ
+	// AZHUD_Lancherï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½
 	void InitGameOption();
 };

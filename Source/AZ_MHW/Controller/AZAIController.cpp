@@ -6,6 +6,7 @@
 #include <Perception/AIPerceptionStimuliSourceComponent.h>
 #include <Perception/AIPerceptionComponent.h>
 #include "AZ_MHW/Character/Monster/AZMonster.h"
+#include "..\CharacterComponent\AZMonsterAggroComponent.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Util/AZUtility.h"
@@ -16,10 +17,42 @@ AAZAIController::AAZAIController(FObjectInitializer const& object_initializer)
 	SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception Component")));
 }
 
+void AAZAIController::OnPossess(APawn* const pawn)
+{
+	Super::OnPossess(pawn);
+
+	// Cast and save its owner
+	owner_ = Cast<AAZMonster>(GetPawn());
+	if (!owner_.IsValid())
+	{
+		UE_LOG(AZMonster, Error, TEXT("[AZAIController] Non-AZMonster is possessing an AZAIController!"));
+		return;
+	}
+	if (!owner_->IsAValidMonster())
+	{
+		UE_LOG(AZMonster, Error, TEXT("[AZAIController] Possessing AZMonster id is not valid!"));
+		return;
+	}
+	
+	// Retrieve and set properties from the owner
+	SetUpProperties();
+	SetUpBehaviorTree();
+	SetUpPerceptionSystem();
+	
+	if (IsValid(behavior_tree_))
+	{
+		UE_LOG(AZMonster, Log, TEXT("[AZAIController] Behavior tree is not null"));
+		RunBehaviorTree(behavior_tree_);
+	}
+	else
+	{
+		UE_LOG(AZMonster, Warning, TEXT("[AZAIController] Behavior tree is null"));
+	}
+}
+
 void AAZAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	if (behavior_tree_) RunBehaviorTree(behavior_tree_);
 }
 
 void AAZAIController::SetUpPerceptionSystem()
@@ -38,23 +71,6 @@ void AAZAIController::SetUpPerceptionSystem()
 	GetPerceptionComponent()->ConfigureSense(*sight_config_);
 }
 
-void AAZAIController::OnPlayerDetected(AActor* actor, FAIStimulus const stimulus)
-{
-	// Try get owner as monster
-	AAZMonster* monster = Cast<AAZMonster>(GetOwner());
-	if (!monster) return;
-
-	// Do nothing if already in combat
-	if (monster->state_info_.action_mode != EMonsterActionMode::Normal) return;
-
-	if (stimulus.WasSuccessfullySensed())
-	{
-		// Disable sense perception and enter combat mode
-		GetPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
-		monster->EnterCombatMode();
-	}	
-}
-
 ETeamAttitude::Type AAZAIController::GetTeamAttitudeTowards(const AActor& other_actor) const
 {
 	// Check if pawn
@@ -70,12 +86,11 @@ ETeamAttitude::Type AAZAIController::GetTeamAttitudeTowards(const AActor& other_
 	if (!team_agent) return ETeamAttitude::Neutral;
 
 	// Check actor's team id
-	const AAZMonster* monster = Cast<AAZMonster>(GetOwner());
-	if (monster->behavior_type_ == EMonsterBehaviorType::Neutral)
+	if (owner_->behavior_type_ == EMonsterBehaviorType::Neutral)
 	{
 		return ETeamAttitude::Neutral;
 	}
-	else if (monster->behavior_type_ == EMonsterBehaviorType::Friendly)
+	else if (owner_->behavior_type_ == EMonsterBehaviorType::Friendly)
 	{
 		return ETeamAttitude::Friendly;
 	}
@@ -88,63 +103,76 @@ ETeamAttitude::Type AAZAIController::GetTeamAttitudeTowards(const AActor& other_
 
 void AAZAIController::SetUpProperties()
 {
-	// Try get owner as monster
-	const AAZMonster* monster = Cast<AAZMonster>(GetOwner());
-	if (!monster) return;
-
 	// Set up properties
-	sight_configs_ = monster->sight_configs_;
-	patrol_range_ = monster->patrol_range_;
-	patrol_delay_ = monster->patrol_delay_;
-	percept_radius_ = monster->percept_radius_;
+	sight_configs_ = owner_->sight_configs_;
+	patrol_range_ = owner_->patrol_range_;
+	patrol_delay_ = owner_->patrol_delay_;
+	percept_radius_ = owner_->percept_radius_;
 }
 
 void AAZAIController::SetUpBehaviorTree()
 {
-	// Try get owner as monster
-	const AAZMonster* monster = Cast<AAZMonster>(GetOwner());
-	if (!monster) return;
-
 	// Get assets
-	behavior_tree_ = UAZGameSingleton::instance()->monster_mgr->GetBehaviorTree(monster->behavior_tree_filename_);
-	if (!behavior_tree_) return;
-
+	behavior_tree_ = UAZGameSingleton::instance()->monster_mgr->GetBehaviorTree(owner_->behavior_tree_filename_);
+	if (!IsValid(behavior_tree_)) return;
+	
 	// Initialise blackboard
-	behavior_tree_->BlackboardAsset = UAZGameSingleton::instance()->monster_mgr->GetBlackboardData(monster->blackboard_data_filename_);
-	Blackboard->InitializeBlackboard(*behavior_tree_->BlackboardAsset);
+	UBlackboardComponent* blackboard_component = Blackboard;
+	UseBlackboard(behavior_tree_->BlackboardAsset, blackboard_component);
 }
 
-void AAZAIController::OnPossess(APawn* const pawn)
+void AAZAIController::OnPlayerDetected(AActor* actor, FAIStimulus const stimulus) 
 {
-	Super::OnPossess(pawn);
-	SetUpProperties();
-	SetUpBehaviorTree();
-	SetUpPerceptionSystem();
+	// Do nothing if already in combat
+	if (owner_->state_info_.action_mode != EMonsterActionMode::Normal) return;
+
+	if (stimulus.WasSuccessfullySensed())
+	{
+		SetBlackboardValueAsBool(AZBlackboardKey::is_triggered_by_sight, true);
+		owner_->aggro_component_->SetBestTarget(Cast<AAZCharacter>(actor));
+		owner_->EnterCombat();
+	}
 }
 
-void AAZAIController::SetBlackboardValueAsFloat(FName bb_key_name, float bb_key_value)
+void AAZAIController::OnEnterCombat()
+{
+	AAZCharacter* target = owner_->aggro_component_->GetTargetRef();
+	GetPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
+	SetBlackboardValueAsObject(AZBlackboardKey::target_character, target);
+}
+
+void AAZAIController::SetBlackboardValueAsFloat(FName bb_key_name, float bb_value)
 {
 	if (GetBlackboardComponent()->GetKeyID(bb_key_name) == FBlackboard::InvalidKey)
 	{
-		UE_LOG(AZMonster, Error, TEXT("Trying to set value to invalid blackboard key: %s"), *bb_key_name.ToString())
+		UE_LOG(AZMonster, Error, TEXT("Trying to set value to an invalid blackboard key: %s"), *bb_key_name.ToString())
 	}
-	else GetBlackboardComponent()->SetValueAsFloat(bb_key_name, bb_key_value);
+	else GetBlackboardComponent()->SetValueAsFloat(bb_key_name, bb_value);
 }
 
-void AAZAIController::SetBlackboardValueAsBool(FName bb_key_name, bool bb_key_value)
+void AAZAIController::SetBlackboardValueAsBool(FName bb_key_name, bool bb_value)
 {
 	if (GetBlackboardComponent()->GetKeyID(bb_key_name) == FBlackboard::InvalidKey)
 	{
-		UE_LOG(AZMonster, Error, TEXT("Trying to set value to invalid blackboard key: %s"), *bb_key_name.ToString())
+		UE_LOG(AZMonster, Error, TEXT("Trying to set value to an invalid blackboard key: %s"), *bb_key_name.ToString())
 	}
-	else GetBlackboardComponent()->SetValueAsBool(bb_key_name, bb_key_value);
+	else GetBlackboardComponent()->SetValueAsBool(bb_key_name, bb_value);
 }
 
 void AAZAIController::SetBlackboardValueAsEnum(FName bb_key_name, uint8 enum_value)
 {
 	if (GetBlackboardComponent()->GetKeyID(bb_key_name) == FBlackboard::InvalidKey)
 	{
-		UE_LOG(AZMonster, Error, TEXT("Trying to set value to invalid blackboard key: %s"), *bb_key_name.ToString())
+		UE_LOG(AZMonster, Error, TEXT("Trying to set value to an invalid blackboard key: %s"), *bb_key_name.ToString())
 	}
 	else GetBlackboardComponent()->SetValueAsEnum(bb_key_name, enum_value);
+}
+
+void AAZAIController::SetBlackboardValueAsObject(FName bb_key_name, UObject* bb_value)
+{
+	if (GetBlackboardComponent()->GetKeyID(bb_key_name) == FBlackboard::InvalidKey)
+	{
+		UE_LOG(AZMonster, Error, TEXT("Trying to set value to an invalid blackboard key: %s"), *bb_key_name.ToString())
+	}
+	else GetBlackboardComponent()->SetValueAsObject(bb_key_name, bb_value);
 }

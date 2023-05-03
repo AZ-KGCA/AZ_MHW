@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
@@ -46,7 +46,7 @@ void UAZWidget_Waiting::ShowWaitingImage()
 		PlayAnimation(waiting_ani_, 0.0f, 0);
 	}
 
-	//FIXME ±â´Ù¸®´Â ÆÐÅ¶ ±â´É ³Ö±â
+	//FIXME ï¿½ï¿½Ù¸ï¿½ï¿½ï¿½ ï¿½ï¿½Å¶ ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
 	/*
 	for (FString& waiting_protocol_name : AZGameInstance->GetWaitingProtocolNames())
 	{

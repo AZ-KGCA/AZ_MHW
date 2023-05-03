@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/BehaviorTree/BTTask/BTTask_Move.h"
@@ -6,7 +6,6 @@
 #include "Runtime/NavigationSystem/Public/NavigationSystem.h"
 #include "Runtime/NavigationSystem/Public/NavigationPath.h"
 #include "AZ_MHW/Controller/AZAIController.h"
-#include "AZ_MHW/BehaviorTree/AZAIDefine.h"
 #include "AZ_MHW/Character/AZCharacter.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/Util/AZUtility.h"
@@ -85,7 +84,7 @@ EBTNodeResult::Type UBTTask_Move::ExecuteTask(UBehaviorTreeComponent& owner_comp
 	{
 		UNavigationPath* nav_path;
 		UNavigationSystemV1* nav_sys = UNavigationSystemV1::GetCurrent(GetWorld());
-		nav_path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), curr_location, final_dest_, owner_);
+		nav_path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), curr_location, final_dest_, owner_.Get());
 
 		if (!nav_path)
 		{
@@ -185,9 +184,11 @@ EBTNodeResult::Type UBTTask_Move::MoveBegin(UBehaviorTreeComponent& owner_comp)
 
 
 
-//
-//
-//
+//-------------------------------------------------------------------------
+//	CURRENTLY NOT IN USE !!!
+//	MOVEMENT PER FRAME
+//-------------------------------------------------------------------------
+
 //	//owner_ = Cast<AAZMonster>(owner_comp.GetAIOwner()->GetPawn());
 //	//if (!owner_->server_movement_component_->IsMovable())
 //	//{

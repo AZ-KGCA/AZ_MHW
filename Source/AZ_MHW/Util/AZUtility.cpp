@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/Util/AZUtility.h"
@@ -23,7 +23,7 @@ float UAZUtility::MillisecondsToSeconds(const int32 milliseconds)
 	return milliseconds / 1000.0f;
 }
 
-float UAZUtility::PerTenThousandToPerHundred(const int32 per_ten_thousand)
+float UAZUtility::PerTenThousandToPerOne(const int32 per_ten_thousand)
 {
-	return per_ten_thousand / 100.0f;
+	return per_ten_thousand / 10000.0f;
 }

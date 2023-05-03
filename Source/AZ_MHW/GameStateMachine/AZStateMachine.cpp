@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/GameStateMachine/AZStateMachine.h"
@@ -16,7 +16,7 @@ UAZStateMachine::UAZStateMachine()
 
 void UAZStateMachine::OnCreate()
 {
-	// °ÔÀÓ¸ðµå°¡ °¡Áö°í ÀÖÀ½
+	// ï¿½ï¿½ï¿½Ó¸ï¿½å°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	game_mode = CastChecked<AAZGameMode>(GetOuter());
 
 	for (const TPair<EGameState, TSubclassOf<class UAZGameState>>& kvp : state_classes)
@@ -84,7 +84,7 @@ void UAZStateMachine::ClearStates()
 	for (TPair<EGameState, UAZGameState*>& kvp : game_state_map)
 	{
 		kvp.Value->DestroyState();
-		kvp.Value->ConditionalBeginDestroy(); // ÂüÁ¶ Ä«¿îÆ®°¡ 0À¸·Î ¶³¾îÁö±â Àü¿¡ È£ÃâÇØ ¼öµ¿À¸·Î ¸Þ¸ð¸®¿¡¼­ ÇØÁ¦ °¡´É
+		kvp.Value->ConditionalBeginDestroy(); // ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¸ð¸®¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		kvp.Value = nullptr;
 	}
 	game_state_map.Reset();
@@ -212,8 +212,8 @@ void UAZStateMachine::SetStartState(const EGameState state)
 
 void UAZStateMachine::OnGameMsg(FAZGameMsg* game_msg)
 {
-	//FIXME »ó´Ü¿¡¼­ Ã³¸®ÇÒ ¸Þ½ÃÁö Ãß°¡ÇÏ±â
-	//»ó´Ü¿¡¼­ 
+	//FIXME ï¿½ï¿½Ü¿ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ï±ï¿½
+	//ï¿½ï¿½Ü¿ï¿½ï¿½ï¿½ 
 	if (cur_state != nullptr)
 	{
 		cur_state->OnGameMsg(game_msg);

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/HUD/AZHUD_StartGame.h"
@@ -9,11 +9,11 @@ void AAZHUD_StartGame::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// FIXME º´ÇÕ½Ã »èÁ¦
+	// FIXME ï¿½ï¿½ï¿½Õ½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	// CloseUI(EUIName::LHWidget_CheatCommand);
 
 	UAZWidget_Splash* splash = OpenScene<UAZWidget_Splash>(EUIName::AZWidget_Splash);
-	// µÚ·Î°¡±â ¹öÆ° ²ô±â
+	// ï¿½Ú·Î°ï¿½ï¿½ï¿½ ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½
 	splash->SetIsDisableBackBtnExit(false);
 }
 

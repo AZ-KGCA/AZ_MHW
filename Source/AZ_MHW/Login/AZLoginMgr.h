@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -19,17 +19,17 @@ public:
 	enum class ESequence : uint8
 	{
 		GameExit,
-		Splash,						// ½ÃÀÛ ·Î°í.
-		WaitingForAnyKey,			// ¾Æ¹«Å°³ª ´­·¯ÁÖ¼¼¿ä.
-		LoginPageStart,				// LoginPage ½ÃÀÛÁ¡.
-		ConnectLoginServerReady,	// »ç¿ëÀÚ ÀÔ·Â(ID, Password, Touch)¸¦ ±â´Ù¸°´Ù.
-		ConnectLoginServer,			// ·Î±×ÀÎ ¼­¹ö Á¢¼Ó.
-		AuthLoginServer,			// ·Î±×ÀÎ ¼­¹ö ÀÎÁõ.
-		AuthGameServer,				// °ÔÀÓ ¼­¹ö Á¢¼Ó ¹× ÀÎÁõ.
-		PlayerSelectEnter,			// Ä³¸¯ÅÍ ¼±ÅÃÃ¢.(»ý¼ºµÈ ÇÃ·¹ÀÌ¾î ¸®½ºÆ® ¿äÃ»)
-		PlayerSelect,				// ÇÃ·¹ÀÌ¾î ¼±ÅÃ.(»ý¼º, »èÁ¦µµ ÇÒ ¼ö ÀÖÀ½)
-		GameMapLoading,				// °ÔÀÓ¸Ê ·Îµù.
-		GameMapEnter,				// °ÔÀÓ¸Ê ÀÔÀå ¿Ï·á
+		Splash,						// ï¿½ï¿½ï¿½ï¿½ ï¿½Î°ï¿½.
+		WaitingForAnyKey,			// ï¿½Æ¹ï¿½Å°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö¼ï¿½ï¿½ï¿½.
+		LoginPageStart,				// LoginPage ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
+		ConnectLoginServerReady,	// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½(ID, Password, Touch)ï¿½ï¿½ ï¿½ï¿½Ù¸ï¿½ï¿½ï¿½.
+		ConnectLoginServer,			// ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+		AuthLoginServer,			// ï¿½Î±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+		AuthGameServer,				// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+		PlayerSelectEnter,			// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¢.(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½Ã»)
+		PlayerSelect,				// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½.(ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+		GameMapLoading,				// ï¿½ï¿½ï¿½Ó¸ï¿½ ï¿½Îµï¿½.
+		GameMapEnter,				// ï¿½ï¿½ï¿½Ó¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½
 
 
 		None
@@ -39,7 +39,7 @@ private:
 	ESequence sequence_;
 	ESequence login_page_start_sequence_;
 
-	// ¼­¹ö ¼±ÅÃ °ü·Ã
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	int32 recent_server_id_;
 	int32 game_auth_serial_;
 	FString server_ip_[(int32)ESocketHolderType::Max];

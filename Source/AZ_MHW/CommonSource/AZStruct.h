@@ -4,8 +4,9 @@
 
 
 //============================================
-// Structs
-//============================================
+// Monster
+
+
 USTRUCT(BlueprintType)
 struct FBossIdentifier
 {
@@ -43,6 +44,18 @@ struct FBossMonsterStateInfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float hp_ratio;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float stamina_ratio;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float target_angle;
+
+	void Reset()
+	{
+		action_mode = EMonsterActionMode::Normal;
+		priority_score = EMonsterActionPriority::None;
+		move_state = EMoveState::Stop;
+		animation_name = NAME_None;
+		montage_section_name = NAME_None;
+		hp_ratio = 1.0f;
+		stamina_ratio = 1.0f;
+		target_angle = 0.0f;
+	}
 };
 
 struct FMonsterInfo
@@ -59,7 +72,6 @@ struct FMonsterInfo
 	float patrol_delay;
 	int32 percept_radius;
 	FName behavior_tree_filename;
-	FName blackboard_data_filename;
 };
 
 struct FBossInfo
@@ -107,6 +119,8 @@ struct FMonsterCombatActionInfo
 	int32 condition_max_distance_from_target;
 	float cooltime;
 	float cooltime_timer;
+
+	FMonsterCombatActionInfo() {};
 };
 
 USTRUCT(BlueprintType)
@@ -121,6 +135,8 @@ struct FMonsterNonCombatActionInfo
 	EMonsterActionConditionType conditions;
 	float condition_min_health_ratio;		// only checked if condition includes Health
 	float condition_max_health_ratio;
+
+	FMonsterNonCombatActionInfo() {};
 };
 
 USTRUCT(BlueprintType)
@@ -224,3 +240,14 @@ struct FMonsterSightConfigs
 		this->auto_success_range = auto_success_range;
 	}
 };
+
+USTRUCT(BlueprintType)
+struct FBossBodyPartInfo
+{
+	GENERATED_BODY()
+	
+	//TODO move BossWeaknessStats and BossPartBreakStats here when implementing damage by body part
+};
+
+// End of Monster
+//============================================

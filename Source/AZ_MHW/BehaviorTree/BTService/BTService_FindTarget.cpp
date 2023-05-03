@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/BehaviorTree/BTService/BTService_FindTarget.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
-#include "AZ_MHW/CharacterComponent/AZAggroComponent.h"
+#include "..\..\CharacterComponent\AZMonsterAggroComponent.h"
 #include <AIController.h>
 #include <BehaviorTree/BlackboardComponent.h>
 #include <BehaviorTree/Blackboard/BlackboardKeyType_Object.h>

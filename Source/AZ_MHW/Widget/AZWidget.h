@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -23,10 +23,10 @@ class AZ_MHW_API UAZWidget : public UUserWidget
 	DECLARE_DELEGATE_OneParam(FOnWidgetClosed, bool);
 public:
 	//UAZWidget(const class FObjectInitializer& object_Initializer);
-	//¹öÀü º¯°æÀ¸·Î »ý¼ºÀÚ º¯°æ
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UAZWidget(FVTableHelper& helper);
 
-	//  AddToViewport ½Ã È£ÃâµÈ´Ù. NativeOnInitialized ¿Í ´Þ¸®, Viewport ¿¡ Add µÉ ¶§¸¶´Ù ºÒ¸°´Ù!
+	//  AddToViewport ï¿½ï¿½ È£ï¿½ï¿½È´ï¿½. NativeOnInitialized ï¿½ï¿½ ï¿½Þ¸ï¿½, Viewport ï¿½ï¿½ Add ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò¸ï¿½ï¿½ï¿½!
 	virtual void NativeConstruct() override;
 
 	virtual void SetVisiblity(ESlateVisibility in_visiblilty);
@@ -34,36 +34,36 @@ public:
 
 	class AAZGameMode* GetGameMode();
 	class AAZHUD* GetHUD();
-	// FIXME (º´ÇÕ ÈÄ ±¸ÇöÇÏ±â) // ÀÓ½Ã±¸Çö
+	// FIXME (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½) // ï¿½Ó½Ã±ï¿½ï¿½ï¿½
 	APlayerController* GetPlayerController();
 	//class ALHPlayerController* GetPlayerController();
 	//class ALHPlayerController_InGame* GetPlayerController_InGame();
 
-	// FIXME (º´ÇÕ ÈÄ ±¸ÇöÇÏ±â)
+	// FIXME (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½)
 	//class AAZPlayer_Playable* GetPlayer();
 
 	void SetWidgetNameEnum(EUIName name) { ui_name_ = name; }
 	void StopAnimToOrigin(UWidgetAnimation* anim);
 	EUIName GetWidgetNameEnum() { return ui_name_; }
 
-	//AZHUD¿¡¼­ OpenUI·Î À§Á¬ÀÌ »ý¼ºµÉ °æ¿ì ÀÚµ¿ È£Ãâ.
+	//AZHUDï¿½ï¿½ï¿½ï¿½ OpenUIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Úµï¿½ È£ï¿½ï¿½.
 	UFUNCTION(BlueprintCallable, Category = "AZ")
 	virtual void Init();
 
-	// UI°¡ OpenµÉ¶§ ¸¶´Ù
+	// UIï¿½ï¿½ Openï¿½É¶ï¿½ ï¿½ï¿½ï¿½ï¿½
 	virtual void OnOpen(bool immediately = false);
 	virtual void OnExecuteOpen();
 
-	// UI°¡ OpenµÉ¶§¸¶´Ù
+	// UIï¿½ï¿½ Openï¿½É¶ï¿½ï¿½ï¿½ï¿½ï¿½
 	virtual void OnClose(bool immediately = false);
 	virtual void OnExecuteClose();
 
-	// Open¾Ö´Ï¸ÞÀÌ¼Ç ³¡³µÀ»¶§ ºÒ¸²
+	// Openï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò¸ï¿½
 	UFUNCTION()
 	virtual void OnOpenAnimationFinished();
 	virtual void ActivateContentsTutorial();
 
-	// UI°¡ CloseµÉ ¶§¸¶´Ù. CloseScene ÇÒ °æ¿ì, ÆÄ¶ó¹ÌÅÍ¿¡ µû¶ó OnClose°¡ ¾Æ´Ñ ForceHide°¡ È£Ãâ µÊ
+	// UIï¿½ï¿½ Closeï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. CloseScene ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½Ä¶ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ OnCloseï¿½ï¿½ ï¿½Æ´ï¿½ ForceHideï¿½ï¿½ È£ï¿½ï¿½ ï¿½ï¿½
 	UFUNCTION()
 	virtual void OnCloseAnimationFinished();
 	virtual void OnVisibilityClose();
@@ -91,7 +91,7 @@ public:
 	void SetIsDisableBackBtnExit(bool is_disable_back_btn_exit) { is_disable_back_btn_exit_ = is_disable_back_btn_exit; }
 	bool GetIsDisableBackBtnExit() { return is_disable_back_btn_exit_; }
 
-	// AZHUD ¿¡¼­ OpenSceneÀ¸·Î À§Á¬À» ¿­¶§, Scene ½ºÅÃ¿¡¼­ º¹¿øÇÒ °æ¿ì ÀÚµ¿ È£Ãâ, ³ª¸ÓÁö´Â ¼öµ¿ È£Ãâ
+	// AZHUD ï¿½ï¿½ï¿½ï¿½ OpenSceneï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, Scene ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Úµï¿½ È£ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½
 	virtual void Update() {}
 	virtual void Reset() {}
 

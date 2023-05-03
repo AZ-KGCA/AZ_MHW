@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/BehaviorTree/BTTask/BTTask_PatrolBegin.h"
@@ -6,7 +6,6 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 #include "Runtime/NavigationSystem/Public/NavigationSystem.h"
 #include "AZ_MHW/Controller/AZAIController.h"
-#include "AZ_MHW/BehaviorTree/AZAIDefine.h"
 #include "AZ_MHW/CommonSource/AZEnum.h"
 #include <AZ_MHW/Character/Monster/AZMonster.h>
 
@@ -50,7 +49,7 @@ EBTNodeResult::Type UBTTask_PatrolBegin::ExecuteTask(UBehaviorTreeComponent& own
 	}
 
 	owner_comp.GetBlackboardComponent()->SetValueAsVector(AZBlackboardKey::target_location, dest_position);
-	owner_comp.GetBlackboardComponent()->SetValueAsFloat(AZBlackboardKey::wait_time, ai_controller->patrol_delay_);
+	owner_comp.GetBlackboardComponent()->SetValueAsFloat(AZBlackboardKey::patrol_delay, ai_controller->patrol_delay_);
 
 	return EBTNodeResult::Succeeded;
 }

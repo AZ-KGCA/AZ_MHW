@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -79,7 +79,7 @@ enum class EBossRank : uint8
 	Master,
 };
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, Meta = (Experimental))
 enum class EMonsterGoalSearchStyle : uint8
 {
 	Random,
@@ -151,6 +151,39 @@ enum class EMonsterActionConditionType : uint8
 	Health		= 1 << 2,	
 };
 ENUM_CLASS_FLAGS(EMonsterActionConditionType);
+
+UENUM(BlueprintType, Meta = (Experimental))
+enum class ESearchEnemyType : uint8
+{
+	None,
+	Distance,
+	Damage
+};
+
+namespace AZBlackboardKey
+{
+	FName const ai_state("AIState");
+	FName const move_state("MoveState");
+	FName const action_mode("ActionMode");
+	FName const target_character("TargetCharacter");
+	FName const target_location("TargetLocation");
+	FName const patrol_delay("PatrolDelay");
+	FName const action_delay("ActionDelay");
+	FName const is_triggered_by_sight("IsTriggeredBySight");
+}
+
+UENUM(BlueprintType)
+enum class EMonsterBodyPart : uint8
+{
+	RightWing,
+	LeftWing,
+	Back,
+	Body,
+	Head,
+	Tail,
+	Eyelid,	
+	Eyeball,	// not used
+};
 
 // End of Monster
 // -------------------------------------------------

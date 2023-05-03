@@ -39,9 +39,12 @@ bool UAZMonsterMgr::LoadBehaviorTreeAssets()
 	// Load Asset Registry Module
 	const FAssetRegistryModule& asset_registry_module = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 
-	// Retrieve all assets from the ai directory
+	// Retrieve behavior tree assets from the ai directory
 	TArray<FAssetData> assets;
-	asset_registry_module.Get().GetAssetsByPath(TEXT("/Game/Blueprints/Monsters/Common/AI"), assets, false);
+	FARFilter filter;
+	filter.ClassPaths.Add(UBehaviorTree::StaticClass()->GetClassPathName());
+	filter.PackagePaths.Add(TEXT("/Game/AZ_MHW/Monsters/Common/AI"));	
+	asset_registry_module.Get().GetAssets(filter, assets);
 	
 	// Add to map
 	for (const FAssetData& asset_data : assets)
@@ -50,14 +53,9 @@ bool UAZMonsterMgr::LoadBehaviorTreeAssets()
 		FString filename_part, path_part, extension_part;
 		FPaths::Split(asset_data.GetSoftObjectPath().ToString(), path_part, filename_part,extension_part);
 
-		// Distinguish between behavior tree and blackboard data
 		if (auto bt_asset = Cast<UBehaviorTree>(asset_data.GetAsset()))
 		{
 			behavior_tree_map_.Add(FName(filename_part), bt_asset);
-		}
-		else if (auto bd_asset = Cast<UBlackboardData>(asset_data.GetAsset()))
-		{
-			blackboard_data_map_.Add(FName(filename_part), bd_asset);
 		}
 	}
 
@@ -65,7 +63,7 @@ bool UAZMonsterMgr::LoadBehaviorTreeAssets()
 	FModuleManager::Get().UnloadModule("AssetRegistry");
 
 	// Check if assets are loaded successfully
-	if (behavior_tree_map_.IsEmpty() || blackboard_data_map_.IsEmpty()) return false;
+	if (behavior_tree_map_.IsEmpty()) return false;
 	else return true;
 }
 
@@ -89,7 +87,6 @@ bool UAZMonsterMgr::ConvertMonsterTable()
 		monster_info.patrol_delay				= UAZUtility::MillisecondsToSeconds(monster_data->patrol_delay);
 		monster_info.percept_radius				= monster_data->percept_radius;
 		monster_info.behavior_tree_filename		= FName(TEXT("BT_") + monster_data->behavior_tree_filename);
-		monster_info.blackboard_data_filename	= FName(TEXT("BD_") + monster_data->blackboard_data_filename);
 
 		monster_info_map_.Add(monster_info.monster_id, monster_info);
 	}
@@ -123,12 +120,12 @@ bool UAZMonsterMgr::ConvertBossTable()
 		boss_info.sever_damage_tail 				= boss_data->sever_damage_tail;
 		boss_info.rage_required_damage				= boss_data->rage_required_damage;
 		boss_info.rage_duration						= UAZUtility::MillisecondsToSeconds(boss_data->rage_duration);
-		boss_info.rage_outgoing_damage_multiplier	= UAZUtility::PerTenThousandToPerHundred(boss_data->rage_outgoing_damage_multiplier);
-		boss_info.rage_incoming_damage_multiplier	= UAZUtility::PerTenThousandToPerHundred(boss_data->rage_incoming_damage_multiplier);
-		boss_info.tenderised_damage_multiplier		= UAZUtility::PerTenThousandToPerHundred(boss_data->tenderised_damage_multiplier);
+		boss_info.rage_outgoing_damage_multiplier	= UAZUtility::PerTenThousandToPerOne(boss_data->rage_outgoing_damage_multiplier);
+		boss_info.rage_incoming_damage_multiplier	= UAZUtility::PerTenThousandToPerOne(boss_data->rage_incoming_damage_multiplier);
+		boss_info.tenderised_damage_multiplier		= UAZUtility::PerTenThousandToPerOne(boss_data->tenderised_damage_multiplier);
 		for (const int32 escape_health_ratio : boss_data->escape_health_ratios)
 		{
-			boss_info.escape_health_ratios.Add(UAZUtility::PerTenThousandToPerHundred(escape_health_ratio));
+			boss_info.escape_health_ratios.Add(UAZUtility::PerTenThousandToPerOne(escape_health_ratio));
 		}
 
 		boss_info_map_.Add(MakeTuple(boss_info.monster_id, boss_info.rank), boss_info);
@@ -149,11 +146,11 @@ bool UAZMonsterMgr::ConvertMonsterNonCombatActionTable()
 		noncombat_action_info.animation_name				= FName(noncombat_action_data->animation_name);
 		noncombat_action_info.montage_section_name			= FName(noncombat_action_data->montage_section_name);
 		noncombat_action_info.conditions					= UAZUtility::StringArrToBitMaskEnum<EMonsterActionConditionType>(noncombat_action_data->conditions);
-		noncombat_action_info.condition_min_health_ratio	= UAZUtility::PerTenThousandToPerHundred(noncombat_action_data->condition_min_health_ratio);
-		noncombat_action_info.condition_max_health_ratio	= UAZUtility::PerTenThousandToPerHundred(noncombat_action_data->condition_max_health_ratio);
+		noncombat_action_info.condition_min_health_ratio	= UAZUtility::PerTenThousandToPerOne(noncombat_action_data->condition_min_health_ratio);
+		noncombat_action_info.condition_max_health_ratio	= UAZUtility::PerTenThousandToPerOne(noncombat_action_data->condition_max_health_ratio);
 
-		auto action_map_for_this_monster = monster_noncombat_action_info_map_.FindOrAdd(noncombat_action_info.monster_id);
-		action_map_for_this_monster.Add(noncombat_action_info.action_id, noncombat_action_info);
+		monster_noncombat_action_info_map_.FindOrAdd(noncombat_action_info.monster_id).Add(
+			noncombat_action_info.action_id, noncombat_action_info);
 	}
 	return true;
 }
@@ -176,8 +173,8 @@ bool UAZMonsterMgr::ConvertMonsterCombatActionTable()
 		combat_action_info.condition_min_distance_from_target	= combat_action_data->condition_min_distance_from_target;
 		combat_action_info.condition_max_distance_from_target	= combat_action_data->condition_max_distance_from_target;
 
-		auto action_map_for_this_monster = monster_combat_action_info_map_.FindOrAdd(combat_action_info.monster_id);
-		action_map_for_this_monster.Add(combat_action_info.action_id, combat_action_info);
+		monster_combat_action_info_map_.FindOrAdd(combat_action_info.monster_id).Add(
+			combat_action_info.action_id, combat_action_info);
 	}
 	return true;
 }
@@ -204,10 +201,9 @@ TMap<int32, FMonsterCombatActionInfo>* UAZMonsterMgr::GetMonsterCombatActionInfo
 
 UBehaviorTree* UAZMonsterMgr::GetBehaviorTree(FName filename)
 {
-	return *behavior_tree_map_.Find(filename);
-}
-
-UBlackboardData* UAZMonsterMgr::GetBlackboardData(FName filename)
-{
-	return *blackboard_data_map_.Find(filename);
+	if (const auto behavior_tree = behavior_tree_map_.Find(filename))
+	{
+		return *behavior_tree;
+	}
+	else return nullptr;
 }
