@@ -2,7 +2,6 @@
 
 
 #include "AnimInstance/AZAnimInstance_Player.h"
-
 #include "GameInstance/AZGameInstance.h"
 #include "Manager/AZPlayerAssetMgr.h"
 
@@ -21,7 +20,7 @@ void UAZAnimInstance_Player::NativeInitializeAnimation()
 void UAZAnimInstance_Player::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
-
+	//TryGetPawnOwner()->GetPlayerState()
 }
 
 void UAZAnimInstance_Player::SetMontage(FName MontageName)

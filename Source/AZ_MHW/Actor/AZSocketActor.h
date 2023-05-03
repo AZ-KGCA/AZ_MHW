@@ -22,7 +22,12 @@ protected:
 public:
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* SocketObject;
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* SocketParentActor;
+	
+	FName CurrentSocketName;
 
+	void SetSocketComponent(FName SocketName, USceneComponent* Parent = nullptr);
 	//아이템로드
 	//아이템언로드
 	//소켓옮기기

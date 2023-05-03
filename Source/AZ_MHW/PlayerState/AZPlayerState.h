@@ -57,6 +57,7 @@ struct FAZPlayerActionState
 	uint32 bEvade:1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bUseItem:1;
+	
 	FAZPlayerActionState()
 	{
 		//bitfield = Initializer 선언초기화 문법은 C++20에서가능
@@ -74,11 +75,11 @@ struct FAZPlayerActionState
 		bUniqueWeaponAction = false;//Ctrl
 		
 		bDashHold = false;//Shift
-		
+		//bDashOnce = false;//게임에 없던데
 		bEvade = false;//Space
 		bUseItem = false;//E
 
-		//bDashOnce = false;//게임에 없던데
+		
 	}
 };
 /** 플레이어 캐릭터의 상태<-플레이어 캐릭터가 갱신
@@ -105,8 +106,9 @@ struct FAZPlayerCharacterState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 CurrentSharpness;//예리도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 ActionSpeed;//스피드 10000배 (Cast<float>)
-
+	int32 SpeedRate;//스피드 10000배 (Cast<float>)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int32 CriticalRate;//회심율? 치명타인가 10000배 (Cast<float>)
 	//방어도?
 	//저항력?
 	//회피도
@@ -151,8 +153,9 @@ struct FAZPlayerCharacterState
 		CurrentStamina = 100;
 		MaxSharpness = 100;
 		CurrentSharpness = 50;
-		
-		ActionSpeed = 15000;//10000배
+
+		CriticalRate = 0;//10000배
+		SpeedRate = 15000;//10000배
 
 		bHit = false;
 		bGround = true;
@@ -172,9 +175,10 @@ struct FAZPlayerEquipmentState
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 FaceItemID;
-	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//int32 FaceItemID;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int32 Gender;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 HairItemID;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -189,11 +193,11 @@ struct FAZPlayerEquipmentState
 	int32 LegItemID;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 WeaponTypeID;
+	int32 WeaponTypeID;//비트마스크, 몽타주 등이 달라진다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 WeaponItemID;
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//int32 SecondWeaponItemID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 SecondWeaponItemID;
 	
 	//슬롯에 낀 소비아이템품목
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -203,19 +207,20 @@ struct FAZPlayerEquipmentState
 	
 	FAZPlayerEquipmentState()
 	{
-		FaceItemID = 0;//0~100;
-		HairItemID = 121;//100~130
-		HeadItemID = 500;//1~XXX, 500
-		BodyItemID = 500;//501
-		WaistItemID = 500;
-		ArmItemID = 500;
-		LegItemID = 500;
+		//FaceItemID = 0;;
+		Gender = -1;//-1 F, 1 M
+		HairItemID = 12521;
+		BodyItemID = 10500;
+		LegItemID = 11000;
+		ArmItemID = 11500;
+		WaistItemID = 12000;
+		HeadItemID = 12500;
 		
 		WeaponTypeID = 0;//0~13 무기종류
-		WeaponItemID = 0;//무기아이디
-		//SecondWeaponItemID = 0;//무기아이디
+		WeaponItemID = 1001;//무기아이디
+		SecondWeaponItemID = 0;//무기아이디
 		
-		AmmoItemID = 0;
+		AmmoItemID = 201;
 		ConsumeItemID = 101;
 	}
 };

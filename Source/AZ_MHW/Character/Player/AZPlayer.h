@@ -13,6 +13,7 @@
 
 #pragma endregion 
 #pragma region ForwardDeclaration
+class AAZSocketActor;
 #pragma endregion
 #pragma region Enum
 
@@ -47,13 +48,13 @@ protected:
 	virtual  void BeginDestroy() override;
 #pragma endregion
 public:
-	//모든 플레이어 캐릭터가 가지는 게임요소들
+	//모든 플레이어 캐릭터(폰)가 가지는 게임요소들
 	//UCapsuleComponent//SceneComponent(Physics)
 	//UCharacterMovement//MovementComponent
-	//SkeletalMeshComponent* //Animation BaseBone
+	//SkeletalMeshComponent//Animation BaseBone
 
-	//UPROPERTY() TMap<FName, USkeletalMeshComponent*> Parts;
-	//Parts
+	//UPROPERTY()
+	//TMap<FName, USkeletalMeshComponent*> Parts;
 	UPROPERTY() USkeletalMeshComponent* Head;
 	UPROPERTY() USkeletalMeshComponent* Hair;
 	UPROPERTY() USkeletalMeshComponent* Face;
@@ -61,20 +62,20 @@ public:
 	UPROPERTY() USkeletalMeshComponent* Arm;
 	UPROPERTY() USkeletalMeshComponent* Waist;
 	UPROPERTY() USkeletalMeshComponent* Leg;
-	
-	
 
-	UFUNCTION() void UpdateSKMeshParts();
+	UPROPERTY() AAZSocketActor* FirstSocket;
+	UPROPERTY() AAZSocketActor* SecondSocket;
 	
-	/** bForceUpdate이미 붙어 있는 컴포넌트도 또 호출할 것인가 */
-	UFUNCTION() void SetCombineSKMeshParts(bool bForceUpdate);
+	/** playerState의 CharacterEquipState 변경후 호출하여 갱신*/
+	UFUNCTION() void SetSKMeshParts();
+	/** bForceUpdate: 이미 붙어 있는 컴포넌트도 또 호출할 것인가 */
+	UFUNCTION() void CombineSKMeshParts(bool bForceUpdate);
+	/** playerState의 CharacterEquipState 변경후 호출하여 갱신*/
+	UFUNCTION() void SetSKMeshSocket();
 	
-	//임시
+	//Cache
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UAnimInstance> BodyAnimInstanceClass;
-	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UAnimInstance> FaceAnimInstanceClass;
-
-	
 };

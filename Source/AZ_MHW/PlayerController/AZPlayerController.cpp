@@ -4,8 +4,6 @@
 #include "AZPlayerController.h"
 #include "GameInstance/AZGameInstance.h"
 #include "Manager/AZInputMgr.h"//AZGameInstance.h
-#include <EnhancedInputComponent.h>
-#include <EnhancedInputSubsystems.h>
 
 
 AAZPlayerController::AAZPlayerController()

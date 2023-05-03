@@ -8,6 +8,7 @@
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZTableMgr.generated.h"
 
+
 #define GetTableByIndex(TableType, index) GetGameSingleton()->table_mgr->GetData<TableType>(index)
 #define GetTable(TableType) GetGameSingleton()->table_mgr->GetData<TableType>();
 
@@ -19,7 +20,7 @@ class AZ_MHW_API UAZTableMgr : public UObject
 	GENERATED_BODY()
 	
 private:
-	UPROPERTY() TArray<const UObject*> map_array_;
+	UPROPERTY() TSet<const UObject*> map_set_;//보관용, 삭제용이
 	TMap<uint32, TMap<int32, const UObject*>> map_table_;
 
 public:
@@ -70,9 +71,11 @@ public:
 				continue;
 			}
 
+			int32 offset = 0;
 			for (const int32 index : except_index)
 			{
-				cols.RemoveAt(index);
+				cols.RemoveAt(index-offset);
+				++offset;
 			}
 
 			TMap<FString, FString> col_values;
@@ -89,16 +92,39 @@ public:
 			{
 				return false;
 			}
-<<<<<<< HEAD
-=======
-			map_array_.Add(table);
->>>>>>> origin/main
+			map_set_.Add(table);
 			data_container.Add(key, table);
 		}
 		
 		map_table_.Add(hash_code, data_container);
 		return true;
 	}
+
+	//스크립트(대사 등) 테이블같은거 로드후 다사용하고 언로드 용도
+	template<class Table>
+	bool _UnLoad()
+	{
+		uint32 hash_code = typeid(Table).hash_code();
+		if (map_table_.Contains(hash_code) == false)
+		{
+			return false;
+		}
+		
+		const auto table = map_table_.Find(hash_code);
+		for(auto& tablePair : *table)
+		{
+			//UPROPERTY Pointer 전부 해제
+			map_set_.Remove(tablePair.Value);
+			//포인터자체를 nullptr로 교체해야하는가?
+			tablePair.Value = nullptr;
+		}
+		//해당 테이블 전체 비우기
+		table->Empty();
+		//테이블 맵에서 제거
+		map_table_.Remove(hash_code);
+		return true;
+	}
+	
 	template<class Table>
 	TArray<const Table*> GetData(TFunctionRef<bool (const Table*)> Match)
 	{
@@ -145,7 +171,7 @@ public:
 		{
 			return result;
 		}
-		auto tables = map_table_.Find(hash_cod);
+		auto tables = map_table_.Find(hash_code);
 		for (auto& table : *tables)
 		{
 			result.Add(Cast<Table>(table.Value));
@@ -154,5 +180,4 @@ public:
 	}
 	void LoadAll();
 	void LoadComplete();
-
 };

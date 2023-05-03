@@ -74,12 +74,13 @@ public://
 	int32 CurrentBParam_Y;//Permyriad
 
 	//종료조건(키, 트리거),지연 액션(현재 액션이 종료),강제 액션
-	void SetMontage(FName MontageName);
-	void SetNextMontage(FName MontageName);
+	
+	void SetSequence(FName SequenceName = NAME_None);//
+	void SetBlendSpace(FName BlendSpaceName = NAME_None);//
+	void SetMontage(FName MontageName = NAME_None);
+	void SetNextMontage(FName MontageName = NAME_None);
 	void SetSection(FName SectionName = TEXT("Default"));
 	void SetNextSection(FName SectionName = TEXT("Default"));
-	void SetBlendSpace(FName BlendSpaceName);//
-	void SetSequence(FName SequenceName);//
 	void SetPlayRate(float PlayRate = 1.5f);
 
 

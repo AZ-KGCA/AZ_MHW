@@ -100,16 +100,17 @@ void AAZPlayerController_InGame::SetupInputComponent()
 
 void AAZPlayerController_InGame::ActionInputDirection()
 {
-	//키입력
+	//키입력방향
 	const int MovementX = (static_cast<int>(PlayablePlayerState->ActionState.bMoveBack) - static_cast<int>(PlayablePlayerState->ActionState.bMoveForward));
 	const int MovementY = (static_cast<int>(PlayablePlayerState->ActionState.bMoveLeft) - static_cast<int>(PlayablePlayerState->ActionState.bMoveRight));
-	//키입력방향
 	const FVector2D MovementVector(MovementX, MovementY);
+
 	//현재 카메라방향
 	const FRotator Rotation = GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	
 	//카메라 방향에 대한 입력방향(플레이어가 인지하는 방향)
 	const FVector MovementDirection = (RightDirection * MovementVector.Y + ForwardDirection * MovementVector.X).GetSafeNormal();
 	PlayablePlayerState->ActionState.InputDirection = -MovementDirection;
@@ -215,6 +216,14 @@ void AAZPlayerController_InGame::ActionUseItem_Start()
 void AAZPlayerController_InGame::ActionUseItem_End()
 {
 	PlayablePlayerState->ActionState.bUseItem = false;
+}
+
+void AAZPlayerController_InGame::ActionInteract_Start()
+{
+}
+
+void AAZPlayerController_InGame::ActionInteract_End()
+{
 }
 
 void AAZPlayerController_InGame::ActionDashOnce_Start()

@@ -100,22 +100,30 @@ public:
 	void ActionUniqueAction_End();	//Ctrl	(Guard or DrawWeapon)
 	void ActionNormalAttack_Start();//MLB	(+DrawnWeapon)
 	void ActionNormalAttack_End();	//MLB	(+DrawnWeapon)
-	void ActionSpecialAttack_Start();//MRB	(Interact, Speak, Gather, Carve)
-	void ActionSpecialAttack_End();	//MRB	(Interact, Speak, Gather, Carve)
+	void ActionSpecialAttack_Start();//MRB	(+DrawnWeapon)
+	void ActionSpecialAttack_End();	//MRB	(+DrawnWeapon)
 	void ActionDodge_Start();		//Space (Crouch)
 	void ActionDodge_End();			//Space (Crouch)
+	
 	void ActionDashOnce_Start();	//B		(+SheatheWeapon)//이거 게임에서 안되던데..
 	void ActionDashOnce_End();		//B		(+SheatheWeapon)
 	void ActionDashHold_Start();	//Shift (+SheatheWeapon)
 	void ActionDashHold_End();		//Shift (+SheatheWeapon)
 	void ActionUseItem_Start();		//E		(+SheatheWeapon)
 	void ActionUseItem_End();		//E		(+SheatheWeapon)
+
+	void ActionInteract_Start();	//F		(Interact, Speak, Gather, Carve)
+	void ActionInteract_End();		//F		(Interact, Speak, Gather, Carve)
 	
 #pragma region 추후구현_밀리추가+원거리전체
 	/*
 	//나중에 구현하기
 	void ActionFocusCamera();		//F, N	(SelectTarget)
 	void ActionWildlifeMap();		//M
+	void DisplaySlingerAimingReticle_PO();//C (Press Once)
+	void DisplaySlingerAimingReticle_H();//V (Hold)
+	void UseSlinger();				//MLB	(While Reticle Is Display)
+
 	void ActionDisplayChat();		//Insert
 	void ActionHideChat();			//Insert,ESC
 	void ActionOpenMenu();			//ESC
@@ -128,9 +136,6 @@ public:
 	void BrowseItemRight();			//MWD
 	void BrowseAmmo_CoatingUp();	//ArrowUp
 	void BrowseAmmo_CoatingDown();	//ArrowDown
-	void DisplaySlingerAimingReticle_PO();//C (Press Once)
-	void DisplaySlingerAimingReticle_H();//V (Hold)
-	void UseSlinger();				//MLB	(While Reticle Is Display)
 	*/
 	//RangeContext
 	/*

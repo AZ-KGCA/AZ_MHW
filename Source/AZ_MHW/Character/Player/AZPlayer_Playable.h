@@ -70,6 +70,11 @@ public:
 	void ActionLook(const FInputActionValue& Value);
 
 	//환경 감지하기?
+	//피격당함
+	//지면없음
+	//액션중
+	//인터렉션가능
+	//벽타기가능 등
 	//박스 이용? 어떻게해
 	
 };

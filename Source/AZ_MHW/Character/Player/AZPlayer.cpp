@@ -8,8 +8,11 @@
 //#include <Components/CapsuleComponent.h>
 #include <Components/SkeletalMeshComponent.h>
 
+//#include "GameSingleton/AZGameSingleton.h"
+//#include "Manager/AZTableMgr.h"
+#include "GameInstance/AZGameInstance.h"
+#include "Manager/AZPlayerAssetMgr.h"
 #include "AZPlayer_Playable.h"
-#include "Engine/SkeletalMeshSocket.h"
 
 
 AAZPlayer::AAZPlayer()
@@ -50,19 +53,10 @@ AAZPlayer::AAZPlayer()
 	Leg = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Leg"));
 	Leg->SetupAttachment(GetMesh());
 
-
+	//Base Female Face
+	Face->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FFace/SK_FFace"), nullptr, LOAD_None, nullptr));
 
 	
-	//TODO: BeginPlay에서 로드할 것(현재는 임시)
-	//TODO: 임시 테이블 연동필요(현재는 기본 파츠로 생성)
-	//Head->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/LHSCharacter/Mesh/FHelmet/SK_FHelmet_500"), NULL, LOAD_None, NULL));//헤어와 헬멧 구분
-	Hair->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FHair/SK_FHair_121"), nullptr, LOAD_None, nullptr));
-	//Face->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FFace/SK_FFace"), nullptr, LOAD_None, nullptr));
-	Body->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FBody/SK_FBody_500"), nullptr, LOAD_None, nullptr));
-	Arm->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FArm/SK_FArm_500"), nullptr, LOAD_None, nullptr));
-	Leg->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FLeg/SK_FLeg_500"), nullptr, LOAD_None, nullptr));
-	Waist->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FWaist/SK_FWaist_500"), nullptr, LOAD_None, nullptr));
-	SetCombineSKMeshParts(true);
 }
 
 void AAZPlayer::PostInitProperties()
@@ -75,10 +69,19 @@ void AAZPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	PRINT_FUNCTION();
-	const auto SocketItem = GetWorld()->SpawnActor<AAZSocketActor>(FVector::ZeroVector,FRotator::ZeroRotator);
-	if(SocketItem != nullptr) SocketItem->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("Socket_Back"));
-	SocketItem->SocketObject->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/WP00/SK_WP00_302"), nullptr, LOAD_None, nullptr));
-	//Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform,TEXT("Socket_Back"));
+	
+	FirstSocket = GetWorld()->SpawnActor<AAZSocketActor>(FVector::ZeroVector, FRotator::ZeroRotator);
+	if(FirstSocket != nullptr)
+	{
+		FirstSocket->SetSocketComponent(TEXT("Socket_Back"),GetMesh());
+	}
+	SecondSocket = GetWorld()->SpawnActor<AAZSocketActor>(FVector::ZeroVector, FRotator::ZeroRotator);
+	if(SecondSocket != nullptr)
+	{
+		SecondSocket->SetSocketComponent(TEXT("Socket_Back"),GetMesh());
+	}
+	SetSKMeshParts();
+	SetSKMeshSocket();
 }
 
 void AAZPlayer::PossessedBy(AController* NewController)
@@ -93,40 +96,84 @@ void AAZPlayer::BeginDestroy()
 	
 }
 
-void AAZPlayer::UpdateSKMeshParts()
+void AAZPlayer::CombineSKMeshParts(bool bForceUpdate)
 {
-	if(auto AZPlayerState = Cast<AAZPlayerState>(GetPlayerState()))
-	{
-		//AZPlayerState->EquipmentState.BodyItemID
-	}
-	//경로만들어서 가져오나
-	//TODO: 데이터테이블로 처리하기(현재는 기본 파츠로)
-	//Head->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(NULL, TEXT("/Game/LHSCharacter/Mesh/FHead/SK_FHead_???"), NULL, LOAD_None, NULL));//헤어와 헬멧 구분
-	
-	//Hair->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FHair/SK_FHair_121"), nullptr, LOAD_None, nullptr));
-	//Face->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FFace/SK_FFace"), nullptr, LOAD_None, nullptr));
-	//Body->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FBody/SK_FBody_500"), nullptr, LOAD_None, nullptr));
-	//Arm->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FArm/SK_FArm_500"), nullptr, LOAD_None, nullptr));
-	//Leg->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FLeg/SK_FLeg_500"), nullptr, LOAD_None, nullptr));
-	//Waist->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FWaist/SK_FWaist_500"), nullptr, LOAD_None, nullptr));
-	
-	//TODO: 무기 소켓에 붙혀서 사용해보기
-	//
-	
-	SetCombineSKMeshParts(true);
-}
-
-void AAZPlayer::SetCombineSKMeshParts(bool bForceUpdate)
-{
-	if(Head) Head->SetLeaderPoseComponent(GetMesh(),bForceUpdate);
 	if(Hair) Hair->SetLeaderPoseComponent(GetMesh(),bForceUpdate);
-	
 	if(Face) Face->SetLeaderPoseComponent(GetMesh(),bForceUpdate);
+	
+	if(Head) Head->SetLeaderPoseComponent(GetMesh(),bForceUpdate);
 	
 	if(Body) Body->SetLeaderPoseComponent(GetMesh(),bForceUpdate);
 	if(Arm) Arm->SetLeaderPoseComponent(GetMesh(),bForceUpdate);
 	if(Leg) Leg->SetLeaderPoseComponent(GetMesh(),bForceUpdate);
 	if(Waist) Waist->SetLeaderPoseComponent(GetMesh(),bForceUpdate);
+}
+
+void AAZPlayer::SetSKMeshParts()
+{
+	if(auto AZPlayerState = Cast<AAZPlayerState>(GetPlayerState()))
+	{
+		if(AZPlayerState->EquipmentState.HeadItemID == 12500)
+		{
+			if(auto SK = AZGameInstance->playerAsset_mgr->GetSkeletalMesh(AZPlayerState->EquipmentState.HairItemID))
+			{
+				Hair->SetSkeletalMeshAsset(SK);
+			}
+		}
+		else
+		{
+			if(auto SK = AZGameInstance->playerAsset_mgr->GetSkeletalMesh(AZPlayerState->EquipmentState.HeadItemID))
+			{
+				Head->SetSkeletalMeshAsset(SK);
+			}
+		}
+		if(auto SK = AZGameInstance->playerAsset_mgr->GetSkeletalMesh(AZPlayerState->EquipmentState.BodyItemID))
+		{
+			Body->SetSkeletalMeshAsset(SK);
+		}
+		if(auto SK = AZGameInstance->playerAsset_mgr->GetSkeletalMesh(AZPlayerState->EquipmentState.ArmItemID))
+		{
+			Arm->SetSkeletalMeshAsset(SK);
+		}
+		if(auto SK = AZGameInstance->playerAsset_mgr->GetSkeletalMesh(AZPlayerState->EquipmentState.LegItemID))
+		{
+			Leg->SetSkeletalMeshAsset(SK);
+		}
+		if(auto SK = AZGameInstance->playerAsset_mgr->GetSkeletalMesh(AZPlayerState->EquipmentState.WaistItemID))
+		{
+			Waist->SetSkeletalMeshAsset(SK);
+		}
+
+		CombineSKMeshParts(true);
+	}
+}
+
+void AAZPlayer::SetSKMeshSocket()
+{
+	if(const auto AZPlayerState = Cast<AAZPlayerState>(GetPlayerState()))
+	{
+		if(const auto SK = AZGameInstance->playerAsset_mgr->GetSkeletalMesh(AZPlayerState->EquipmentState.WeaponItemID))
+		{
+			FirstSocket->SocketObject->SetSkeletalMeshAsset(SK);
+			FirstSocket->SetSocketComponent(FirstSocket->CurrentSocketName,GetMesh());
+		}
+		else
+		{
+			FirstSocket->SocketObject = nullptr;
+		}
+		///
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		///
+		if(const auto SK = AZGameInstance->playerAsset_mgr->GetSkeletalMesh(AZPlayerState->EquipmentState.SecondWeaponItemID))
+		{
+			SecondSocket->SocketObject->SetSkeletalMeshAsset(SK);
+			SecondSocket->SetSocketComponent(SecondSocket->CurrentSocketName,GetMesh());
+		}
+		else
+		{
+			SecondSocket->SocketObject = nullptr;
+		}
+	}
 }
 
 
