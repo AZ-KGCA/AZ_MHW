@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "AZ_MHW/GameInstance/AZGameInstanceData.h"
 #include "AZGameInstance.generated.h"
 
 /**
@@ -22,6 +23,8 @@ public:
 	UPROPERTY() class UAZHUDDataMgr* hud_data_mgr;
 	UPROPERTY() class UAZGameOption* game_option;
 
+	UPROPERTY() FMapChannelInfo map_channel_info;
+
 public:
 	UAZGameInstance();
 	virtual ~UAZGameInstance();
@@ -33,6 +36,9 @@ public:
 	void LobbyEnterAck();
 	void PlayerSelectAck();
 
+	void CreateSocketHolder();
+	void DestroySocketHolder();
+	void InitSocketOnMapLoad();
 
 	UFUNCTION(BlueprintCallable, Category = "AZ") 
 	class AAZHUD* GetHUD();

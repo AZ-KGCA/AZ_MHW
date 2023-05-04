@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "AZ_MHW/CommonSource/AZEnum.h"
+#include "AZ_MHW/CommonSource/Define/LoginStruct.h"
 #include "Tickable.h"
 #include "AZLoginMgr.generated.h"
 
@@ -60,4 +61,6 @@ public:
 	ESequence GetSequence() { return sequence_; }
 	ESequence GetLoginPageStartSequence() { return login_page_start_sequence_; }
 	int32 GetGameAuthSerial() { return game_auth_serial_; }
+
+	void OnForceKicked(EForceKick forcekick);
 };

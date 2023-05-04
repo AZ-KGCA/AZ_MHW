@@ -8,7 +8,44 @@ public class AZ_MHW : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "Sockets", "Networking", "AIModule", "NavigationSystem", "SlateCore", "Slate" });
+		PublicDependencyModuleNames.AddRange(
+			new string[] 
+			{ 
+				"Core", 
+				"CoreUObject", 
+				"Engine", 
+				"InputCore",
+                "HeadMountedDisplay",
+                "HTTP",
+                "UMG", 
+				"Sockets",
+                "MoviePlayer",
+                "Networking", 
+				"AIModule", 
+				"NavigationSystem", 
+				"SlateCore", 
+				"Slate" ,
+                "RenderCore",
+                "Projects",
+                "GameplayTasks",
+
+                "MovieScene",
+                "LevelSequence",
+                "ActorSequence",
+                "Paper2D",
+                "CinematicCamera",
+                "MovieSceneTracks",
+                "MediaAssets",
+
+                "BuildPatchServices",
+                "OnlineSubsystem",
+                "Json",
+                "JsonUtilities",
+                "PakFile",
+                "Landscape",
+
+                "WebBrowserWidget",
+            });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

@@ -32,6 +32,8 @@ UAZGameInstance::~UAZGameInstance()
 
 void UAZGameInstance::Init()
 {
+	Super::Init();
+
 	UAZGameSingleton::instance();
 
 	msg_handler = NewObject<UAZMsgHandler>(this);
@@ -61,6 +63,8 @@ void UAZGameInstance::Init()
 
 void UAZGameInstance::Shutdown()
 {
+	Super::Shutdown();
+
 	SendLogoutCmd();
 
 	mgrs.Reset();
@@ -100,6 +104,21 @@ void UAZGameInstance::PlayerSelectAck()
 		mgr->PlayerSelectAck();
 	}
 	AZ_LOG("PlayerSelectAck");
+}
+
+void UAZGameInstance::CreateSocketHolder()
+{
+	// FIXME 병합시 소켓생성
+}
+
+void UAZGameInstance::DestroySocketHolder()
+{
+	// FIXME 병합시 소켓삭제
+}
+
+void UAZGameInstance::InitSocketOnMapLoad()
+{
+	// FIXME 병합시 소켓초기화
 }
 
 AAZHUD* UAZGameInstance::GetHUD()

@@ -14,12 +14,16 @@ void UAZHUDDataMgr::Init()
 {
 	widget_datas.Empty();
 
+	// 런처
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Scene_Launcher, false, false, TEXT("/Game/Widget/BP_Widget_Launcher.BP_Widget_Launcher_C"));
+
 	// 기본 검은 바탕
 	InitWidgetData(EUILayer::Scene, EUIName::None, false, false, TEXT(""));
 	// 검정바탕화면
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_Login, false, false, TEXT(""));
 	// InOut
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_BlackInOut, true, false, TEXT(""));
+
 
 	widget_data_request_states.Empty();
 }
@@ -128,7 +132,7 @@ UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget)
 	{
 		UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(widget_full_path);
 		// FIXME 확인필요
-		widget_ptr = CreateWidget<UAZWidget>(load_class->GetWorld()->GetGameInstance(), load_class);
+		widget_ptr = CreateWidget<UAZWidget, UAZGameInstance*>(AZGameInstance.GetReference(), load_class);
 		widget = widget_ptr.Get();
 		bGetWidget = false;
 	}

@@ -92,7 +92,7 @@ public:
 		}
 
 		// 열고자 하는 Scene에 스택이 존재하면 복원
-		if (cur_scene_data->child_widget_names.Num())
+		if (cur_scene_data->child_widget_names.Num() > 0)
 		{
 			if (is_need_restore == true)
 			{
@@ -195,7 +195,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AAZHUD") void CloseScene(bool isBackButton = false);
 	void CloseScene(EUIName widget_name_enum, bool is_stack_delete = false, bool is_back_button = false);
-
+	void CloseAllUI();
 	void RaiseOnTopFromStack(EUIName ui_name);
 
 	void _OpenUI(class UAZWidget* widget, FAZWidgetData* widget_data, bool is_immediately = false, bool is_pre_scene = false);
@@ -211,6 +211,9 @@ public:
 
 	DECLARE_DELEGATE(FExcuteAfterOpenScene)
 	TArray<FExcuteAfterOpenScene> OnExcuteAfterOpenScene;
+
+public:
+	void OnFadeInOut(const float in_time, const float out_time);
 
 protected:
 	virtual void CheckOpenScene() {}

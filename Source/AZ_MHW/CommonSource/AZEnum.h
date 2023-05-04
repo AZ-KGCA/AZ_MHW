@@ -6,6 +6,12 @@
 #include "AZEnum.generated.h"
 
 UENUM(BlueprintType)
+enum class EAutoMove : uint8
+{
+	None
+};
+
+UENUM(BlueprintType)
 enum class ESocketHolderType : uint8
 {
 	Login,

@@ -28,8 +28,9 @@ public:
 	template<typename EType>
 	static EType StringToEnum(const FString& string)
 	{
-		auto type = magic_enum::enum_cast<EType>(TCHAR_TO_UTF8(*string));
-		return type;
+		std::string convert_type = TCHAR_TO_ANSI(*string);
+		std::optional<EType> type = magic_enum::enum_cast<EType>(convert_type);
+		return *type;
 	}
 	
 };

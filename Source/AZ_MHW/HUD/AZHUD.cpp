@@ -6,6 +6,7 @@
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/Widget/AZWidget.h"
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
+#include "AZ_MHW/Widget/Common/AZWidget_Fade.h"
 
 void AAZHUD::PostLoad()
 {
@@ -15,6 +16,7 @@ void AAZHUD::PostLoad()
 void AAZHUD::BeginPlay()
 {
 	Super::BeginPlay();
+	// 클릭 이펙트 풀 처리
 }
 
 void AAZHUD::BeginDestroy()
@@ -25,6 +27,11 @@ void AAZHUD::BeginDestroy()
 void AAZHUD::EndPlay(const EEndPlayReason::Type end_play_reason)
 {
 	Super::EndPlay(end_play_reason);
+
+	// 이펙트 풀 처리
+	// ...
+
+	CloseAllUI();
 }
 
 void AAZHUD::Tick(float delta_seconds)
@@ -43,6 +50,34 @@ void AAZHUD::InitHUD()
 AAZGameMode* AAZHUD::GetGameMode()
 {
 	return nullptr;
+}
+
+void AAZHUD::OnFadeInOut(const float in_time, const float out_time)
+{
+	if (FAZWidgetData* const widget_data = GetWidgetData(EUIName::AZWidget_Fade))
+	{
+		bool get_widget = false;
+		if (auto widget = Cast<UAZWidget_Fade>(widget_data->GetOrCreateWidget(get_widget)))
+		{
+			if (widget->IsInViewport() == false)
+			{
+				widget->AddToViewport((int32)widget_data->layer);
+
+				if (in_time >= 0.0f && out_time < 0.0f)
+				{
+					widget->FadeIn(in_time);
+				}
+				else if (in_time < 0.0f && out_time >= 0.0f)
+				{
+					widget->FadeOut(out_time);
+				}
+				else if (in_time >= 0.0f && out_time >= 0.0f)
+				{
+					widget->FadeInOut(in_time, out_time);
+				}
+			}
+		}
+	}
 }
 
 void AAZHUD::OnSceneOpened()
@@ -357,4 +392,36 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 	UpdateWorldRender();
 
 	OnSceneClosed();
+}
+
+void AAZHUD::CloseAllUI()
+{
+	TMap<EUIName, FAZWidgetData> widget_datas;
+	UAZHUDDataMgr* hud_data_mgr = AZGameInstance->hud_data_mgr;
+	widget_datas = hud_data_mgr->GetWidgetDatas();
+
+	for (auto& widget_pair : widget_datas)
+	{
+		FAZWidgetData& ui_widget_data = widget_pair.Value;
+
+		if (ui_widget_data.IsWidgetValid())
+		{
+			UAZWidget* ui_widget = ui_widget_data.GetWidget();
+
+			ui_widget->RemoveFromParent();
+			ui_widget->MarkAsGarbage();
+			ui_widget->ConditionalBeginDestroy();
+			ui_widget = nullptr;
+		}
+	}
+
+	for (auto& kv : scene_datas)
+	{
+		kv.Value.child_widget_names.Empty();
+	}
+
+	scenes_stack.Empty();
+	cur_scene_name_enum = EUIName::None;
+
+	// FIXME 메세지 박스 추가 코드 추가
 }
