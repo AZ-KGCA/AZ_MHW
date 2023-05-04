@@ -47,7 +47,7 @@ AAZGameMode* AAZHUD::GetGameMode()
 
 void AAZHUD::OnSceneOpened()
 {
-	// FIXME ¾À º¯°æ½Ã ÀÎÇ²À» º¯°æ
+	// FIXME ì”¬ ë³€ê²½ì‹œ ì¸í’‹ì„ ë³€ê²½
 	//if (AZGameInstance && AZGameInstance->InputMgr)
 	//{
 	//    AZGameInstance->InputMgr->CheckSceneStack();
@@ -56,7 +56,7 @@ void AAZHUD::OnSceneOpened()
 
 void AAZHUD::OnSceneClosed()
 {
-	// FIXME ¾À º¯°æ½Ã ÀÎÇ²À» º¯°æ
+	// FIXME ì”¬ ë³€ê²½ì‹œ ì¸í’‹ì„ ë³€ê²½
 }
 
 void AAZHUD::RaiseOnTopFromStack(EUIName ui_name)
@@ -133,7 +133,7 @@ void AAZHUD::_OpenUI(UAZWidget* widget, FAZWidgetData* widget_data, bool is_imme
 	if (widget->IsInViewport())
 	{
 		widget->RemoveFromViewport();
-		// À§Á¬ Áß¿¡ ÀÖ´Ù¸ç Áö¿öÁØ´Ù.
+		// ìœ„ì ¯ ì¤‘ì— ìˆë‹¤ë©° ì§€ì›Œì¤€ë‹¤.
 		for (EUIName& scene_name : scenes_stack)
 		{
 			if (AZSceneData* scene_data = GetSceneData(scene_name))
@@ -302,15 +302,15 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 		return;
 	}
 
-	// ½ºÅÃÀÌ 1°³ ³²¾ÒÀ» ¶§ popÀ» ÇÏ·Á°í ÇÒ¶§ Exit popup È£Ãâ ÇÏµµ·Ï ÃßÈÄ ±¸Çö
+	// ìŠ¤íƒì´ 1ê°œ ë‚¨ì•˜ì„ ë•Œ popì„ í•˜ë ¤ê³  í• ë•Œ Exit popup í˜¸ì¶œ í•˜ë„ë¡ ì¶”í›„ êµ¬í˜„
 	if (1 >= scenes_stack.Num() && is_back_button == true)
 	{
-		// FIXME µÚ·Î°¡±â ½Ã È®ÀÎ
+		// FIXME ë’¤ë¡œê°€ê¸° ì‹œ í™•ì¸
 		//if (ScenesStack[0] == EUIName::LHWidget_CharacterCreate)
 		//    LHGameInstance->LoginMgr->ChangeSequenceLoginPage();
 		//else
 		//{
-		//    // ÆË¾÷À» ¶ç¿ì¸é µÉ °Í 
+		//    // íŒì—…ì„ ë„ìš°ë©´ ë  ê²ƒ 
 		//}
 		//return;
 	}
@@ -326,7 +326,7 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 			}
 			else
 			{
-				// ´Ù¸¥ ¾ÀÀ» ¿­¾î¼­ ´İÈú ¶§ ¿­·ÁÀÖ´Ü ÆË¾÷µéÀ» ´İ¾ÆÁÜ
+				// ë‹¤ë¥¸ ì”¬ì„ ì—´ì–´ì„œ ë‹«í ë•Œ ì—´ë ¤ìˆë‹¨ íŒì—…ë“¤ì„ ë‹«ì•„ì¤Œ
 				CloseUI((EUIName)ui_widget_data->widget_id, true, false);
 				cur_scene_data->child_widget_names.Pop();
 			}
@@ -349,7 +349,7 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 			scenes_stack.Pop();
 			if (scenes_stack.Num() > 0)
 			{
-				//¼øÂ÷ÀûÀ¸·Î º¹¿øÇØÁÜ
+				//ìˆœì°¨ì ìœ¼ë¡œ ë³µì›í•´ì¤Œ
 				OpenScene<UAZWidget>(scenes_stack.Top());
 			}
 		}

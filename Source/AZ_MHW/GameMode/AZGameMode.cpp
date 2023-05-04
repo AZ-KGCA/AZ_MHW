@@ -10,9 +10,9 @@
 
 AAZGameMode::AAZGameMode()
 {
-	// FIXME (º´ÇÕ ½Ã Ãß°¡)
+	// FIXME (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ß°ï¿½)
 	//DefaultPawnClass = ALHPlayer_Playable::StaticClass();
-	// FIXME (º´ÇÕ ½Ã Ãß°¡)
+	// FIXME (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ß°ï¿½)
 	//PlayerControllerClass = ALHPlayerController::StaticClass();
 	HUDClass = AAZHUD::StaticClass();
 
@@ -43,6 +43,7 @@ void AAZGameMode::InitGameState()
 
 void AAZGameMode::StartPlay()
 {
+	
 	// FixME
 	/*if (AZGameInstance->map_mgr == nullptr ||
 		AZGameInstance->map_mgr->GetMapData() == nullptr)
@@ -68,7 +69,7 @@ void AAZGameMode::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
 
-	//FixMe(¼­¹ö Å¬¶ó¸¦ °ÔÀÓ¸ðµå¸¸ °¥¾Æ ³¢¿ì¸é µÉµí(°á±¹ ¸ÊÀ¸·Î ºÐ¸®µÉµí?)
+	//FixMe(ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ ï¿½ï¿½ï¿½Ó¸ï¿½å¸¸ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Éµï¿½(ï¿½á±¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½ï¿½Éµï¿½?)
 	//if (!bIsDisconnectSocketHandler)
 	//	_RecvPacket();
 

@@ -14,9 +14,10 @@
 #include "AZ_MHW/HUD/AZHUDDataMgr.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
+#include "..\Manager\AZInventoryManager.h"
 
 #include  "Engine/GameInstance.h"
-//FIXME º´ÇÕ½Ã »èÁ¦
+//FIXME ï¿½ï¿½ï¿½Õ½ï¿½ ï¿½ï¿½ï¿½ï¿½
 #include <GameFramework/Character.h>
 
 UGameInstanceProxy AZGameInstance;
@@ -32,6 +33,7 @@ UAZGameInstance::~UAZGameInstance()
 
 void UAZGameInstance::Init()
 {
+	Super::Init();
 	UAZGameSingleton::instance();
 
 	msg_handler = NewObject<UAZMsgHandler>(this);
@@ -52,6 +54,9 @@ void UAZGameInstance::Init()
 	login_mgr = NewObject<UAZLoginMgr>();
 	login_mgr->Init();
 
+	inventory_mgr = NewObject<UAZInventoryManager>();
+	inventory_mgr->Init();
+	
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));
 	msg_handler->OnRegister(map_mgr);
 
@@ -61,12 +66,13 @@ void UAZGameInstance::Init()
 
 void UAZGameInstance::Shutdown()
 {
+	Super::Shutdown();
 	SendLogoutCmd();
 
 	mgrs.Reset();
 	AZ_LOG("Shutdown");
 
-	// »ý¼º°ú ¿ª¼øÀ¸·Î ¼Ò¸ê
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò¸ï¿½
 	game_option = nullptr;
 	login_mgr = nullptr;
 	save_data = nullptr;
@@ -159,7 +165,7 @@ ACharacter* UAZGameInstance::GetPlayer()
 	{
 		return nullptr;
 	}
-	// FIXME º´ÇÕ½Ã °íÄ¡±â
+	// FIXME ï¿½ï¿½ï¿½Õ½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½
 	auto* player = player_controller->GetPawn<ACharacter>();
 	return player;
 }

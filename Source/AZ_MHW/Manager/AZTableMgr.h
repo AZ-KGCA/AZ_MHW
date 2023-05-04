@@ -5,6 +5,10 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include <typeinfo>
+#include "AZ_MHW/CommonSource/Table/TotalItemData.h"
+#include "AZ_MHW/CommonSource/Table/PotionData.h"
+#include "AZ_MHW/CommonSource/Table/ItemBuffData.h"
+
 #include "AZTableMgr.generated.h"
 
 UCLASS(Blueprintable, BlueprintType)
@@ -16,6 +20,14 @@ private:
 	TMap<uint32, TMap<int32, const UObject*>> map_table_;
 
 public:
+	//item table array
+	UPROPERTY() TArray<const UTotalItemData*> total_item_array;
+	UPROPERTY() TArray<const UPotionData*> consume_item_array;
+	UPROPERTY() TArray<const UItemBuffData*> buff_array;
+//	UPROPERTY() TMap<int32 , UTOTAL_ITEM_TABLE*> total_item_map;
+	//TArray<> Equip_array
+	//TArray<> bottle_array
+
 	template<class Table>
 	bool _Load(FString file_name)
 	{
@@ -125,7 +137,25 @@ public:
 		}
 		return Cast<Table>(*table);
 	}
+	template<class Table>
+   TArray<const Table*> GetTable()
+	{
+		TArray<const Table*> result;
+		uint32 hash_code = typeid(Table).hash_code();
+		if (map_table_.Contains(hash_code) == false)
+		{
+			return result;
+		}
+		auto tables = map_table_.Find(hash_code);
+		for (auto& table : *tables)
+		{
+			result.Add(Cast<Table>(table.Value));
+		}
+		return result;
+	}
 	void LoadAll();
 	void LoadComplete();
-
+	void LoadTotalItemTable();
+	void LoadConsumeTable();
+	void LoadBuffTable();
 };

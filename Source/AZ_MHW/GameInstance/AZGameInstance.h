@@ -21,7 +21,7 @@ public:
 	UPROPERTY() class UAZMapMgr* map_mgr;
 	UPROPERTY() class UAZHUDDataMgr* hud_data_mgr;
 	UPROPERTY() class UAZGameOption* game_option;
-
+	UPROPERTY() class UAZInventoryManager* inventory_mgr;
 public:
 	UAZGameInstance();
 	virtual ~UAZGameInstance();
@@ -47,10 +47,10 @@ public:
 
 	class UAZGameState* GetCurGameState();
 
-	// FIXME (º´ÇÕ ½Ã ¼öÁ¤ ÇÊ¿ä)
+	// FIXME (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½)
 	UFUNCTION(BlueprintCallable, Category = "AZ")
 	APlayerController* GetPlayerController();
-	// FIXME (º´ÇÕ ½Ã ¼öÁ¤ ÇÊ¿ä)
+	// FIXME (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½)
 	ACharacter* GetPlayer();
 
 	UFUNCTION()
