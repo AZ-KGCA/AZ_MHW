@@ -79,7 +79,7 @@ UAZWorldMap* AAZGameMode_InGame::GetWorldMapHandler()
 
 void AAZGameMode_InGame::OnCharacterDisappeared(AAZCharacter* character, int32 object_serial)
 {
-	// FIXME 병합시 살리기
+	// FIXME merged need alive
 	/*if (IsValid(character) == false)
 	{
 		return;
@@ -130,7 +130,7 @@ void AAZGameMode_InGame::OnCharacterDisappeared(AAZCharacter* character, int32 o
 
 void AAZGameMode_InGame::OnActorDisappeared(AActor* actor, int32 object_serial)
 {
-	//FIXME 추후 Appear객체 생성시 주석 풀기
+	//FIXME after Appear obejct create comment released
 	/*if (IsValid(actor) == false)
 		return;
 
@@ -174,7 +174,7 @@ bool AAZGameMode_InGame::RemoveAppearCharacter(int32 object_serial)
 	if (AAZCharacter* remove_character = FindAppearCharacter(object_serial))
 	{
 		OnCharacterDisappeared(remove_character, object_serial);
-		// FIXME 병합시 풀기
+		// FIXME merged release
 		//appear_character_.Remove(object_serial);
 		return true;
 	}
@@ -186,7 +186,7 @@ bool AAZGameMode_InGame::RemoveAppearActor(int32 object_serial)
 	if (AActor* remove_actor = FindAppearActors(object_serial))
 	{
 		OnActorDisappeared(remove_actor, object_serial);
-		// FIXME 병합시 풀기
+		// FIXME merged release
 		//appear_actors_.Remove(object_serial);
 		return true;
 	}
@@ -195,7 +195,7 @@ bool AAZGameMode_InGame::RemoveAppearActor(int32 object_serial)
 
 void AAZGameMode_InGame::RemoveAllAppearCharacter()
 {
-	// FIXME 병합시 풀기
+	// FIXME merged release
 	/*for (auto& appear_character : appear_character_)
 	{
 		if (appear_character.Value)
@@ -210,7 +210,7 @@ void AAZGameMode_InGame::RemoveAllAppearCharacter()
 
 void AAZGameMode_InGame::RemoveAllAppearObjects()
 {
-	// FIXME 병합시 풀기
+	// FIXME merged release
 	/*for (auto& appear_character : appear_character_)
 	{
 		if (appear_character.Value)
@@ -227,7 +227,7 @@ void AAZGameMode_InGame::RemoveAllAppearObjects()
 		}
 	}
 
-	//FIXME 병합시 풀기
+	//FIXME merged release
 	/*appear_character_.Empty();
 	appear_npc_.Empty();*/
 	appear_actors_.Empty();
@@ -237,7 +237,7 @@ AActor* AAZGameMode_InGame::FindAppearCharacterAndActors(int32 object_serial, bo
 {
 
 	AActor* found_actor = nullptr;
-	// FiXME 병합시 풀어버리기
+	// FiXME merged release
 	//found_actor = FindAppearCharacter(object_serial, include_playable_player);
 	if (found_actor == nullptr)
 	{
@@ -251,14 +251,14 @@ AAZCharacter* AAZGameMode_InGame::FindAppearCharacter(int32 object_serial, bool 
 {
 	if (include_playable_player == true)
 	{
-		// FIXME 병합시 풀어버리기
+		// FIXME merged release
 		/*if (GetPlayablePlayer() && GetPlayablePlayer()->GetObjectSerial() == object_serial)
 		{
 			return GetPlayablePlayer();
 		}*/
 	}
 
-	//FIXME 병합시 풀어버리기
+	//FIXME merged release
 	/*if (auto found_character = appear_character_.Find(object_serial))
 	{
 		return *found_character;
@@ -270,7 +270,7 @@ AAZCharacter* AAZGameMode_InGame::FindAppearCharacter(int32 object_serial, bool 
 TArray<class AAZCharacter*> AAZGameMode_InGame::FindAppearCharactersFromSpawnIndex(int32 spawn_index)
 {
 	TArray<class AAZCharacter*> characters;
-	//FIXME 병합시 풀기
+	//FIXME merged release
 	/*for (auto& kv : appear_character_)
 	{
 		auto* character = kv.Value;
@@ -291,14 +291,14 @@ AAZPlayer* AAZGameMode_InGame::FindAppearPlayer(int32 object_serial, bool includ
 {
 	if (include_playable_player == true)
 	{
-		// FIXME 병합시 풀기
+		// FIXME merged release
 		/*if (GetPlayablePlayer() && GetPlayablePlayer()->GetObjectSerial() == object_serial)
 		{
 			return GetPlayablePlayer();
 		}*/
 	}
 
-	//FIXME 병합시 풀기
+	//FIXME merged release
 	/*if (auto found_character = appear_character_.Find(object_serial))
 	{
 		return Cast<AAZPlayer>(*found_character);
@@ -309,7 +309,7 @@ AAZPlayer* AAZGameMode_InGame::FindAppearPlayer(int32 object_serial, bool includ
 
 AAZPlayer_Remote* AAZGameMode_InGame::FindAppearRemotePlayer(int64 player_db_key)
 {
-	// FIXME 병합시 풀기
+	// FIXME merged release
 	/*for (auto& character : appear_character_)
 	{
 		AAZPlayer_Remote* player = Cast<AAZPlayer_Remote>(character.Value);
@@ -324,7 +324,7 @@ AAZPlayer_Remote* AAZGameMode_InGame::FindAppearRemotePlayer(int64 player_db_key
 
 AAZCharacter* AAZGameMode_InGame::FindAppearNpcCharacter(int32 data_key)
 {
-	// FIXME 병합시 풀기
+	// FIXME merged release
 	/*auto found_character = appear_npc_.Find(data_key);
 	return found_character ? *found_character : nullptr;*/
 	return nullptr;
@@ -358,7 +358,7 @@ void AAZGameMode_InGame::ForEachAppearCharacters(OnForEachCharacterDelegate func
 
 void AAZGameMode_InGame::ForEachAppearNpc(OnForEachNpcDelegate func)
 {
-	// FIXME NPC 생성시 풀기
+	// FIXME need NPC create -> release comment
 	/*for (auto& info : appear_npc_)
 	{
 		func(Cast<AAZNpc>(info.Value));
@@ -378,7 +378,7 @@ void AAZGameMode_InGame::ForEachAppearInteraction(OnForEachInteractionDelegate f
 
 void AAZGameMode_InGame::ForEachBossMonsters(OnForEachCharacterDelegate func)
 {
-	// FIXME 병합시 풀기
+	// FIXME merged release
 	/*for (AAZCharacter* boss : boss_monsters_)
 	{
 		if (!IsValid(boss))

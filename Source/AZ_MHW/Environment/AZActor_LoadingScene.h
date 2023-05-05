@@ -8,7 +8,7 @@
 
 #include "AZActor_LoadingScene.generated.h"
 
-//FIXME 병합시 확인 필요
+//FIXME merged check loading
 UCLASS()
 class AZ_MHW_API AAZActor_LoadingScene : public AActor, public IAZMesh_Interface
 {

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+癤�// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AZ_MHW/Widget/Login/AZWidget_Loading.h"
@@ -11,7 +11,7 @@ void UAZWidget_Loading::Init()
 {
 	Super::Init();
 
-	// FIXME 빌드부터 하기
+	// FIXME need build
 	/*text_animation = GetWidgetAnimation(TEXT("Text_Ani"));
 	fade_out_animation = GetWidgetAnimation(TEXT("Fade_Out"));
 	loading_bg_image = GetOwnWidget<UImage>(TEXT("Image_0"));
@@ -27,7 +27,7 @@ void UAZWidget_Loading::Init()
 void UAZWidget_Loading::OnOpen(bool immediately)
 {
 	Super::OnOpen(immediately);
-	// FIXME 빌드부터 하기
+	// FIXME need build
 	/*cached_ratio = 0.0f;
 
 	FShaderPipelineCache::SetBatchMode(FShaderPipelineCache::BatchMode::Fast);*/
@@ -36,8 +36,8 @@ void UAZWidget_Loading::OnOpen(bool immediately)
 void UAZWidget_Loading::NativeTick(const FGeometry& my_geometry, float in_delta_time)
 {
 	Super::NativeTick(my_geometry, in_delta_time);
-	
-	//FIXME 빌드부터 하기
+
+	//FIXME need build
 	/*if (c_touch_screen->IsPressed() == false)
 	{
 		OnMoveTouchScreen(my_geometry, FPointerEvent());
@@ -54,7 +54,7 @@ bool UAZWidget_Loading::OnWidgetOpenAction(bool isVisibility)
 
 void UAZWidget_Loading::SetLoadingModel(const UModelData* model_data, int32 mapIndex)
 {
-	// FIXME 로딩시 애니메이션 툴팁, 아바타 표시 등을 함(빌드부터 하기
+	// FIXME animation tooltip, avartar apper
 	/*PlayAnimation(fade_out_animation);
 	PlayAnimationLoop(text_animation);
 
@@ -63,7 +63,7 @@ void UAZWidget_Loading::SetLoadingModel(const UModelData* model_data, int32 mapI
 	c_desc_widget_switcher->SetActiveWidgetIndex(Avatar);
 	SetModelText(modle_data);*/
 
-	// FIXME 로딩시 애니메이션 툴팁, 아바타 표시 등을 함
+	// FIXME loading animation tooltip, avartar apper
 	//int32 level = 1;
 	//if (GetPlayer() && GetPlayer()->CharacterParam)
 	//	level = GetPlayer()->CharacterParam->GetLevel();
@@ -77,6 +77,8 @@ void UAZWidget_Loading::SetLoadingModel(const UModelData* model_data, int32 mapI
 	//			tipStringCodeList.Add(tipRec->StringCode);
 	//	}
 	//}
+
+
 
 	//if (tipStringCodeList.Num() > 0 && IsValid(C_Text_Tip))
 	//{

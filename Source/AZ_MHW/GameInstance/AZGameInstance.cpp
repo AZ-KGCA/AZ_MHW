@@ -16,7 +16,7 @@
 #include "AZ_MHW/Login/AZLoginMgr.h"
 
 #include  "Engine/GameInstance.h"
-//FIXME 병합시 삭제
+//FIXME merged need del
 #include <GameFramework/Character.h>
 
 UGameInstanceProxy AZGameInstance;
@@ -108,17 +108,17 @@ void UAZGameInstance::PlayerSelectAck()
 
 void UAZGameInstance::CreateSocketHolder()
 {
-	// FIXME 병합시 소켓생성
+	// FIXME merged socket create
 }
 
 void UAZGameInstance::DestroySocketHolder()
 {
-	// FIXME 병합시 소켓삭제
+	// FIXME merged socket del
 }
 
 void UAZGameInstance::InitSocketOnMapLoad()
 {
-	// FIXME 병합시 소켓초기화
+	// FIXME merged socket init
 }
 
 AAZHUD* UAZGameInstance::GetHUD()

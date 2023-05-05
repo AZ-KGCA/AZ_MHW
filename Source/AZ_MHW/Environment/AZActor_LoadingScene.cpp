@@ -27,16 +27,16 @@ void AAZActor_LoadingScene::Tick(float DeltaTime)
 
 void AAZActor_LoadingScene::SetCaptureCameraLocation()
 {
-	//FIXMe 병합시 로딩 확인해보기
+	//FIXMe merged check loading
 }
 
 void AAZActor_LoadingScene::SetMergeCompVisible(bool merge_visibility)
 {
-	//FIXME 병합시 로딩 확인해보기
+	//FIXME merged check loading
 }
 
 void AAZActor_LoadingScene::StopCapture()
 {
-	//FIXME 병합시 로딩 확인해보기
+	//FIXME merged check loading
 }
 

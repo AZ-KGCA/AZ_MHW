@@ -53,10 +53,10 @@ public:
 
 	class UAZGameState* GetCurGameState();
 
-	// FIXME (병합 시 수정 필요)
+	// FIXME merged need edit
 	UFUNCTION(BlueprintCallable, Category = "AZ")
 	APlayerController* GetPlayerController();
-	// FIXME (병합 시 수정 필요)
+	// FIXME merged need edit
 	ACharacter* GetPlayer();
 
 	UFUNCTION()

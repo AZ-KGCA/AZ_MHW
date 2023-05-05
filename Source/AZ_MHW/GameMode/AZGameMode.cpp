@@ -17,9 +17,9 @@
 
 AAZGameMode::AAZGameMode()
 {
-	// FIXME (병합 시 추가)
+	// FIXME (merged add)
 	//DefaultPawnClass = ALHPlayer_Playable::StaticClass();
-	// FIXME (병합 시 추가)
+	// FIXME (merged add)
 	//PlayerControllerClass = ALHPlayerController::StaticClass();
 	HUDClass = AAZHUD::StaticClass();
 
@@ -101,7 +101,7 @@ TArray<ULevelStreaming*> GetAsyncLoadableStreamingLevel_Implement(TArray<ULevelS
 
 			AAZGameMode* game_mode = AZGameInstance->GetGameMode();
 
-			// FIXME 확인필요
+			// FIXME need check
 			// if (game_mode && game_mode->IsPcViewer())
 
 			FName level_name = FName(*str_name);
@@ -252,7 +252,7 @@ void AAZGameMode::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
 
-	//FixMe(서버 클라를 게임모드만 갈아 끼우면 될듯(결국 맵으로 분리될듯?)
+	//FixMe server, client switch gamemode(need map)
 	//if (!bIsDisconnectSocketHandler)
 	//	_RecvPacket();
 
