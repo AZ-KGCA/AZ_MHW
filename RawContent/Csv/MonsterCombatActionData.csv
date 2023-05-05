@@ -1,0 +1,6 @@
+action_id,monster_id,animation_name,montage_section_name,attack_effect,damage_base,damage_poison,triggers,conditions,condition_min_distance_from_target,condition_max_distance_from_target
+int,int,string,string,string,int,int,array_string,array_string,int,int
+0,0,AM_AerialStomp,Default,KnockBack,20,0,None,OnGround|InRange,0,260
+1,0,AM_StandRoar,RoarPrep,RoarStagger,0,0,Transition|Sight,OnGround,0,0
+2,0,AM_StandRoar,RoarPrep,RoarStagger,0,0,InRange,OnGround,0,250
+3,0,BS_StandRoar,None,RoarStagger,0,0,InRange,OnGround,250,600

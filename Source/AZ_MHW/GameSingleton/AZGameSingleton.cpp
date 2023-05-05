@@ -1,8 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
-
+#include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Manager/AZTableMgr.h"
 #include "AZ_MHW/Manager/AZResourceMgr.h"
 
@@ -33,6 +33,9 @@ void UAZGameSingleton::Init()
 	table_mgr = NewObject<UAZTableMgr>();
 	table_mgr->LoadAll();
 	table_mgr->LoadComplete();
+
+	monster_mgr = NewObject<UAZMonsterMgr>();
+	monster_mgr->Init();
 }
 
 void UAZGameSingleton::InitResourceMgr()

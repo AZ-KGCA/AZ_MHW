@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -15,7 +15,6 @@ UCLASS()
 class AZ_MHW_API AAZGameMode_InGame : public AAZGameMode
 {
 	GENERATED_BODY()
-<<<<<<< HEAD
 	
 public:
 	AAZGameMode_InGame();

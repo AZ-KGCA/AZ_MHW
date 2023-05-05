@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -20,6 +20,6 @@ public:
 public:
 	void Init();
 
-	// AZHUD_Lancher에서 호출
+	// FIXME call in AZHUD_Lancher
 	void InitGameOption();
 };

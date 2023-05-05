@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -46,3 +46,160 @@ enum class EGameModeFlag : uint8
 	Lobby,
 	InGame
 };
+
+
+// -------------------------------------------------
+// Monster
+
+UENUM(BlueprintType)
+enum class EObjectType : uint8
+{
+	None,
+	NPC,
+	Player,
+	Monster,	
+};
+
+UENUM(BlueprintType)
+enum class ECharacterState : uint8
+{
+	Locomotion,
+	Action,
+};
+
+UENUM(BlueprintType)
+enum class EMoveState : uint8
+{
+	None,
+	StopMove,
+	Walk,
+	Run,
+	Fly,
+};
+
+UENUM(BlueprintType)
+enum class EBossRank : uint8
+{
+	None,
+	Low,
+	Medium,
+	Master,
+};
+
+UENUM(BlueprintType, Meta = (Experimental))
+enum class EMonsterGoalSearchStyle : uint8
+{
+	Random,
+	Chase,
+	Escape,
+};
+
+UENUM(BlueprintType)
+enum class EMonsterBehaviorType : uint8
+{
+	Neutral,
+	Friendly,
+	Hostile,
+};
+
+UENUM(BlueprintType)
+enum class EMonsterActionMode : uint8
+{
+	Normal,
+	Transition,
+	Combat,
+};
+
+UENUM(BlueprintType)
+enum class EMonsterActionPriority : uint8
+{
+	None,
+	Locomotion,
+	Action,
+	Hit,
+	Debuff,
+	Death,
+	Cinematic,
+};
+
+UENUM(BlueprintType)
+enum class EAttackEffect : uint8
+{
+	None,
+	KnockBack,
+	RoarStagger,
+	Stun,
+};
+
+UENUM(BlueprintType)
+enum class EEffectDurationType : uint8
+{
+	Instant,
+	ForDuration,
+};
+
+//TODO for now, no triggers are set for combat actions
+UENUM(BlueprintType, Meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class EMonsterActionTriggerType : uint8
+{
+	None			= 0,		
+	Transition		= 1 << 0,	// used for transition actions only
+	Damage			= 1 << 1,	// used for transition actions only
+	Sight			= 1 << 2,	// used for transition actions only
+	InRange			= 1 << 3,	// used for noncombat actions only
+};
+ENUM_CLASS_FLAGS(EMonsterActionTriggerType);
+
+UENUM(BlueprintType, Meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class EMonsterActionConditionType : uint8
+{
+	None		= 0,		
+	Flying		= 1 << 0,	 // if false, must be on ground
+	InRange		= 1 << 1,	
+	Health		= 1 << 2,	
+};
+ENUM_CLASS_FLAGS(EMonsterActionConditionType);
+
+UENUM(BlueprintType, Meta = (Experimental))
+enum class ESearchEnemyType : uint8
+{
+	None,
+	Distance,
+	Damage
+};
+
+namespace AZBlackboardKey
+{
+	FName const ai_state("AIState");
+	FName const move_state("MoveState");
+	FName const action_mode("ActionMode");
+	FName const target_character("TargetCharacter");
+	FName const target_location("TargetLocation");
+	FName const patrol_delay("PatrolDelay");
+	FName const action_delay("ActionDelay");
+	FName const is_triggered_by_sight("IsTriggeredBySight");
+}
+
+UENUM(BlueprintType)
+enum class EMonsterBodyPart : uint8
+{
+	RightWing,
+	LeftWing,
+	Back,
+	Body,
+	Head,
+	Tail,
+	Eyelid,	
+	Eyeball,	// not used
+};
+
+UENUM()
+enum class EMoveRequestResult : uint8
+{
+	Failed,
+	RequestSuccessful,
+	AlreadyAtGoal,
+};
+
+// End of Monster
+// -------------------------------------------------

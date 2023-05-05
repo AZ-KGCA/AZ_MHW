@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Team AZ. All Rights Reserved.
 
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include <Kismet/GameplayStatics.h>
@@ -22,8 +21,6 @@
 //FIXME 병합시 삭제
 #include <GameFramework/Character.h>
 
-
-
 UGameInstanceProxy AZGameInstance;
 
 UAZGameInstance::UAZGameInstance()
@@ -38,7 +35,7 @@ UAZGameInstance::~UAZGameInstance()
 void UAZGameInstance::Init()
 {
 	Super::Init();
-	
+
 	UAZGameSingleton::instance();
 
 	msg_handler = NewObject<UAZMsgHandler>(this);
@@ -67,7 +64,7 @@ void UAZGameInstance::Init()
 
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));
 	msg_handler->OnRegister(map_mgr);
-
+	
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UAZGameInstance::BeginLoadingScreen);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UAZGameInstance::EndLoadingScreen);
 }

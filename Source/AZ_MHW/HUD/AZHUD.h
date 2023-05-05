@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -76,7 +76,7 @@ public:
 		}
 
 		if (GetCurSceneNameEnum() == EUIName::AZWidget_InGame)
-		{클리어 로직 삽입
+		{
 			//FIXME Insert clear logic
 		}
 

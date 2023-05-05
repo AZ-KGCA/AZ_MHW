@@ -1,8 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-
 #include <CoreMinimal.h>
+#include <GenericTeamAgentInterface.h>
+#include <GameFramework/Character.h>
+#include "AZ_MHW/CommonSource/AZEnum.h"
+#include "AZCharacter.generated.h"
 #include "AZ_MHW.h"
 #include <GameFramework/Character.h>
 #include "AZCharacter.generated.h"
@@ -27,13 +28,12 @@
 * AZ_ Player, NPC, Enemy?Monster? Base Clas
 */
 UCLASS(Abstract)
-class AZ_MHW_API AAZCharacter : public ACharacter
+class AZ_MHW_API AAZCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
 public:
 	AAZCharacter();
-
 #pragma region Inherited function
 protected:
 	virtual void BeginPlay() override;
@@ -61,4 +61,21 @@ public:
 	//ReciveMsg
 	//Int32, AnimationState(누가, 어떤상태) X번이 피격상태, N번이 가드상태 등 
 	//int32, DB Result(무엇이 몇임)ex 포션이 3개가됨. 체력이 X가됨, 디버프가 생김 등
+
+public:
+	// Team Agent Interface Overrides
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	
+	// AnimNotify Handlers
+	virtual void AnimNotify_EndOfAction();
+	virtual void AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name);
+	virtual void AnimNotify_SetMovementMode(EMovementMode movement_mode);
+	virtual void AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration);
+
+	// Others
+	float GetRelativeAngleToLocation(const FVector& target_location) const;
+	float GetDistance2DToLocation(const FVector& target_location) const;
+
+public:
+	FGenericTeamId team_id_;
 };

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/GameStateMachine/AZGameState.h"
@@ -9,7 +9,7 @@
 #include "AZ_MHW/GameMode/AZGameMode.h"
 #include "AZ_MHW/HUD/AZHUD.h"
 
-//FIXME º´ÇÕ½Ã »èÁ¦
+//FIXME ï¿½ï¿½ï¿½Õ½ï¿½ ï¿½ï¿½ï¿½ï¿½
 #include <GameFramework/Character.h>
 
 UAZGameState::UAZGameState()

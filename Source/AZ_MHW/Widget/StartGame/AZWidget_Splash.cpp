@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/Widget/StartGame/AZWidget_Splash.h"
@@ -11,7 +11,7 @@ void UAZWidget_Splash::Init()
 {
 	Super::Init();
 
-	// °ÔÀÓ È­¸é ²¨Áö´Â°Å(¸ð¹ÙÀÏ) ¹æÁö
+	// ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Â°ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½
 	UKismetSystemLibrary::ControlScreensaver(false);
 
 	splash_ani = GetWidgetAnimation(TEXT("Splash_Ani"));

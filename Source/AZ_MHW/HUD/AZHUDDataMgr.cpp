@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/HUD/AZHUDDataMgr.h"
@@ -14,16 +14,14 @@ void UAZHUDDataMgr::Init()
 {
 	widget_datas.Empty();
 
-	// 런처
+	// launcher
 	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Scene_Launcher, false, false, TEXT("/Game/Widget/BP_Widget_Launcher.BP_Widget_Launcher_C"));
-
-	// 기본 검은 바탕
+	// default back bg
 	InitWidgetData(EUILayer::Scene, EUIName::None, false, false, TEXT(""));
-	// 검정바탕화면
+	// black bg
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_Login, false, false, TEXT(""));
 	// InOut
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_BlackInOut, true, false, TEXT(""));
-
 
 	widget_data_request_states.Empty();
 }
@@ -58,17 +56,17 @@ bool UAZHUDDataMgr::RequestWidgetData(EUIName ui_name)
 	EAZWidgetDataRequestState current_state = GetWidgetDataRequestState(ui_name);
 	if (current_state == EAZWidgetDataRequestState::Completed)
 	{
-		//Data가 수집된 상태, 위젯을 연다.
+		//Data collect state, widget open
 		return true;
 	}
 
 	if (current_state == EAZWidgetDataRequestState::Requested)
 	{
-		// Data가 요청 중인 상태, 기다림
+		// Data request state. waiting
 		return false;
 	}
 
-	// FIXME (소켓 연동시 확인하기) Data를 요청한다.
+	// FIXME (socket merged check) data request
 	//if (auto* socketHolder = LHGameInstance->GetSocketHolder(ESocketHolderType::Gate))
 	//{
 	//	switch (uiName)
@@ -131,7 +129,6 @@ UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget)
 	if (widget == nullptr)
 	{
 		UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(widget_full_path);
-		// FIXME 확인필요
 		widget_ptr = CreateWidget<UAZWidget, UAZGameInstance*>(AZGameInstance.GetReference(), load_class);
 		widget = widget_ptr.Get();
 		bGetWidget = false;
@@ -143,7 +140,7 @@ UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget)
 
 	if (widget == nullptr)
 	{
-		//로그 추가
+		// FIXME need log
 	}
 	return widget;
 }

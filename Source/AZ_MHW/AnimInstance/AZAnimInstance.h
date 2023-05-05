@@ -31,7 +31,8 @@
  * (스레드가 분리되어 있기 때문에 스레드 안전을 위해 변수를 참조만 가능하다. 변경하기 위해서는 애니메이션의 노티파이에 심어서 이벤트콜백으로 해야한다.)
  * 애니메이션(최종포즈)을 반환한다.
  */
-UCLASS()
+class AAZCharacter;
+UCLASS(abstract)
 class AZ_MHW_API UAZAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
@@ -57,4 +58,6 @@ public:
 	/** 일반 AnimNotify 클래스는 노티파이명(NotifyName)으로 된 이 함수를 이름으로 다이나믹 델리게이트로 호출한다.
 	 */
 	//void AnimNotify_NotifyName();
+	UPROPERTY(BlueprintReadOnly, Category = AZ)
+	TWeakObjectPtr<AAZCharacter> owner_;
 };

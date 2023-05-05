@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/Manager/AZGameConfig.h"
@@ -15,7 +15,7 @@ void UAZGameConfig::Load()
     FConfigCacheIni::LoadExternalIniFile(config_file_, file_name, TEXT(""), TEXT(""), false);
     if (config_file_.Num() == 0)
     {
-        // À¯Àú°¡ ¼öµ¿À¸·Î Ä«ÇÇÇØ³õÀº ini ÆÄÀÏÀÌ ¾ø´Ù¸é ±âº» °æ·Î¸¦ ÀÐ´Â´Ù.
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½ ini ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½âº» ï¿½ï¿½Î¸ï¿½ ï¿½Ð´Â´ï¿½.
         FConfigCacheIni::LoadLocalIniFile(config_file_, file_name, false);
     }
 

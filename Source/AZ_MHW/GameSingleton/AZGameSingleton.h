@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -30,6 +30,8 @@ public:
 
 	FStreamableManager streamable_manager;
 
+	UPROPERTY() class UAZMonsterMgr* monster_mgr;
+	
 	static UAZGameSingleton* instance();
 	void Init();
 	void InitResourceMgr();

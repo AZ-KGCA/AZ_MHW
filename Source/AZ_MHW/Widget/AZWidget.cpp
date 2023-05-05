@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/Widget/AZWidget.h"
@@ -77,7 +77,7 @@ AAZHUD* UAZWidget::GetHUD()
 APlayerController* UAZWidget::GetPlayerController()
 {
     APlayerController* player_controller = GetOwningPlayer();
-    // ÃßÈÄ ±¸Çö
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     if (player_controller == nullptr)
     {
         return nullptr;
@@ -116,7 +116,7 @@ void UAZWidget::Init()
     }
 
     InitOption();
-    //FIXME ¹öÆ°¸®½ºÆ®°¡ ÇöÀç ÇÊ¿äÇÑÁö È®ÀÎÇÏ±â
+    //FIXME ï¿½ï¿½Æ°ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï±ï¿½
     /*for (int i = 0; i < button_list.Num(); ++i)
     {
         button_list->InitOption();
@@ -140,7 +140,7 @@ void UAZWidget::OnOpen(bool immediately)
         }
     }
 
-    // FIXME (º´ÇÕ½Ã ÀÎÇ² ¸Å´ÏÁ® Ã¼Å©ÇÏ±â)
+    // FIXME (ï¿½ï¿½ï¿½Õ½ï¿½ ï¿½ï¿½Ç² ï¿½Å´ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ï±ï¿½)
     //AZGameInstance->input_mgr->CheckSceneStack();
 }
 
@@ -170,7 +170,7 @@ void UAZWidget::OnClose(bool immediately)
     }
     widget_close_event_.ExecuteIfBound(immediately);
 
-    // FIXME (º´ÇÕ½Ã ÀÎÇ² ¸Å´ÏÁ® Ã¼Å©ÇÏ±â)
+    // FIXME (ï¿½ï¿½ï¿½Õ½ï¿½ ï¿½ï¿½Ç² ï¿½Å´ï¿½ï¿½ï¿½ Ã¼Å©ï¿½Ï±ï¿½)
     //AZGameInstance->input_mgr->CheckSceneStack();
 }
 
@@ -187,7 +187,7 @@ void UAZWidget::OnOpenAnimationFinished()
 
 void UAZWidget::ActivateContentsTutorial()
 {
-    //Æ©Åä¸®¾ó ¸¶½ºÅ© ÁøÇà
+    //Æ©ï¿½ä¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å© ï¿½ï¿½ï¿½ï¿½
 }
 
 void UAZWidget::OnCloseAnimationFinished()
@@ -202,7 +202,7 @@ void UAZWidget::OnVisibilityClose()
 
 void UAZWidget::Destroy()
 {
-    // »èÁ¦¿¹Á¤ ÇÔ¼ö¿©¼­ RemoveFromParent·Î ¼öÁ¤ ¹®Á¦ ½Ã È®ÀÎ ÇÊ¿ä
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ RemoveFromParentï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ È®ï¿½ï¿½ ï¿½Ê¿ï¿½
     //RemoveFromViewport();
     RemoveFromParent();
     RestoreFromForceHidden();
@@ -223,7 +223,7 @@ void UAZWidget::PlayAnimationLoop(UWidgetAnimation* anim, float play_back_speed)
 
 void UAZWidget::OnOpenLoopAnim()
 {
-    //½Ç½Ã°£À¸·Î ºí·çÇÁ¸°Æ®¸¦ ¸¸µé ¼ö ÀÖÀ½
+    //ï¿½Ç½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     if (UWidgetBlueprintGeneratedClass* blueprint = Cast<UWidgetBlueprintGeneratedClass>(GetClass()))
     {
         for (auto anim : blueprint->Animations)
