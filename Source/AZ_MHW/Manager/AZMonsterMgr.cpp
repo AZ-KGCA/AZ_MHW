@@ -43,7 +43,7 @@ bool UAZMonsterMgr::LoadBehaviorTreeAssets()
 	TArray<FAssetData> assets;
 	FARFilter filter;
 	filter.ClassPaths.Add(UBehaviorTree::StaticClass()->GetClassPathName());
-	filter.PackagePaths.Add(TEXT("/Game/AZ_MHW/Monsters/Common/AI"));	
+	filter.PackagePaths.Add(TEXT("/Game/AZ/Monsters/Common/AI"));	
 	asset_registry_module.Get().GetAssets(filter, assets);
 	
 	// Add to map
