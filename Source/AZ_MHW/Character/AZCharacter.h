@@ -3,8 +3,6 @@
 #include <GenericTeamAgentInterface.h>
 #include <GameFramework/Character.h>
 #include "AZ_MHW/CommonSource/AZEnum.h"
-#include "AZCharacter.generated.h"
-#include "AZ_MHW.h"
 #include <GameFramework/Character.h>
 #include "AZCharacter.generated.h"
 #pragma region Macro

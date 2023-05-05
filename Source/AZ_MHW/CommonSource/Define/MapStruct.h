@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AZ_MHW/CommonSource/Define/ObjectStruct.h"
+#include "AZ_MHW/CommonSource/AZEnum.h"
 #include "MapStruct.generated.h"
 
 UENUM(BlueprintType)

@@ -13,7 +13,7 @@
 #include <iostream>
 
 //#pragma comment(lib, "legacy_stdio_definitions.lib")
-//Âü°í Roaming::RoamingNotInitializedException C++ ¿¹¿Ü ¹ß»ı½Ã accessdatabaseengine_X64.exe ¼³Ä¡
+//ì°¸ê³  Roaming::RoamingNotInitializedException C++ ì˜ˆì™¸ ë°œìƒì‹œ accessdatabaseengine_X64.exe ì„¤ì¹˜
 using RECORD = std::vector<std::wstring>;
 
 struct dbitem
@@ -24,7 +24,7 @@ struct dbitem
 	int			sex;
 };
 
-// 1°³ÀÇ ÇÊµå Á¤º¸
+// 1ê°œì˜ í•„ë“œ ì •ë³´
 struct TColDescription
 {
 	SQLUSMALLINT    icol;
@@ -46,13 +46,13 @@ public:
 	SWORD sRet;
 	SQLINTEGER cbRet;
 
-	SQLHENV   g_hEnv; // È¯°æÇÚµé
-	SQLHDBC	  g_hDbc; // ¿¬°áÇÚµé
-	SQLHSTMT  g_hStmt; // ¸í·ÉÇÚµé
-	SQLHSTMT  g_hReadStmt; // SQLExecute ÇÚµé
-	SQLHSTMT  g_hDeleteStmt; // SQLPrepare Delete ÇÚµé
-	SQLHSTMT  g_hLoginCheckStmt; // SQLPrepare LoginCheck ÇÚµé
-	SQLHSTMT  g_hSignupStmt; // SQLPrepare LoginCheck ÇÚµé
+	SQLHENV   g_hEnv; // í™˜ê²½í•¸ë“¤
+	SQLHDBC	  g_hDbc; // ì—°ê²°í•¸ë“¤
+	SQLHSTMT  g_hStmt; // ëª…ë ¹í•¸ë“¤
+	SQLHSTMT  g_hReadStmt; // SQLExecute í•¸ë“¤
+	SQLHSTMT  g_hDeleteStmt; // SQLPrepare Delete í•¸ë“¤
+	SQLHSTMT  g_hLoginCheckStmt; // SQLPrepare LoginCheck í•¸ë“¤
+	SQLHSTMT  g_hSignupStmt; // SQLPrepare LoginCheck í•¸ë“¤
 
 	std::vector<TColDescription>	m_ColumnList;
 	std::vector<RECORD>				m_dbDataList;
@@ -70,14 +70,14 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	SQLHSTMT  g_hInsertStmt; // SQLPrepare Insert ÇÚµé
+	SQLHSTMT  g_hInsertStmt; // SQLPrepare Insert í•¸ë“¤
 	TCHAR	   m_szInsertName[20] = { 0, };
 	TCHAR	   m_szInsertPass[20] = { 0, };
 	SQLINTEGER m_iSelectLevel;
 	/// <summary>
 	/// 
 	/// </summary>
-	SQLHSTMT  g_hUpdateStmt; // SQLPrepare Update ÇÚµé
+	SQLHSTMT  g_hUpdateStmt; // SQLPrepare Update í•¸ë“¤
 	TCHAR	   m_szUpdateName[10] = { 0, };
 	TCHAR	   m_szUpdatePass[10] = { 0, };
 	SQLINTEGER m_iUpdateLevel;

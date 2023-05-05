@@ -3,7 +3,6 @@
 
 #include "AnimNotify/AZAnimNotify.h"
 
-#include "SNodePanel.h"
 #include "Define/AZDefine.h"
 
 UAZAnimNotify::UAZAnimNotify()

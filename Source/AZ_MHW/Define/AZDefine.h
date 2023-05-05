@@ -1,4 +1,4 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -33,18 +33,6 @@
 //게임화면 출력용 디버깅 로그
 #define DISPLAY_LOG(fmt,...) \
 		if(GEngine) GEngine->AddOnScreenDebugMessage (-1, 5.f, FColor::Red, FString::Printf(TEXT(fmt), __VA_ARGS__));
-
-/** 디버그용 전역 로그구조체 선언
-* ProjectET.cpp파일에 선언됨
-*/
-DECLARE_LOG_CATEGORY_EXTERN(AZ_TEST, Log, All)
-DECLARE_LOG_CATEGORY_EXTERN(AZ_MOVE, Log, All)
-DECLARE_LOG_CATEGORY_EXTERN(AZ_ATTACK, Log, All)
-DECLARE_LOG_CATEGORY_EXTERN(AZ_DAMAGE, Log, All)
-
-/** 귀찮은 테스트 로그 이걸로*/
-#define PRINT_LOG(str)		UE_LOG(AZ_TEST, Warning, TEXT(str))
-#define PRINT_FUNCTION()	UE_LOG(AZ_TEST, Warning, TEXT("%s"), __FUNCTIONW__)
 
 /** 열거형 이름 문자열반환 매크로
  * 이것만 없길레 새로 정의함. 

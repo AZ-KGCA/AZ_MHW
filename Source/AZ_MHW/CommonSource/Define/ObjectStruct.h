@@ -5,16 +5,6 @@
 #include "ObjectStruct.generated.h"
 
 UENUM(BlueprintType)
-enum class EObjectType : uint8
-{
-	Player,
-	Npc,
-	Monster,
-	InteractObject,
-	Max
-};
-
-UENUM(BlueprintType)
 enum class ENpcFuncType : uint8
 {
 	None,

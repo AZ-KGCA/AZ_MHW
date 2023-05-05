@@ -9,13 +9,16 @@
 #include "AZ_MHW/CommonSource/MagicEnum/magic_enum_switch.hpp"
 #include "AZUtility.generated.h"
 
-#define PRINT_FUNCTION()	UE_LOG(AZMonster, Log, TEXT("Function Called: %s"), __FUNCTIONW__)
-DECLARE_LOG_CATEGORY_EXTERN(LogShipping, Log, All);
-DECLARE_LOG_CATEGORY_EXTERN(AZMonster, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(AZ_TEST, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZ_MOVE, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZ_ATTACK, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZ_DAMAGE, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogShipping, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZMonster, Log, All)
 
-/**
- * 
- */
+#define PRINT_LOG(str)		UE_LOG(AZ_TEST, Warning, TEXT(str))
+#define PRINT_FUNCTION()	UE_LOG(AZ_TEST, Warning, TEXT("%s"), __FUNCTIONW__)
+
 UCLASS(Blueprintable, BlueprintType)
 class AZ_MHW_API UAZUtility : public UObject
 {

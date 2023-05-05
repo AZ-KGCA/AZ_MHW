@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "AZ_MHW/CommonSource/Table/MapData.h"
 #include "AZ_MHW/CommonSource/Define/MapStruct.h"
+#include "AZ_MHW/CommonSource/Define/ObjectStruct.h"
 #include "AZMapBase.generated.h"
 
 /**
@@ -24,10 +25,10 @@ public:
 	virtual bool OnRequestMapOut();
 	virtual void OnGameMsg(struct FAZGameMsg* new_msg) {}
 
-	// AreaÀÇ Á¢±ÙÀÌ ¾øÀ½
+	// Areaì˜ ì ‘ê·¼ì´ ì—†ìŒ
 	//virtual void OnEnterArea(...)
 
-	// »óÁ¡ ¿­±â ÀÛ¾÷ÀÌ ÇÊ¿ä
+	// ìƒì  ì—´ê¸° ì‘ì—…ì´ í•„ìš”
 	const FSpawnObjectInfo* FindObjectByNPC(ENpcFuncType npc_type);
 
 	template <typename predicate>
@@ -57,7 +58,7 @@ protected:
 	int32 dungeon_map_clear_;
 };
 
-// ÆÄÆ¼´øÀü
+// íŒŒí‹°ë˜ì „
 UCLASS()
 class AZ_MHW_API UAZDungeon : public UAZMapBase
 {

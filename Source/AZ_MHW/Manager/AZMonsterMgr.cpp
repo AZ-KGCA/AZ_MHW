@@ -3,6 +3,7 @@
 #include <AZ_MHW/CommonSource/Table/MonsterData.h>
 #include <AZ_MHW/CommonSource/Table/MonsterNonCombatActionData.h>
 #include <AZ_MHW/CommonSource/Table/MonsterCombatActionData.h>
+#include "AZ_MHW/Define/AZDefine.h"
 #include "AZTableMgr.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
@@ -69,7 +70,7 @@ bool UAZMonsterMgr::LoadBehaviorTreeAssets()
 
 bool UAZMonsterMgr::ConvertMonsterTable()
 {
-	auto monster_table = UAZGameSingleton::instance()->table_mgr->GetTable<UMonsterData>();
+	auto monster_table = UAZGameSingleton::instance()->table_mgr->GetData<UMonsterData>();
 	if (monster_table.IsEmpty()) return false;
 	
 	for (const auto monster_data : monster_table)
@@ -95,7 +96,7 @@ bool UAZMonsterMgr::ConvertMonsterTable()
 
 bool UAZMonsterMgr::ConvertBossTable()
 {
-	auto boss_table = UAZGameSingleton::instance()->table_mgr->GetTable<UBossData>();
+	auto boss_table = UAZGameSingleton::instance()->table_mgr->GetData<UBossData>();
 	if (boss_table.IsEmpty()) return false;
 	
 	for (const auto boss_data : boss_table)
@@ -135,7 +136,7 @@ bool UAZMonsterMgr::ConvertBossTable()
 
 bool UAZMonsterMgr::ConvertMonsterNonCombatActionTable()
 {
-	auto monster_noncombat_table = UAZGameSingleton::instance()->table_mgr->GetTable<UMonsterNonCombatActionData>();
+	auto monster_noncombat_table = UAZGameSingleton::instance()->table_mgr->GetData<UMonsterNonCombatActionData>();
 	if (monster_noncombat_table.IsEmpty()) return false;
 	
 	for (const auto noncombat_action_data : monster_noncombat_table)
@@ -157,7 +158,7 @@ bool UAZMonsterMgr::ConvertMonsterNonCombatActionTable()
 
 bool UAZMonsterMgr::ConvertMonsterCombatActionTable()
 {
-	auto monster_combat_table = UAZGameSingleton::instance()->table_mgr->GetTable<UMonsterCombatActionData>();
+	auto monster_combat_table = UAZGameSingleton::instance()->table_mgr->GetData<UMonsterCombatActionData>();
 	if (monster_combat_table.IsEmpty()) return false;
 	
 	for (const auto combat_action_data : monster_combat_table)

@@ -167,7 +167,7 @@ void AAZHUD::_OpenUI(UAZWidget* widget, FAZWidgetData* widget_data, bool is_imme
 
 	if (widget->IsInViewport())
 	{
-		widget->RemoveFromViewport();
+		widget->RemoveFromParent();
 		// If it is among the widgets, delete it.
 		for (EUIName& scene_name : scenes_stack)
 		{

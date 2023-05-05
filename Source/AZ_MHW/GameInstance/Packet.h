@@ -2,6 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Odbc.h"
+#include "Define.h"
 
 struct RawPacketData
 {
@@ -43,7 +44,7 @@ struct PacketInfo
 
 enum class PACKET_ID : UINT16
 {
-	// TODO ¿À´Ã ¼öÁ¤ÇØ¾ßÇÔ
+	// TODO ì˜¤ëŠ˜ ìˆ˜ì •í•´ì•¼í•¨
 
 	//SYSTEM
 	SYS_USER_CONNECT = 11,
@@ -86,14 +87,14 @@ struct PACKET_HEADER
 {
 	UINT16 packet_length_;
 	UINT16 packet_id_;
-	//UINT8 type_; //¾ĞÃà¿©ºÎ ¾ÏÈ£È­¿©ºÎ µî ¼Ó¼ºÀ» ¾Ë¾Æ³»´Â °ª
+	//UINT8 type_; //ì••ì¶•ì—¬ë¶€ ì•”í˜¸í™”ì—¬ë¶€ ë“± ì†ì„±ì„ ì•Œì•„ë‚´ëŠ” ê°’
 };
 
 
 
 const UINT32 PACKET_HEADER_LENGTH = sizeof(PACKET_HEADER);
 
-// ·Î±×ÀÎ ¿äÃ»
+// ë¡œê·¸ì¸ ìš”ì²­
 const int MAX_USER_ID_LEN = 32;
 const int MAX_USER_PW_LEN = 32;
 
@@ -110,7 +111,7 @@ struct LOGIN_RESPONSE_PACKET : public PACKET_HEADER
 	UINT16 result_;
 };
 
-//- ·ë¿¡ µé¾î°¡±â ¿äÃ»
+//- ë£¸ì— ë“¤ì–´ê°€ê¸° ìš”ì²­
 //const int MAX_ROOM_TITLE_SIZE = 32;
 struct ROOM_ENTER_REQUEST_PACKET : public PACKET_HEADER
 {
@@ -122,7 +123,7 @@ struct ROOM_ENTER_RESPONSE_PACKET : public PACKET_HEADER
 	//char RivalUserID[MAX_USER_ID_LEN + 1] = { 0, };
 };
 
-//- ·ë ³ª°¡±â ¿äÃ»
+//- ë£¸ ë‚˜ê°€ê¸° ìš”ì²­
 struct ROOM_LEAVE_REQUEST_PACKET : public PACKET_HEADER
 {
 };
@@ -132,8 +133,7 @@ struct ROOM_LEAVE_RESPONSE_PACKET : public PACKET_HEADER
 	INT16 result_;
 };
 
-// ·ë Ã¤ÆÃ
-const int MAX_CHAT_MSG_SIZE = 256;
+// ë£¸ ì±„íŒ…
 struct ROOM_CHAT_REQUEST_PACKET : public PACKET_HEADER
 {
 	char message_[MAX_CHAT_MSG_SIZE + 1] = { 0, };
@@ -149,7 +149,7 @@ struct ROOM_CHAT_NOTIFY_PACKET : public PACKET_HEADER
 	char user_id_[MAX_USER_ID_LEN + 1] = { 0, };
 	char msg_[MAX_CHAT_MSG_SIZE + 1] = { 0, };
 };
-#pragma pack(pop) //À§¿¡ ¼³Á¤µÈ ÆĞÅ·¼³Á¤ÀÌ »ç¶óÁü
+#pragma pack(pop) //ìœ„ì— ì„¤ì •ëœ íŒ¨í‚¹ì„¤ì •ì´ ì‚¬ë¼ì§
 
 class Packet
 {

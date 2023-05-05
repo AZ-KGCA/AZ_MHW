@@ -7,7 +7,7 @@
 #include "AnimInstance/AZAnimInstance_Player.h"
 //#include <Components/CapsuleComponent.h>
 #include <Components/SkeletalMeshComponent.h>
-
+#include "AZ_MHW/Util/AZUtility.h"
 //#include "GameSingleton/AZGameSingleton.h"
 //#include "Manager/AZTableMgr.h"
 #include "GameInstance/AZGameInstance.h"

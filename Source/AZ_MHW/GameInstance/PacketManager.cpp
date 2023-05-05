@@ -14,7 +14,7 @@ void PacketManager::Init(const UINT32 max_client)
 	// https://blog.naver.com/PostView.nhn?blogId=webserver3315&logNo=221678909965&parentCategoryNo=&categoryNo=48&viewDate=&isShowPopularPosts=true&from=search
 	recv_funtion_dictionary_ = std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION>();
 
-	// (PACKET_ID ¼³Á¤) Key, Value ¼³Á¤
+	// (PACKET_ID ì„¤ì •) Key, Value ì„¤ì •
 	recv_funtion_dictionary_[(int)PACKET_ID::SYS_USER_CONNECT] = &PacketManager::ProcessuserConnect;
 	recv_funtion_dictionary_[(int)PACKET_ID::SYS_USER_DISCONNECT] = &PacketManager::ProcessUserDisConnect;
 	recv_funtion_dictionary_[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
@@ -32,9 +32,9 @@ void PacketManager::CreateCompent(const UINT32 max_client)
 
 bool PacketManager::Run()
 {
-	//ÀÌ ºÎºĞÀ» ÆĞÅ¶ Ã³¸® ºÎºĞÀ¸·Î ÀÌµ¿ ½ÃÅ²´Ù.
+	//ì´ ë¶€ë¶„ì„ íŒ¨í‚· ì²˜ë¦¬ ë¶€ë¶„ìœ¼ë¡œ ì´ë™ ì‹œí‚¨ë‹¤.
 	is_run_process_thread_ = true;
-	// ÆĞÅ¶ ¾²·¹µå »ı¼º
+	// íŒ¨í‚· ì“°ë ˆë“œ ìƒì„±
 	process_thread_ = std::thread([this]() {ProcessPacket(); });
 
 	return true;
@@ -52,13 +52,13 @@ void PacketManager::End()
 
 void PacketManager::ReceivePacketData(const UINT32 client_index, const UINT32 size, char* P_data)
 {
-	// GetUserByConnIdx ¾î¶² Å¬¶óÀÌ¾ğÆ®°¡ ¸Ş¼¼Áö¸¦ º¸³Â´ÂÁö È®ÀÎ
+	// GetUserByConnIdx ì–´ë–¤ í´ë¼ì´ì–¸íŠ¸ê°€ ë©”ì„¸ì§€ë¥¼ ë³´ëƒˆëŠ”ì§€ í™•ì¸
 	auto P_user = user_manager_->GetUserByConnIdx(client_index);
 
-	// ¸Ş¼¼Áö¸¦ º¸³½ Å¬¶óÀÌ¾ğÆ® °´Ã¼¿¡ µ¥ÀÌÅÍ¸¦ ´ãÀ½
+	// ë©”ì„¸ì§€ë¥¼ ë³´ë‚¸ í´ë¼ì´ì–¸íŠ¸ ê°ì²´ì— ë°ì´í„°ë¥¼ ë‹´ìŒ
 	P_user->SetPacketData(size, P_data);
 
-	// Å¥¿¡ ¸®½Ãºê°¡ ¹ß»ıÇß´Ù´Â °ÍÀ» ¾Ë·ÁÁÜ
+	// íì— ë¦¬ì‹œë¸Œê°€ ë°œìƒí–ˆë‹¤ëŠ” ê²ƒì„ ì•Œë ¤ì¤Œ
 	EnqueuePacketData(client_index);
 }
 
@@ -68,19 +68,19 @@ void PacketManager::ProcessPacket()
 	{
 		bool is_idle = true;
 
-		// ÀÌ¹Ì ¿¬°áÀÌ µÈ À¯Àú°¡ º¸³½ ¿äÃ»ÀÌ ÀÖ´Â °æ¿ì
+		// ì´ë¯¸ ì—°ê²°ì´ ëœ ìœ ì €ê°€ ë³´ë‚¸ ìš”ì²­ì´ ìˆëŠ” ê²½ìš°
 		if (auto packet_data = DequePacketData(); packet_data.packet_id_ > (UINT16)PACKET_ID::SYS_END)
 		{
 			is_idle = false;
-			// ¿äÃ»ÀÌ ÀÖ´Â °æ¿ì Ã³¸®
+			// ìš”ì²­ì´ ìˆëŠ” ê²½ìš° ì²˜ë¦¬
 			ProcessRecvPacket(packet_data.client_index_, packet_data.packet_id_, packet_data.data_size_, packet_data.P_data_ptr_);
 		}
 
-		// ½Ã½ºÅÛ ÆĞÅ¶ (¿¬°á & ¿¬°á Á¾·á°¡ ¹ß»ıÇÑ °æ¿ì)
+		// ì‹œìŠ¤í…œ íŒ¨í‚· (ì—°ê²° & ì—°ê²° ì¢…ë£Œê°€ ë°œìƒí•œ ê²½ìš°)
 		if (auto packet_data = DequeSystemPacketData(); packet_data.packet_id_ != 0)
 		{
 			is_idle = false;
-			// ¿äÃ»ÀÌ ÀÖ´Â °æ¿ì Ã³¸®
+			// ìš”ì²­ì´ ìˆëŠ” ê²½ìš° ì²˜ë¦¬
 			ProcessRecvPacket(packet_data.client_index_, packet_data.packet_id_, packet_data.data_size_, packet_data.P_data_ptr_);
 		}
 
@@ -103,18 +103,18 @@ PacketInfo PacketManager::DequePacketData()
 
 	{
 		std::lock_guard<std::mutex> grard(lock_);
-		// ÇöÀç Send ¿äÃ»À» º¸³½ À¯Àú°¡ ÀÖ´ÂÁö È®ÀÎ
+		// í˜„ì¬ Send ìš”ì²­ì„ ë³´ë‚¸ ìœ ì €ê°€ ìˆëŠ”ì§€ í™•ì¸
 		if (in_coming_packet_user_index_.empty())
 		{
 			return PacketInfo();
 		}
 
-		// ¿äÃ»ÇÑ µ¥ÀÌÅÍ°¡ ÀÖ´Ù¸é index ÃßÃâ
+		// ìš”ì²­í•œ ë°ì´í„°ê°€ ìˆë‹¤ë©´ index ì¶”ì¶œ
 		user_index = in_coming_packet_user_index_.front();
 		in_coming_packet_user_index_.pop_front();
 	}
 
-	// ¾Ë¾Æ³½ index·Î À¯Àú °´Ã¼ °¡Á®¿È
+	// ì•Œì•„ë‚¸ indexë¡œ ìœ ì € ê°ì²´ ê°€ì ¸ì˜´
 	auto P_user = user_manager_->GetUserByConnIdx(user_index);
 	auto packet_data = P_user->GetPacket();
 	packet_data.client_index_ = user_index;
@@ -125,7 +125,7 @@ PacketInfo PacketManager::DequePacketData()
 void PacketManager::PushSystemPacket(PacketInfo packet)
 {
 	std::lock_guard<std::mutex> guard(lock_);
-	// ÆĞÅ¶ Çì´õ¿¡ µû¶ó¼­ Ã³¸®
+	// íŒ¨í‚· í—¤ë”ì— ë”°ë¼ì„œ ì²˜ë¦¬
 	system_packet_queue_.push_back(packet);
 }
 
@@ -164,33 +164,33 @@ PacketInfo PacketManager::DequeSystemPacketData()
 
 void PacketManager::ProcessRecvPacket(const UINT32 client_index, const UINT16 packet_id, const UINT16 packet_size, char* P_packet)
 {
-	// ¿äÃ»ÇÑ ÆĞÅ¶ id·Î Å¬¶óÀÌ¾ğÆ® °´Ã¼ Ã£À½
+	// ìš”ì²­í•œ íŒ¨í‚· idë¡œ í´ë¼ì´ì–¸íŠ¸ ê°ì²´ ì°¾ìŒ
 	auto iter = recv_funtion_dictionary_.find(packet_id);
 	if (iter != recv_funtion_dictionary_.end())
 	{
-		// Ã£Àº °´Ã¼·Î Ã³¸®
+		// ì°¾ì€ ê°ì²´ë¡œ ì²˜ë¦¬
 		(this->*(iter->second))(client_index, packet_size, P_packet);
 	}
 }
 
 void PacketManager::ProcessuserConnect(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
-	// »õ·Î ¿¬°á ¹Ş±â
+	// ìƒˆë¡œ ì—°ê²° ë°›ê¸°
 	printf("[ProcessUserConnect] clientIndex: %d\n", client_index);
-	// ÇÏ³ªÀÇ user_manger °´Ã¼ ÇÒ´ç
+	// í•˜ë‚˜ì˜ user_manger ê°ì²´ í• ë‹¹
 	auto P_user = user_manager_->GetUserByConnIdx(client_index);
-	// °´Ã¼ ÃÊ±âÈ­
+	// ê°ì²´ ì´ˆê¸°í™”
 	P_user->Clear();
 }
 
 void PacketManager::ProcessUserDisConnect(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
 	printf("[ProcessUserDisConnect] clientIndex: %d\n", client_index);
-	// ¿¬°áÀÌ ²÷¾îÁø °æ¿ì user ¹İÈ¯
+	// ì—°ê²°ì´ ëŠì–´ì§„ ê²½ìš° user ë°˜í™˜
 	ClearConnectionInfo(client_index);
 }
 
-// ·Î±×ÀÎ ÇÁ·Î¼¼¼­
+// ë¡œê·¸ì¸ í”„ë¡œì„¸ì„œ
 void PacketManager::ProcessLogin(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
 	auto  P_login_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
@@ -221,17 +221,17 @@ void PacketManager::ProcessLogin(UINT32 client_index, UINT16 packet_size, char* 
 		SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 	}
 
-	// TODO. Áßº¹ ·Î±×ÀÎ ¾ÈµÇ´Â ±â´É
+	// TODO. ì¤‘ë³µ ë¡œê·¸ì¸ ì•ˆë˜ëŠ” ê¸°ëŠ¥
 	//if (user_manager_->GetCurrentUserCnt() >= user_manager_->GetMaxUserCnt())
 	//{
-	//	//Á¢¼ÓÀÚ¼ö°¡ ÃÖ´ë¼ö¸¦ Â÷ÁöÇØ¼­ Á¢¼ÓºÒ°¡
+	//	//ì ‘ì†ììˆ˜ê°€ ìµœëŒ€ìˆ˜ë¥¼ ì°¨ì§€í•´ì„œ ì ‘ì†ë¶ˆê°€
 	//	login_res_packet.result_ = (UINT16)ERROR_CODE::LOGIN_USER_USED_ALL_OBJ;
 	//	SendPacketFunc(client_index, sizeof(LOGIN_RESPONSE_PACKET), (char*)&login_res_packet);
 	//	return;
 	//}
 
-	// TODO. Çã¿ë Á¢¼Ó ÀÎ¿øº¸´Ù ¸¹À¸¸é Â÷´Ü
-	////¿©±â¿¡¼­ ÀÌ¹Ì Á¢¼ÓµÈ À¯ÀúÀÎÁö È®ÀÎÇÏ°í, Á¢¼ÓµÈ À¯Àú¶ó¸é ½ÇÆĞÇÑ´Ù.
+	// TODO. í—ˆìš© ì ‘ì† ì¸ì›ë³´ë‹¤ ë§ìœ¼ë©´ ì°¨ë‹¨
+	////ì—¬ê¸°ì—ì„œ ì´ë¯¸ ì ‘ì†ëœ ìœ ì €ì¸ì§€ í™•ì¸í•˜ê³ , ì ‘ì†ëœ ìœ ì €ë¼ë©´ ì‹¤íŒ¨í•œë‹¤.
 	//if (user_manager_->FindUserIndexByID(P_user_id) == -1)
 	//{
 	//	login_res_packet.result_ = (UINT16)ERROR_CODE::NONE;
@@ -239,7 +239,7 @@ void PacketManager::ProcessLogin(UINT32 client_index, UINT16 packet_size, char* 
 	//}
 	//else
 	//{
-	//	//Á¢¼ÓÁßÀÎ À¯Àú¿©¼­ ½ÇÆĞ¸¦ ¹İÈ¯ÇÑ´Ù.
+	//	//ì ‘ì†ì¤‘ì¸ ìœ ì €ì—¬ì„œ ì‹¤íŒ¨ë¥¼ ë°˜í™˜í•œë‹¤.
 	//	login_res_packet.result_ = (UINT16)ERROR_CODE::LOGIN_USER_ALREADY;
 	//	SendPacketFunc(client_index, sizeof(LOGIN_REQUEST_PACKET), (char*)&login_res_packet);
 	//	return;

@@ -1,11 +1,13 @@
 #include "Odbc.h"
 
+#define _CRT_SECURE_NO_WARNINGS
+
 void Odbc::Load()
 {
 	m_dbDataList.clear();
 	m_ColumnList.clear();
 
-	// ÀüÃ¼ ·¹ÄÚµå Á¶È¸, Ãß°¡, ¼öÁ¤, »èÁ¦
+	// ì „ì²´ ë ˆì½”ë“œ ì¡°íšŒ, ì¶”ê°€, ìˆ˜ì •, ì‚­ì œ
 	/*TCHAR sql[] = L"select * from tblCigar";
 	SQLRETURN hr = SQLExecDirect(g_odbc.g_hStmt, sql, SQL_NTS);*/
 	SQLRETURN hr = SQLExecute(g_hSelectAllStmt);
@@ -14,7 +16,7 @@ void Odbc::Load()
 		ErrorMsg(g_hSelectAllStmt);
 		return;
 	}
-	SQLLEN  count; // update, insert, delete »ç¿ë°¡´ÉÇÔ´Ù.
+	SQLLEN  count; // update, insert, delete ì‚¬ìš©ê°€ëŠ¥í•¨ë‹¤.
 	SQLRETURN ret = SQLRowCount(g_hSelectAllStmt, &count);
 
 	SQLSMALLINT colCount;
@@ -49,8 +51,8 @@ void Odbc::Load()
 		dbitem dtItem;
 		for (int iCol = 0; iCol < m_ColumnList.size(); iCol++)
 		{
-			/* SQLBindCol ´ëÃ¼ÇÑ´Ù.
-			   µ¥ÀÌÅÍÇü »ó°ü¾øÀÌ ¸ðµç °ÍÀ» ½ºÆ®¸µÀ¸·Î ¹Þ°Ú´Ù.*/
+			/* SQLBindCol ëŒ€ì²´í•œë‹¤.
+			   ë°ì´í„°í˜• ìƒê´€ì—†ì´ ëª¨ë“  ê²ƒì„ ìŠ¤íŠ¸ë§ìœ¼ë¡œ ë°›ê² ë‹¤.*/
 			hr = SQLGetData(g_hSelectAllStmt, m_ColumnList[iCol].icol,
 				SQL_WCHAR, m_ColumnList[iCol].bindData,
 				sizeof(m_ColumnList[iCol].bindData), NULL);
@@ -71,23 +73,23 @@ void Odbc::Load()
 
 void Odbc::Init()
 {
-	// È¯°æÇÚµé(g_hEnv), ¿¬°áÇÚµé(g_hDbc), ¸í·ÉÇÚµé(g_hStmt)
+	// í™˜ê²½í•¸ë“¤(g_hEnv), ì—°ê²°í•¸ë“¤(g_hDbc), ëª…ë ¹í•¸ë“¤(g_hStmt)
 
-	// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö 
-	SQLRETURN hr = SQLAllocHandle(SQL_HANDLE_ENV, // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		SQL_NULL_HANDLE, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hEnv // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜ 
+	SQLRETURN hr = SQLAllocHandle(SQL_HANDLE_ENV, // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		SQL_NULL_HANDLE, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hEnv // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
 	if (hr != SQL_SUCCESS)
 	{
 		return;
 	}
 
-	// SQLSetEnvAttr : È¯°æÇÚµé ¼Ó¼º ÁöÁ¤
-	if (SQLSetEnvAttr(g_hEnv, // È¯°æ¼Ó¼º ÇÚµé
-		SQL_ATTR_ODBC_VERSION, // ¼Ó¼ºÀÇ Á¾·ù ÁöÁ¤
-		(SQLPOINTER)SQL_OV_ODBC3_80, //¼Ó¼º °ª ÁöÁ¤
-		SQL_IS_INTEGER) != SQL_SUCCESS // ¼Ó¼º °ªÀÇ ±æÀÌ
+	// SQLSetEnvAttr : í™˜ê²½í•¸ë“¤ ì†ì„± ì§€ì •
+	if (SQLSetEnvAttr(g_hEnv, // í™˜ê²½ì†ì„± í•¸ë“¤
+		SQL_ATTR_ODBC_VERSION, // ì†ì„±ì˜ ì¢…ë¥˜ ì§€ì •
+		(SQLPOINTER)SQL_OV_ODBC3_80, //ì†ì„± ê°’ ì§€ì •
+		SQL_IS_INTEGER) != SQL_SUCCESS // ì†ì„± ê°’ì˜ ê¸¸ì´
 		)
 	{
 		ErrorMsg(NULL);
@@ -96,11 +98,11 @@ void Odbc::Init()
 
 	if (hr == SQL_SUCCESS)
 	{
-		//¿¬°áÇÚµé(g_hDbc)
-		// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö
-		hr = SQLAllocHandle(SQL_HANDLE_DBC, // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-			g_hEnv, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-			&g_hDbc // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+		//ì—°ê²°í•¸ë“¤(g_hDbc)
+		// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜
+		hr = SQLAllocHandle(SQL_HANDLE_DBC, // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+			g_hEnv, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+			&g_hDbc // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 		);
 		if (hr != SQL_SUCCESS)
 		{
@@ -145,14 +147,14 @@ void Odbc::ErrorMsg(SQLHSTMT  stmt)
 	SQLINTEGER nativeError = 0;
 
 	//SQLRETURN hr;
-	// º¹ÇÕ¿¡·¯
+	// ë³µí•©ì—ëŸ¬
 	/*while (hr = SQLGetDiagRec(SQL_HANDLE_STMT, g_hStmt, value, sqlState, &nativeError, msg,
 		_countof(msg), &msgLen) != SQL_NO_DATA)*/
-		//´Ü¼ø¿¡·¯
+		//ë‹¨ìˆœì—ëŸ¬
 	SQLError(g_hEnv, g_hDbc, g_hStmt,
 		sqlState, &nativeError, msg, SQL_MAX_MESSAGE_LENGTH + 1, &msgLen);
 	{
-		//_stprintf(errorMsg, L"SQLSTATE:%s, Áø´ÜÁ¤º¸:%s, ¿¡·¯ÄÚµå:%d", sqlState, msg, nativeError);
+		//_stprintf(errorMsg, L"SQLSTATE:%s, ì§„ë‹¨ì •ë³´:%s, ì—ëŸ¬ì½”ë“œ:%d", sqlState, msg, nativeError);
 		UE_LOG(LogTemp, Warning, TEXT("SQLSTATE:%s, state info : %s, error code : %d\n"), sqlState, msg, nativeError);
 		::MessageBox(NULL, errorMsg, L"state info", 0);
 	}
@@ -176,11 +178,11 @@ void Odbc::Connect(std::wstring dbName)
 	}
 
 
-	//¸í·ÉÇÚµé(g_hStmt)
-	// SQLSetEnvAttr : È¯°æÇÚµé ¼Ó¼º ÁöÁ¤
-	SQLAllocHandle(SQL_HANDLE_STMT, // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		g_hDbc, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hStmt // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	//ëª…ë ¹í•¸ë“¤(g_hStmt)
+	// SQLSetEnvAttr : í™˜ê²½í•¸ë“¤ ì†ì„± ì§€ì •
+	SQLAllocHandle(SQL_HANDLE_STMT, // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		g_hDbc, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hStmt // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
 
 	CreatePrepare();
@@ -202,17 +204,17 @@ void Odbc::ConnetMssql(std::wstring dbName)
 
 	if (hr != SQL_SUCCESS && hr != SQL_SUCCESS_WITH_INFO)
 	{
-		// ·Î±×ÀÎ ½ÇÆÐ
+		// ë¡œê·¸ì¸ ì‹¤íŒ¨
 		UE_LOG(LogTemp, Warning, TEXT("sql fail / hr : %d"), hr);
 		ErrorMsg(NULL);
 		return;
 	}
 	else {
-		// ·Î±×ÀÎ ¼º°ø
+		// ë¡œê·¸ì¸ ì„±ê³µ
 		UE_LOG(LogTemp, Warning, TEXT("sql seccess / hr : %d"), hr);
 	}
 
-	//¸í·ÉÇÚµé(g_hStmt)
+	//ëª…ë ¹í•¸ë“¤(g_hStmt)
 	SQLAllocHandle(SQL_HANDLE_STMT, g_hDbc, &g_hStmt);
 	CreatePrepare();
 } // End ConnetMssql
@@ -239,7 +241,7 @@ void Odbc::DisConnect()
 //
 //	//m_iSelectLevel = record.level;
 //
-//	// SQLExecute : ÁØºñµÈ ÆÄ¶ó¹ÌÅÍ¸¸ ±³Ã¼ÇØ¼­ ¹Ù·Î ½ÇÇàÇÑ´Ù
+//	// SQLExecute : ì¤€ë¹„ëœ íŒŒë¼ë¯¸í„°ë§Œ êµì²´í•´ì„œ ë°”ë¡œ ì‹¤í–‰í•œë‹¤
 //	SQLRETURN hr = SQLExecute(g_hInsertStmt);
 //	if (hr != SQL_SUCCESS || hr == SQL_SUCCESS_WITH_INFO)
 //	{
@@ -248,7 +250,7 @@ void Odbc::DisConnect()
 //	}
 //	if (g_hInsertStmt) SQLCloseCursor(g_hInsertStmt);
 //	
-//	// SQLFreeStmt : ÇÚµé°ú °ü·ÃµÈ ¸ðµç ÀÚ¿øÀ» ÇØÁ¦
+//	// SQLFreeStmt : í•¸ë“¤ê³¼ ê´€ë ¨ëœ ëª¨ë“  ìžì›ì„ í•´ì œ
 //	SQLFreeStmt(g_hInsertStmt, SQL_CLOSE);
 //
 //	return true;
@@ -263,7 +265,7 @@ bool Odbc::AddSQL(dbitem& record)
 
 	//m_iSelectLevel = record.level;
 
-	// SQLExecute : ÁØºñµÈ ÆÄ¶ó¹ÌÅÍ¸¸ ±³Ã¼ÇØ¼­ ¹Ù·Î ½ÇÇàÇÑ´Ù
+	// SQLExecute : ì¤€ë¹„ëœ íŒŒë¼ë¯¸í„°ë§Œ êµì²´í•´ì„œ ë°”ë¡œ ì‹¤í–‰í•œë‹¤
 	SQLRETURN hr = SQLExecute(g_hSignupStmt);
 	if (hr != SQL_SUCCESS || hr == SQL_SUCCESS_WITH_INFO)
 	{
@@ -272,7 +274,7 @@ bool Odbc::AddSQL(dbitem& record)
 	}
 	if (g_hSignupStmt) SQLCloseCursor(g_hSignupStmt);
 
-	// SQLFreeStmt : ÇÚµé°ú °ü·ÃµÈ ¸ðµç ÀÚ¿øÀ» ÇØÁ¦
+	// SQLFreeStmt : í•¸ë“¤ê³¼ ê´€ë ¨ëœ ëª¨ë“  ìžì›ì„ í•´ì œ
 	SQLFreeStmt(g_hSignupStmt, SQL_CLOSE);
 
 	return true;
@@ -280,7 +282,7 @@ bool Odbc::AddSQL(dbitem& record)
 
 bool Odbc::UpdateSQL(dbitem& record, std::wstring selectName)
 {
-	// ¹öÆÛÀÇ ±æÀÌ°¡ NCHAR(10) º¸´Ù Å©¸é ¾ÈµÈ´Ù. 
+	// ë²„í¼ì˜ ê¸¸ì´ê°€ NCHAR(10) ë³´ë‹¤ í¬ë©´ ì•ˆëœë‹¤. 
 	ZeroMemory(m_szSelectName, sizeof(TCHAR) * 10);
 	CopyMemory(m_szSelectName, selectName.c_str(), selectName.size() * sizeof(TCHAR));
 
@@ -317,7 +319,7 @@ bool Odbc::UpdateSQL(dbitem& record, std::wstring selectName)
 		0, 0, &m_iUpdateSex,
 		0, &m_cbColumn);
 
-	std::time_t now = std::time(NULL); // 1970,01,01, 0½Ã
+	std::time_t now = std::time(NULL); // 1970,01,01, 0ì‹œ
 	std::tm* ptm = std::localtime(&now);
 
 	m_ts.year = ptm->tm_year + 1900;
@@ -350,7 +352,7 @@ bool Odbc::ReadRecord(std::wstring selectName)
 {
 	ZeroMemory(retName, sizeof(TCHAR) * 10);
 	ZeroMemory(retPass, sizeof(TCHAR) * 10);
-	// ÁßÀÇ : sizeof(TCHAR)*10 ÀÇ ¼³Á¤ÀÌ Áß¿äÇÔ.
+	// ì¤‘ì˜ : sizeof(TCHAR)*10 ì˜ ì„¤ì •ì´ ì¤‘ìš”í•¨.
 	SQLRETURN hr1 = SQLBindCol(g_hReadStmt, 1, SQL_INTEGER, &retID, 0, &lID);
 	SQLBindCol(g_hReadStmt, 2, SQL_UNICODE, retName, sizeof(TCHAR) * 10, &lName);
 	SQLBindCol(g_hReadStmt, 3, SQL_UNICODE, retPass, sizeof(TCHAR) * 10, &lPass);
@@ -409,16 +411,16 @@ bool Odbc::DeleteSQL(const TCHAR* szName)
 	if (szName != nullptr)
 	{
 		ZeroMemory(m_szDeleteName, sizeof(m_szDeleteName));
-		// TODO szName ¿Ö 8¹ÙÀÌÆ®·Î µé¾î¿À´ÂÁö È®ÀÎÇØ¾ßÇÔ ÀÓ½Ã·Î m_szDeleteName »çÀÌÁî ¹Þ´Â°É·Î º¯°æ
+		// TODO szName ì™œ 8ë°”ì´íŠ¸ë¡œ ë“¤ì–´ì˜¤ëŠ”ì§€ í™•ì¸í•´ì•¼í•¨ ìž„ì‹œë¡œ m_szDeleteName ì‚¬ì´ì¦ˆ ë°›ëŠ”ê±¸ë¡œ ë³€ê²½
 		CopyMemory(m_szDeleteName, szName, sizeof(m_szDeleteName));
 		//CopyMemory(m_szDeleteName, szName, sizeof(szName));
 
-		// SQLExecute : ÁØºñµÈ ÆÄ¶ó¹ÌÅÍ¸¸ ±³Ã¼ÇØ¼­ ¹Ù·Î ½ÇÇàÇÑ´Ù
+		// SQLExecute : ì¤€ë¹„ëœ íŒŒë¼ë¯¸í„°ë§Œ êµì²´í•´ì„œ ë°”ë¡œ ì‹¤í–‰í•œë‹¤
 		SQLRETURN hr = SQLExecute(g_hDeleteStmt);
 
 		if (hr == SQL_SUCCESS)
 		{
-			// SQLFetch °á°ú ÁýÇÕ¿¡¼­ ¹ÙÀÎµùµÈ µ¥ÀÌÅÍ¸¦ ¹ÝÈ¯
+			// SQLFetch ê²°ê³¼ ì§‘í•©ì—ì„œ ë°”ì¸ë”©ëœ ë°ì´í„°ë¥¼ ë°˜í™˜
 			if (SQLFetch(g_hDeleteStmt) != SQL_NO_DATA)
 			{
 				if (g_hDeleteStmt) SQLCloseCursor(g_hDeleteStmt);
@@ -437,19 +439,19 @@ bool Odbc::DeleteSQL(const TCHAR* szName)
 
 bool Odbc::Signup()
 {
-	// Login ·Î±×ÀÎ Ã¼Å©
+	// Login ë¡œê·¸ì¸ ì²´í¬
 	SQLRETURN ret;
 	//insert into dbo.user_table(Name, Pass) values('kim', 'dd');
 	std::wstring sql7 = L"insert into user_table (Name, Pass) values(?,?)";
-	// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö
-	ret = SQLAllocHandle(SQL_HANDLE_STMT,  // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		g_hDbc, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hSignupStmt // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜
+	ret = SQLAllocHandle(SQL_HANDLE_STMT,  // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		g_hDbc, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hSignupStmt // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
 
-	// SQLPrepare ÆÄ¶ó¹ÌÅÍ¸¸ ¹Ù²ã¼­ sql ½ÇÇà
+	// SQLPrepare íŒŒë¼ë¯¸í„°ë§Œ ë°”ê¿”ì„œ sql ì‹¤í–‰
 	ret = SQLPrepare(g_hSignupStmt, // Handle
-		(SQLTCHAR*)sql7.c_str(), // ½ÇÇàÇÒ sql ¹®
+		(SQLTCHAR*)sql7.c_str(), // ì‹¤í–‰í•  sql ë¬¸
 		SQL_NTS // TextLength?
 	);
 
@@ -457,30 +459,30 @@ bool Odbc::Signup()
 	m_iLoginPwDataLength = sizeof(m_szInsertName);
 	m_cbColumn = SQL_NTS;
 
-	// ?¸¦ ÆÄ¶ó¹ÌÅÍ ¸¶Ä¿¶ó°í ÇÏ¸ç, ½ÇÇàÁß ¹ÙÀÎµùµÈ º¯¼ö°ªÀ¸·Î ´ëÃ¼ ? ¸¸Å­ SQLBindParameter ÇÒ´ç ÇØ¾ß ÇÑ´Ù.
-	ret = SQLBindParameter(g_hSignupStmt, // ¸í·ÉÇÚµé
-		1, // ÆÄ¶ó¹ÌÅÍ ¹øÈ£
-		SQL_PARAM_INPUT, // ÆÄ¶ó¹ÌÅÍ ¿ëµµ
-		SQL_UNICODE, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(CÇü)
-		SQL_CHAR, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(SQLÇü)
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ Å©±â
-		0, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ ÀÚ¸®¼ö
-		m_szInsertName, // ½ÇÁ¦ ÆÄ¶ó¹ÌÅÍ¿Í ¿¬°áµÉ º¯¼öÀÇ ÁÖ¼Ò
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍÀÇ ¹®ÀÚ¿­ÀÌ³ª ÀÌÁøÇüÀÏ¶§ ¹öÆÛÀÇ Å©±â
-		&m_cbColumn // ±æÀÌ¿Í »óÅÂ ÀÎ¼ö
+	// ?ë¥¼ íŒŒë¼ë¯¸í„° ë§ˆì»¤ë¼ê³  í•˜ë©°, ì‹¤í–‰ì¤‘ ë°”ì¸ë”©ëœ ë³€ìˆ˜ê°’ìœ¼ë¡œ ëŒ€ì²´ ? ë§Œí¼ SQLBindParameter í• ë‹¹ í•´ì•¼ í•œë‹¤.
+	ret = SQLBindParameter(g_hSignupStmt, // ëª…ë ¹í•¸ë“¤
+		1, // íŒŒë¼ë¯¸í„° ë²ˆí˜¸
+		SQL_PARAM_INPUT, // íŒŒë¼ë¯¸í„° ìš©ë„
+		SQL_UNICODE, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(Cí˜•)
+		SQL_CHAR, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(SQLí˜•)
+		m_iDataLength, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ í¬ê¸°
+		0, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ ìžë¦¬ìˆ˜
+		m_szInsertName, // ì‹¤ì œ íŒŒë¼ë¯¸í„°ì™€ ì—°ê²°ë  ë³€ìˆ˜ì˜ ì£¼ì†Œ
+		m_iDataLength, // íŒŒë¼ë¯¸í„°ì˜ ë¬¸ìžì—´ì´ë‚˜ ì´ì§„í˜•ì¼ë•Œ ë²„í¼ì˜ í¬ê¸°
+		&m_cbColumn // ê¸¸ì´ì™€ ìƒíƒœ ì¸ìˆ˜
 	);
 
-	// ?¸¦ ÆÄ¶ó¹ÌÅÍ ¸¶Ä¿¶ó°í ÇÏ¸ç, ½ÇÇàÁß ¹ÙÀÎµùµÈ º¯¼ö°ªÀ¸·Î ´ëÃ¼ ? ¸¸Å­ SQLBindParameter ÇÒ´ç ÇØ¾ß ÇÑ´Ù.
-	ret = SQLBindParameter(g_hSignupStmt, // ¸í·ÉÇÚµé
-		2, // ÆÄ¶ó¹ÌÅÍ ¹øÈ£
-		SQL_PARAM_INPUT, // ÆÄ¶ó¹ÌÅÍ ¿ëµµ
-		SQL_UNICODE, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(CÇü)
-		SQL_CHAR, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(SQLÇü)
-		m_iLoginPwDataLength, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ Å©±â
-		0, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ ÀÚ¸®¼ö
-		m_szInsertPass, // ½ÇÁ¦ ÆÄ¶ó¹ÌÅÍ¿Í ¿¬°áµÉ º¯¼öÀÇ ÁÖ¼Ò
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍÀÇ ¹®ÀÚ¿­ÀÌ³ª ÀÌÁøÇüÀÏ¶§ ¹öÆÛÀÇ Å©±â
-		&m_cbColumn // ±æÀÌ¿Í »óÅÂ ÀÎ¼ö
+	// ?ë¥¼ íŒŒë¼ë¯¸í„° ë§ˆì»¤ë¼ê³  í•˜ë©°, ì‹¤í–‰ì¤‘ ë°”ì¸ë”©ëœ ë³€ìˆ˜ê°’ìœ¼ë¡œ ëŒ€ì²´ ? ë§Œí¼ SQLBindParameter í• ë‹¹ í•´ì•¼ í•œë‹¤.
+	ret = SQLBindParameter(g_hSignupStmt, // ëª…ë ¹í•¸ë“¤
+		2, // íŒŒë¼ë¯¸í„° ë²ˆí˜¸
+		SQL_PARAM_INPUT, // íŒŒë¼ë¯¸í„° ìš©ë„
+		SQL_UNICODE, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(Cí˜•)
+		SQL_CHAR, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(SQLí˜•)
+		m_iLoginPwDataLength, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ í¬ê¸°
+		0, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ ìžë¦¬ìˆ˜
+		m_szInsertPass, // ì‹¤ì œ íŒŒë¼ë¯¸í„°ì™€ ì—°ê²°ë  ë³€ìˆ˜ì˜ ì£¼ì†Œ
+		m_iDataLength, // íŒŒë¼ë¯¸í„°ì˜ ë¬¸ìžì—´ì´ë‚˜ ì´ì§„í˜•ì¼ë•Œ ë²„í¼ì˜ í¬ê¸°
+		&m_cbColumn // ê¸¸ì´ì™€ ìƒíƒœ ì¸ìˆ˜
 	);
 
 	if (ret != SQL_SUCCESS)
@@ -503,12 +505,12 @@ bool Odbc::LoginCheckSQL(const TCHAR* szName, const TCHAR* szPw)
 		ZeroMemory(m_szLoginPw, sizeof(m_szLoginPw));
 		CopyMemory(m_szLoginPw, szPw, sizeof(m_szLoginPw));
 
-		// SQLExecute : ÁØºñµÈ ÆÄ¶ó¹ÌÅÍ¸¸ ±³Ã¼ÇØ¼­ ¹Ù·Î ½ÇÇàÇÑ´Ù
+		// SQLExecute : ì¤€ë¹„ëœ íŒŒë¼ë¯¸í„°ë§Œ êµì²´í•´ì„œ ë°”ë¡œ ì‹¤í–‰í•œë‹¤
 		SQLRETURN hr = SQLExecute(g_hLoginCheckStmt);
 
 		if (hr == SQL_SUCCESS)
 		{
-			// SQLFetch °á°ú ÁýÇÕ¿¡¼­ ¹ÙÀÎµùµÈ µ¥ÀÌÅÍ¸¦ ¹ÝÈ¯
+			// SQLFetch ê²°ê³¼ ì§‘í•©ì—ì„œ ë°”ì¸ë”©ëœ ë°ì´í„°ë¥¼ ë°˜í™˜
 			if (SQLFetch(g_hLoginCheckStmt) != SQL_NO_DATA)
 			{
 				if (g_hLoginCheckStmt) SQLCloseCursor(g_hLoginCheckStmt);
@@ -529,10 +531,10 @@ bool Odbc::CreateUserAllSelect()
 	// select * from [table]
 	SQLRETURN ret;
 	std::wstring sql = L"{CALL usp_User_AllSelect}";
-	// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö
-	ret = SQLAllocHandle(SQL_HANDLE_STMT, // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		g_hDbc, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hSelectAllStmt // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜
+	ret = SQLAllocHandle(SQL_HANDLE_STMT, // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		g_hDbc, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hSelectAllStmt // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
 	ret = SQLPrepare(g_hSelectAllStmt, (SQLTCHAR*)sql.c_str(), SQL_NTS);
 	if (ret != SQL_SUCCESS)
@@ -548,12 +550,12 @@ bool Odbc::CreateSelectWhereName()
 	SQLRETURN ret;
 	std::wstring sql;
 	sql = L"{ ?=CALL usp_Select_WhereName(?)}";
-	// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö
-	ret = SQLAllocHandle(SQL_HANDLE_STMT, // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		g_hDbc, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hReadStmt // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜
+	ret = SQLAllocHandle(SQL_HANDLE_STMT, // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		g_hDbc, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hReadStmt // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
-	// SQLPrepare ÆÄ¶ó¹ÌÅÍ¸¸ ¹Ù²ã¼­ sql ½ÇÇà
+	// SQLPrepare íŒŒë¼ë¯¸í„°ë§Œ ë°”ê¿”ì„œ sql ì‹¤í–‰
 	ret = SQLPrepare(g_hReadStmt, (SQLTCHAR*)sql.c_str(), SQL_NTS);
 	if (ret != SQL_SUCCESS)
 	{
@@ -564,17 +566,17 @@ bool Odbc::CreateSelectWhereName()
 	m_iDataLength = sizeof(m_szSelectName);
 	m_cbColumn = SQL_NTS;
 
-	// ?¸¦ ÆÄ¶ó¹ÌÅÍ ¸¶Ä¿¶ó°í ÇÏ¸ç, ½ÇÇàÁß ¹ÙÀÎµùµÈ º¯¼ö°ªÀ¸·Î ´ëÃ¼ ? ¸¸Å­ SQLBindParameter ÇÒ´ç ÇØ¾ß ÇÑ´Ù.
-	ret = SQLBindParameter(g_hReadStmt, // ¸í·ÉÇÚµé
-		1, // ÆÄ¶ó¹ÌÅÍ ¹øÈ£
-		SQL_PARAM_OUTPUT, // ÆÄ¶ó¹ÌÅÍ ¿ëµµ
-		SQL_C_SHORT, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(CÇü)
-		SQL_INTEGER, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(SQLÇü)
-		0, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ Å©±â
-		0, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ ÀÚ¸®¼ö
-		&sRet, // ½ÇÁ¦ ÆÄ¶ó¹ÌÅÍ¿Í ¿¬°áµÉ º¯¼öÀÇ ÁÖ¼Ò
-		0, // ÆÄ¶ó¹ÌÅÍÀÇ ¹®ÀÚ¿­ÀÌ³ª ÀÌÁøÇüÀÏ¶§ ¹öÆÛÀÇ Å©±â
-		&m_cbColumn // ±æÀÌ¿Í »óÅÂ ÀÎ¼ö
+	// ?ë¥¼ íŒŒë¼ë¯¸í„° ë§ˆì»¤ë¼ê³  í•˜ë©°, ì‹¤í–‰ì¤‘ ë°”ì¸ë”©ëœ ë³€ìˆ˜ê°’ìœ¼ë¡œ ëŒ€ì²´ ? ë§Œí¼ SQLBindParameter í• ë‹¹ í•´ì•¼ í•œë‹¤.
+	ret = SQLBindParameter(g_hReadStmt, // ëª…ë ¹í•¸ë“¤
+		1, // íŒŒë¼ë¯¸í„° ë²ˆí˜¸
+		SQL_PARAM_OUTPUT, // íŒŒë¼ë¯¸í„° ìš©ë„
+		SQL_C_SHORT, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(Cí˜•)
+		SQL_INTEGER, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(SQLí˜•)
+		0, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ í¬ê¸°
+		0, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ ìžë¦¬ìˆ˜
+		&sRet, // ì‹¤ì œ íŒŒë¼ë¯¸í„°ì™€ ì—°ê²°ë  ë³€ìˆ˜ì˜ ì£¼ì†Œ
+		0, // íŒŒë¼ë¯¸í„°ì˜ ë¬¸ìžì—´ì´ë‚˜ ì´ì§„í˜•ì¼ë•Œ ë²„í¼ì˜ í¬ê¸°
+		&m_cbColumn // ê¸¸ì´ì™€ ìƒíƒœ ì¸ìˆ˜
 	);
 
 	if (ret != SQL_SUCCESS)
@@ -583,16 +585,16 @@ bool Odbc::CreateSelectWhereName()
 		return false;
 	}
 
-	ret = SQLBindParameter(g_hReadStmt, // ¸í·ÉÇÚµé
-		2, // ÆÄ¶ó¹ÌÅÍ ¹øÈ£
-		SQL_PARAM_INPUT,  // ÆÄ¶ó¹ÌÅÍ ¿ëµµ
-		SQL_UNICODE, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(CÇü)
-		SQL_CHAR, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(SQLÇü)
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ Å©±â
-		0, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ ÀÚ¸®¼ö
-		m_szSelectName, // ½ÇÁ¦ ÆÄ¶ó¹ÌÅÍ¿Í ¿¬°áµÉ º¯¼öÀÇ ÁÖ¼Ò
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍÀÇ ¹®ÀÚ¿­ÀÌ³ª ÀÌÁøÇüÀÏ¶§ ¹öÆÛÀÇ Å©±â
-		&m_cbColumn // ±æÀÌ¿Í »óÅÂ ÀÎ¼ö
+	ret = SQLBindParameter(g_hReadStmt, // ëª…ë ¹í•¸ë“¤
+		2, // íŒŒë¼ë¯¸í„° ë²ˆí˜¸
+		SQL_PARAM_INPUT,  // íŒŒë¼ë¯¸í„° ìš©ë„
+		SQL_UNICODE, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(Cí˜•)
+		SQL_CHAR, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(SQLí˜•)
+		m_iDataLength, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ í¬ê¸°
+		0, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ ìžë¦¬ìˆ˜
+		m_szSelectName, // ì‹¤ì œ íŒŒë¼ë¯¸í„°ì™€ ì—°ê²°ë  ë³€ìˆ˜ì˜ ì£¼ì†Œ
+		m_iDataLength, // íŒŒë¼ë¯¸í„°ì˜ ë¬¸ìžì—´ì´ë‚˜ ì´ì§„í˜•ì¼ë•Œ ë²„í¼ì˜ í¬ê¸°
+		&m_cbColumn // ê¸¸ì´ì™€ ìƒíƒœ ì¸ìˆ˜
 	);
 
 	if (ret != SQL_SUCCESS)
@@ -617,12 +619,12 @@ bool Odbc::CreateInsertAccount()
 	SQLRETURN ret;
 	std::wstring sql;
 	sql = L"{?=CALL usp_InsertAccount(?,?)}";
-	// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö
-	ret = SQLAllocHandle(SQL_HANDLE_STMT, // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		g_hDbc, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hInsertStmt // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜
+	ret = SQLAllocHandle(SQL_HANDLE_STMT, // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		g_hDbc, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hInsertStmt // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
-	// SQLPrepare ÆÄ¶ó¹ÌÅÍ¸¸ ¹Ù²ã¼­ sql ½ÇÇà
+	// SQLPrepare íŒŒë¼ë¯¸í„°ë§Œ ë°”ê¿”ì„œ sql ì‹¤í–‰
 	ret = SQLPrepare(g_hInsertStmt, (SQLTCHAR*)sql.c_str(), SQL_NTS);
 	if (ret != SQL_SUCCESS)
 	{
@@ -633,7 +635,7 @@ bool Odbc::CreateInsertAccount()
 	m_iDataLength = sizeof(m_szInsertName);
 	m_cbColumn = SQL_NTS;
 
-	// ?¸¦ ÆÄ¶ó¹ÌÅÍ ¸¶Ä¿¶ó°í ÇÏ¸ç, ½ÇÇàÁß ¹ÙÀÎµùµÈ º¯¼ö°ªÀ¸·Î ´ëÃ¼ ? ¸¸Å­ SQLBindParameter ÇÒ´ç ÇØ¾ß ÇÑ´Ù.
+	// ?ë¥¼ íŒŒë¼ë¯¸í„° ë§ˆì»¤ë¼ê³  í•˜ë©°, ì‹¤í–‰ì¤‘ ë°”ì¸ë”©ëœ ë³€ìˆ˜ê°’ìœ¼ë¡œ ëŒ€ì²´ ? ë§Œí¼ SQLBindParameter í• ë‹¹ í•´ì•¼ í•œë‹¤.
 	ret = SQLBindParameter(g_hInsertStmt, 1, SQL_PARAM_OUTPUT, SQL_C_SHORT, SQL_INTEGER,
 		0, 0, &sRet,
 		0, &m_cbColumn);
@@ -667,12 +669,12 @@ bool Odbc::CreateUpdate()
 	SQLRETURN ret;
 	std::wstring sql = L"{?=CALL usp_UpdateUserInfo(?,?,?,?,?)}";
 
-	// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö
-	ret = SQLAllocHandle(SQL_HANDLE_STMT,  // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		g_hDbc, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hUpdateStmt // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜
+	ret = SQLAllocHandle(SQL_HANDLE_STMT,  // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		g_hDbc, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hUpdateStmt // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
-	// SQLPrepare ÆÄ¶ó¹ÌÅÍ¸¸ ¹Ù²ã¼­ sql ½ÇÇà
+	// SQLPrepare íŒŒë¼ë¯¸í„°ë§Œ ë°”ê¿”ì„œ sql ì‹¤í–‰
 	ret = SQLPrepare(g_hUpdateStmt, (SQLTCHAR*)sql.c_str(), SQL_NTS);
 	if (ret != SQL_SUCCESS)
 	{
@@ -684,7 +686,7 @@ bool Odbc::CreateUpdate()
 	m_cbColumn = SQL_NTS;
 	::ZeroMemory(&m_ts, sizeof(m_ts));
 
-	// ?¸¦ ÆÄ¶ó¹ÌÅÍ ¸¶Ä¿¶ó°í ÇÏ¸ç, ½ÇÇàÁß ¹ÙÀÎµùµÈ º¯¼ö°ªÀ¸·Î ´ëÃ¼ ? ¸¸Å­ SQLBindParameter ÇÒ´ç ÇØ¾ß ÇÑ´Ù.
+	// ?ë¥¼ íŒŒë¼ë¯¸í„° ë§ˆì»¤ë¼ê³  í•˜ë©°, ì‹¤í–‰ì¤‘ ë°”ì¸ë”©ëœ ë³€ìˆ˜ê°’ìœ¼ë¡œ ëŒ€ì²´ ? ë§Œí¼ SQLBindParameter í• ë‹¹ í•´ì•¼ í•œë‹¤.
 	ret = SQLBindParameter(g_hUpdateStmt, 1, SQL_PARAM_OUTPUT, SQL_C_SHORT, SQL_SMALLINT,
 		0, 0, &sRet,
 		0, &m_cbColumn);
@@ -745,32 +747,32 @@ bool Odbc::DeleteLoingInfo()
 	SQLRETURN ret;
 	std::wstring sql5 = L"delete from user_table where Name=?";
 	//std::wstring sql5 = L"select * from user_table where Name =?";
-	// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö
-	ret = SQLAllocHandle(SQL_HANDLE_STMT,  // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		g_hDbc, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hDeleteStmt // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜
+	ret = SQLAllocHandle(SQL_HANDLE_STMT,  // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		g_hDbc, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hDeleteStmt // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
 
-	// SQLPrepare ÆÄ¶ó¹ÌÅÍ¸¸ ¹Ù²ã¼­ sql ½ÇÇà
+	// SQLPrepare íŒŒë¼ë¯¸í„°ë§Œ ë°”ê¿”ì„œ sql ì‹¤í–‰
 	ret = SQLPrepare(g_hDeleteStmt, // Handle
-		(SQLTCHAR*)sql5.c_str(), // ½ÇÇàÇÒ sql ¹®
+		(SQLTCHAR*)sql5.c_str(), // ì‹¤í–‰í•  sql ë¬¸
 		SQL_NTS // TextLength?
 	);
 
 	m_iDataLength = sizeof(m_szDeleteName);
 	m_cbColumn = SQL_NTS;
 
-	// ?¸¦ ÆÄ¶ó¹ÌÅÍ ¸¶Ä¿¶ó°í ÇÏ¸ç, ½ÇÇàÁß ¹ÙÀÎµùµÈ º¯¼ö°ªÀ¸·Î ´ëÃ¼ ? ¸¸Å­ SQLBindParameter ÇÒ´ç ÇØ¾ß ÇÑ´Ù.
-	ret = SQLBindParameter(g_hDeleteStmt, // ¸í·ÉÇÚµé
-		1, // ÆÄ¶ó¹ÌÅÍ ¹øÈ£
-		SQL_PARAM_INPUT, // ÆÄ¶ó¹ÌÅÍ ¿ëµµ
-		SQL_UNICODE, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(CÇü)
-		SQL_CHAR, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(SQLÇü)
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ Å©±â
-		0, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ ÀÚ¸®¼ö
-		m_szDeleteName, // ½ÇÁ¦ ÆÄ¶ó¹ÌÅÍ¿Í ¿¬°áµÉ º¯¼öÀÇ ÁÖ¼Ò
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍÀÇ ¹®ÀÚ¿­ÀÌ³ª ÀÌÁøÇüÀÏ¶§ ¹öÆÛÀÇ Å©±â
-		&m_cbColumn // ±æÀÌ¿Í »óÅÂ ÀÎ¼ö
+	// ?ë¥¼ íŒŒë¼ë¯¸í„° ë§ˆì»¤ë¼ê³  í•˜ë©°, ì‹¤í–‰ì¤‘ ë°”ì¸ë”©ëœ ë³€ìˆ˜ê°’ìœ¼ë¡œ ëŒ€ì²´ ? ë§Œí¼ SQLBindParameter í• ë‹¹ í•´ì•¼ í•œë‹¤.
+	ret = SQLBindParameter(g_hDeleteStmt, // ëª…ë ¹í•¸ë“¤
+		1, // íŒŒë¼ë¯¸í„° ë²ˆí˜¸
+		SQL_PARAM_INPUT, // íŒŒë¼ë¯¸í„° ìš©ë„
+		SQL_UNICODE, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(Cí˜•)
+		SQL_CHAR, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(SQLí˜•)
+		m_iDataLength, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ í¬ê¸°
+		0, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ ìžë¦¬ìˆ˜
+		m_szDeleteName, // ì‹¤ì œ íŒŒë¼ë¯¸í„°ì™€ ì—°ê²°ë  ë³€ìˆ˜ì˜ ì£¼ì†Œ
+		m_iDataLength, // íŒŒë¼ë¯¸í„°ì˜ ë¬¸ìžì—´ì´ë‚˜ ì´ì§„í˜•ì¼ë•Œ ë²„í¼ì˜ í¬ê¸°
+		&m_cbColumn // ê¸¸ì´ì™€ ìƒíƒœ ì¸ìˆ˜
 	);
 	if (ret != SQL_SUCCESS)
 	{
@@ -782,20 +784,20 @@ bool Odbc::DeleteLoingInfo()
 
 bool Odbc::LoginCheck()
 {
-	// Login ·Î±×ÀÎ Ã¼Å©
+	// Login ë¡œê·¸ì¸ ì²´í¬
 	SQLRETURN ret;
 
 	std::wstring sql6 = L"select * from user_table where Name =? and Pass=?";
 	//std::wstring sql6 = L"select * from user_table where Name =?";
-	// SQLAllocHandle : ÇÚµéÀÇ ÇÒ´ç ÇÔ¼ö
-	ret = SQLAllocHandle(SQL_HANDLE_STMT,  // ÇÒ´çÇÏ°íÀÚÇÏ´Â ÇÚµé Å¸ÀÔ
-		g_hDbc, // »ý¼ºÇÒ ºÎ¸ð ÇÚµé ÁöÁ¤
-		&g_hLoginCheckStmt // »ý¼ºÇÒ ÇÚµéÀÇ ÁÖ¼Ò
+	// SQLAllocHandle : í•¸ë“¤ì˜ í• ë‹¹ í•¨ìˆ˜
+	ret = SQLAllocHandle(SQL_HANDLE_STMT,  // í• ë‹¹í•˜ê³ ìží•˜ëŠ” í•¸ë“¤ íƒ€ìž…
+		g_hDbc, // ìƒì„±í•  ë¶€ëª¨ í•¸ë“¤ ì§€ì •
+		&g_hLoginCheckStmt // ìƒì„±í•  í•¸ë“¤ì˜ ì£¼ì†Œ
 	);
 
-	// SQLPrepare ÆÄ¶ó¹ÌÅÍ¸¸ ¹Ù²ã¼­ sql ½ÇÇà
+	// SQLPrepare íŒŒë¼ë¯¸í„°ë§Œ ë°”ê¿”ì„œ sql ì‹¤í–‰
 	ret = SQLPrepare(g_hLoginCheckStmt, // Handle
-		(SQLTCHAR*)sql6.c_str(), // ½ÇÇàÇÒ sql ¹®
+		(SQLTCHAR*)sql6.c_str(), // ì‹¤í–‰í•  sql ë¬¸
 		SQL_NTS // TextLength?
 	);
 
@@ -803,30 +805,30 @@ bool Odbc::LoginCheck()
 	m_iLoginPwDataLength = sizeof(m_szLoginPw);
 	m_cbColumn = SQL_NTS;
 
-	// ?¸¦ ÆÄ¶ó¹ÌÅÍ ¸¶Ä¿¶ó°í ÇÏ¸ç, ½ÇÇàÁß ¹ÙÀÎµùµÈ º¯¼ö°ªÀ¸·Î ´ëÃ¼ ? ¸¸Å­ SQLBindParameter ÇÒ´ç ÇØ¾ß ÇÑ´Ù.
-	ret = SQLBindParameter(g_hLoginCheckStmt, // ¸í·ÉÇÚµé
-		1, // ÆÄ¶ó¹ÌÅÍ ¹øÈ£
-		SQL_PARAM_INPUT, // ÆÄ¶ó¹ÌÅÍ ¿ëµµ
-		SQL_UNICODE, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(CÇü)
-		SQL_CHAR, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(SQLÇü)
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ Å©±â
-		0, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ ÀÚ¸®¼ö
-		m_szLoginId, // ½ÇÁ¦ ÆÄ¶ó¹ÌÅÍ¿Í ¿¬°áµÉ º¯¼öÀÇ ÁÖ¼Ò
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍÀÇ ¹®ÀÚ¿­ÀÌ³ª ÀÌÁøÇüÀÏ¶§ ¹öÆÛÀÇ Å©±â
-		&m_cbColumn // ±æÀÌ¿Í »óÅÂ ÀÎ¼ö
+	// ?ë¥¼ íŒŒë¼ë¯¸í„° ë§ˆì»¤ë¼ê³  í•˜ë©°, ì‹¤í–‰ì¤‘ ë°”ì¸ë”©ëœ ë³€ìˆ˜ê°’ìœ¼ë¡œ ëŒ€ì²´ ? ë§Œí¼ SQLBindParameter í• ë‹¹ í•´ì•¼ í•œë‹¤.
+	ret = SQLBindParameter(g_hLoginCheckStmt, // ëª…ë ¹í•¸ë“¤
+		1, // íŒŒë¼ë¯¸í„° ë²ˆí˜¸
+		SQL_PARAM_INPUT, // íŒŒë¼ë¯¸í„° ìš©ë„
+		SQL_UNICODE, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(Cí˜•)
+		SQL_CHAR, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(SQLí˜•)
+		m_iDataLength, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ í¬ê¸°
+		0, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ ìžë¦¬ìˆ˜
+		m_szLoginId, // ì‹¤ì œ íŒŒë¼ë¯¸í„°ì™€ ì—°ê²°ë  ë³€ìˆ˜ì˜ ì£¼ì†Œ
+		m_iDataLength, // íŒŒë¼ë¯¸í„°ì˜ ë¬¸ìžì—´ì´ë‚˜ ì´ì§„í˜•ì¼ë•Œ ë²„í¼ì˜ í¬ê¸°
+		&m_cbColumn // ê¸¸ì´ì™€ ìƒíƒœ ì¸ìˆ˜
 	);
 
-	// ?¸¦ ÆÄ¶ó¹ÌÅÍ ¸¶Ä¿¶ó°í ÇÏ¸ç, ½ÇÇàÁß ¹ÙÀÎµùµÈ º¯¼ö°ªÀ¸·Î ´ëÃ¼ ? ¸¸Å­ SQLBindParameter ÇÒ´ç ÇØ¾ß ÇÑ´Ù.
-	ret = SQLBindParameter(g_hLoginCheckStmt, // ¸í·ÉÇÚµé
-		2, // ÆÄ¶ó¹ÌÅÍ ¹øÈ£
-		SQL_PARAM_INPUT, // ÆÄ¶ó¹ÌÅÍ ¿ëµµ
-		SQL_UNICODE, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(CÇü)
-		SQL_CHAR, // ÆÄ¶ó¹ÌÅÍ µ¥ÀÌÅÍ Å¸ÀÔ(SQLÇü)
-		m_iLoginPwDataLength, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ Å©±â
-		0, // ÆÄ¶ó¹ÌÅÍ º¯¼öÀÇ ÀÚ¸®¼ö
-		m_szLoginPw, // ½ÇÁ¦ ÆÄ¶ó¹ÌÅÍ¿Í ¿¬°áµÉ º¯¼öÀÇ ÁÖ¼Ò
-		m_iDataLength, // ÆÄ¶ó¹ÌÅÍÀÇ ¹®ÀÚ¿­ÀÌ³ª ÀÌÁøÇüÀÏ¶§ ¹öÆÛÀÇ Å©±â
-		&m_cbColumn // ±æÀÌ¿Í »óÅÂ ÀÎ¼ö
+	// ?ë¥¼ íŒŒë¼ë¯¸í„° ë§ˆì»¤ë¼ê³  í•˜ë©°, ì‹¤í–‰ì¤‘ ë°”ì¸ë”©ëœ ë³€ìˆ˜ê°’ìœ¼ë¡œ ëŒ€ì²´ ? ë§Œí¼ SQLBindParameter í• ë‹¹ í•´ì•¼ í•œë‹¤.
+	ret = SQLBindParameter(g_hLoginCheckStmt, // ëª…ë ¹í•¸ë“¤
+		2, // íŒŒë¼ë¯¸í„° ë²ˆí˜¸
+		SQL_PARAM_INPUT, // íŒŒë¼ë¯¸í„° ìš©ë„
+		SQL_UNICODE, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(Cí˜•)
+		SQL_CHAR, // íŒŒë¼ë¯¸í„° ë°ì´í„° íƒ€ìž…(SQLí˜•)
+		m_iLoginPwDataLength, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ í¬ê¸°
+		0, // íŒŒë¼ë¯¸í„° ë³€ìˆ˜ì˜ ìžë¦¬ìˆ˜
+		m_szLoginPw, // ì‹¤ì œ íŒŒë¼ë¯¸í„°ì™€ ì—°ê²°ë  ë³€ìˆ˜ì˜ ì£¼ì†Œ
+		m_iDataLength, // íŒŒë¼ë¯¸í„°ì˜ ë¬¸ìžì—´ì´ë‚˜ ì´ì§„í˜•ì¼ë•Œ ë²„í¼ì˜ í¬ê¸°
+		&m_cbColumn // ê¸¸ì´ì™€ ìƒíƒœ ì¸ìˆ˜
 	);
 
 	if (ret != SQL_SUCCESS)

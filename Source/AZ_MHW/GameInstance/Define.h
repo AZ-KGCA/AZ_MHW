@@ -1,13 +1,13 @@
 #pragma once
-
+#define _CRT_SECURE_NO_WARNINGS
 #define PACKET_HEADER_SIZE 4
 
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #include <mswsock.h>
 
-const UINT32 MAX_SOCKBUF = 256;	//ÆÐÅ¶ Å©±â
-const UINT32 MAX_SOCK_SENDBUF = 4096;	// ¼ÒÄÏ ¹öÆÛÀÇ Å©±â
+const UINT32 MAX_SOCKBUF = 256;	//íŒ¨í‚· í¬ê¸°
+const UINT32 MAX_SOCK_SENDBUF = 4096;	// ì†Œì¼“ ë²„í¼ì˜ í¬ê¸°
 const UINT64 RE_USE_SESSION_WAIT_TIMESEC = 3;
 
 enum class IOOperation
@@ -17,12 +17,12 @@ enum class IOOperation
 	SEND
 };
 
-//WSAOVERLAPPED±¸Á¶Ã¼¸¦ È®Àå ½ÃÄÑ¼­ ÇÊ¿äÇÑ Á¤º¸¸¦ ´õ ³Ö¾ú´Ù.
+//WSAOVERLAPPEDêµ¬ì¡°ì²´ë¥¼ í™•ìž¥ ì‹œì¼œì„œ í•„ìš”í•œ ì •ë³´ë¥¼ ë” ë„£ì—ˆë‹¤.
 struct stOverlappedEx
 {
-	WSAOVERLAPPED wsa_overlapped_;		//Overlapped I/O±¸Á¶Ã¼
-	WSABUF		wsa_buf_;				//Overlapped I/OÀÛ¾÷ ¹öÆÛ
-	IOOperation E_operation_;			//ÀÛ¾÷ µ¿ÀÛ Á¾·ù
+	WSAOVERLAPPED wsa_overlapped_;		//Overlapped I/Oêµ¬ì¡°ì²´
+	WSABUF		wsa_buf_;				//Overlapped I/Oìž‘ì—… ë²„í¼
+	IOOperation E_operation_;			//ìž‘ì—… ë™ìž‘ ì¢…ë¥˜
 	UINT32 session_index_ = 0;
 };
 
@@ -35,13 +35,12 @@ struct Test_Login_Send_Packet
 	char user_pw[33];
 
 };
-typedef struct
-{
-	int32 PACKET_HEADER_SIZE2 = 5;
-	int MAX_USER_ID_BYTE_LENGTH = 33;
-	int MAX_USER_PW_BYTE_LENGTH = 33;
-	int MAX_CHAT_MSG_SIZE = 257;
-}HEADER_PACKET2;
+
+const int32 PACKET_HEADER_SIZE2 = 5;
+const int MAX_USER_ID_BYTE_LENGTH = 33;
+const int MAX_USER_PW_BYTE_LENGTH = 33;
+const int MAX_CHAT_MSG_SIZE = 256;
+
 
 //#define PACKET_CHAR_MSG   1000      // client ->
 //#define PACKET_CHATNAME_REQ   1001  // server -> client
