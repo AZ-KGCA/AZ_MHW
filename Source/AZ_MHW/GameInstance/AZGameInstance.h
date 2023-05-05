@@ -2,10 +2,40 @@
 
 #pragma once
 
+//MinSuhong
+// IOCP
+#include "IocpNetServer.h"
+#include <string>
+#include <iostream>
+#include "AppServer.h" // ODBC 연결 Packet.h
+
+#include "Windows.h"
+
+// window 기본 타입 Hide
+#include "Windows/AllowWindowsPlatformTypes.h"
+#include "Windows/prewindowsapi.h"
+#include "Windows/PostWindowsApi.h"
+#include "Windows/HideWindowsPlatformTypes.h"
+#pragma comment(lib, "ws2_32.lib")
+#include <WinSock2.h>
+
+// ODBC 연결
+#include "Odbc.h"
+
+// 서버 접속 클래스
+#include "Client_To_Server.h"
+
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "AZ_MHW/GameInstance/AZGameInstanceData.h"
 #include "AZGameInstance.generated.h"
+
+const UINT16 SERVER_PORT = 10000;
+const UINT16 MAX_CLIENT = 5;		//총 접속할수 있는 클라이언트 수
+const int SLEEP_TIME = 3000;
+const UINT32 MAX_IO_WORKER_THREAD = 4;
+
+//MinSuhong End
 
 /**
  * 
@@ -14,6 +44,68 @@ UCLASS()
 class AZ_MHW_API UAZGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
+	//MinSuhong
+public:
+	FSocket* fsocket_version;
+	SOCKET win_socket;
+
+	WSADATA wsa;
+	Odbc g_odbc;
+
+	AppServer iocp_net_server_;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Server_Chioce)
+		int32 socket_type = 10;
+
+	//Client_Connect client_connect;
+
+public:
+	//UPROPERTY(Transient)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UClient_To_Server* client_connect;
+public: // 좌표값 받는 곳
+	//FVector CurrentLocation;
+	TArray<FVector> current_location_array;
+	int32 index_num = 0;
+
+public:
+	void PacketToServer(const char* packet, int packet_size);
+
+public:
+	bool LoginRecord(FString login_id, FString login_pw);
+	bool SignupRecord(FString signup_id, FString signup_pw);
+	void IocpServerStart();
+
+	bool ClientSignin();
+
+	// socket_type = 0
+	UFUNCTION(BlueprintCallable, Category = Game_Instance)
+		void FSocketConncet();
+
+	// socket_type = 1
+	UFUNCTION(BlueprintCallable, Category = Game_Instance)
+		void WinSocketConnect();
+
+	// socket_type = 2
+	UFUNCTION(BlueprintCallable, Category = Game_Instance)
+		void WinSocketOpen();
+
+	// socket_type = 3
+	UFUNCTION(BlueprintCallable, Category = Game_Instance)
+		void IocpServerOpen();
+
+	// socket_type = 4
+	UFUNCTION(BlueprintCallable, Category = Game_Instance)
+		void OdbcConnect();
+
+	// socket_type = 5
+	UFUNCTION(BlueprintCallable, Category = Game_Instance)
+		void IocpOdbcOpen();
+
+	//  socket_type = 6
+	UFUNCTION(BlueprintCallable, Category = Game_Instance)
+		void ServerConnect();
+	//MinSuhong End
 public:
 	// test
 	UPROPERTY() class UAZGameConfig* game_config;
