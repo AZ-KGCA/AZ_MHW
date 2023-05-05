@@ -15,6 +15,7 @@ class AZ_MHW_API UAZGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 public:
+	// test
 	UPROPERTY() class UAZGameConfig* game_config;
 	UPROPERTY() class UAZSaveData* save_data;
 	UPROPERTY() class UAZMsgHandler* msg_handler;
