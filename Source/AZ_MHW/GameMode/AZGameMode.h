@@ -46,11 +46,11 @@ class AZ_MHW_API AAZGameMode : public AGameModeBase, public IAZMsgObject
 
 public:
 	AAZGameMode();
-	~AAZGameMode();
+	virtual ~AAZGameMode();
 
 	virtual void InitGame(const FString& map_name, const FString& , FString& ErrorMessage) override;
 	virtual void InitGameState() override;
-	virtual void StartPlay() final;
+	virtual void StartPlay() override final;
 	virtual void GetSeamlessTravelActorList(bool bToTransition, TArray<AActor*>& ActorList) override;
 	virtual void Tick(float delta_seconds) override;
 	virtual void EndPlay(const EEndPlayReason::Type end_play_reason) override;

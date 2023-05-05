@@ -15,10 +15,14 @@
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
 #include "..\Manager\AZInventoryManager.h"
-
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
+#include "AZ_MHW/Manager/AZInputMgr.h"
+#include "..\Manager\AZPlayerAssetMgr.h"
+//FIXME 병합시 삭제
 #include <GameFramework/Character.h>
+
+
 
 UGameInstanceProxy AZGameInstance;
 
@@ -58,6 +62,9 @@ void UAZGameInstance::Init()
 	inventory_mgr = NewObject<UAZInventoryManager>();
 	inventory_mgr->Init();
 	
+	input_mgr = NewObject<UAZInputMgr>();
+	playerAsset_mgr = NewObject<UAZPlayerAssetMgr>();
+
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));
 	msg_handler->OnRegister(map_mgr);
 
@@ -81,6 +88,8 @@ void UAZGameInstance::Shutdown()
 	game_config = nullptr;
 	map_mgr = nullptr;
 	hud_data_mgr = nullptr;
+	input_mgr = nullptr;
+	playerAsset_mgr = nullptr;
 }
 
 void UAZGameInstance::RestMgr()
@@ -182,6 +191,7 @@ ACharacter* UAZGameInstance::GetPlayer()
 	{
 		return nullptr;
 	}
+
 	// FIXME merged fix
 	auto* player = player_controller->GetPawn<ACharacter>();
 	return player;

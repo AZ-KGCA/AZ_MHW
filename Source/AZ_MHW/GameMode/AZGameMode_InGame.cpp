@@ -1,24 +1,32 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AZ_MHW/GameMode/AZGameMode_InGame.h"
+#include "GameMode/AZGameMode_InGame.h"
 
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/Map/AZWorldMap.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Interface/AZActor_interface.h"
 #include "AZ_MHW/Environment/interaction/AZActor_Interaction.h"
+#include "Character/Player/AZPlayer_Playable.h"
+#include "PlayerController/AZPlayerController_InGame.h"
+#include "PlayerState/AZPlayerState.h"
 
 AAZGameMode_InGame::AAZGameMode_InGame()
 {
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayer_Playable"));
+	static ConstructorHelpers::FClassFinder<AController> PlayerControllerPClass(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayerController_InGame"));
+	
 	game_mode_flag_ = EGameModeFlag::InGame;
+
+	DefaultPawnClass = PlayerPawnBPClass.Class;//AAZPlayer_Playable::StaticClass();//
+	PlayerControllerClass = PlayerControllerPClass.Class;//AAZPlayerController_InGame::StaticClass();
+	PlayerStateClass = AAZPlayerState::StaticClass();
 
 	// FIXME
 	//DefaultPawnClass = ALHPlayer_Playable::StaticClass();
 	//PlayerControllerClass = ALHPlayerController_InGame::StaticClass();
 	//HUDClass = ALHHUD_InGame::StaticClass();
-
-
 }
 
 AAZGameMode_InGame::~AAZGameMode_InGame()
@@ -387,4 +395,10 @@ void AAZGameMode_InGame::ForEachBossMonsters(OnForEachCharacterDelegate func)
 		}
 		func(boss);
 	}*/
+}
+
+void AAZGameMode_InGame::PostLogin(APlayerController* NewPlayer)
+{
+	//Server
+	Super::PostLogin(NewPlayer);
 }

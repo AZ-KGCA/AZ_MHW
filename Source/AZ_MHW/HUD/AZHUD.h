@@ -47,7 +47,7 @@ public:
 	{
 		bool is_get_widget = false;
 		FAZWidgetData* widget_data = GetSubWidgetData(widget_name_enum);
-		if (widget_data == nullptr;)
+		if (widget_data == nullptr)
 		{
 			return nullptr;
 		}
@@ -76,8 +76,8 @@ public:
 		}
 
 		if (GetCurSceneNameEnum() == EUIName::AZWidget_InGame)
-		{
-			//FIXME 클리어 로직 삽입
+		{클리어 로직 삽입
+			//FIXME Insert clear logic
 		}
 
 		cur_scene_name_enum = widget_name_enum;
@@ -91,7 +91,7 @@ public:
 			CloseScene(prev_scene_data->widget_name_enum, false, false);
 		}
 
-		// 열고자 하는 Scene에 스택이 존재하면 복원
+		// If a stack exists in the scene you want to open, restore it.
 		if (cur_scene_data->child_widget_names.Num() > 0)
 		{
 			if (is_need_restore == true)
@@ -173,7 +173,7 @@ public:
 				return nullptr;
 			}
 			widget->SetWidgetNameEnum(widget_name_enum);
-			if (is_get_widget == false) // 생성되었다.
+			if (is_get_widget == false) // created
 			{
 				widget->Init();
 			}

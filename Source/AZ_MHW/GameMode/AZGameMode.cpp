@@ -37,7 +37,6 @@ AAZGameMode::~AAZGameMode()
 
 void AAZGameMode::InitGame(const FString& map_name, const FString& options, FString& error_message)
 {
-	//Super::InitGame
 	Super::InitGame(map_name, options, error_message);
 
 	//if ()

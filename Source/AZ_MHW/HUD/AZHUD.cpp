@@ -16,7 +16,7 @@ void AAZHUD::PostLoad()
 void AAZHUD::BeginPlay()
 {
 	Super::BeginPlay();
-	// Ŭ�� ����Ʈ Ǯ ó��
+	// click effect pool processing
 }
 
 void AAZHUD::BeginDestroy()
@@ -28,7 +28,7 @@ void AAZHUD::EndPlay(const EEndPlayReason::Type end_play_reason)
 {
 	Super::EndPlay(end_play_reason);
 
-	// ����Ʈ Ǯ ó��
+	// Effect pool processing
 	// ...
 
 	CloseAllUI();
@@ -82,7 +82,7 @@ void AAZHUD::OnFadeInOut(const float in_time, const float out_time)
 
 void AAZHUD::OnSceneOpened()
 {
-	// FIXME 씬 변경시 인풋을 변경
+	// FIXME Input change on scene change
 	//if (AZGameInstance && AZGameInstance->InputMgr)
 	//{
 	//    AZGameInstance->InputMgr->CheckSceneStack();
@@ -91,7 +91,7 @@ void AAZHUD::OnSceneOpened()
 
 void AAZHUD::OnSceneClosed()
 {
-	// FIXME 씬 변경시 인풋을 변경
+	// FIXME If it is among the widgets, delete it.
 }
 
 void AAZHUD::RaiseOnTopFromStack(EUIName ui_name)
@@ -168,7 +168,7 @@ void AAZHUD::_OpenUI(UAZWidget* widget, FAZWidgetData* widget_data, bool is_imme
 	if (widget->IsInViewport())
 	{
 		widget->RemoveFromViewport();
-		// 위젯 중에 있다며 지워준다.
+		// If it is among the widgets, delete it.
 		for (EUIName& scene_name : scenes_stack)
 		{
 			if (AZSceneData* scene_data = GetSceneData(scene_name))
@@ -337,15 +337,15 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 		return;
 	}
 
-	// 스택이 1개 남았을 때 pop을 하려고 할때 Exit popup 호출 하도록 추후 구현
+	// FIXME Later implementation to call Exit popup when trying to pop when there is only one stack left
 	if (1 >= scenes_stack.Num() && is_back_button == true)
 	{
-		// FIXME 뒤로가기 시 확인
+		// FIXME Confirm when going back
 		//if (ScenesStack[0] == EUIName::LHWidget_CharacterCreate)
 		//    LHGameInstance->LoginMgr->ChangeSequenceLoginPage();
 		//else
 		//{
-		//    // 팝업을 띄우면 될 것 
+		//    // FIXME open popup
 		//}
 		//return;
 	}
@@ -361,7 +361,7 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 			}
 			else
 			{
-				// 다른 씬을 열어서 닫힐 때 열려있단 팝업들을 닫아줌
+				// Close open popups when another scene is opened and closed
 				CloseUI((EUIName)ui_widget_data->widget_id, true, false);
 				cur_scene_data->child_widget_names.Pop();
 			}
@@ -384,7 +384,7 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 			scenes_stack.Pop();
 			if (scenes_stack.Num() > 0)
 			{
-				//순차적으로 복원해줌
+				// restore sequentially.
 				OpenScene<UAZWidget>(scenes_stack.Top());
 			}
 		}
@@ -423,5 +423,5 @@ void AAZHUD::CloseAllUI()
 	scenes_stack.Empty();
 	cur_scene_name_enum = EUIName::None;
 
-	// FIXME �޼��� �ڽ� �߰� �ڵ� �߰�
+	// FIXME Add message box code
 }

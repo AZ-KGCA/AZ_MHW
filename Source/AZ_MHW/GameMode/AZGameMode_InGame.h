@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+Ôªø// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,6 +15,7 @@ UCLASS()
 class AZ_MHW_API AAZGameMode_InGame : public AAZGameMode
 {
 	GENERATED_BODY()
+<<<<<<< HEAD
 	
 public:
 	AAZGameMode_InGame();
@@ -72,11 +73,12 @@ public:
 
 protected:
 	UPROPERTY() TMap<int32, class AActor*> appear_actors_;
-	// FIXME ∫¥«’Ω√ »Æ¿Œ« ø‰
+	// FIXME merged check	
 	//UPROPERTY() TMap<int32, class AAZCharacter*> appear_character_;
 	//UPROPERTY() TMap<int32, class AAZCharacter*> appear_npc_;
 	//UPROPERTY() TArray<class AAZCharacter*> boss_monsters_;
 
 private:
 	UPROPERTY() class UAZWorldMap* world_map_handler_;
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 };

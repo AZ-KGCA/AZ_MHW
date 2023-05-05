@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "AZ_MHW/GameInstance/AZGameInstanceData.h"
 #include "AZGameInstance.generated.h"
+
 
 /**
  * 
@@ -23,6 +24,8 @@ public:
 	UPROPERTY() class UAZHUDDataMgr* hud_data_mgr;
 	UPROPERTY() class UAZGameOption* game_option;
 	UPROPERTY() class UAZInventoryManager* inventory_mgr;
+	UPROPERTY() class UAZInputMgr* input_mgr;
+	UPROPERTY() class UAZPlayerAssetMgr* playerAsset_mgr;
 	UPROPERTY() FMapChannelInfo map_channel_info;
 	
 public:
