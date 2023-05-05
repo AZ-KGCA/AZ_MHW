@@ -14,6 +14,7 @@
 #include "AZ_MHW/HUD/AZHUDDataMgr.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
+#include "..\Manager\AZInventoryManager.h"
 
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
@@ -33,7 +34,7 @@ UAZGameInstance::~UAZGameInstance()
 void UAZGameInstance::Init()
 {
 	Super::Init();
-
+	
 	UAZGameSingleton::instance();
 
 	msg_handler = NewObject<UAZMsgHandler>(this);
@@ -54,6 +55,9 @@ void UAZGameInstance::Init()
 	login_mgr = NewObject<UAZLoginMgr>();
 	login_mgr->Init();
 
+	inventory_mgr = NewObject<UAZInventoryManager>();
+	inventory_mgr->Init();
+	
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));
 	msg_handler->OnRegister(map_mgr);
 
@@ -70,7 +74,7 @@ void UAZGameInstance::Shutdown()
 	mgrs.Reset();
 	AZ_LOG("Shutdown");
 
-	// 생성과 역순으로 소멸
+	// Destroy in reverse order of creation
 	game_option = nullptr;
 	login_mgr = nullptr;
 	save_data = nullptr;
@@ -178,7 +182,7 @@ ACharacter* UAZGameInstance::GetPlayer()
 	{
 		return nullptr;
 	}
-	// FIXME 병합시 고치기
+	// FIXME merged fix
 	auto* player = player_controller->GetPawn<ACharacter>();
 	return player;
 }

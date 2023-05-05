@@ -89,6 +89,9 @@ Content/*
 RawContent/UI/*
 RawContent/Font/*
 
+# JetBrain, Rider
+.idea/*
+
 ### UnrealEngine Patch ###
 # Don't ignore icon and splash images for mobile app
 !Build/IOS/Resources/

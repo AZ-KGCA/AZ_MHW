@@ -1,0 +1,5 @@
+id,buff_type,usable
+int,string,bool
+101,buff,TRUE
+102,buff,TRUE
+103,buff,TRUE

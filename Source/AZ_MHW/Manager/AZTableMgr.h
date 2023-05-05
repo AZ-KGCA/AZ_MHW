@@ -6,6 +6,9 @@
 #include "UObject/NoExportTypes.h"
 #include <typeinfo>
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
+#include "AZ_MHW/CommonSource/Table/TotalItemData.h"
+#include "AZ_MHW/CommonSource/Table/PotionData.h"
+#include "AZ_MHW/CommonSource/Table/ItemBuffData.h"
 #include "AZTableMgr.generated.h"
 
 #define GetTableByIndex(TableType, index) GetGameSingleton()->table_mgr->GetData<TableType>(index)
@@ -23,6 +26,14 @@ private:
 	TMap<uint32, TMap<int32, const UObject*>> map_table_;
 
 public:
+	//item table array
+	UPROPERTY() TArray<const UTotalItemData*> total_item_array;
+	UPROPERTY() TArray<const UPotionData*> consume_item_array;
+	UPROPERTY() TArray<const UItemBuffData*> buff_array;
+//	UPROPERTY() TMap<int32 , UTOTAL_ITEM_TABLE*> total_item_map;
+	//TArray<> Equip_array
+	//TArray<> bottle_array
+
 	template<class Table>
 	bool _Load(FString file_name)
 	{
@@ -134,7 +145,6 @@ public:
 		}
 		return Cast<Table>(*table);
 	}
-
 	template<class Table>
 	TArray<const Table*> GetData()
 	{
@@ -153,5 +163,7 @@ public:
 	}
 	void LoadAll();
 	void LoadComplete();
-
+	void LoadTotalItemTable();
+	void LoadConsumeTable();
+	void LoadBuffTable();
 };

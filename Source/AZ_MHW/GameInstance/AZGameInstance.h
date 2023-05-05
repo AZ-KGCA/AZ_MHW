@@ -22,9 +22,9 @@ public:
 	UPROPERTY() class UAZMapMgr* map_mgr;
 	UPROPERTY() class UAZHUDDataMgr* hud_data_mgr;
 	UPROPERTY() class UAZGameOption* game_option;
-
+	UPROPERTY() class UAZInventoryManager* inventory_mgr;
 	UPROPERTY() FMapChannelInfo map_channel_info;
-
+	
 public:
 	UAZGameInstance();
 	virtual ~UAZGameInstance();

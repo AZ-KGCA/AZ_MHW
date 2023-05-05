@@ -20,6 +20,6 @@ public:
 public:
 	void Init();
 
-	// AZHUD_Lancher¿¡¼­ È£Ãâ
+	// AZHUD_Lancherì—ì„œ í˜¸ì¶œ
 	void InitGameOption();
 };
