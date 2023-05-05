@@ -34,11 +34,11 @@ void UClient_To_Server::Server_Connect()
         -----------------------*/
     int iRet = connect(sock, (sockaddr*)&sa, sizeof(sa));
 
-    //u_long iMode = TRUE;
-    ///*----------------------언리얼 엔진 vector deleting destructor'() 에러 원인이 뭐야?
-    //SOCKET 논블럭킹 설정  | ioctlsocket
-    //-----------------------*/
-    //ioctlsocket(sock, FIONBIO, &iMode);
+    u_long iMode = 1;
+    /*----------------------언리얼 엔진 vector deleting destructor'() 에러 원인이 뭐야?
+    SOCKET 논블럭킹 설정  | ioctlsocket
+    -----------------------*/
+    ioctlsocket(sock, FIONBIO, &iMode);
 
     rece_thread = std::thread(&UClient_To_Server::receive_thread, this);
     rece_queue_thread = std::thread(&UClient_To_Server::receive_data_read_thread, this);
