@@ -6,15 +6,17 @@
 #include <Perception/AIPerceptionStimuliSourceComponent.h>
 #include <Perception/AIPerceptionComponent.h>
 #include "AZ_MHW/Character/Monster/AZMonster.h"
-#include "..\CharacterComponent\AZMonsterAggroComponent.h"
+#include "AZ_MHW\CharacterComponent\AZMonsterAggroComponent.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Util/AZUtility.h"
 
 AAZAIController::AAZAIController(FObjectInitializer const& object_initializer)
 {
+	PrimaryActorTick.bCanEverTick = true;
 	sight_config_ = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception Component")));
+	active_move_request_id_ = FAIRequestID::InvalidRequest;
 }
 
 void AAZAIController::OnPossess(APawn* const pawn)
@@ -38,10 +40,11 @@ void AAZAIController::OnPossess(APawn* const pawn)
 	SetUpProperties();
 	SetUpBehaviorTree();
 	SetUpPerceptionSystem();
+	acceptance_radius_ = owner_->acceptance_radius_;
 	
 	if (IsValid(behavior_tree_))
 	{
-		UE_LOG(AZMonster, Log, TEXT("[AZAIController] Behavior tree is not null"));
+		UE_LOG(AZMonster, Log, TEXT("[AZAIController] Running a behavior tree"));
 		RunBehaviorTree(behavior_tree_);
 	}
 	else
@@ -53,6 +56,28 @@ void AAZAIController::OnPossess(APawn* const pawn)
 void AAZAIController::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AAZAIController::Tick(float delta_seconds)
+{
+	Super::Tick(delta_seconds);
+
+	// If active move request exists, check if reached goal
+	if (owner_->IsMoving() && active_move_request_id_ != FAIRequestID::InvalidRequest)
+	{
+		if (GEngine)
+		{
+			float distance = FVector::Distance(owner_->GetActorLocation(), target_location_);
+			GEngine->AddOnScreenDebugMessage(-1, delta_seconds, FColor::White, FString::Printf(TEXT("Remaining distance: %f"), distance));
+		}
+		if (HasReachedLocation(target_location_))
+		{
+			UE_LOG(AZMonster, Log, TEXT("[AZAIController] [ID %d] Goal location is reached"), (uint32)active_move_request_id_);
+			const FAIMessage success_msg(UBrainComponent::AIMessage_MoveFinished, this, active_move_request_id_, FAIMessage::Success);
+			FAIMessage::Send(this, success_msg);
+			active_move_request_id_ = FAIRequestID::InvalidRequest;
+		}
+	}
 }
 
 void AAZAIController::SetUpPerceptionSystem()
@@ -86,11 +111,11 @@ ETeamAttitude::Type AAZAIController::GetTeamAttitudeTowards(const AActor& other_
 	if (!team_agent) return ETeamAttitude::Neutral;
 
 	// Check actor's team id
-	if (owner_->behavior_type_ == EMonsterBehaviorType::Neutral)
+	if (owner_->GetBehaviorType() == EMonsterBehaviorType::Neutral)
 	{
 		return ETeamAttitude::Neutral;
 	}
-	else if (owner_->behavior_type_ == EMonsterBehaviorType::Friendly)
+	else if (owner_->GetBehaviorType() == EMonsterBehaviorType::Friendly)
 	{
 		return ETeamAttitude::Friendly;
 	}
@@ -121,11 +146,15 @@ void AAZAIController::SetUpBehaviorTree()
 	UseBlackboard(behavior_tree_->BlackboardAsset, blackboard_component);
 }
 
+FAIRequestID AAZAIController::GetNewMoveRequestID()
+{
+	active_move_request_id_ = next_request_id_++;
+	return active_move_request_id_;
+}
+
 void AAZAIController::OnPlayerDetected(AActor* actor, FAIStimulus const stimulus) 
 {
-	// Do nothing if already in combat
-	if (owner_->state_info_.action_mode != EMonsterActionMode::Normal) return;
-
+	if (owner_->IsInCombat()) return;
 	if (stimulus.WasSuccessfullySensed())
 	{
 		SetBlackboardValueAsBool(AZBlackboardKey::is_triggered_by_sight, true);
@@ -136,6 +165,14 @@ void AAZAIController::OnPlayerDetected(AActor* actor, FAIStimulus const stimulus
 
 void AAZAIController::OnEnterCombat()
 {
+	// if active move request exists, abort it
+	if (GetMoveRequestID() != FAIRequestID::InvalidRequest)
+	{
+		const FAIMessage fail_msg(UBrainComponent::AIMessage_MoveFinished, this, active_move_request_id_, FAIMessage::Failure);
+		FAIMessage::Send(this, fail_msg);
+		active_move_request_id_ = FAIRequestID::InvalidRequest;
+	}
+	
 	AAZCharacter* target = owner_->aggro_component_->GetTargetRef();
 	GetPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
 	SetBlackboardValueAsObject(AZBlackboardKey::target_character, target);
@@ -175,4 +212,37 @@ void AAZAIController::SetBlackboardValueAsObject(FName bb_key_name, UObject* bb_
 		UE_LOG(AZMonster, Error, TEXT("Trying to set value to an invalid blackboard key: %s"), *bb_key_name.ToString())
 	}
 	else GetBlackboardComponent()->SetValueAsObject(bb_key_name, bb_value);
+}
+
+FPathFollowingRequestResult AAZAIController::MoveToLocation(const FVector& target_location)
+{
+	FPathFollowingRequestResult request_result;
+	request_result.MoveId = GetNewMoveRequestID();
+	target_location_ = target_location;
+	
+	if (HasReachedLocation(target_location_))
+	{
+		request_result.Code = EPathFollowingRequestResult::AlreadyAtGoal;
+	}
+	else if (owner_->IsMoving())
+	{
+		// If already moving, send failure message
+		request_result.Code = EPathFollowingRequestResult::Failed;
+	}
+	else
+	{
+		// start move
+		owner_->SetTargetAngle(owner_->GetRelativeAngleToLocation(target_location));
+		owner_->SetMoveState(EMoveState::Walk);
+		request_result.Code = EPathFollowingRequestResult::RequestSuccessful;		
+	}
+	
+	return request_result;
+}
+
+bool AAZAIController::HasReachedLocation(const FVector& location) const
+{
+	const float distance_to_loc = FVector::Distance(owner_->GetActorLocation(), location);
+	if (distance_to_loc <= acceptance_radius_) return true;
+	else return false;
 }

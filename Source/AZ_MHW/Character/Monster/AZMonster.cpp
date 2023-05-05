@@ -21,8 +21,9 @@ AAZMonster::AAZMonster()
 	boss_id_ = -1;
 	team_id_ = (uint8)(EObjectType::Monster);
 
+    // TODO 
 	// Set default objects to hit check
-	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
+	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)); // AZCharacter (player)
 	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
 
 	// Set AI Controller class
@@ -79,7 +80,6 @@ void AAZMonster::SetUpDefaultProperties()
 
 void AAZMonster::SetMonsterInfo()
 {
-	// Return if monster id is not set
 	if (!IsAValidMonster()) return;
 
 	// Return if monster id is not found in the table
@@ -120,7 +120,6 @@ void AAZMonster::SetBossInfo()
 
 void AAZMonster::SetActionInfo()
 {
-	// Return if monster id is not set
 	if (!IsAValidMonster()) return;
 
 	const auto noncombat_action_info = UAZGameSingleton::instance()->monster_mgr->GetMonsterNonCombatActionInfo(monster_id_);
@@ -141,7 +140,7 @@ void AAZMonster::InitializeRunTimeValues()
 {
 	is_flying_ = false;
 	is_in_ragemode_ = false;
-	state_info_.Reset();
+	action_state_info_.Reset();
 	//TODO aggro_component_->Reset();
 	health_component_->InitializeRuntimeValues();
 	mesh_component_->InitializeRuntimeValues();
@@ -156,7 +155,7 @@ void AAZMonster::BeginPlay()
 
 void AAZMonster::EnterCombat()
 {
-	SetMoveState(EMoveState::Stop);	
+	SetMoveState(EMoveState::StopMove);	
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
 	else
@@ -166,49 +165,54 @@ void AAZMonster::EnterCombat()
 
 void AAZMonster::SetActionMode(EMonsterActionMode action_mode)
 {
-	state_info_.action_mode = action_mode;
+	action_state_info_.action_mode = action_mode;
 	AAZAIController* controller = Cast<AAZAIController>(GetController());
 	controller->SetBlackboardValueAsEnum(AZBlackboardKey::action_mode, uint8(action_mode));
 }
 
 void AAZMonster::SetMoveState(EMoveState move_state)
 {
-	state_info_.priority_score = EMonsterActionPriority::Locomotion;
-	state_info_.move_state = move_state;
-	state_info_.animation_name = NAME_None;
-	state_info_.montage_section_name = NAME_None;
+	action_state_info_.priority_score = EMonsterActionPriority::Locomotion;
+	action_state_info_.move_state = move_state;
+	action_state_info_.animation_name = NAME_None;
+	action_state_info_.montage_section_name = NAME_None;
 
 	AAZAIController* controller = Cast<AAZAIController>(GetController());
 	controller->SetBlackboardValueAsEnum(AZBlackboardKey::move_state, uint8(move_state));
 	controller->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, uint8(ECharacterState::Locomotion));
-	if (move_state == EMoveState::Stop) controller->StopMovement();
+	//if (move_state == EMoveState::StopMove) controller->StopMovement();
 }
 
 void AAZMonster::SetTargetAngle(float angle)
 {
 	angle = FMath::Clamp(angle, -180.0f, 180.0f);
-	state_info_.target_angle = angle;
+	action_state_info_.target_angle = angle;
+}
+
+void AAZMonster::ResetTargetAngle()
+{
+	action_state_info_.target_angle = 0.0f;
 }
 
 //TODO Cinematic states are yet to be implemented
 void AAZMonster::SetActionState(int32 action_id)
 {
 	// if current action has higher priority than next action, do not update
-	if (state_info_.priority_score > EMonsterActionPriority::Action)
+	if (action_state_info_.priority_score > EMonsterActionPriority::Action)
 	{
 		return;
 	}
 	bool is_found = false;
 
 	// find the action data from table according to current action mode
-	switch (state_info_.action_mode)
+	switch (action_state_info_.action_mode)
 	{
 	case EMonsterActionMode::Normal:
 		{
 			if (const FMonsterNonCombatActionInfo* action_data = noncombat_action_map_.Find(action_id))
 			{
-				state_info_.animation_name = action_data->animation_name;
-				state_info_.montage_section_name = action_data->montage_section_name;
+				action_state_info_.animation_name = action_data->animation_name;
+				action_state_info_.montage_section_name = action_data->montage_section_name;
 				is_found = true;
 			}
 			break;
@@ -218,8 +222,8 @@ void AAZMonster::SetActionState(int32 action_id)
 		{
 			if (const FMonsterCombatActionInfo* action_data = combat_action_map_.Find(action_id))
 			{
-				state_info_.animation_name = action_data->animation_name;
-				state_info_.montage_section_name = action_data->montage_section_name;
+				action_state_info_.animation_name = action_data->animation_name;
+				action_state_info_.montage_section_name = action_data->montage_section_name;
 				is_found = true;
 			}
 			break;
@@ -236,14 +240,51 @@ void AAZMonster::SetActionState(int32 action_id)
 	{
 		UE_LOG(AZMonster, Error, TEXT("Failed to set action #%d"), action_id);
 		return;
-	}	
-	// update common data
-	state_info_.priority_score = EMonsterActionPriority::Action;
+	}
+	
+	// Update state if there is an available action
+	// Update common data
+	action_state_info_.priority_score = EMonsterActionPriority::Action;
 	Cast<AAZAIController>(GetController())->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, uint8(ECharacterState::Action));
 
-	// update target angle
-	float angle = GetRelativeAngleToLocation(aggro_component_->GetTargetLocation());
-	SetTargetAngle(angle);
+	// TODO this only covers combat mode; cannot process non-combat player conscious actions
+	// Update target angle
+	if (IsInCombat())
+	{
+		float angle = GetRelativeAngleToLocation(aggro_component_->GetTargetLocation());
+		SetTargetAngle(angle);	
+	}
+}
+
+int32 AAZMonster::GetMonsterID() const
+{
+	return monster_id_;
+}
+
+EBossRank AAZMonster::GetBossRank() const
+{
+	return rank_;
+}
+
+EMonsterBehaviorType AAZMonster::GetBehaviorType() const
+{
+	return behavior_type_;
+}
+
+bool AAZMonster::IsInCombat() const
+{
+	return action_state_info_.action_mode != EMonsterActionMode::Normal;
+}
+
+bool AAZMonster::IsFlying() const
+{
+	return is_flying_;
+}
+
+bool AAZMonster::IsMoving() const
+{
+	return (action_state_info_.priority_score == EMonsterActionPriority::Locomotion
+		&& action_state_info_.move_state >= EMoveState::Walk);
 }
 
 void AAZMonster::AnimNotify_EndOfAction()
@@ -252,15 +293,16 @@ void AAZMonster::AnimNotify_EndOfAction()
 	{
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
-	SetMoveState(EMoveState::Stop);
+	anim_instance_->is_doing_action_ = false;
+	SetMoveState(EMoveState::None);
 }
 
 void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name)
 {
-	// use "Montage Set Next Section" if it is a montage 
-
-	state_info_.animation_name = next_animation_name;
-	state_info_.montage_section_name = next_montage_section_name;
+	// TODO use "Montage Set Next Section" if it is a montage
+	action_state_info_.animation_name = next_animation_name;
+	action_state_info_.montage_section_name = next_montage_section_name;
+	anim_instance_->is_doing_action_ = false;
 }
 
 void AAZMonster::AnimNotify_SetMovementMode(EMovementMode movement_mode)
@@ -302,10 +344,10 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 
 bool AAZMonster::IsABoss() const
 {
-	if (IsAValidMonster())
+	if (!IsAValidMonster())
 		return false;
 	else
-		return (boss_id_ != -1 && rank_ != EBossRank::None);
+		return (rank_ != EBossRank::None);
 }
 
 bool AAZMonster::IsAValidMonster() const

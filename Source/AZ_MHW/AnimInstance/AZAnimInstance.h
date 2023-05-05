@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "AZ_MHW/CommonSource/AZEnum.h"
 #include "AZAnimInstance.generated.h"
 
 class AAZCharacter;

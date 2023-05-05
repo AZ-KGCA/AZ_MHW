@@ -1,11 +1,11 @@
 #pragma once
+#include "AITypes.h"
 #include "AZ_MHW/CommonSource/AZEnum.h"
 #include "AZStruct.generated.h"
 
 
 //============================================
 // Monster
-
 
 USTRUCT(BlueprintType)
 struct FBossIdentifier
@@ -32,7 +32,7 @@ FORCEINLINE uint32 GetTypeHash(const FBossIdentifier& boss_id)
 }
 
 USTRUCT(BlueprintType)
-struct FBossMonsterStateInfo
+struct FMonsterActionStateInfo
 {
 	GENERATED_BODY()
 
@@ -41,19 +41,15 @@ struct FBossMonsterStateInfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) EMoveState move_state;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FName animation_name;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FName montage_section_name;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float hp_ratio;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float stamina_ratio;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float target_angle;
 
 	void Reset()
 	{
 		action_mode = EMonsterActionMode::Normal;
-		priority_score = EMonsterActionPriority::None;
-		move_state = EMoveState::Stop;
+		priority_score = EMonsterActionPriority::Locomotion;
+		move_state = EMoveState::None;
 		animation_name = NAME_None;
 		montage_section_name = NAME_None;
-		hp_ratio = 1.0f;
-		stamina_ratio = 1.0f;
 		target_angle = 0.0f;
 	}
 };
@@ -247,7 +243,27 @@ struct FBossBodyPartInfo
 	GENERATED_BODY()
 	
 	//TODO move BossWeaknessStats and BossPartBreakStats here when implementing damage by body part
+	//amount of damage needed to stun etc 
 };
+
+USTRUCT(BlueprintType)
+struct FBossBodyCondition
+{
+	GENERATED_BODY()
+	
+	//TODO states of body parts (e.g. broken, damaged, etc)
+
+	void Reset() {};
+};
+
+// USTRUCT()
+// struct FAIMoveRequestResult
+// {
+// 	GENERATED_BODY()
+// 	
+// 	FAIRequestID move_request_id;
+// 	EMoveRequestResult result_code;
+// };
 
 // End of Monster
 //============================================

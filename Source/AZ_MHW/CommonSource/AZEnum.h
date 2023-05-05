@@ -64,7 +64,8 @@ enum class ECharacterState : uint8
 UENUM(BlueprintType)
 enum class EMoveState : uint8
 {
-	Stop,
+	None,
+	StopMove,
 	Walk,
 	Run,
 	Fly,
@@ -109,7 +110,8 @@ enum class EMonsterActionPriority : uint8
 	None,
 	Locomotion,
 	Action,
-	Damaged,
+	Hit,
+	Debuff,
 	Death,
 	Cinematic,
 };
@@ -183,6 +185,14 @@ enum class EMonsterBodyPart : uint8
 	Tail,
 	Eyelid,	
 	Eyeball,	// not used
+};
+
+UENUM()
+enum class EMoveRequestResult : uint8
+{
+	Failed,
+	RequestSuccessful,
+	AlreadyAtGoal,
 };
 
 // End of Monster

@@ -22,19 +22,20 @@ UBTTask_Move::UBTTask_Move()
 
 void UBTTask_Move::OnMessage(UBehaviorTreeComponent& owner_comp, uint8* node_memory, FName message, int32 sender_id, bool is_success)
 {
+	if (message != UBrainComponent::AIMessage_MoveFinished) return;
 	const EBTTaskStatus::Type Status = owner_comp.GetTaskStatus(this);
-
+	owner_->SetMoveState(EMoveState::StopMove);
+	
 	if (Status == EBTTaskStatus::Aborting)
 	{
+		UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move][%d/%d] Received Move Abort Message"), path_index_, path_points_.Num() - 1);
 		FinishLatentAbort(owner_comp);
 		return;
 	}
 
 	if (Status == EBTTaskStatus::Active)
 	{
-		if (message != UBrainComponent::AIMessage_MoveFinished) return;
-
-		UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move][%d/%d] Received Move Finished Message"), path_index_, path_points_.Num() - 1);
+		UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move][%d/%d] Received Move Success Message"), path_index_, path_points_.Num() - 1);
 		if (!is_success)
 		{
 			FinishLatentTask(owner_comp, EBTNodeResult::Failed);
@@ -46,7 +47,7 @@ void UBTTask_Move::OnMessage(UBehaviorTreeComponent& owner_comp, uint8* node_mem
 		}
 		else
 		{
-			UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] Last move ended"));
+			UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] Last move ended"));
 			FinishLatentTask(owner_comp, EBTNodeResult::Succeeded);
 		}
 	}
@@ -54,9 +55,8 @@ void UBTTask_Move::OnMessage(UBehaviorTreeComponent& owner_comp, uint8* node_mem
 
 void UBTTask_Move::OnTaskFinished(UBehaviorTreeComponent& owner_comp, uint8* node_memory, EBTNodeResult::Type task_result)
 {
+	Super::OnTaskFinished(owner_comp, node_memory, task_result);
 	UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] Task Finished"));
-
-	owner_->SetMoveState(EMoveState::Stop);
 }
 
 EBTNodeResult::Type UBTTask_Move::ExecuteTask(UBehaviorTreeComponent& owner_comp, uint8* node_memory)
@@ -66,18 +66,16 @@ EBTNodeResult::Type UBTTask_Move::ExecuteTask(UBehaviorTreeComponent& owner_comp
 	Super::ExecuteTask(owner_comp, node_memory);
 	owner_ = Cast<AAZMonster>(owner_comp.GetAIOwner()->GetPawn());
 	FVector curr_location = owner_->GetActorLocation();
-	
-	EMoveState next_move_state = EMoveState(owner_comp.GetBlackboardComponent()->GetValueAsEnum(AZBlackboardKey::move_state));
 	final_dest_ = owner_comp.GetBlackboardComponent()->GetValueAsVector(AZBlackboardKey::target_location);
-	bool is_move_start = false;
+	bool is_move_start = false;  
 	
 	if ((curr_location != final_dest_))// && (owner_->server_movement_component_->move_type_ != next_move_type))
 	{
 		is_move_start = true;
-	}
+	} 
 	else 
 	{
-		// TODO: �� �����ϴµ� ���� ������ �� ���� ���
+		// TODO: when monster needs to move but is stunned/debuffed
 	}
 	
 	if (is_move_start)
@@ -97,91 +95,150 @@ EBTNodeResult::Type UBTTask_Move::ExecuteTask(UBehaviorTreeComponent& owner_comp
 			path_points_ = nav_path->PathPoints;
 			
 			UE_LOG(AZMonster, Warning, TEXT("---------------------------------------------------"));
-			UE_LOG(AZMonster, Log, TEXT("Start: %s | End: %s"), *(owner_->GetActorLocation().ToString()), *(final_dest_.ToString()));
+			UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] Start: %s | End: %s"), *(owner_->GetActorLocation().ToString()), *(final_dest_.ToString()));
 			for (int point_iter = 1; point_iter < nav_path->PathPoints.Num(); point_iter++)
 			{
-				UE_LOG(AZMonster, Log, TEXT("[PathPoint %d] %s"), point_iter, *(nav_path->PathPoints[point_iter].ToString()));
-				DrawDebugSphere(GetWorld(), nav_path->PathPoints[point_iter], 5.0f, 16, FColor::Red, false, 4.0f, 0U, 20.f);
-				DrawDebugLine(GetWorld(), nav_path->PathPoints[point_iter - 1], nav_path->PathPoints[point_iter], FColor::Red, false, 4.0f, 0U, 5.f);
+				UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [PathPoint %d] %s"), point_iter, *(nav_path->PathPoints[point_iter].ToString()));
+				DrawDebugSphere(GetWorld(), nav_path->PathPoints[point_iter], 5.0f, 16, FColor::Red, false, 10.0f, 0U, 20.f);
+				DrawDebugLine(GetWorld(), nav_path->PathPoints[point_iter - 1], nav_path->PathPoints[point_iter], FColor::Red, false, 10.0f, 0U, 5.f);
 			}
 		}
-	}
 
-	EBTNodeResult::Type move_result = MoveBegin(owner_comp);
-	if (move_result != EBTNodeResult::InProgress)
-	{
-		UE_LOG(AZMonster, Warning, TEXT("Move finishing with result %s"), *UEnum::GetValueAsString(move_result));
-		FinishLatentTask(owner_comp, move_result);
+		EBTNodeResult::Type move_result = MoveBegin(owner_comp);
+		if (move_result != EBTNodeResult::InProgress)
+		{
+			UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] Move finishing with result %s"), *UEnum::GetValueAsString(move_result));
+			FinishLatentTask(owner_comp, move_result);
+		}
 	}
+	
 	return EBTNodeResult::InProgress;
 }
 
 EBTNodeResult::Type UBTTask_Move::MoveBegin(UBehaviorTreeComponent& owner_comp)
 {
+	EBTNodeResult::Type move_result = EBTNodeResult::Failed;
 	if (path_index_ >= path_points_.Num())
 	{
-		UE_LOG(AZMonster, Error, TEXT("Accessing Invalid Index: %d"), path_index_);
-		return EBTNodeResult::Failed;
+		UE_LOG(AZMonster, Error, TEXT("[UBTTask_Move] Accessing Invalid Index: %d"), path_index_);
+		return move_result;
 	}
 
-	EBTNodeResult::Type move_result = EBTNodeResult::Failed;
+	// Request movement
 	AAZAIController* controller = Cast<AAZAIController>(owner_->GetController());
-	FPathFollowingRequestResult move_req_result;
+	FPathFollowingRequestResult move_req_result = controller->MoveToLocation(path_points_[path_index_]);
+	UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Requested move to pathpoint#%d"), *(move_req_result.MoveId.ToString()), path_index_);
 
-	FAIMoveRequest move_req;
-	move_req.SetNavigationFilter(*controller->GetDefaultNavigationFilterClass());
-	move_req.SetAllowPartialPath(true);
-	move_req.SetAcceptanceRadius(5.0f);
-	move_req.SetCanStrafe(false);
-	move_req.SetReachTestIncludesAgentRadius(true);
-	move_req.SetReachTestIncludesGoalRadius(false);
-	move_req.SetProjectGoalLocation(true);
-	move_req.SetUsePathfinding(true);
-	move_req.SetGoalLocation(path_points_[path_index_]);
-
-	if (!move_req.IsValid())
+	// Check request result
+	if (move_req_result.Code == EPathFollowingRequestResult::RequestSuccessful)
 	{
-		UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] Invalid move request"));
-		move_result = EBTNodeResult::Failed;
+		// If the request is successful, wait for movement to end
+		UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Waiting for move to pathpoint #%d to finish"), *(move_req_result.MoveId.ToString()), path_index_);
+		WaitForMessage(owner_comp, UBrainComponent::AIMessage_MoveFinished, move_req_result.MoveId);
+		move_result = EBTNodeResult::InProgress;
 	}
-	else
+	else if (move_req_result.Code == EPathFollowingRequestResult::AlreadyAtGoal)
 	{
-		move_req_result = controller->MoveTo(move_req);
-		UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Beginning move to pathpoint#%d"), *(move_req_result.MoveId.ToString()), path_index_);
+		// If already at goal, move to next path point
+		UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Pathpoint #%d already arrived"), *(move_req_result.MoveId.ToString()), path_index_);
 
-		if (move_req_result.Code == EPathFollowingRequestResult::RequestSuccessful)
+		if (path_index_ >= path_points_.Num() - 1)
 		{
-			owner_->SetTargetAngle(owner_->GetRelativeAngleToLocation(path_points_[path_index_]));
-			owner_->SetMoveState(EMoveState::Walk);
-
-			UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Waiting for move to pathpoint #%d to finish"), *(move_req_result.MoveId.ToString()), path_index_);
-			WaitForMessage(owner_comp, UBrainComponent::AIMessage_MoveFinished, move_req_result.MoveId);
-			move_result = EBTNodeResult::InProgress;
-		}
-		else if (move_req_result.Code == EPathFollowingRequestResult::AlreadyAtGoal)
-		{
-			UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Pathpoint #%d already arrived"), *(move_req_result.MoveId.ToString()), path_index_);
-
-			if (path_index_ >= path_points_.Num() - 1)
-			{
-				move_result = EBTNodeResult::Succeeded;
-			}
-			else
-			{
-				path_index_++;
-				move_result = MoveBegin(owner_comp);
-			}
+			move_result = EBTNodeResult::Succeeded;
 		}
 		else
 		{
-			UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] [ID%s] Request failed"), *(move_req_result.MoveId.ToString()));
-			move_result = EBTNodeResult::Failed;
+			path_index_++;
+			move_result = MoveBegin(owner_comp);
 		}
 	}
-
+	else
+	{
+		UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] [ID%s] Request failed"), *(move_req_result.MoveId.ToString()));
+		move_result = EBTNodeResult::Failed;
+	}
+	
 	return move_result;
 }
 
+
+
+
+
+
+
+
+
+
+//-------------------------------------------------------------------------
+//	CURRENTLY NOT IN USE !!!
+//	MOVEMENT USING FORCE ROOT LOCK + Built in MoveTo Function
+//-------------------------------------------------------------------------
+// EBTNodeResult::Type UBTTask_Move::MoveBegin(UBehaviorTreeComponent& owner_comp)
+// {
+// 	if (path_index_ >= path_points_.Num())
+// 	{
+// 		UE_LOG(AZMonster, Error, TEXT("[UBTTask_Move] Accessing Invalid Index: %d"), path_index_);
+// 		return EBTNodeResult::Failed;
+// 	}
+//
+// 	EBTNodeResult::Type move_result = EBTNodeResult::Failed;
+// 	AAZAIController* controller = Cast<AAZAIController>(owner_->GetController());
+// 	FPathFollowingRequestResult move_req_result;
+//
+// 	FAIMoveRequest move_req;
+// 	move_req.SetNavigationFilter(*controller->GetDefaultNavigationFilterClass());
+// 	move_req.SetAllowPartialPath(true);
+// 	move_req.SetAcceptanceRadius(50.0f);
+// 	move_req.SetCanStrafe(false);
+// 	move_req.SetReachTestIncludesAgentRadius(true);
+// 	move_req.SetReachTestIncludesGoalRadius(false);
+// 	move_req.SetProjectGoalLocation(true);
+// 	move_req.SetUsePathfinding(true);
+// 	move_req.SetGoalLocation(path_points_[path_index_]);
+//
+// 	if (!move_req.IsValid())
+// 	{
+// 		UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] Invalid move request"));
+// 		move_result = EBTNodeResult::Failed;
+// 	}
+// 	else
+// 	{
+// 		move_req_result = controller->MoveTo(move_req);
+// 		UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Beginning move to pathpoint#%d"), *(move_req_result.MoveId.ToString()), path_index_);
+//
+// 		if (move_req_result.Code == EPathFollowingRequestResult::RequestSuccessful)
+// 		{
+// 			owner_->SetTargetAngle(owner_->GetRelativeAngleToLocation(path_points_[path_index_]));
+// 			owner_->SetMoveState(EMoveState::Walk);
+//
+// 			UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Waiting for move to pathpoint #%d to finish"), *(move_req_result.MoveId.ToString()), path_index_);
+// 			WaitForMessage(owner_comp, UBrainComponent::AIMessage_MoveFinished, move_req_result.MoveId);
+// 			move_result = EBTNodeResult::InProgress;
+// 		}
+// 		else if (move_req_result.Code == EPathFollowingRequestResult::AlreadyAtGoal)
+// 		{
+// 			UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Pathpoint #%d already arrived"), *(move_req_result.MoveId.ToString()), path_index_);
+//
+// 			if (path_index_ >= path_points_.Num() - 1)
+// 			{
+// 				move_result = EBTNodeResult::Succeeded;
+// 			}
+// 			else
+// 			{
+// 				path_index_++;
+// 				move_result = MoveBegin(owner_comp);
+// 			}
+// 		}
+// 		else
+// 		{
+// 			UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] [ID%s] Request failed"), *(move_req_result.MoveId.ToString()));
+// 			move_result = EBTNodeResult::Failed;
+// 		}
+// 	}
+//
+// 	return move_result;
+// }
 
 
 //-------------------------------------------------------------------------

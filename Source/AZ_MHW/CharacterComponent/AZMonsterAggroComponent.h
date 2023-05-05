@@ -32,6 +32,7 @@ public:
 	AAZCharacter* GetTargetRef() const;
 	FVector GetTargetLocation() const;
 	float GetDistance2DToTarget() const;
+	//TODO Get random nearby player location
 
 private:
 	UPROPERTY() TWeakObjectPtr<class AAZMonster> owner_;

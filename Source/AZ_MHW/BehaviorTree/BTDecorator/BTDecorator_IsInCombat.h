@@ -31,6 +31,6 @@ public:
 #endif
 
 private:
-	UPROPERTY(EditAnywhere, Category = "AZ | Blackboard")
+	UPROPERTY(EditAnywhere, Category = "AZ")
 	FBlackboardKeySelector blackboard_key;
 };

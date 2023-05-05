@@ -21,5 +21,5 @@ public:
 #endif
 
 public:
-	UPROPERTY(EditAnywhere) float percept_radius;
+	UPROPERTY(EditAnywhere, Category = "AZ") float percept_radius;
 };

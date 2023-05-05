@@ -24,13 +24,13 @@ void UAZMonsterHealthComponent::InitializeComponent()
 	}
 
 	// Set monster properties
-	if (owner_->monster_id_ == -1) return;
-	const FMonsterInfo* monster_info = UAZGameSingleton::instance()->monster_mgr->GetMonsterInfo(owner_->monster_id_);
+	if (!owner_->IsAValidMonster()) return;
+	const FMonsterInfo* monster_info = UAZGameSingleton::instance()->monster_mgr->GetMonsterInfo(owner_->GetMonsterID());
 	base_hp_ = monster_info->base_hp;
 
 	// Set boss properties
-	if (owner_->boss_id_ == -1) return;
-	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr->GetBossInfo(owner_->monster_id_, owner_->rank_);
+	if (!owner_->IsABoss()) return;
+	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr->GetBossInfo(owner_->GetMonsterID(), owner_->GetBossRank());
 	sever_damage_tail_				= boss_info->sever_damage_tail;
 	tenderised_damage_multiplier_	= boss_info->tenderised_damage_multiplier;
 	escape_stats_					= FBossEscapeStats(boss_info->num_allowed_escapes, boss_info->escape_health_ratios);
@@ -47,9 +47,22 @@ void UAZMonsterHealthComponent::InitializeRuntimeValues()
 	current_hp_ = base_hp_;
 	current_stamina_ = base_stamina_;
 	current_num_escapes_ = escape_stats_.num_allowed_escapes;
+	body_condition_.Reset();
+}
+
+float UAZMonsterHealthComponent::GetHealthRatio() const
+{
+	return current_hp_ / base_hp_;
+}
+
+float UAZMonsterHealthComponent::GetStaminaRatio() const
+{
+	return current_stamina_ / base_stamina_;
 }
 
 void UAZMonsterHealthComponent::TakeDamage(AActor* damaged_actor, float damage_amount, const UDamageType* damage_type,
                                            AController* event_instigator, AActor* damage_causer)
 {
+	// TODO update current hp
+	// TODO update health state information if needed
 }

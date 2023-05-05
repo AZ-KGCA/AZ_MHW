@@ -22,9 +22,7 @@ void UAZMonsterMeshComponent::InitializeComponent()
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] Invalid owner actor!"));
 	}
-	
 	SetUpBodyPartMaterialMaps();
-	InitializeRuntimeValues();
 }
 
 void UAZMonsterMeshComponent::BeginPlay()
@@ -100,8 +98,8 @@ void UAZMonsterMeshComponent::SetMaterialVisibility(uint8 material_idx, bool is_
 {
 	if (!owner_.IsValid()) return;
 	UMaterialInterface* parent_material = owner_->GetMesh()->GetMaterial(material_idx);
-	UMaterialInstanceDynamic* dynamic_material = UMaterialInstanceDynamic::Create(parent_material, this);
-	dynamic_material->SetScalarParameterValue("Opacity", is_visible == 1 ? 1.0f : 0.0f);
+	UMaterialInstanceDynamic* dynamic_material = UMaterialInstanceDynamic::Create(parent_material, owner_.Get());
+	dynamic_material->SetScalarParameterValue(FName("Opacity"), is_visible == 1 ? 1.0f : 0.0f);
 	owner_->GetMesh()->SetMaterial(material_idx, dynamic_material);
 }
 

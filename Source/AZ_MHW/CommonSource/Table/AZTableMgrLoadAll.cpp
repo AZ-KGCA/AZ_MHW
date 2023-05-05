@@ -3,10 +3,10 @@
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZ_MHW/CommonSource/Table/ConstantData.h"
 #include "AZ_MHW/CommonSource/Table/TestData.h"
-#include "AZ_MHW/CommonSource/Table/MonsterCombatActionData.h"
 #include "AZ_MHW/CommonSource/Table/MonsterNonCombatActionData.h"
 #include "AZ_MHW/CommonSource/Table/BossData.h"
 #include "AZ_MHW/CommonSource/Table/MonsterData.h"
+#include "AZ_MHW/CommonSource/Table/MonsterCombatActionData.h"
 
 void UAZTableMgr::LoadAll()
 {
@@ -17,10 +17,6 @@ void UAZTableMgr::LoadAll()
 	if (!_Load<UTestData>("TestData.csv"))
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UTestData] Load Fail!")));
-	}
-	if (!_Load<UMonsterCombatActionData>("MonsterCombatActionData.csv"))
-	{
-		UAZUtility::ShippingLog(FString::Printf(TEXT("[UMonsterCombatActionData] Load Fail!")));
 	}
 	if (!_Load<UMonsterNonCombatActionData>("MonsterNonCombatActionData.csv"))
 	{
@@ -33,5 +29,9 @@ void UAZTableMgr::LoadAll()
 	if (!_Load<UMonsterData>("MonsterData.csv"))
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UMonsterData] Load Fail!")));
+	}
+	if (!_Load<UMonsterCombatActionData>("MonsterCombatActionData.csv"))
+	{
+		UAZUtility::ShippingLog(FString::Printf(TEXT("[UMonsterCombatActionData] Load Fail!")));
 	}
 }

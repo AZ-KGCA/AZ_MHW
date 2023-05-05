@@ -14,7 +14,12 @@ void UAZAnimInstance_Monster::NativeUpdateAnimation(float delta_seconds)
 	Super::NativeUpdateAnimation(delta_seconds);
 }
 
-FORCEINLINE AAZMonster* UAZAnimInstance_Monster::CastMonster()
+void UAZAnimInstance_Monster::PlayNextAnimation() 
+{
+	
+}
+
+AAZMonster* UAZAnimInstance_Monster::CastMonster()
 {
 	return Cast<AAZMonster>(TryGetPawnOwner());
 }

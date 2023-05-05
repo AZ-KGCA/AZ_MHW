@@ -4,26 +4,26 @@
 
 #include "AIController.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
+#include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
 
 
 UBTTask_SelectRandomAction::UBTTask_SelectRandomAction(const FObjectInitializer& object_initializer)
 {
 	NodeName = "Select Action";
-	key_is_triggered_by_sight.AddBoolFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_is_triggered_by_sight));
-	key_action_mode.AddEnumFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_action_mode), StaticEnum<EMonsterActionMode>());
-	key_target_character.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_target_character), AAZCharacter::StaticClass());
+	key_is_triggered_by_sight_.AddBoolFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_is_triggered_by_sight_));
+	key_action_mode_.AddEnumFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_action_mode_), StaticEnum<EMonsterActionMode>());
+	key_target_character_.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_target_character_), AActor::StaticClass());
 }
 
 void UBTTask_SelectRandomAction::InitializeFromAsset(UBehaviorTree& asset)
 {
 	Super::InitializeFromAsset(asset);
-
 	UBlackboardData* bb_asset = GetBlackboardAsset();
 	if (ensure(bb_asset))
 	{
-		key_is_triggered_by_sight.ResolveSelectedKey(*bb_asset);
-		key_action_mode.ResolveSelectedKey(*bb_asset);
-		key_target_character.ResolveSelectedKey(*bb_asset);
+		key_is_triggered_by_sight_.ResolveSelectedKey(*bb_asset);
+		key_action_mode_.ResolveSelectedKey(*bb_asset);
+		key_target_character_.ResolveSelectedKey(*bb_asset);
 	}
 }
 
@@ -32,20 +32,20 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::ExecuteTask(UBehaviorTreeCompone
 	AAZMonster* owner = Cast<AAZMonster>(owner_comp.GetAIOwner()->GetPawn());
 	UBlackboardComponent* bb_comp = owner_comp.GetBlackboardComponent();
 	
-	EMonsterActionMode action_mode = static_cast<EMonsterActionMode>(owner_comp.GetBlackboardComponent()->GetValueAsEnum(key_action_mode.SelectedKeyName));
+	EMonsterActionMode action_mode = static_cast<EMonsterActionMode>(owner_comp.GetBlackboardComponent()->GetValueAsEnum(key_action_mode_.SelectedKeyName));
 	switch (action_mode)
 	{
 	case EMonsterActionMode::Normal:
 		{
-			SelectNonCombatAction(owner, bb_comp);
+			return SelectNonCombatAction(owner, bb_comp);
 		}
 	case EMonsterActionMode::Transition:
 		{
-			SelectTransitionAction(owner, bb_comp);
+			return SelectTransitionAction(owner, bb_comp);
 		}
 	case EMonsterActionMode::Combat:
 		{
-			SelectCombatAction(owner, bb_comp);
+			return SelectCombatAction(owner, bb_comp);
 		}
 	default:
 		return EBTNodeResult::Failed;
@@ -60,18 +60,18 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectNonCombatAction(AAZMonster
 		if ((conditions & EMonsterActionConditionType::Flying) == EMonsterActionConditionType::Flying)
 		{
 			// Unacceptable if the owner should be flying but is not
-			if (!owner->is_flying_) return false;
+			if (!owner->IsFlying()) return false;
 		}
 		if ((conditions & EMonsterActionConditionType::InRange) == EMonsterActionConditionType::InRange)
 		{
 			// Unacceptable if a player should be in the perceivable distance but is not
-			if (!is_player_in_range) return false;
+			if (!is_player_in_range_) return false;
 		}
 		if ((conditions & EMonsterActionConditionType::Health) == EMonsterActionConditionType::Health)
 		{
 			// Unacceptable if the owner health is not within the range
-			if (owner->state_info_.hp_ratio < action_map.Value.condition_min_health_ratio) return false;
-			if (owner->state_info_.hp_ratio > action_map.Value.condition_max_health_ratio) return false;
+			if (owner->health_component_->GetHealthRatio() < action_map.Value.condition_min_health_ratio) return false;
+			if (owner->health_component_->GetHealthRatio() > action_map.Value.condition_max_health_ratio) return false;
 		}
 		// acceptable if all conditions are met
 		return true;
@@ -82,7 +82,7 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectNonCombatAction(AAZMonster
 		return EBTNodeResult::Failed;
 	
 	// Select random action from available actions
-	const int idx = FMath::RandRange(0, available_actions_map.Num());
+	const int idx = FMath::RandRange(0, available_actions_map.Num()-1);
 	owner->SetActionState(available_actions_map[idx].action_id);
 	return EBTNodeResult::Succeeded;
 }
@@ -101,7 +101,7 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectTransitionAction(AAZMonste
 		if (((triggers & EMonsterActionTriggerType::Damage) != EMonsterActionTriggerType::Damage)
 			&& ((triggers & EMonsterActionTriggerType::Sight) == EMonsterActionTriggerType::Sight))
 		{
-			if (!blackboard->GetValueAsBool(key_is_triggered_by_sight.SelectedKeyName))
+			if (!blackboard->GetValueAsBool(key_is_triggered_by_sight_.SelectedKeyName))
 			{
 				return false;
 			}
@@ -112,7 +112,7 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectTransitionAction(AAZMonste
 		if ((conditions & EMonsterActionConditionType::Flying) == EMonsterActionConditionType::Flying)
 		{
 			// Unacceptable if the owner should be flying but is not
-			if (!owner->is_flying_) return false;
+			if (!owner->IsFlying()) return false;
 		}
 		// acceptable if all conditions are met
 		return true;
@@ -123,7 +123,7 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectTransitionAction(AAZMonste
 		return EBTNodeResult::Failed;
 	
 	// Select random action from available actions
-	const int idx = FMath::RandRange(0, available_actions_map.Num());
+	const int idx = FMath::RandRange(0, available_actions_map.Num()-1);
 	owner->SetActionState(available_actions_map[idx].action_id);
 	return EBTNodeResult::Succeeded;
 }
@@ -148,12 +148,12 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* o
 		if ((conditions & EMonsterActionConditionType::Flying) == EMonsterActionConditionType::Flying)
 		{
 			// Unacceptable if the owner should be flying but is not
-			if (!owner->is_flying_) return false;
+			if (!owner->IsFlying()) return false;
 		}
 		if ((conditions & EMonsterActionConditionType::InRange) == EMonsterActionConditionType::InRange)
 		{
 			// Unacceptable if the target player is not in range
-			FVector target_location = Cast<AActor>(blackboard->GetValueAsObject(key_target_character.SelectedKeyName))->GetActorLocation();
+			FVector target_location = Cast<AActor>(blackboard->GetValueAsObject(key_target_character_.SelectedKeyName))->GetActorLocation();
 			float distance_to_target = owner->GetDistance2DToLocation(target_location);
 			if (distance_to_target < action_map.Value.condition_min_distance_from_target) return false;
 			if (distance_to_target > action_map.Value.condition_max_distance_from_target) return false;
@@ -173,7 +173,7 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* o
 		return EBTNodeResult::Failed;
 	
 	// Select random action from available actions
-	const int idx = FMath::RandRange(0, available_actions_map.Num());
+	const int idx = FMath::RandRange(0, available_actions_map.Num()-1);
 	owner->SetActionState(available_actions_map[idx].action_id);
 	return EBTNodeResult::Succeeded;
 }

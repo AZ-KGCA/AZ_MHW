@@ -1,5 +1,6 @@
 #include "AZ_MHW/Character/AZCharacter.h"
-#include <Kismet/KismetMathLibrary.h>
+
+#include "Kismet/KismetMathLibrary.h"
 
 AAZCharacter::AAZCharacter()
 {
@@ -42,5 +43,5 @@ float AAZCharacter::GetRelativeAngleToLocation(const FVector& target_location) c
 
 float AAZCharacter::GetDistance2DToLocation(const FVector& target_location) const
 {
-	return UKismetMathLibrary::Distance2D(FVector2D(GetActorLocation()), FVector2D(target_location));
+	return FVector2D::Distance(FVector2D(GetActorLocation()), FVector2D(target_location));
 }

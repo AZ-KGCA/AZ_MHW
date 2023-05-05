@@ -21,6 +21,6 @@ class AZ_MHW_API UBTService_FindTarget : public UBTService
 	virtual void TickNode(UBehaviorTreeComponent& owner_comp, uint8* node_memory, float delta_seconds) override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "AZ | Blackboard")
+	UPROPERTY(EditAnywhere, Category = "AZ")
 	struct FBlackboardKeySelector blackboard_key;
 };

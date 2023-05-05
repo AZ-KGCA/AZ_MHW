@@ -23,7 +23,7 @@ public:
 	virtual void OnTaskFinished(UBehaviorTreeComponent& owner_comp, uint8* node_memory, EBTNodeResult::Type task_result) override;
 
 private:
-	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& owner_comp, uint8* node_memory);
+	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& owner_comp, uint8* node_memory) override;
 	EBTNodeResult::Type MoveBegin(UBehaviorTreeComponent& owner_comp);
 
 private:

@@ -30,12 +30,12 @@ protected:
 	void OnBodyPartWounded(EMonsterBodyPart body_part);
 	void OnBodyPartBroken(EMonsterBodyPart body_part);
 	
-protected:
+private:
 	UPROPERTY() TWeakObjectPtr<class AAZMonster> owner_;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Material")
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Material")
 	TMap<EMonsterBodyPart, int32> mesh_material_indices_default_;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Material")
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Material")
 	TMap<EMonsterBodyPart, int32> mesh_material_indices_wounded_;
 };

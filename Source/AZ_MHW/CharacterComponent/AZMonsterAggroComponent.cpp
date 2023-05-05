@@ -59,10 +59,16 @@ AAZCharacter* UAZMonsterAggroComponent::GetTargetRef() const
 
 FVector UAZMonsterAggroComponent::GetTargetLocation() const 
 {
-	return best_target_->GetActorLocation();
+	if (!best_target_.IsValid())
+		return FVector::ZeroVector;
+	else
+		return best_target_->GetActorLocation();
 }
 
 float UAZMonsterAggroComponent::GetDistance2DToTarget() const
 {
-	return FVector::Dist2D(owner_->GetActorLocation(), GetTargetLocation());
+	if (!best_target_.IsValid())
+		return 0.0f;
+	else
+		return FVector::Dist2D(owner_->GetActorLocation(), GetTargetLocation());
 }
