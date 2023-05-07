@@ -19,7 +19,7 @@ class AZ_MHW_API AAZAIController : public AAIController
 	GENERATED_BODY()
 
 public:
-	AAZAIController(FObjectInitializer const& object_initializer = FObjectInitializer::Get());
+	AAZAIController();
 	virtual void OnPossess(APawn* const pawn) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float delta_seconds) override;
@@ -58,10 +58,10 @@ public:
 	
 protected:
 	TWeakObjectPtr<AAZMonster> owner_;
-	TObjectPtr<UAISenseConfig_Sight> sight_config_;
+	TObjectPtr<UAISenseConfig_Sight> sight_;
 	FGenericTeamId team_id_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ") TObjectPtr<UBehaviorTree> behavior_tree_;
-
+	
 	// For MoveTo task
 	uint32 next_request_id_;
 	FAIRequestID active_move_request_id_;

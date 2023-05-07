@@ -54,48 +54,50 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::ExecuteTask(UBehaviorTreeCompone
 
 EBTNodeResult::Type UBTTask_SelectRandomAction::SelectNonCombatAction(AAZMonster* owner, UBlackboardComponent* blackboard)
 {
-	auto available_actions_map = owner->noncombat_action_map_.FilterByPredicate([&owner, this](const auto& action_map)
+	TArray<int32> available_action_ids;
+	for (auto action_info : owner->noncombat_action_map_)
 	{
-		const EMonsterActionConditionType conditions = action_map.Value.conditions;
+		const EMonsterActionConditionType conditions = action_info.Value.conditions;
 		if ((conditions & EMonsterActionConditionType::Flying) == EMonsterActionConditionType::Flying)
 		{
 			// Unacceptable if the owner should be flying but is not
-			if (!owner->IsFlying()) return false;
+			if (!owner->IsFlying()) continue;
 		}
 		if ((conditions & EMonsterActionConditionType::InRange) == EMonsterActionConditionType::InRange)
 		{
 			// Unacceptable if a player should be in the perceivable distance but is not
-			if (!is_player_in_range_) return false;
+			if (!is_player_in_range_) continue;
 		}
 		if ((conditions & EMonsterActionConditionType::Health) == EMonsterActionConditionType::Health)
 		{
 			// Unacceptable if the owner health is not within the range
-			if (owner->health_component_->GetHealthRatio() < action_map.Value.condition_min_health_ratio) return false;
-			if (owner->health_component_->GetHealthRatio() > action_map.Value.condition_max_health_ratio) return false;
+			if (owner->health_component_->GetHealthRatio() < action_info.Value.condition_min_health_ratio) continue;
+			if (owner->health_component_->GetHealthRatio() > action_info.Value.condition_max_health_ratio) continue;
 		}
 		// acceptable if all conditions are met
-		return true;
-	});
+		available_action_ids.Add(action_info.Key);
+	}
 
 	// If there is no available action, return fail
-	if (available_actions_map.IsEmpty())
+	if (available_action_ids.IsEmpty())
 		return EBTNodeResult::Failed;
 	
 	// Select random action from available actions
-	const int idx = FMath::RandRange(0, available_actions_map.Num()-1);
-	owner->SetActionState(available_actions_map[idx].action_id);
+	const int idx = FMath::RandRange(0, available_action_ids.Num()-1);
+	owner->SetActionState(available_action_ids[idx]);
 	return EBTNodeResult::Succeeded;
 }
 
 EBTNodeResult::Type UBTTask_SelectRandomAction::SelectTransitionAction(AAZMonster* owner, UBlackboardComponent* blackboard)
 {
-	auto available_actions_map = owner->combat_action_map_.FilterByPredicate([&owner, &blackboard, this](const auto& action_map)
+	TArray<int32> available_action_ids;
+	for (auto action_info : owner->combat_action_map_)
 	{
 		// Filter out non-transition actions
-		const EMonsterActionTriggerType triggers = action_map.Value.triggers;
+		const EMonsterActionTriggerType triggers = action_info.Value.triggers;
 		if ((triggers & EMonsterActionTriggerType::Transition) != EMonsterActionTriggerType::Transition)
 		{
-			return false;
+			continue;
 		}
 		// If the action is only triggered by sight, check if the trigger succeeded
 		if (((triggers & EMonsterActionTriggerType::Damage) != EMonsterActionTriggerType::Damage)
@@ -103,60 +105,61 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectTransitionAction(AAZMonste
 		{
 			if (!blackboard->GetValueAsBool(key_is_triggered_by_sight_.SelectedKeyName))
 			{
-				return false;
+				continue;
 			}
 		}
 		// Filter out actions that fail the conditions
 		// Transition action condition checks omit range and health conditions
-		const EMonsterActionConditionType conditions = action_map.Value.conditions;
+		const EMonsterActionConditionType conditions = action_info.Value.conditions;
 		if ((conditions & EMonsterActionConditionType::Flying) == EMonsterActionConditionType::Flying)
 		{
 			// Unacceptable if the owner should be flying but is not
-			if (!owner->IsFlying()) return false;
+			if (!owner->IsFlying()) continue;
 		}
 		// acceptable if all conditions are met
-		return true;
-	});
+		available_action_ids.Add(action_info.Key);
+	}
 
 	// If there is no available action, return fail
-	if (available_actions_map.IsEmpty())
+	if (available_action_ids.IsEmpty())
 		return EBTNodeResult::Failed;
 	
 	// Select random action from available actions
-	const int idx = FMath::RandRange(0, available_actions_map.Num()-1);
-	owner->SetActionState(available_actions_map[idx].action_id);
+	const int idx = FMath::RandRange(0, available_action_ids.Num()-1);
+	owner->SetActionState(available_action_ids[idx]);
 	return EBTNodeResult::Succeeded;
 }
 
 EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* owner, UBlackboardComponent* blackboard)
 {
-	auto available_actions_map = owner->combat_action_map_.FilterByPredicate([&owner, &blackboard, this](const auto& action_map)
+	TArray<int32> available_action_ids;
+	for (auto action_info : owner->combat_action_map_)
 	{
 		//TODO currently no trigger is implemented for combat actions
-		const EMonsterActionTriggerType triggers = action_map.Value.triggers;
+		const EMonsterActionTriggerType triggers = action_info.Value.triggers;
 		if (triggers != EMonsterActionTriggerType::None)
 		{
-			return false;
+			continue;
 		}
 		// Filter out actions that fail the conditions
-		const EMonsterActionConditionType conditions = action_map.Value.conditions;
+		const EMonsterActionConditionType conditions = action_info.Value.conditions;
 		if (conditions == EMonsterActionConditionType::None)
 		{
 			// Acceptable if there is no conditions to check for
-			return true;
+			continue;
 		}
 		if ((conditions & EMonsterActionConditionType::Flying) == EMonsterActionConditionType::Flying)
 		{
 			// Unacceptable if the owner should be flying but is not
-			if (!owner->IsFlying()) return false;
+			if (!owner->IsFlying()) continue;
 		}
 		if ((conditions & EMonsterActionConditionType::InRange) == EMonsterActionConditionType::InRange)
 		{
 			// Unacceptable if the target player is not in range
 			FVector target_location = Cast<AActor>(blackboard->GetValueAsObject(key_target_character_.SelectedKeyName))->GetActorLocation();
 			float distance_to_target = owner->GetDistance2DToLocation(target_location);
-			if (distance_to_target < action_map.Value.condition_min_distance_from_target) return false;
-			if (distance_to_target > action_map.Value.condition_max_distance_from_target) return false;
+			if (distance_to_target < action_info.Value.condition_min_distance_from_target) continue;
+			if (distance_to_target > action_info.Value.condition_max_distance_from_target) continue;
 		}
 		if ((conditions & EMonsterActionConditionType::Health) == EMonsterActionConditionType::Health)
 		{
@@ -165,15 +168,15 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* o
 		}
 		//TODO cooltime
 		// acceptable if all conditions are met
-		return true;
-	});
+		available_action_ids.Add(action_info.Key);
+	}
 
 	// If there is no available action, return fail
-	if (available_actions_map.IsEmpty())
+	if (available_action_ids.IsEmpty())
 		return EBTNodeResult::Failed;
 	
 	// Select random action from available actions
-	const int idx = FMath::RandRange(0, available_actions_map.Num()-1);
-	owner->SetActionState(available_actions_map[idx].action_id);
+	const int idx = FMath::RandRange(0, available_action_ids.Num()-1);
+	owner->SetActionState(available_action_ids[idx]);
 	return EBTNodeResult::Succeeded;
 }

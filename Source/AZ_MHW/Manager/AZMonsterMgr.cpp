@@ -9,7 +9,6 @@
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Util/AZUtility.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BlackboardData.h"
 
 void UAZMonsterMgr::Init()
 {
