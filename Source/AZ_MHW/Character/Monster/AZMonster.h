@@ -37,7 +37,7 @@ public:
 	virtual void PreInitializeComponents() override;
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
-	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
+	virtual void GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const override;
 		
 	// Property Initialisers
 	void SetUpStimulus();
@@ -45,7 +45,7 @@ public:
 	void SetMonsterInfo();
 	void SetBossInfo();
 	void SetActionInfo();
-	void InitializeRunTimeValues();
+	void InitializeRuntimeValues();
 	
 	// State Setters
 	void EnterCombat();
@@ -85,7 +85,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterAggroComponent> aggro_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterHealthComponent> health_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterMeshComponent> mesh_component_;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAIPerceptionStimuliSourceComponent> stimulus_component_;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAIPerceptionStimuliSourceComponent> stimulus_component_;
 
 	// AIController Properties: Defined from table
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") FMonsterSightConfigs sight_configs_;

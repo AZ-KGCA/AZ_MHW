@@ -11,15 +11,28 @@
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Util/AZUtility.h"
 
-AAZAIController::AAZAIController(FObjectInitializer const& object_initializer)
+AAZAIController::AAZAIController()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	sight_config_ = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception Component")));
+	sight_ = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	active_move_request_id_ = FAIRequestID::InvalidRequest;
+	SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception Component")));
+	//TODO move to OnPossess after bug fix
+	sight_->SightRadius = 1500;
+	sight_->LoseSightRadius = 2000;
+	sight_->PeripheralVisionAngleDegrees = 90;
+	sight_->SetMaxAge(3.0f);
+	sight_->AutoSuccessRangeFromLastSeenLocation = 500;
+	sight_->DetectionByAffiliation.bDetectEnemies = true;
+	sight_->DetectionByAffiliation.bDetectFriendlies = false;
+	sight_->DetectionByAffiliation.bDetectNeutrals = false;
+
+	GetPerceptionComponent()->SetDominantSense(*sight_->GetSenseImplementation());
+	GetPerceptionComponent()->ConfigureSense(*sight_);
+	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AAZAIController::OnPlayerDetected);
 }
 
-void AAZAIController::OnPossess(APawn* const pawn)
+void AAZAIController::OnPossess(APawn* const pawn) 
 {
 	Super::OnPossess(pawn);
 
@@ -39,7 +52,7 @@ void AAZAIController::OnPossess(APawn* const pawn)
 	// Retrieve and set properties from the owner
 	SetUpProperties();
 	SetUpBehaviorTree();
-	SetUpPerceptionSystem();
+	//SetUpPerceptionSystem();
 	acceptance_radius_ = owner_->acceptance_radius_;
 	
 	if (IsValid(behavior_tree_))
@@ -56,6 +69,10 @@ void AAZAIController::OnPossess(APawn* const pawn)
 void AAZAIController::BeginPlay()
 {
 	Super::BeginPlay();
+	if (!GetPerceptionComponent())
+	{
+		UE_LOG(AZMonster, Warning, TEXT("[AZAIController] Perception component is missing!"));
+	}
 }
 
 void AAZAIController::Tick(float delta_seconds)
@@ -82,18 +99,28 @@ void AAZAIController::Tick(float delta_seconds)
 
 void AAZAIController::SetUpPerceptionSystem()
 {
-	sight_config_->SightRadius = sight_configs_.radius;
-	sight_config_->LoseSightRadius = sight_configs_.lose_radius;
-	sight_config_->PeripheralVisionAngleDegrees = sight_configs_.fov;
-	sight_config_->SetMaxAge(sight_configs_.max_age);
-	sight_config_->AutoSuccessRangeFromLastSeenLocation = sight_configs_.auto_success_range;
-	sight_config_->DetectionByAffiliation.bDetectEnemies = true;
-	sight_config_->DetectionByAffiliation.bDetectEnemies = false;
-	sight_config_->DetectionByAffiliation.bDetectEnemies = false;
+	sight_->SightRadius = 1500;
+	sight_->LoseSightRadius = 2000;
+	sight_->PeripheralVisionAngleDegrees = 90;
+	sight_->SetMaxAge(3.0f);
+	sight_->AutoSuccessRangeFromLastSeenLocation = 500;
+	sight_->DetectionByAffiliation.bDetectEnemies = true;
+	sight_->DetectionByAffiliation.bDetectFriendlies = false;
+	sight_->DetectionByAffiliation.bDetectNeutrals = false;
 
-	GetPerceptionComponent()->SetDominantSense(*sight_config_->GetSenseImplementation());
+	GetPerceptionComponent()->SetDominantSense(*sight_->GetSenseImplementation());
+	GetPerceptionComponent()->ConfigureSense(*sight_);
 	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AAZAIController::OnPlayerDetected);
-	GetPerceptionComponent()->ConfigureSense(*sight_config_);
+
+	//TODO Replace with this
+	// sight_->SightRadius = sight_configs_.radius;
+	// sight_->LoseSightRadius = sight_configs_.lose_radius;
+	// sight_->PeripheralVisionAngleDegrees = sight_configs_.fov;
+	// sight_->SetMaxAge(sight_configs_.max_age);
+	// sight_->AutoSuccessRangeFromLastSeenLocation = sight_configs_.auto_success_range;
+	// sight_->DetectionByAffiliation.bDetectEnemies = true;
+	// sight_->DetectionByAffiliation.bDetectFriendlies = false;
+	// sight_->DetectionByAffiliation.bDetectNeutrals = false;
 }
 
 ETeamAttitude::Type AAZAIController::GetTeamAttitudeTowards(const AActor& other_actor) const
@@ -133,6 +160,7 @@ void AAZAIController::SetUpProperties()
 	patrol_range_ = owner_->patrol_range_;
 	patrol_delay_ = owner_->patrol_delay_;
 	percept_radius_ = owner_->percept_radius_;
+	team_id_ = owner_->team_id_;
 }
 
 void AAZAIController::SetUpBehaviorTree()

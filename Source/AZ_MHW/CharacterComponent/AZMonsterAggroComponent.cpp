@@ -1,6 +1,6 @@
 // Copyright Team AZ. All Rights Reserved.
 
-#include "AZMonsterAggroComponent.h"
+#include "AZ_MHW/CharacterComponent/AZMonsterAggroComponent.h"
 #include "AZ_MHW/Character/AZCharacter.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/Util/AZUtility.h"
@@ -22,11 +22,6 @@ void UAZMonsterAggroComponent::InitializeComponent()
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterAggroComponent] Invalid owner actor!"));
 	}
-}
-
-void UAZMonsterAggroComponent::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void UAZMonsterAggroComponent::SetBestTarget(AAZCharacter* character)

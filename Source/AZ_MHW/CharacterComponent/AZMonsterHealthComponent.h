@@ -11,23 +11,23 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class AZ_MHW_API UAZMonsterHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
+	
 public:
 	// Property Initialisers
 	UAZMonsterHealthComponent();
-	virtual void InitializeComponent() override;
 	void InitializeRuntimeValues();
 
 	// Property Getters
 	float GetHealthRatio() const;
 	float GetStaminaRatio() const;
 	//TODO bool CanEscape() const;
-
+	
 protected:
+	virtual void InitializeComponent() override;
 	UFUNCTION() void TakeDamage(AActor* damaged_actor, float damage_amount, const class UDamageType* damage_type, class AController* event_instigator, AActor* damage_causer);
 
 private:
-	UPROPERTY() TWeakObjectPtr<class AAZMonster> owner_;
+	TWeakObjectPtr<class AAZMonster> owner_;
 	
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Health") int32 base_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") int32 base_stamina_;

@@ -4,13 +4,12 @@
 #include "AZ_MHW/Controller/AZAIController.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterAggroComponent.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
+#include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent.h"
 #include "AZ_MHW/CommonSource/AZStruct.h"
 #include <Perception/AIPerceptionStimuliSourceComponent.h>
 #include <Perception/AISense_Sight.h>
 #include <GameFrameWork/CharacterMovementComponent.h>
 #include <Kismet/KismetSystemLibrary.h>
-
-#include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent.h"
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Util/AZUtility.h"
 
@@ -34,9 +33,16 @@ AAZMonster::AAZMonster()
 	aggro_component_ = CreateDefaultSubobject<UAZMonsterAggroComponent>(TEXT("AggroComponent"));
 	health_component_ = CreateDefaultSubobject<UAZMonsterHealthComponent>(TEXT("HealthComponent"));
 	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent>(TEXT("MeshComponent"));
-
+	
 	// Set up stimulus
-	SetUpStimulus();
+	//SetUpStimulus();
+}
+
+void AAZMonster::SetUpStimulus()
+{
+	//stimulus_component_ = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("Stimulus Component"));
+	//stimulus_component_->RegisterForSense(TSubclassOf<UAISense_Sight>());
+	//stimulus_component_->RegisterWithPerceptionSystem();
 }
 
 void AAZMonster::PreInitializeComponents()
@@ -48,27 +54,20 @@ void AAZMonster::PreInitializeComponents()
 void AAZMonster::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	InitializeRunTimeValues();
+	InitializeRuntimeValues();
 }
 
-void AAZMonster::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
+void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const
 {
 	if (!GetMesh()->DoesSocketExist("HeadSocket"))
 	{
-		return Super::GetActorEyesViewPoint(OutLocation, OutRotation);
+		return Super::GetActorEyesViewPoint(out_location, out_rotation);
 	}
 	else
 	{
-		OutLocation = GetMesh()->GetSocketLocation("HeadSocket");
-		OutRotation = GetMesh()->GetSocketRotation("HeadSocket");
+		out_location = GetMesh()->GetSocketLocation("HeadSocket");
+		out_rotation = GetMesh()->GetSocketRotation("HeadSocket");
 	}
-}
-
-void AAZMonster::SetUpStimulus()
-{
-	stimulus_component_ = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("Stimulus Component"));
-	stimulus_component_->RegisterForSense(TSubclassOf<UAISense_Sight>());
-	stimulus_component_->RegisterWithPerceptionSystem();
 }
 
 void AAZMonster::SetUpDefaultProperties()
@@ -136,7 +135,7 @@ void AAZMonster::SetActionInfo()
 		UE_LOG(AZMonster, Warning, TEXT("Combat action data is not found for monster #%d"), monster_id_);
 }
 
-void AAZMonster::InitializeRunTimeValues()
+void AAZMonster::InitializeRuntimeValues()
 {
 	is_flying_ = false;
 	is_in_ragemode_ = false;

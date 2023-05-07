@@ -31,7 +31,7 @@ protected:
 	void OnBodyPartBroken(EMonsterBodyPart body_part);
 	
 private:
-	UPROPERTY() TWeakObjectPtr<class AAZMonster> owner_;
+	TWeakObjectPtr<class AAZMonster> owner_;
 	
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Material")
 	TMap<EMonsterBodyPart, int32> mesh_material_indices_default_;

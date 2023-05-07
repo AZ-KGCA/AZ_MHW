@@ -8,20 +8,16 @@
 class AAZCharacter;
 class AAZMonster;
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class AZ_MHW_API UAZMonsterAggroComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UAZMonsterAggroComponent();
 
 protected:
-	// Called when the game starts
 	virtual void InitializeComponent() override;
-	virtual void BeginPlay() override;
 
 public:
 	// Setters
@@ -35,9 +31,10 @@ public:
 	//TODO Get random nearby player location
 
 private:
-	UPROPERTY() TWeakObjectPtr<class AAZMonster> owner_;
+	TWeakObjectPtr<AAZMonster> owner_;
 	TWeakObjectPtr<AAZCharacter> best_target_;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TMap<int32, int32> aggro_info_;
+	UPROPERTY(VisibleAnywhere) int32 test_;
 };
