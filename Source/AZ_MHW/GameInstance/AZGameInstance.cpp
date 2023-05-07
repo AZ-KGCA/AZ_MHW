@@ -13,12 +13,14 @@
 #include "AZ_MHW/HUD/AZHUDDataMgr.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
+#include "AZ_MHW/GameMode/AZGameMode_InGame.h"
+#include "AZ_MHW/HUD/AZHUD_InGame.h"
 #include "..\Manager\AZInventoryManager.h"
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
 #include "AZ_MHW/Manager/AZInputMgr.h"
 #include "..\Manager\AZPlayerAssetMgr.h"
-//FIXME ë³‘í•©ì‹œ ì‚­ì œ
+//FIXME merged need del
 #include <GameFramework/Character.h>
 
 //MinSuhong Add
@@ -179,16 +181,13 @@ void UAZGameInstance::InitSocketOnMapLoad()
 
 AAZHUD* UAZGameInstance::GetHUD()
 {
-	// FIXME
-	return nullptr;
+	return GetPlayerController() ? Cast<AAZHUD>(GetPlayerController()->GetHUD()) : nullptr;
 }
 
-// FIXME
-/*AAZHUD_InGame* UAZGameInstance::GetHUDInGame()
+AAZHUD_InGame* UAZGameInstance::GetHUDInGame()
 {
-	// FIXME
-	return nullptr;
-}*/
+	return GetPlayerController() ? Cast<AAZHUD_InGame>(GetPlayerController()->GetHUD()) : nullptr;
+}
 
 AAZGameMode* UAZGameInstance::GetGameMode()
 {
@@ -199,12 +198,10 @@ AAZGameMode* UAZGameInstance::GetGameMode()
 	return GetWorld() ? Cast<AAZGameMode>(GetWorld()->GetAuthGameMode()) : nullptr;
 }
 
-//FIXME
-/*AAZGameMode_InGame* UAZGameInstance::GetInGameMode()
+AAZGameMode_InGame* UAZGameInstance::GetInGameMode()
 {
-	// FIXME
-	return nullptr;
-}*/
+	return Cast<AAZGameMode_InGame>(GetGameMode());
+}
 
 UAZGameState* UAZGameInstance::GetCurGameState()
 {
@@ -216,27 +213,26 @@ UAZGameState* UAZGameInstance::GetCurGameState()
 	return game_mode->GetCurGameState();
 }
 
-APlayerController* UAZGameInstance::GetPlayerController()
+AAZPlayerController* UAZGameInstance::GetPlayerController()
 {
 	if (GetWorld() == nullptr)
 	{
 		return nullptr;
 	}
 
-	auto* controller = Cast<APlayerController>(GetFirstLocalPlayerController(GetWorld()));
+	auto controller = Cast<AAZPlayerController>(GetFirstLocalPlayerController(GetWorld()));
 	return controller;
 }
 
-ACharacter* UAZGameInstance::GetPlayer()
+AAZPlayer_Playable* UAZGameInstance::GetPlayer()
 {
 	auto* player_controller = GetPlayerController();
 	if (player_controller == nullptr)
 	{
 		return nullptr;
 	}
-
-	// FIXME merged fix
-	auto* player = player_controller->GetPawn<ACharacter>();
+	//FIXME working check
+	auto player = player_controller->GetPawn<AAZPlayer_Playable>();
 	return player;
 }
 
@@ -269,13 +265,13 @@ bool UAZGameInstance::LoginRecord(FString login_id, FString login_pw)
 {
 	dbitem record;
 
-	// ¾ÆÀÌµğ
+	// ì•„ì´ë””
 	SQLTCHAR name[255];
 	std::string login_id_string = TCHAR_TO_ANSI(*login_id);
 	std::wstring wstring_id(login_id_string.begin(), login_id_string.end());
 	wcscpy_s(name, 255, wstring_id.c_str());
 
-	// ÆĞ½º¿öµå
+	// íŒ¨ìŠ¤ì›Œë“œ
 	SQLTCHAR pw[255];
 	std::string login_pw_string = TCHAR_TO_ANSI(*login_pw);
 	std::wstring wstring_pw(login_pw_string.begin(), login_pw_string.end());
@@ -299,13 +295,13 @@ bool UAZGameInstance::SignupRecord(FString signup_id, FString signup_pw)
 {
 	dbitem record;
 
-	// ¾ÆÀÌµğ
+	// ì•„ì´ë””
 	SQLTCHAR name[255];
 	std::string signup_id_string = TCHAR_TO_ANSI(*signup_id);
 	std::wstring wstring_signup_id(signup_id_string.begin(), signup_id_string.end());
 	wcscpy_s(name, 255, wstring_signup_id.c_str());
 
-	// ÆĞ½º¿öµå 1
+	// íŒ¨ìŠ¤ì›Œë“œ 1
 	SQLTCHAR pw[255];
 	std::string signup_pw_string = TCHAR_TO_ANSI(*signup_pw);
 	std::wstring wstring_signup_pw(signup_pw_string.begin(), signup_pw_string.end());
@@ -329,10 +325,10 @@ bool UAZGameInstance::SignupRecord(FString signup_id, FString signup_pw)
 void UAZGameInstance::IocpServerStart()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Iocp & Mssql Open\n"));
-	//¼ÒÄÏÀ» ÃÊ±âÈ­
+	//ì†Œì¼“ì„ ì´ˆê¸°í™”
 	iocp_net_server_.Init(MAX_IO_WORKER_THREAD);
 
-	//¼ÒÄÏ°ú ¼­¹ö ÁÖ¼Ò¸¦ ¿¬°áÇÏ°í µî·Ï ½ÃÅ²´Ù.
+	//ì†Œì¼“ê³¼ ì„œë²„ ì£¼ì†Œë¥¼ ì—°ê²°í•˜ê³  ë“±ë¡ ì‹œí‚¨ë‹¤.
 	iocp_net_server_.BindAndListen(SERVER_PORT);
 
 	iocp_net_server_.Run(MAX_CLIENT);
@@ -347,17 +343,17 @@ void UAZGameInstance::FSocketConncet()
 {
 	socket_type = 0;
 
-	// ¼ÒÄÏÀ» »ı¼º
+	// ì†Œì¼“ì„ ìƒì„±
 	fsocket_version = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(TEXT("Stream"), TEXT("ClientSocket"));
 
-	// IP¸¦ FStringÀ¸·Î ÀÔ·Â¹Ş¾Æ ÀúÀå
+	// IPë¥¼ FStringìœ¼ë¡œ ì…ë ¥ë°›ì•„ ì €ì¥
 	FString address = TEXT("127.0.0.1");
 	FIPv4Address ip;
 	FIPv4Address::Parse(address, ip);
 
-	int32 port = 10000;	// Æ÷Æ®´Â 6000¹ø
+	int32 port = 10000;	// í¬íŠ¸ëŠ” 6000ë²ˆ
 
-	// Æ÷Æ®¿Í ¼ÒÄÏÀ» ´ã´Â Å¬·¡½º
+	// í¬íŠ¸ì™€ ì†Œì¼“ì„ ë‹´ëŠ” í´ë˜ìŠ¤
 	TSharedRef<FInternetAddr> addr = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
 	addr->SetIp(ip.Value);
 	addr->SetPort(port);
@@ -371,11 +367,11 @@ void UAZGameInstance::WinSocketConnect()
 {
 	socket_type = 1;
 
-	int32 nRet = WSAStartup(MAKEWORD(2, 2), &wsa);  // Winsocket ÃÊ±âÈ­
+	int32 nRet = WSAStartup(MAKEWORD(2, 2), &wsa);  // Winsocket ì´ˆê¸°í™”
 
 	win_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-	SOCKADDR_IN sa; // ¸ñÀûÁö + Æ÷Æ®
+	SOCKADDR_IN sa; // ëª©ì ì§€ + í¬íŠ¸
 
 	sa.sin_family = AF_INET;
 	sa.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -390,46 +386,46 @@ void UAZGameInstance::WinSocketOpen()
 	socket_type = 2;
 
 	/*----------------------
-	SOCKET »ı¼º
+	SOCKET ìƒì„±
 	-----------------------*/
 
 	win_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-	SOCKADDR_IN sa; // ¸ñÀûÁö + Æ÷Æ®
+	SOCKADDR_IN sa; // ëª©ì ì§€ + í¬íŠ¸
 
 	sa.sin_family = AF_INET;
 	sa.sin_addr.s_addr = htonl(INADDR_ANY);
 	sa.sin_port = htons(10000);
 
 	/*----------------------
-	SOCKET ¹ÙÀÎµù
+	SOCKET ë°”ì¸ë”©
 	-----------------------*/
 	int iRet = bind(win_socket, (sockaddr*)&sa, sizeof(sa));
 
 	/*----------------------
-	SOCKET ¿¬°á ´ë±â
+	SOCKET ì—°ê²° ëŒ€ê¸°
 	-----------------------*/
 	iRet = listen(win_socket, SOMAXCONN);
 
-	// Á¢¼ÓµÇ¸é ¹İÈ¯µÈ´Ù.
+	// ì ‘ì†ë˜ë©´ ë°˜í™˜ëœë‹¤.
 	SOCKADDR_IN clientaddr;
 	int length = sizeof(clientaddr);
 
 	/*----------------------
-	SOCKET ¿¬°á ¼ö¶ô
+	SOCKET ì—°ê²° ìˆ˜ë½
 	-----------------------*/
 	SOCKET clientSock = accept(win_socket, (sockaddr*)&clientaddr, &length);
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("Hello\n"));
 
 	char szRecvMsg[256] = { 0, };
 	/*----------------------
-	SOCKET ¿¬°á µ¥ÀÌÅÍ ¹Ş±â
+	SOCKET ì—°ê²° ë°ì´í„° ë°›ê¸°
 	-----------------------*/
 	int iRecvBytes = recv(clientSock, szRecvMsg, 256, 0);
 	printf("%s\n", szRecvMsg);
 
 	/*----------------------
-	SOCKET ¿¬°á µ¥ÀÌÅÍ º¸³»±â
+	SOCKET ì—°ê²° ë°ì´í„° ë³´ë‚´ê¸°
 	-----------------------*/
 	int iSendBytes = send(clientSock, szRecvMsg, strlen(szRecvMsg), 0);
 
@@ -440,10 +436,10 @@ void UAZGameInstance::IocpServerOpen()
 {
 	UE_LOG(LogTemp, Warning, TEXT("IocpServerOpen\n"));
 	socket_type = 3;
-	//¼ÒÄÏÀ» ÃÊ±âÈ­
+	//ì†Œì¼“ì„ ì´ˆê¸°í™”
 	iocp_net_server_.Init(MAX_IO_WORKER_THREAD);
 
-	//¼ÒÄÏ°ú ¼­¹ö ÁÖ¼Ò¸¦ ¿¬°áÇÏ°í µî·Ï ½ÃÅ²´Ù.
+	//ì†Œì¼“ê³¼ ì„œë²„ ì£¼ì†Œë¥¼ ì—°ê²°í•˜ê³  ë“±ë¡ ì‹œí‚¨ë‹¤.
 	iocp_net_server_.BindAndListen(SERVER_PORT);
 
 	iocp_net_server_.Run(MAX_CLIENT);

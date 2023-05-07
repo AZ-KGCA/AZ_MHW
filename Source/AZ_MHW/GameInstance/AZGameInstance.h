@@ -7,11 +7,11 @@
 #include "IocpNetServer.h"
 #include <string>
 #include <iostream>
-#include "AppServer.h" // ODBC ¿¬°á Packet.h
+#include "AppServer.h" // ODBC ì—°ê²° Packet.h
 
 #include "Windows.h"
 
-// window ±âº» Å¸ÀÔ Hide
+// window ê¸°ë³¸ íƒ€ì… Hide
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include "Windows/prewindowsapi.h"
 #include "Windows/PostWindowsApi.h"
@@ -19,19 +19,21 @@
 #pragma comment(lib, "ws2_32.lib")
 #include <WinSock2.h>
 
-// ODBC ¿¬°á
+// ODBC ì—°ê²°
 #include "Odbc.h"
 
-// ¼­¹ö Á¢¼Ó Å¬·¡½º
+// ì„œë²„ ì ‘ì† í´ë˜ìŠ¤
 #include "Client_To_Server.h"
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "AZ_MHW/GameInstance/AZGameInstanceData.h"
+#include "AZ_MHW/PlayerController/AZPlayerController.h"
+#include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
 #include "AZGameInstance.generated.h"
 
 const UINT16 SERVER_PORT = 10000;
-const UINT16 MAX_CLIENT = 5;		//ÃÑ Á¢¼ÓÇÒ¼ö ÀÖ´Â Å¬¶óÀÌ¾ğÆ® ¼ö
+const UINT16 MAX_CLIENT = 5;		//ì´ ì ‘ì†í• ìˆ˜ ìˆëŠ” í´ë¼ì´ì–¸íŠ¸ ìˆ˜
 const int SLEEP_TIME = 3000;
 const UINT32 MAX_IO_WORKER_THREAD = 4;
 
@@ -63,7 +65,7 @@ public:
 	//UPROPERTY(Transient)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UClient_To_Server* client_connect;
-public: // ÁÂÇ¥°ª ¹Ş´Â °÷
+public: // ì¢Œí‘œê°’ ë°›ëŠ” ê³³
 	//FVector CurrentLocation;
 	TArray<FVector> current_location_array;
 	int32 index_num = 0;
@@ -137,22 +139,22 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AZ") 
 	class AAZHUD* GetHUD();
-	//UFUNCTION(BlueprintCallable, Category = "AZ")
-	//class AAZHUD_InGame* GetHUDInGame();
+	UFUNCTION(BlueprintCallable, Category = "AZ")
+	class AAZHUD_InGame* GetHUDInGame();
 
 	UFUNCTION(BlueprintCallable, Category = "AZ")
 	class AAZGameMode* GetGameMode();
 
-	//UFUNCTION(BlueprintCallable, Category = "AZ")
-	//class AAZGameMode_InGame* GetInGameMode();
+	UFUNCTION(BlueprintCallable, Category = "AZ")
+	class AAZGameMode_InGame* GetInGameMode();
 
 	class UAZGameState* GetCurGameState();
 
-	// FIXME merged need edit
+	// FIXME merged need edit(O)
 	UFUNCTION(BlueprintCallable, Category = "AZ")
-	APlayerController* GetPlayerController();
-	// FIXME merged need edit
-	ACharacter* GetPlayer();
+	AAZPlayerController* GetPlayerController();
+	// FIXME merged need edit(O)
+	AAZPlayer_Playable* GetPlayer();
 
 	UFUNCTION()
 	virtual void BeginLoadingScreen(const FString& map_name);
