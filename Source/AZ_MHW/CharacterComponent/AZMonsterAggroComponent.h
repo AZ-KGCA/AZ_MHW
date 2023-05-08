@@ -28,6 +28,7 @@ public:
 	AAZCharacter* GetTargetRef() const;
 	FVector GetTargetLocation() const;
 	float GetDistance2DToTarget() const;
+	float GetAngle2DToTarget() const;
 	//TODO Get random nearby player location
 
 private:

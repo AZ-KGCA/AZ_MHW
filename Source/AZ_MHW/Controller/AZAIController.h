@@ -59,7 +59,6 @@ public:
 protected:
 	TWeakObjectPtr<AAZMonster> owner_;
 	TObjectPtr<UAISenseConfig_Sight> sight_;
-	FGenericTeamId team_id_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ") TObjectPtr<UBehaviorTree> behavior_tree_;
 	
 	// For MoveTo task

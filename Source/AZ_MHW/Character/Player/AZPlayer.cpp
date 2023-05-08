@@ -43,6 +43,7 @@ AAZPlayer::AAZPlayer()
 		//BodyAnimInstanceClass = Cast<UAZAnimInstance_Player>(ABPAnimInstance.Class);
 	}
 	
+
 	head_mesh_ = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Head"));
 	head_mesh_->SetupAttachment(GetMesh());
 	hair_mesh_ = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hair"));

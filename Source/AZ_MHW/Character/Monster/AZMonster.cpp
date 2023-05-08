@@ -18,7 +18,7 @@ AAZMonster::AAZMonster()
 	// Initialise common properties
 	monster_id_ = -1;
 	boss_id_ = -1;
-	team_id_ = (uint8)(EObjectType::Monster);
+	SetGenericTeamId(uint8(EObjectType::Monster));
 
     // TODO 
 	// Set default objects to hit check
@@ -59,6 +59,7 @@ void AAZMonster::PostInitializeComponents()
 
 void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const
 {
+	return Super::GetActorEyesViewPoint(out_location, out_rotation);
 	if (!GetMesh()->DoesSocketExist("HeadSocket"))
 	{
 		return Super::GetActorEyesViewPoint(out_location, out_rotation);
@@ -154,9 +155,7 @@ void AAZMonster::BeginPlay()
 
 void AAZMonster::EnterCombat()
 {
-	SetMoveState(EMoveState::StopMove);
 	anim_instance_->is_doing_action_ = false;
-	
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
 	else
@@ -310,6 +309,7 @@ void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName nex
 	// TODO use "Montage Set Next Section" if it is a montage
 	action_state_info_.animation_name = next_animation_name;
 	action_state_info_.montage_section_name = next_montage_section_name;
+	SetTargetAngle(aggro_component_->GetAngle2DToTarget());
 	anim_instance_->is_doing_action_ = false;
 }
 
