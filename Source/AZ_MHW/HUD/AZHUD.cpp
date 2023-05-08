@@ -7,6 +7,9 @@
 #include "AZ_MHW/Widget/AZWidget.h"
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
 #include "AZ_MHW/Widget/Common/AZWidget_Fade.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+
+const FVector2D invalid_touch_position(-1.0f, -1.0f);
 
 void AAZHUD::PostLoad()
 {
@@ -92,6 +95,31 @@ void AAZHUD::OnSceneOpened()
 void AAZHUD::OnSceneClosed()
 {
 	// FIXME If it is among the widgets, delete it.
+}
+
+bool AAZHUD::GetHandledTouchPosition(FVector2D& position, bool try_get_touch_state) const
+{
+	if ((handled_touch_position_ - invalid_touch_position).IsNearlyZero())
+	{
+		if (try_get_touch_state)
+		{
+			bool bIsCurrentlyPressed;
+			GetOwningPlayerController()->GetInputTouchState(ETouchIndex::Touch1, position.X, position.Y, bIsCurrentlyPressed);
+			return position.IsNearlyZero() ? false : true;
+		}
+		return false;
+	}
+
+	position = handled_touch_position_;
+	return true;
+}
+
+void AAZHUD::SetHandledTouchPosition(const FPointerEvent& pointer)
+{
+	if (pointer.IsTouchEvent())
+	{
+		handled_touch_position_ = UWidgetLayoutLibrary::GetViewportWidgetGeometry(this).AbsoluteToLocal(pointer.GetScreenSpacePosition());
+	}
 }
 
 void AAZHUD::RaiseOnTopFromStack(EUIName ui_name)

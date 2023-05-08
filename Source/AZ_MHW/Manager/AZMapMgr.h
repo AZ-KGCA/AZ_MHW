@@ -177,14 +177,16 @@ public:
 	void OpenLoadingScene(int32 map_index);
 	void CloseLoadingScene();
 	void StopCapture();
-	void ClearLoadingActor();
 
 	bool IsOnLoading() const;
 
 	void FlushStreaming();
 
 public:
+	void StopLoadingActorSceneCapture();
 	void SyncLoadingActorInstance(const class UModelData* model_data, int32 map_index);
+	void ClearLoadingActor();
+	class AAZActor_LoadingScene* GetLoadingSceneActor() const;
 
 public:
 	void AddSubLevelFromPackageName(const FName& package_name, UPackage* loaded_package = nullptr, EAsyncLoadingResult::Type result = EAsyncLoadingResult::Type::Succeeded);

@@ -23,10 +23,10 @@ class AZ_MHW_API UAZWidget : public UUserWidget
 	DECLARE_DELEGATE_OneParam(FOnWidgetClosed, bool);
 public:
 	//UAZWidget(const class FObjectInitializer& object_Initializer);
-	//���� �������� ������ ����
+	//change construct
 	UAZWidget(FVTableHelper& helper);
 
-	//  AddToViewport �� ȣ��ȴ�. NativeOnInitialized �� �޸�, Viewport �� Add �� ������ �Ҹ���!
+	//  AddToViewport 시 호출된다. NativeOnInitialized 와 달리, Viewport 에 Add 될 때마다 불린다.
 	virtual void NativeConstruct() override;
 
 	virtual void SetVisiblity(ESlateVisibility in_visiblilty);
@@ -34,36 +34,36 @@ public:
 
 	class AAZGameMode* GetGameMode();
 	class AAZHUD* GetHUD();
-	// FIXME (���� �� �����ϱ�) // �ӽñ���
+	// FIXME (병합 후 구현하기) // 임시구현
 	APlayerController* GetPlayerController();
 	//class ALHPlayerController* GetPlayerController();
 	//class ALHPlayerController_InGame* GetPlayerController_InGame();
 
-	// FIXME (���� �� �����ϱ�)
+	// FIXME (병합 후 구현하기)
 	//class AAZPlayer_Playable* GetPlayer();
 
 	void SetWidgetNameEnum(EUIName name) { ui_name_ = name; }
 	void StopAnimToOrigin(UWidgetAnimation* anim);
 	EUIName GetWidgetNameEnum() { return ui_name_; }
 
-	//AZHUD���� OpenUI�� ������ ������ ��� �ڵ� ȣ��.
+	//AZHUD에서 OpenUI로 위젯이 생성될 경우 자동 호출.
 	UFUNCTION(BlueprintCallable, Category = "AZ")
 	virtual void Init();
 
-	// UI�� Open�ɶ� ����
+	// UI가 Open될때 마다
 	virtual void OnOpen(bool immediately = false);
 	virtual void OnExecuteOpen();
 
-	// UI�� Open�ɶ�����
+	// UI가 Open될때 마다
 	virtual void OnClose(bool immediately = false);
 	virtual void OnExecuteClose();
 
-	// Open�ִϸ��̼� �������� �Ҹ�
+	// Open애니메이션 끝났을때 불림
 	UFUNCTION()
 	virtual void OnOpenAnimationFinished();
 	virtual void ActivateContentsTutorial();
 
-	// UI�� Close�� ������. CloseScene �� ���, �Ķ���Ϳ� ���� OnClose�� �ƴ� ForceHide�� ȣ�� ��
+	// UI가 Close될 때마다. CloseScene 할 경우, 파라미터에 따라 OnClose가 아닌 ForceHide가 호출 됨
 	UFUNCTION()
 	virtual void OnCloseAnimationFinished();
 	virtual void OnVisibilityClose();
@@ -91,9 +91,20 @@ public:
 	void SetIsDisableBackBtnExit(bool is_disable_back_btn_exit) { is_disable_back_btn_exit_ = is_disable_back_btn_exit; }
 	bool GetIsDisableBackBtnExit() { return is_disable_back_btn_exit_; }
 
-	// AZHUD ���� OpenScene���� ������ ����, Scene ���ÿ��� ������ ��� �ڵ� ȣ��, �������� ���� ȣ��
+	// AZHUD 에서 OpenScene으로 위젯을 열때, Scene 스택에서 복원할 경우 자동 호출, 나머지는 수동 호출
 	virtual void Update() {}
 	virtual void Reset() {}
+
+	template<class T>
+	T* GetOwnWidget(const FString& widget_name)
+	{
+		T* widget = Cast<T>(GetWidgetFromName(FName(*widget_name)));
+		if (!widget)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GetOwnWidget Fail"));
+		}
+		return widget;
+	}
 
 private:
 	bool is_inited_ = false;
