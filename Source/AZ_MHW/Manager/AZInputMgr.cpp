@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Manager/AZInputMgr.h"
+#include "AZInputMgr.h"
 #include <InputMappingContext.h>
 #include <AssetRegistry/AssetRegistryModule.h>
 #include <EnhancedInputComponent.h>
@@ -10,25 +10,25 @@
 UAZInputMgr::UAZInputMgr()
 {
 	// 에셋 레지스트리 모듈을 얻음
-	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetRegistryModule& asset_registry_module = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 #pragma region InputMappingContext_로드
 	{
-		const FString InputMappingContextDirectory = TEXT("/Game/AZ/DataAsset/Input/InputMappingContext");
+		const FString input_mapping_context_directory = TEXT("/Game/AZ/DataAsset/Input/InputMappingContext");
 		
 		// 디렉토리 내의 모든 에셋을 가져옴
-		TArray<FAssetData> AssetDataList;
-		AssetRegistryModule.Get().GetAssetsByPath(*InputMappingContextDirectory, AssetDataList, true);
+		TArray<FAssetData> asset_data_list;
+		asset_registry_module.Get().GetAssetsByPath(*input_mapping_context_directory, asset_data_list, true);
 
 		// 에셋을 로드함
-		for (const FAssetData& AssetData : AssetDataList)
+		for (const FAssetData& asset_data : asset_data_list)
 		{
 			// 에셋 경로로부터 에셋 이름을 추출함
-			FString AssetName;
-			FString PathPart, ExtensionPart;
-			FPaths::Split(AssetData.GetSoftObjectPath().ToString(), PathPart, AssetName,ExtensionPart);
+			FString asset_name;
+			FString path_part, extension_part;
+			FPaths::Split(asset_data.GetSoftObjectPath().ToString(), path_part, asset_name,extension_part);
 			
 			// 에셋을 로드함
-			if (UInputMappingContext* InputMappingContext = Cast<UInputMappingContext>(AssetData.GetAsset()))
+			if (UInputMappingContext* input_mapping_context = Cast<UInputMappingContext>(asset_data.GetAsset()))
 			{
 				// InputMappingContextMap에 추가함
 				/** 에셋이름 제거(IA_)//상수로 4입력
@@ -36,7 +36,7 @@ UAZInputMgr::UAZInputMgr()
 				 * int32 PrefixSize = AssetsPrefix.Len();
 				 * InputActionMap.Add(*AssetName.Mid(PrefixSize), InputAction);
 				*/
-				InputMappingContextMap.Add(*AssetName.Mid(4), InputMappingContext);
+				input_mapping_context_map_.Add(*asset_name.Mid(4), input_mapping_context);
 				// InputMappingContextPriorityMap에 추가함
 				/** 경로상의 상위 폴더를 숫자폴더로 만들어서 저장
 				 * 경로상 숫자가 아니라면 자동 0으로 로드됨.
@@ -45,33 +45,33 @@ UAZInputMgr::UAZInputMgr()
 				 * InputMappingContext/InGame/1/IMC_XXXXXX;
 				 * 파일이름에 넣어도 사실 상관없다고는 생각하긴하는데..
 				 */
-				FString PriorityPart = PathPart.Right(1);
-				int32 Priority = FCString::Atoi(*PriorityPart);
-				InputMappingContextPriorityMap.Add(*AssetName.Mid(4), Priority);
+				FString priority_part = path_part.Right(1);
+				int32 priority = FCString::Atoi(*priority_part);
+				input_mapping_context_priority_map_.Add(*asset_name.Mid(4), priority);
 			}
 		}
 	}
 #pragma endregion
 #pragma region InputAction_로드
 	{
-		const FString InputActionDirectory = TEXT("/Game/AZ/DataAsset/Input/InputAction");
+		const FString input_action_directory = TEXT("/Game/AZ/DataAsset/Input/InputAction");
 		// 에셋 레지스트리 모듈을 얻음
 		
 	
 		// 디렉토리 내의 모든 에셋을 가져옴
-		TArray<FAssetData> AssetDataList;
-		AssetRegistryModule.Get().GetAssetsByPath(*InputActionDirectory, AssetDataList, true);
+		TArray<FAssetData> asset_data_list;
+		asset_registry_module.Get().GetAssetsByPath(*input_action_directory, asset_data_list, true);
 
 		// 에셋을 로드함
-		for (const FAssetData& AssetData : AssetDataList)
+		for (const FAssetData& asset_data : asset_data_list)
 		{
 			// 에셋 경로로부터 에셋 이름을 추출함
-			FString AssetName;
-			FString PathPart, ExtensionPart;//안씀
-			FPaths::Split(AssetData.GetSoftObjectPath().ToString(), PathPart, AssetName,ExtensionPart);
+			FString asset_name;
+			FString path_part, extension_part;//안씀
+			FPaths::Split(asset_data.GetSoftObjectPath().ToString(), path_part, asset_name,extension_part);
 		
 			// 에셋을 로드함
-			if (UInputAction* InputAction = Cast<UInputAction>(AssetData.GetAsset()))
+			if (UInputAction* input_action_part = Cast<UInputAction>(asset_data.GetAsset()))
 			{
 				// InputActionMap에 추가함
 				/*
@@ -80,7 +80,7 @@ UAZInputMgr::UAZInputMgr()
 				int32 PrefixSize =AssetsPrefix.Len();
 				InputActionMap.Add(*AssetName.Mid(PrefixSize), InputAction);
 				*/
-				InputActionMap.Add(*AssetName.Mid(3), InputAction);
+				input_action_map_.Add(*asset_name.Mid(3), input_action_part);
 			}
 		}
 	}
@@ -93,59 +93,63 @@ UAZInputMgr::UAZInputMgr()
 void UAZInputMgr::BeginDestroy()
 {
 	Super::BeginDestroy();
-	InputMappingContextPriorityMap.Empty();
-	InputMappingContextMap.Empty();
-	InputActionMap.Empty();
+	input_mapping_context_priority_map_.Empty();
+	input_mapping_context_map_.Empty();
+	input_action_map_.Empty();
 }
 
-//PlayerController가 UInputComponent 소유하고 있다. PlayerController에서 아래 컨텍스트를 호출
-//Controller->ClearInputMappingContext(); //초기화
-//Controller->AddInputMappingContext("ContextName"); //등록
-//"InputMgrInstance"->SetupDefaultInput(InputComponent); //호출
-//Controller->BindAction
-void UAZInputMgr::SetupDefaultBindAction(UInputComponent* PlayerInputComponent)
+void UAZInputMgr::SetupDefaultBindAction(UInputComponent* player_input_component, const ULocalPlayer* local_player)
 {
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	if(local_player_ == nullptr)
 	{
-		EnhancedInputComponent->ClearActionBindings();
-		//EnhancedInputComponent->BindAction(GetInputAction("InputActionName"), ETriggerEvent::Triggered,this, &UAZInputMgr::ActionTest);
+		local_player_ = local_player;
+	}
+	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<UEnhancedInputComponent>(player_input_component))
+	{
+		enhanced_input_component->ClearActionBindings();
+		
+		// if(const auto& input_action_asset = GetInputAction("InputActionName"))
+		// {
+		// 	enhanced_input_component->BindAction(input_action_asset, ETriggerEvent::Triggered,this, &UAZInputMgr::ActionTest);
+		// }
 	}
 }
 
-UInputMappingContext* UAZInputMgr::GetInputMappingContext(const FName& Name)
+UInputMappingContext* UAZInputMgr::GetInputMappingContext(const FName& name)
 {
-	if(auto InputMappingContext = InputMappingContextMap.Find(Name))
+	if(const auto input_mapping_context_asset = input_mapping_context_map_.Find(name))
 	{
-		return *InputMappingContext;
+		return *input_mapping_context_asset;
 	}
 	return nullptr;
 }
-int32* UAZInputMgr::GetInputMappingContextPriority(const FName& Name)
+int32* UAZInputMgr::GetInputMappingContextPriority(const FName& name)
 {
-	if(auto InputMappingContextPriority = InputMappingContextPriorityMap.Find(Name))
+	if(const auto input_mapping_context_priority = input_mapping_context_priority_map_.Find(name))
 	{
-		return InputMappingContextPriority;
+		return input_mapping_context_priority;
 	}
 	return nullptr;
 }
-UInputAction* UAZInputMgr::GetInputAction(const FName& Name)
+UInputAction* UAZInputMgr::GetInputAction(const FName& name)
 {
-	if(auto InputAction = InputActionMap.Find(Name))
+	if(const auto input_action_asset = input_action_map_.Find(name))
 	{
-		return *InputAction;
+		return *input_action_asset;
 	}
 	return nullptr;
 }
 
-void UAZInputMgr::AddInputMappingContext(const FName& IMCName, const ULocalPlayer* LocalPlayer)
+void UAZInputMgr::AddInputMappingContext(const FName& name)
 {
-	if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+	if(local_player_ == nullptr) return;
+	if (UEnhancedInputLocalPlayerSubsystem* enhanced_input_local_player_subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(local_player_))
 	{
-		if(const auto InputMappingContext = GetInputMappingContext(IMCName))
+		if(const auto input_mapping_context = GetInputMappingContext(name))
 		{
-			if(const auto ContextPriority = GetInputMappingContextPriority(IMCName))
+			if(const auto context_priority = GetInputMappingContextPriority(name))
 			{
-				EnhancedInputLocalPlayerSubsystem->AddMappingContext(InputMappingContext, *ContextPriority);
+				enhanced_input_local_player_subsystem->AddMappingContext(input_mapping_context, *context_priority);
 			}
 		}
 		else
@@ -159,13 +163,14 @@ void UAZInputMgr::AddInputMappingContext(const FName& IMCName, const ULocalPlaye
 		PRINT_LOG("Don't Find EnhancedInputLocalPlayerSubsystem");
 	}
 }
-void UAZInputMgr::RemoveInputMappingContext(const FName& IMCName, const ULocalPlayer* LocalPlayer)
+void UAZInputMgr::RemoveInputMappingContext(const FName& name)
 {
-	if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+	if(local_player_ == nullptr) return;
+	if (UEnhancedInputLocalPlayerSubsystem* enhanced_input_local_player_subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(local_player_))
 	{
-		if(const auto InputMappingContext = GetInputMappingContext(IMCName))
+		if(const auto input_mapping_context = GetInputMappingContext(name))
 		{
-			EnhancedInputLocalPlayerSubsystem->RemoveMappingContext(InputMappingContext);
+			enhanced_input_local_player_subsystem->RemoveMappingContext(input_mapping_context);
 		}
 		else
 		{
@@ -178,11 +183,12 @@ void UAZInputMgr::RemoveInputMappingContext(const FName& IMCName, const ULocalPl
 		PRINT_LOG("Don't Find EnhancedInputLocalPlayerSubsystem");
 	}
 }
-void UAZInputMgr::ClearInputMappingContext(const ULocalPlayer* LocalPlayer) const
+void UAZInputMgr::ClearInputMappingContext() const
 {
-	if (UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+	if(local_player_ == nullptr) return;
+	if (UEnhancedInputLocalPlayerSubsystem* enhanced_input_local_player_subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(local_player_))
 	{
-		EnhancedInputLocalPlayerSubsystem ->ClearAllMappings();
+		enhanced_input_local_player_subsystem ->ClearAllMappings();
 	}
 	else
 	{

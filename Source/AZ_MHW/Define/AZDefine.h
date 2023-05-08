@@ -21,7 +21,7 @@
 //#include <UnrealEd.h>(사용하지 말 것)
 
 #pragma region MACRO
-//빨간 에러 표시줄 거슬려서 수정 
+//빨간 에러 표시줄 거슬려서 수정 //비주얼 스튜디오에서만 오류로 인식한다.
 #undef DECLARE_LOG_CATEGORY_EXTERN
 #define DECLARE_LOG_CATEGORY_EXTERN(CategoryName, DefaultVerbosity, CompileTimeVerbosity) \
 		struct FLogCategory##CategoryName : public FLogCategory<ELogVerbosity::DefaultVerbosity, ELogVerbosity::CompileTimeVerbosity> \

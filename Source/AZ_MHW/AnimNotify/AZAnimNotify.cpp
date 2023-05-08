@@ -3,9 +3,6 @@
 
 #include "AnimNotify/AZAnimNotify.h"
 
-#include "SNodePanel.h"
-#include "Define/AZDefine.h"
-
 UAZAnimNotify::UAZAnimNotify()
 {
 }
@@ -14,10 +11,10 @@ UAZAnimNotify::UAZAnimNotify()
  * MeshComp = 애니메이션 실행자
  * Animation = 현재 실행중인 애니메이션
  */
-void UAZAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-	const FAnimNotifyEventReference& EventReference)
+void UAZAnimNotify::Notify(USkeletalMeshComponent* mesh_comp, UAnimSequenceBase* animation,
+	const FAnimNotifyEventReference& event_reference)
 {
-	//Super::Notify(MeshComp, Animation, EventReference);//빈 함수
+	Super::Notify(mesh_comp, animation, event_reference);//빈 함수
 
 	// FHitResult HitResult;
 	// FCollisionQueryParams Params(NAME_None,false,this);

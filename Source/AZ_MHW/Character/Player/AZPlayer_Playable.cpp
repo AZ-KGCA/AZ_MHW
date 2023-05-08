@@ -1,20 +1,19 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/Player/AZPlayer_Playable.h"
+#include "AZPlayer_Playable.h"
+#include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Manager/AZInputMgr.h"
+#include "AZ_MHW/PlayerController/AZPlayerController_InGame.h"
+#include "AZ_MHW/PlayerState/AZPlayerState.h"
+
 #include <Camera/CameraComponent.h>
 #include <GameFramework/SpringArmComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 
-#include "GameInstance/AZGameInstance.h"
-#include "Manager/AZInputMgr.h"
-#include "AnimInstance/AZAnimInstance_Player.h"
-#include "PlayerController/AZPlayerController_InGame.h"
 
-#include "PlayerState/AZPlayerState.h"
-//#include <InputActionValue.h>
 
 AAZPlayer_Playable::AAZPlayer_Playable()
 {
@@ -24,63 +23,88 @@ AAZPlayer_Playable::AAZPlayer_Playable()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	spring_arm_comp_ = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	temp_camera_comp_ = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
-	SpringArmComp->SetupAttachment(GetCapsuleComponent());
-	CameraComp->SetupAttachment(SpringArmComp);
+	spring_arm_comp_->SetupAttachment(GetCapsuleComponent());
+	temp_camera_comp_->SetupAttachment(spring_arm_comp_);
 
-	SpringArmComp->TargetArmLength = 400.f;
-	SpringArmComp->bUsePawnControlRotation = true;
-	CameraComp->bUsePawnControlRotation = false;
+	spring_arm_comp_->TargetArmLength = 400.f;
+	spring_arm_comp_->bUsePawnControlRotation = true;
+	temp_camera_comp_->bUsePawnControlRotation = false;
 }
 
+
+
 //TODO: CameraManager 만들어서 플레이어 캐릭터와 입력처리 완전히 분리
-void AAZPlayer_Playable::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AAZPlayer_Playable::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) 
+	Super::SetupPlayerInputComponent(player_input_component);
+	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<UEnhancedInputComponent>(player_input_component)) 
 	{
-		EnhancedInputComponent->BindAction(AZGameInstance->input_mgr->GetInputAction("Look"), ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionLook);
+		enhanced_input_component->BindAction(AZGameInstance->input_mgr_->GetInputAction("Look"), ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionLook);
+		enhanced_input_component->BindAction(AZGameInstance->input_mgr_->GetInputAction("Zoom"), ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionZoom);
 		//...
 	}
 }
 
-void AAZPlayer_Playable::PossessedBy(AController* NewController)
+void AAZPlayer_Playable::PossessedBy(AController* new_controller)
 {
-	Super::PossessedBy(NewController);
+	Super::PossessedBy(new_controller);
 
-	PlayablePlayerState = Cast<AAZPlayerState>(GetPlayerState());
-	PlayablePlayerController = Cast<AAZPlayerController_InGame>(NewController);
+	playable_player_state_ = Cast<AAZPlayerState>(GetPlayerState());
+	playable_player_controller_ = Cast<AAZPlayerController_InGame>(new_controller);
 }
 
-void AAZPlayer_Playable::Tick(float DeltaSeconds)
+void AAZPlayer_Playable::Tick(float delta_seconds)
 {
-	Super::Tick(DeltaSeconds);
+	Super::Tick(delta_seconds);
 
-	//유니티처럼 게임오브젝트를 하나 더만들어서 액터에 붙히고, 통신하게끔
-	//시야각감지(플레이어 시선방향 45도 앞 상호작용 객체 쿼리)
-	//거리감지(객체에 마다의 거리체크후 쿼리)
+	//유니티처럼 콜리전용 게임오브젝트를 하나 더만들어서 액터에 붙히고, 통신하게끔하는게 
+	////시야각감지(플레이어 시선방향 45도 앞 상호작용 객체 쿼리)
+	////거리감지(객체에 마다의 거리체크후 쿼리)
+	//역할별 콜리전 액터를 다 만든다?
 
-	PlayablePlayerState->CharacterState.CharacterDirection = GetRootComponent()->GetComponentRotation();
+	//지면감지(체공)
+	//경사면감지(볼팅, 슬라이드)
+	//절벽감지(벽타기)
+
+	//물감지
+	
+	//벽감지(벽타기)
+	//덩굴감지(덩굴타기)
+	//인터렉션감지(채집등)
+
+	//캐릭터 방향
+	playable_player_state_->character_state_.character_direction = GetRootComponent()->GetComponentRotation();
 }
 
 
-void AAZPlayer_Playable::ActionLook(const FInputActionValue& Value)
+void AAZPlayer_Playable::ActionLook(const FInputActionValue& value)
 {
-	//변경하지 않는 것에 대한 상수화
-	const FVector2D LookAxisVector = Value.Get<FVector2D>();
+	FVector2D look_axis_vector = value.Get<FVector2D>();
 	
 	if (Controller != nullptr)
 	{
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		AddControllerYawInput(look_axis_vector.X);
+		AddControllerPitchInput(look_axis_vector.Y);
 	}
+}
+
+void AAZPlayer_Playable::ActionZoom(const FInputActionValue& value)
+{
+	float zoom_axis_float = value.Get<float>();
+	zoom_axis_float *= 10.f;
+	
+	if(spring_arm_comp_->TargetArmLength < 100 && zoom_axis_float < 0) return;
+	if(spring_arm_comp_->TargetArmLength > 400 && zoom_axis_float > 0) return;
+	spring_arm_comp_->TargetArmLength += zoom_axis_float;
 }
 
 void AAZPlayer_Playable::AnimNotify_OnUseItem()
 {
-	OnUseItem.Broadcast();
-	
+	on_use_item_.Broadcast();
+	//사용한 아이템을 id로 넘겨줘야한다면 oneparam쓰기
+	//또는 플레이어스테이트를 캐싱해서 사용한 아이템 체크하기
 }
 

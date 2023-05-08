@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/AZCharacter.h"
+#include "AZ_MHW/Character/AZCharacter.h"
 
 AAZCharacter::AAZCharacter()
 {
@@ -14,8 +14,8 @@ void AAZCharacter::BeginPlay()
 
 }
 
-void AAZCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AAZCharacter::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	Super::SetupPlayerInputComponent(player_input_component);
 
 }

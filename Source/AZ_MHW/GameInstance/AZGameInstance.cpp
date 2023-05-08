@@ -15,7 +15,6 @@
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
-#include "..\Manager\AZPlayerAssetMgr.h"
 
 //FIXME 병합시 삭제
 #include <GameFramework/Character.h>
@@ -55,8 +54,7 @@ void UAZGameInstance::Init()
 	login_mgr = NewObject<UAZLoginMgr>();
 	login_mgr->Init();
 
-	input_mgr = NewObject<UAZInputMgr>();
-	playerAsset_mgr = NewObject<UAZPlayerAssetMgr>();
+	input_mgr_ = NewObject<UAZInputMgr>();
 
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));
 	msg_handler->OnRegister(map_mgr);
@@ -79,8 +77,7 @@ void UAZGameInstance::Shutdown()
 	game_config = nullptr;
 	map_mgr = nullptr;
 	hud_data_mgr = nullptr;
-	input_mgr = nullptr;
-	playerAsset_mgr = nullptr;
+	input_mgr_ = nullptr;
 }
 
 void UAZGameInstance::RestMgr()

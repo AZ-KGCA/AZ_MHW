@@ -4,7 +4,6 @@
 
 #include <CoreMinimal.h>
 #include "AZ_MHW.h"
-#include <UObject/NoExportTypes.h>
 #include "AZInputMgr.generated.h"
 #pragma region Macro
 
@@ -39,31 +38,36 @@ protected:
 	/** */
 	virtual void BeginDestroy() override;
 #pragma endregion
-
 public:
 	/** !!따로 호출하지 마세오.(Controller SetupInputComponent에서 기본 호출)
 	 * 
 	 * 컨트롤러 제외한 기본 인풋매핑컨텍스트 사전등록 함수.
 	 * 인풋액션바인딩 초기화구문이 있으니 컨트롤러의 액션바인딩보다 나중에 호출하지 마세요.
 	 */
-	void SetupDefaultBindAction(UInputComponent* PlayerInputComponent);
-	
-	UPROPERTY() TMap<FName, UInputMappingContext*> InputMappingContextMap;//데이터에셋 맵(접두사 제거 네임)
-	UPROPERTY() TMap<FName, int32> InputMappingContextPriorityMap;//적용우선도 맵(접두사 제거 네임)
-	UPROPERTY() TMap<FName, UInputAction*> InputActionMap;//인풋액션 맵(접두사 제거 네임)
-	
-	/** LocalPlayer의 Controller가 GetLocalPlayer()넘기면서 호출하기*/
-	UFUNCTION() void AddInputMappingContext(const FName& IMCName, const  ULocalPlayer* LocalPlayer); 
-	/** LocalPlayer의 Controller가 GetLocalPlayer()넘기면서 호출하기*/
-	UFUNCTION() void RemoveInputMappingContext(const FName& IMCName, const  ULocalPlayer* LocalPlayer);
-	/** LocalPlayer의 Controller가 GetLocalPlayer()넘기면서 호출하기*/
-	UFUNCTION() void ClearInputMappingContext(const ULocalPlayer* LocalPlayer) const;
+	void SetupDefaultBindAction(UInputComponent* player_input_component,const ULocalPlayer* local_player);
+
 	/** */
-	UFUNCTION() UInputAction* GetInputAction(const FName& Name);
+	UFUNCTION() void AddInputMappingContext(const FName& name); 
+	/** */
+	UFUNCTION() void RemoveInputMappingContext(const FName& name);
+	/** */
+	UFUNCTION() void ClearInputMappingContext() const;
+	/** */
+	UFUNCTION() UInputAction* GetInputAction(const FName& name);
 
 private:
-	UInputMappingContext* GetInputMappingContext(const FName& Name);
-	int32* GetInputMappingContextPriority(const FName& Name);
+	UInputMappingContext* GetInputMappingContext(const FName& name);
+	
+	int32* GetInputMappingContextPriority(const FName& name);
+	
+	/** 데이터에셋 맵(키: 접두사 제거 네임)*/
+	UPROPERTY() TMap<FName, UInputMappingContext*> input_mapping_context_map_;
+	/** 적용우선도 맵(키: 접두사 제거 네임)*/
+	UPROPERTY() TMap<FName, int32> input_mapping_context_priority_map_;
+	/** 인풋액션 맵(키: 접두사 제거 네임) */
+	UPROPERTY() TMap<FName, UInputAction*> input_action_map_;
+
+	UPROPERTY() const ULocalPlayer* local_player_;
 	/** test용 함수 */
 	void ActionTest();
 };

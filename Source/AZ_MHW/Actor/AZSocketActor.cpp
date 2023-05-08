@@ -3,40 +3,35 @@
 
 #include "AZSocketActor.h"
 
-
-// Sets default values
 AAZSocketActor::AAZSocketActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-	SocketObject = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SocketItem"));
-	SetRootComponent(SocketObject);
+	socket_mesh_asset_ = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SocketItem"));
+	SetRootComponent(socket_mesh_asset_);
 
-	SocketObject->SetCollisionProfileName(TEXT("NoCollision"));
+	socket_mesh_asset_->SetCollisionProfileName(TEXT("NoCollision"));
 }
 
-// Called when the game starts or when spawned
 void AAZSocketActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-void AAZSocketActor::SetSocketComponent(FName SocketName, USceneComponent* Parent)
+void AAZSocketActor::SetSocketComponent(FName socket_name, USceneComponent* parent_component)
 {
-	if(Parent == nullptr)
+	if(parent_component == nullptr)//기존 부모 적용
 	{
-		if(SocketParentActor == nullptr)
+		if(socket_parent_actor_ != nullptr)//기존 부모가 있다면
 		{
-			//this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			this->AttachToComponent(SocketParentActor, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-			CurrentSocketName = SocketName;
+			this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			this->AttachToComponent(socket_parent_actor_, FAttachmentTransformRules::SnapToTargetNotIncludingScale, socket_name);
 		}
 	}
-	else
+	else//새로운 부모 적용
 	{
-		//this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		this->AttachToComponent(Parent, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
-		CurrentSocketName = SocketName;
+		this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		this->AttachToComponent(parent_component, FAttachmentTransformRules::SnapToTargetNotIncludingScale, socket_name);
+		socket_parent_actor_ = parent_component;
 	}
 }

@@ -3,6 +3,7 @@
 
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZTableMgr.h"
+#include "AZ_MHW/Manager/AZPlayerAssetMgr.h"
 
 UAZGameSingleton* UAZGameSingleton::instance_ = nullptr;
 
@@ -29,4 +30,7 @@ void UAZGameSingleton::Init()
 	table_mgr = NewObject<UAZTableMgr>();
 	table_mgr->LoadAll();
 	table_mgr->LoadComplete();
+
+	player_asset_mgr_ = NewObject<UAZPlayerAssetMgr>();
+	//player_asset_mgr
 }

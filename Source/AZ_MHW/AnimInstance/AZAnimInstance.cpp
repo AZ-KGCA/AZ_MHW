@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AnimInstance/AZAnimInstance.h"
+#include "AZ_MHW/AnimInstance/AZAnimInstance.h"
 
 UAZAnimInstance::UAZAnimInstance()
 {
@@ -15,8 +15,8 @@ void UAZAnimInstance::NativeInitializeAnimation()
 	
 }
 
-void UAZAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void UAZAnimInstance::NativeUpdateAnimation(float delta_seconds)
 {
-	Super::NativeUpdateAnimation(DeltaSeconds);
+	Super::NativeUpdateAnimation(delta_seconds);
 	
 }
