@@ -4,7 +4,7 @@
 
 #include <CoreMinimal.h>
 #include "AZ_MHW.h"
-#include "PlayerController/AZPlayerController.h"//상속
+#include "AZ_MHW/PlayerController/AZPlayerController.h"//상속
 #include "AZPlayerController_InGame.generated.h"
 #pragma region Macro
 
@@ -17,6 +17,9 @@ class UInputAction;
 class UInputMappingContext;
 
 class UAZAnimInstance_Player;
+class UAZAnimInstance_Playable;
+class UAZAnimInstance_Remotable;
+
 class AAZPlayerState;
 class AAZPlayer_Playable;
 class AAZPlayer_Remotable;
@@ -43,6 +46,7 @@ UCLASS()
 class AZ_MHW_API AAZPlayerController_InGame : public AAZPlayerController
 {
 	GENERATED_BODY()
+	
 public:
 	AAZPlayerController_InGame();
 	
@@ -52,7 +56,7 @@ protected:
 
 	//virtual void BeginPlay() override;
 
-	virtual void OnPossess(APawn* Pawn) override;
+	virtual void OnPossess(APawn* pawn) override;
 	
 	//virtual void Tick(float DeltaTime) override;
 
@@ -62,24 +66,25 @@ protected:
 public:
 	/** 소유 플레이어 캐릭터*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	AAZPlayer_Playable* PlayableCharacter;
+	AAZPlayer_Playable* playable_player_;
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	UAZAnimInstance_Player* PlayableAnimInstance;
+	UAZAnimInstance_Playable* playable_anim_instance_;
 	/** 소유 플레이어 정보*/
 	UPROPERTY(EditAnywhere)
-	AAZPlayerState* PlayablePlayerState;
-	/** 원격 플레이어 캐릭터*/
+	AAZPlayerState* playable_player_state_;
+	/** 원격 플레이어 캐릭터 맵*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TMap<int32, AAZPlayer_Remotable*> RemotableCharacterMap;
+	TMap<int32, AAZPlayer_Remotable*> remotable_player_map_;
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TMap<int32, UAZAnimInstance_Player*> RemotableAnimInstanceMap;
+	TMap<int32, UAZAnimInstance_Remotable*> remotable_anim_instance_map_;
 	/** 원격으로 전송받을 값 */
 	UPROPERTY(EditAnywhere)
-	TMap<int32, AAZPlayerState*> RemoteblePlayerStateMap;
+	TMap<int32, AAZPlayerState*> remotable_player_state_map_;
 
 	/** 서버에서 호출, 원격 캐릭터생성 */
-	UFUNCTION()
-	void CloneRemotePlayer(int32 Guid, AAZPlayerState* OtherPlayerState);
+	UFUNCTION() void AddRemotePlayer(int32 guid, AAZPlayerState* other_player_state);
 #pragma region//Input Event function
 public:
 	//ToDo:CameraManager만들고 Player_Playable에서 여기로 옮기기?

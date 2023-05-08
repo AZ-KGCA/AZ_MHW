@@ -1,8 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "AZ_MHW/AnimInstance/AZAnimInstance.h"
-#include "AZ_MHW/Character/AZCharacter.h"
-#include "AZ_MHW/AZ_MHW.h"
 
 UAZAnimInstance::UAZAnimInstance()
 {
@@ -13,10 +12,11 @@ UAZAnimInstance::UAZAnimInstance()
 void UAZAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
-	owner_ = Cast<AAZCharacter>(TryGetPawnOwner());
+	
 }
 
-void UAZAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void UAZAnimInstance::NativeUpdateAnimation(float delta_seconds)
 {
-	Super::NativeUpdateAnimation(DeltaSeconds);
+	Super::NativeUpdateAnimation(delta_seconds);
+	
 }
