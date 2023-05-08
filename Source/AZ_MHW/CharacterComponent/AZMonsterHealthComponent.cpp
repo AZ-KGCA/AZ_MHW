@@ -25,12 +25,12 @@ void UAZMonsterHealthComponent::InitializeComponent()
 
 	// Set monster properties
 	if (!owner_->IsAValidMonster()) return;
-	const FMonsterInfo* monster_info = UAZGameSingleton::instance()->monster_mgr->GetMonsterInfo(owner_->GetMonsterID());
+	const FMonsterInfo* monster_info = UAZGameSingleton::instance()->monster_mgr_->GetMonsterInfo(owner_->GetMonsterID());
 	base_hp_ = monster_info->base_hp;
 
 	// Set boss properties
 	if (!owner_->IsABoss()) return;
-	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr->GetBossInfo(owner_->GetMonsterID(), owner_->GetBossRank());
+	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr_->GetBossInfo(owner_->GetMonsterID(), owner_->GetBossRank());
 	sever_damage_tail_				= boss_info->sever_damage_tail;
 	tenderised_damage_multiplier_	= boss_info->tenderised_damage_multiplier;
 	escape_stats_					= FBossEscapeStats(boss_info->num_allowed_escapes, boss_info->escape_health_ratios);

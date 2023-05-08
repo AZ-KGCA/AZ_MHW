@@ -83,7 +83,7 @@ void AAZMonster::SetMonsterInfo()
 	if (!IsAValidMonster()) return;
 
 	// Return if monster id is not found in the table
-	const FMonsterInfo* monster_info = UAZGameSingleton::instance()->monster_mgr->GetMonsterInfo(monster_id_);
+	const FMonsterInfo* monster_info = UAZGameSingleton::instance()->monster_mgr_->GetMonsterInfo(monster_id_);
 	if (!monster_info)
 	{
 		UE_LOG(AZMonster, Error, TEXT("Monster data is not found for monster #%d"), monster_id_);
@@ -105,7 +105,7 @@ void AAZMonster::SetBossInfo()
 	if (!IsABoss()) return;
 	
 	// Return if boss information is not found in the table
-	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr->GetBossInfo(monster_id_, rank_);
+	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr_->GetBossInfo(monster_id_, rank_);
 	if (!boss_info)
 	{
 		UE_LOG(AZMonster, Warning, TEXT("Boss data is not found for monster #%d"), monster_id_);
@@ -122,8 +122,8 @@ void AAZMonster::SetActionInfo()
 {
 	if (!IsAValidMonster()) return;
 
-	const auto noncombat_action_info = UAZGameSingleton::instance()->monster_mgr->GetMonsterNonCombatActionInfo(monster_id_);
-	const auto combat_action_info = UAZGameSingleton::instance()->monster_mgr->GetMonsterCombatActionInfo(monster_id_);
+	const auto noncombat_action_info = UAZGameSingleton::instance()->monster_mgr_->GetMonsterNonCombatActionInfo(monster_id_);
+	const auto combat_action_info = UAZGameSingleton::instance()->monster_mgr_->GetMonsterCombatActionInfo(monster_id_);
 
 	if (noncombat_action_info)
 		noncombat_action_map_ = *noncombat_action_info;

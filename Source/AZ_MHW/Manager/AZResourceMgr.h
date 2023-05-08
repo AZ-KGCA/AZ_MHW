@@ -148,7 +148,7 @@ namespace AZResourceHelper
 
 	static void ClearReference(EAZResourceCacheType cache_type)
 	{
-		if (GetGameSingleton() && AZ_ResourceMgr())
+		if (UAZGameSingleton::instance() && AZ_ResourceMgr())
 		{
 			AZ_ResourceMgr()->ClearResourceReference(cache_type);
 		}
