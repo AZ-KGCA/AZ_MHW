@@ -59,7 +59,6 @@ void AAZMonster::PostInitializeComponents()
 
 void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const
 {
-	return Super::GetActorEyesViewPoint(out_location, out_rotation);
 	if (!GetMesh()->DoesSocketExist("HeadSocket"))
 	{
 		return Super::GetActorEyesViewPoint(out_location, out_rotation);
@@ -155,7 +154,6 @@ void AAZMonster::BeginPlay()
 
 void AAZMonster::EnterCombat()
 {
-	anim_instance_->is_doing_action_ = false;
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
 	else
@@ -218,6 +216,7 @@ void AAZMonster::SetActionState(int32 action_id)
 			break;
 		}
 	case EMonsterActionMode::Transition:
+		anim_instance_->is_doing_action_ = false;
 	case EMonsterActionMode::Combat:
 		{
 			if (const FMonsterCombatActionInfo* action_data = combat_action_map_.Find(action_id))
@@ -295,7 +294,7 @@ void AAZMonster::AnimNotify_EndOfAction()
 		SetActionMode(EMonsterActionMode::Combat);
 	}
 	// restore movement mode
-	if (!is_flying_)
+	if (!is_flying_ && GetCharacterMovement()->MovementMode == MOVE_Flying)
 	{
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
@@ -306,7 +305,6 @@ void AAZMonster::AnimNotify_EndOfAction()
 
 void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name)
 {
-	// TODO use "Montage Set Next Section" if it is a montage
 	action_state_info_.animation_name = next_animation_name;
 	action_state_info_.montage_section_name = next_montage_section_name;
 	SetTargetAngle(aggro_component_->GetAngle2DToTarget());
@@ -324,12 +322,17 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 	TArray<AActor*, FDefaultAllocator> ignore_actors;
 
 	// Get the location to start trace at
-	FVector trace_location = GetMesh()->GetSocketLocation(socket_name);
+	FVector trace_start_loc = GetMesh()->GetSocketLocation(socket_name);
+	if (socket_name.IsEqual(FName("LeftFootSocket")) || socket_name.IsEqual(FName("RightFootSocket")))
+	{
+		trace_start_loc.Z -= 100.0f;
+	}
+	FVector trace_end_loc = trace_start_loc - FVector(0, 0, 1);
 
 	// Do Sphere trace
 	if (duration_type == EEffectDurationType::Instant)
 	{
-		UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), trace_location, trace_location, radius, hit_object_types_, false,
+		UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), trace_start_loc, trace_end_loc, radius, hit_object_types_, false,
 			ignore_actors, EDrawDebugTrace::ForDuration, hit_results, true);
 
 		//@TODO do something with hit_results

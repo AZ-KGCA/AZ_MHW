@@ -14,6 +14,9 @@
 
 AAZPlayer::AAZPlayer()
 {
+    // Generic Team Agent Interface
+    SetGenericTeamId(uint8(EObjectType::Player));
+    
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	//캡슐 크기조정
 	//GetCapsuleComponent()->InitCapsuleSize();
