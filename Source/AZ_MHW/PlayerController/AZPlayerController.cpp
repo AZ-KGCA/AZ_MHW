@@ -13,7 +13,6 @@ AAZPlayerController::AAZPlayerController()
 void AAZPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	PRINT_FUNCTION();
 }
 void AAZPlayerController::OnPossess(APawn* in_pawn)
 {

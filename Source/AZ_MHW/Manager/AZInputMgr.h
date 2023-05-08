@@ -32,7 +32,7 @@ class AZ_MHW_API UAZInputMgr : public UObject
 	
 public:
 	UAZInputMgr();
-	
+	void			Init();
 #pragma region Inherited function
 protected:
 	/** */

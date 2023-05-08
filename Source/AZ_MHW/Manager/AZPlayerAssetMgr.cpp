@@ -298,3 +298,7 @@ uint32 UAZPlayerAssetMgr::GetCommandBitMask(FName name)
 	}
 	return 0;
 }
+
+void UAZPlayerAssetMgr::Init()
+{
+}

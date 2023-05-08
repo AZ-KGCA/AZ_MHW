@@ -66,7 +66,6 @@ void AAZPlayer::PostInitProperties()
 void AAZPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	PRINT_FUNCTION();
 
 	//투명 머테리얼
 	if(auto material_asset =LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/AZ/Character/Mesh/FBone/M_Transparent")))

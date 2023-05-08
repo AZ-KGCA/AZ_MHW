@@ -53,5 +53,5 @@ public:
 	UFUNCTION() uint32 GetCommandBitMask(FName name);
 
 	//UPROPERTY() TMap<FName, TMap<int32,FName>> MaskMap;
-
+	void			Init();
 };

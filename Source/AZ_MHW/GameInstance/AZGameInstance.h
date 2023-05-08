@@ -1,4 +1,5 @@
-﻿// Copyright Team AZ. All Rights Reserved.
+
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -12,10 +13,10 @@
 #include "Windows.h"
 
 // window 기본 타입 Hide
-//#include "Windows/AllowWindowsPlatformTypes.h"
+#include "Windows/AllowWindowsPlatformTypes.h"
 #include "Windows/prewindowsapi.h"
 #include "Windows/PostWindowsApi.h"
-//#include "Windows/HideWindowsPlatformTypes.h"
+#include "Windows/HideWindowsPlatformTypes.h"
 #pragma comment(lib, "ws2_32.lib")
 #include <WinSock2.h>
 
