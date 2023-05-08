@@ -39,8 +39,6 @@ void UAZAnimInstance_Player::NativeUpdateAnimation(float delta_seconds)
 		if(is_hold_rotation_ == false)
 		{
 			FRotator owner_forward_direction;
-			UE_LOG(AZ_TEST,Warning,TEXT("current: %f"),current_forward_direction_.Yaw);
-			UE_LOG(AZ_TEST,Error,TEXT("next: %f"),next_forward_direction_.Yaw);
 			
 			// if(current_forward_direction_.Yaw > next_forward_direction_.Yaw)//캐릭터 방향이 목표방향보다 큰경우
 			// {

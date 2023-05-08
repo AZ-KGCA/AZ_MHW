@@ -90,6 +90,10 @@ UAZInputMgr::UAZInputMgr()
 #pragma endregion
 }
 
+void UAZInputMgr::Init()
+{
+}
+
 void UAZInputMgr::BeginDestroy()
 {
 	Super::BeginDestroy();
@@ -154,13 +158,12 @@ void UAZInputMgr::AddInputMappingContext(const FName& name)
 		}
 		else
 		{
-			PRINT_LOG("Don't Add InputMappingContext");
+			
 			//인풋매핑컨텍스트 없음
 		}
 	}
 	else
 	{
-		PRINT_LOG("Don't Find EnhancedInputLocalPlayerSubsystem");
 	}
 }
 void UAZInputMgr::RemoveInputMappingContext(const FName& name)
@@ -174,13 +177,11 @@ void UAZInputMgr::RemoveInputMappingContext(const FName& name)
 		}
 		else
 		{
-			PRINT_LOG("Don't Find InputMappingContext");
 			//인풋매핑컨텍스트 없음
 		}
 	}
 	else
 	{
-		PRINT_LOG("Don't Find EnhancedInputLocalPlayerSubsystem");
 	}
 }
 void UAZInputMgr::ClearInputMappingContext() const
@@ -192,11 +193,9 @@ void UAZInputMgr::ClearInputMappingContext() const
 	}
 	else
 	{
-		PRINT_LOG("Don't Find EnhancedInputLocalPlayerSubsystem");
 	}
 }
 
 void UAZInputMgr::ActionTest()
 {
-	PRINT_LOG("InputBinding Test");
 }

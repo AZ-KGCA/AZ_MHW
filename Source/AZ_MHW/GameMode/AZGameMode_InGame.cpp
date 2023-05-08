@@ -14,10 +14,11 @@
 
 AAZGameMode_InGame::AAZGameMode_InGame()
 {
+	game_mode_flag_ = EGameModeFlag::InGame;
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayer_Playable"));
 	static ConstructorHelpers::FClassFinder<AController> PlayerControllerPClass(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayerController_InGame"));
 	
-	game_mode_flag_ = EGameModeFlag::InGame;
+	
 
 	DefaultPawnClass = PlayerPawnBPClass.Class;//AAZPlayer_Playable::StaticClass();//
 	PlayerControllerClass = PlayerControllerPClass.Class;//AAZPlayerController_InGame::StaticClass();
@@ -46,30 +47,37 @@ void AAZGameMode_InGame::InitGame(const FString& map_name, const FString& option
 
 void AAZGameMode_InGame::PreStartPlay()
 {
+	Super::PreStartPlay();
 }
 
 void AAZGameMode_InGame::PostStartPlay()
 {
+	Super::PostStartPlay();
 }
 
 void AAZGameMode_InGame::Destroyed()
 {
+	Super::Destroyed();
 }
 
 void AAZGameMode_InGame::EndPlay(const EEndPlayReason::Type end_play_reason)
 {
+	Super::EndPlay(end_play_reason);
 }
 
 void AAZGameMode_InGame::OnGameMsg(FAZGameMsg* msg)
 {
+	Super::OnGameMsg(msg);
 }
 
 void AAZGameMode_InGame::RestartPlayerAtPlayerStart(AController* new_player, AActor* start_spot)
 {
+	Super::RestartPlayerAtPlayerStart(new_player, start_spot);
 }
 
 void AAZGameMode_InGame::OnMapEnter()
 {
+	Super::OnMapEnter();
 }
 
 void AAZGameMode_InGame::OnMapExit()

@@ -23,7 +23,7 @@ AAZPlayerController_InGame::AAZPlayerController_InGame()
 void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
-
+	UE_LOG(LogTemp,Warning,TEXT("SAD"));
 	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
 	playable_player_state_ = Cast<AAZPlayerState>(playable_player_->GetPlayerState());
 }

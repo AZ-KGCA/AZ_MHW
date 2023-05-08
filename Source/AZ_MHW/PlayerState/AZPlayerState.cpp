@@ -11,7 +11,6 @@ AAZPlayerState::AAZPlayerState()
 void AAZPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
-	PRINT_FUNCTION();
 
 	//데이터 가져오기
 }
