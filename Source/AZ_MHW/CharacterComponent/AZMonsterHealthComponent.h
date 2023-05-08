@@ -34,8 +34,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") int32 tired_duration_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Health") FBossEscapeStats escape_stats_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") FBossWeaknessStats weakness_stats_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") FBossPartBreakStats part_break_stats_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") int32 sever_damage_tail_;
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") TMap<EMonsterBodyPart, FBossBodyPartDebuffInfo> body_part_states_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") float tenderised_damage_multiplier_;
 
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_hp_;

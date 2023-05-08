@@ -91,7 +91,7 @@ void AAZMonster::SetMonsterInfo()
 
 	// Set properties
 	behavior_type_				= monster_info->behavior_type;
-	sight_configs_				= FMonsterSightConfigs(monster_info->sight_radius, monster_info->sight_lose_radius, monster_info->sight_fov, monster_info->sight_max_age, monster_info->sight_auto_success_range);
+	sight_configs_				= monster_info->sight_configs;
 	patrol_range_				= monster_info->patrol_range;
 	patrol_delay_				= monster_info->patrol_delay;
 	percept_radius_				= monster_info->percept_radius;
@@ -114,7 +114,7 @@ void AAZMonster::SetBossInfo()
 	// Set properties
 	boss_id_					= boss_info->boss_id;
 	has_combat_transition_anim_	= boss_info->has_transition_animation;
-	rage_stats_					= FBossRageStats(boss_info->rage_required_damage, boss_info->rage_duration, boss_info->rage_outgoing_damage_multiplier, boss_info->rage_incoming_damage_multiplier);
+	rage_stats_					= boss_info->rage_stats;
 }
 
 void AAZMonster::SetActionInfo()

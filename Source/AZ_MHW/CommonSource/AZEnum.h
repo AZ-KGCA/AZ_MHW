@@ -189,6 +189,7 @@ enum class EMonsterBodyPart : uint8
 	Body,
 	Head,
 	Tail,
+	Leg,
 	Eyelid,	
 	Eyeball,	// not used
 };

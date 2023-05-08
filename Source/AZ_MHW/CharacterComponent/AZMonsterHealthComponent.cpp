@@ -31,11 +31,17 @@ void UAZMonsterHealthComponent::InitializeComponent()
 	// Set boss properties
 	if (!owner_->IsABoss()) return;
 	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr_->GetBossInfo(owner_->GetMonsterID(), owner_->GetBossRank());
-	sever_damage_tail_				= boss_info->sever_damage_tail;
+
+	body_part_states_.Add(EMonsterBodyPart::Head, boss_info->head_state);
+	body_part_states_.Add(EMonsterBodyPart::Body, boss_info->body_state);
+	body_part_states_.Add(EMonsterBodyPart::LeftWing, boss_info->wing_state);
+	body_part_states_.Add(EMonsterBodyPart::RightWing, boss_info->wing_state);
+	body_part_states_.Add(EMonsterBodyPart::Tail, boss_info->tail_state);
+	body_part_states_.Add(EMonsterBodyPart::Leg, boss_info->leg_state);
+	
 	tenderised_damage_multiplier_	= boss_info->tenderised_damage_multiplier;
-	escape_stats_					= FBossEscapeStats(boss_info->num_allowed_escapes, boss_info->escape_health_ratios);
-	weakness_stats_					= FBossWeaknessStats(boss_info->weakness_head, boss_info->weakness_neck, boss_info->weakness_body, boss_info->weakness_tail,boss_info->weakness_wing,boss_info->weakness_leg);
-	part_break_stats_				= FBossPartBreakStats(boss_info->break_damage_body, boss_info->break_damage_head, boss_info->break_damage_wing);
+	escape_stats_					= boss_info->escape_stats;
+	weakness_stats_					= boss_info->weakness_stats;
 	base_stamina_					= boss_info->base_stamina;
 	tired_duration_					= boss_info->tired_duration;
 
@@ -46,7 +52,7 @@ void UAZMonsterHealthComponent::InitializeRuntimeValues()
 {
 	current_hp_ = base_hp_;
 	current_stamina_ = base_stamina_;
-	current_num_escapes_ = escape_stats_.num_allowed_escapes;
+	current_num_escapes_ = 0;
 	body_condition_.Reset();
 }
 

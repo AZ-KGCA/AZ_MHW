@@ -42,7 +42,17 @@ public:
 		std::optional<EType> type = magic_enum::enum_cast<EType>(convert_type);
 		return *type;
 	}
-	
+	template<typename EType>
+	static TArray<EType> StringArrToEnumArr(const TArray<FString>& string_arr)
+	{
+		static_assert(std::is_enum_v<EType>, "Non-Enum class is being used");
+		TArray<EType> enum_arr;
+		for (auto string : string_arr)
+		{
+			enum_arr.Add(StringToEnum<EType>(string));
+		}
+		return enum_arr;
+	}
 	template<typename EType>
 	static EType StringArrToBitMaskEnum(TArray<FString> enum_string_arr)
 	{

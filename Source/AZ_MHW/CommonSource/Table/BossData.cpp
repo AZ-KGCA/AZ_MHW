@@ -108,30 +108,65 @@ void UBossData::Load(TMap<FString, FString>& data)
 			weakness_leg.Add(FCString::Atoi(*str));
 		}
 	}
-	value_ptr = data.Find("break_damage_head");
+	value_ptr = data.Find("damage_head");
 	if (value_ptr != nullptr)
 	{
-		break_damage_head = FCString::Atoi(**value_ptr);
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			damage_head.Add(FCString::Atoi(*str));
+		}
 	}
-	value_ptr = data.Find("break_damage_body");
+	value_ptr = data.Find("damage_body");
 	if (value_ptr != nullptr)
 	{
-		break_damage_body = FCString::Atoi(**value_ptr);
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			damage_body.Add(FCString::Atoi(*str));
+		}
 	}
-	value_ptr = data.Find("break_damage_wing");
+	value_ptr = data.Find("damage_wing");
 	if (value_ptr != nullptr)
 	{
-		break_damage_wing = FCString::Atoi(**value_ptr);
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			damage_wing.Add(FCString::Atoi(*str));
+		}
 	}
-	value_ptr = data.Find("break_damage_tail");
+	value_ptr = data.Find("damage_tail");
 	if (value_ptr != nullptr)
 	{
-		break_damage_tail = FCString::Atoi(**value_ptr);
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			damage_tail.Add(FCString::Atoi(*str));
+		}
 	}
-	value_ptr = data.Find("sever_damage_tail");
+	value_ptr = data.Find("damage_leg");
 	if (value_ptr != nullptr)
 	{
-		sever_damage_tail = FCString::Atoi(**value_ptr);
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			damage_leg.Add(FCString::Atoi(*str));
+		}
+	}
+	value_ptr = data.Find("stunnable_parts");
+	if (value_ptr != nullptr)
+	{
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			stunnable_parts.Add(str);
+		}
 	}
 	value_ptr = data.Find("rage_required_damage");
 	if (value_ptr != nullptr)

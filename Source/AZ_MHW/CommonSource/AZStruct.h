@@ -1,35 +1,11 @@
 #pragma once
-#include "AITypes.h"
 #include "AZ_MHW/CommonSource/AZEnum.h"
+#include "AZ_MHW/Util/AZUtility.h"
 #include "AZStruct.generated.h"
 
 
 //============================================
 // Monster
-
-USTRUCT(BlueprintType)
-struct FBossIdentifier
-{
-	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 monster_id;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) EBossRank rank;
-
-	FBossIdentifier()
-	{
-		monster_id = -1;
-		rank = EBossRank::None;
-	};
-	FBossIdentifier(int32 monster_id, EBossRank rank)
-	{
-		this->monster_id = monster_id;
-		this->rank = rank;
-	}
-};
-FORCEINLINE uint32 GetTypeHash(const FBossIdentifier& boss_id)
-{
-	return FCrc::MemCrc32(&boss_id, sizeof(FBossIdentifier));
-}
 
 USTRUCT(BlueprintType)
 struct FMonsterActionStateInfo
@@ -43,6 +19,14 @@ struct FMonsterActionStateInfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FName montage_section_name;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float target_angle;
 
+	FMonsterActionStateInfo()
+	{
+		action_mode = EMonsterActionMode::Normal;
+		priority_score = EMonsterActionPriority::None;
+		move_state = EMoveState::None;
+		animation_name = montage_section_name = NAME_None;
+		target_angle = 0.0f;
+	}
 	void Reset()
 	{
 		action_mode = EMonsterActionMode::Normal;
@@ -54,85 +38,143 @@ struct FMonsterActionStateInfo
 	}
 };
 
-struct FMonsterInfo
+USTRUCT(BlueprintType)
+struct FBossRageStats
 {
-	int32 monster_id;
-	EMonsterBehaviorType behavior_type;
-	int32 base_hp;
-	int32 sight_radius;
-	int32 sight_lose_radius;
-	int32 sight_fov;
-	float sight_max_age;
-	int32 sight_auto_success_range;
-	int32 patrol_range;
-	float patrol_delay;
-	int32 percept_radius;
-	FName behavior_tree_filename;
-};
+	GENERATED_BODY()
 
-struct FBossInfo
-{
-	int32 boss_id;
-	int32 monster_id;
-	EBossRank rank;
-	int32 base_stamina;
-	float tired_duration;
-	bool has_transition_animation;
-	int32 num_allowed_escapes;
-	TArray<float> escape_health_ratios;
-	TArray<int32> weakness_head;
-	TArray<int32> weakness_neck;
-	TArray<int32> weakness_body;
-	TArray<int32> weakness_tail;
-	TArray<int32> weakness_wing;
-	TArray<int32> weakness_leg;
-	int32 break_damage_head;
-	int32 break_damage_body;
-	int32 break_damage_wing;
-	int32 sever_damage_tail;
-	int32 rage_required_damage;
-	float rage_duration;
-	float rage_outgoing_damage_multiplier;
-	float rage_incoming_damage_multiplier;
-	float tenderised_damage_multiplier;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 required_damage;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float duration;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float outgoing_damage_multiplier;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float incoming_damage_multiplier;
+
+	FBossRageStats()
+	{
+		required_damage = duration = outgoing_damage_multiplier = incoming_damage_multiplier = 0.0f;
+	};
+	FBossRageStats(const int32 required_damage, const int32 duration, const int32 outgoing_damage_multiplier, const int32 incoming_damage_multiplier)
+	{
+		this->required_damage = required_damage;
+		this->duration = UAZUtility::MillisecondsToSeconds(duration);
+		this->outgoing_damage_multiplier = UAZUtility::PerTenThousandToPerOne(outgoing_damage_multiplier);
+		this->incoming_damage_multiplier = UAZUtility::PerTenThousandToPerOne(incoming_damage_multiplier);
+	}
+	FBossRageStats(const int32 required_damage, const float duration, const float outgoing_damage_multiplier, const float incoming_damage_multiplier)
+	{
+		this->required_damage = required_damage;
+		this->duration = duration;
+		this->outgoing_damage_multiplier = outgoing_damage_multiplier;
+		this->incoming_damage_multiplier = incoming_damage_multiplier;
+	}
 };
 
 USTRUCT(BlueprintType)
-struct FMonsterCombatActionInfo
+struct FBossEscapeStats
 {
 	GENERATED_BODY()
-	
-	int32 action_id;
-	int32 monster_id;
-	FName animation_name;
-	FName montage_section_name;
-	EAttackEffect attack_effect;
-	int32 damage_base;
-	int32 damage_poison;
-	EMonsterActionTriggerType triggers;
-	EMonsterActionConditionType conditions;
-	int32 condition_min_distance_from_target;
-	int32 condition_max_distance_from_target;
-	float cooltime;
-	float cooltime_timer;
 
-	FMonsterCombatActionInfo() {};
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 num_allowed_escapes;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<float> escape_health_ratios;
+
+	FBossEscapeStats()
+	{
+		num_allowed_escapes = 0;
+		escape_health_ratios.Empty();
+	};
+	FBossEscapeStats(const int32 num_allowed_escapes, const TArray<float>& escape_health_ratios)
+	{
+		this->num_allowed_escapes = num_allowed_escapes;
+		this->escape_health_ratios = escape_health_ratios;
+	}
+	FBossEscapeStats(const int32 num_total_escapes, const TArray<int32>& escape_health_ratios)
+	{
+		this->num_allowed_escapes = num_allowed_escapes;
+		for (const int32 escape_health_ratio : escape_health_ratios)
+		{
+			this->escape_health_ratios.Add(UAZUtility::PerTenThousandToPerOne(escape_health_ratio));
+		}
+	}
 };
 
 USTRUCT(BlueprintType)
-struct FMonsterNonCombatActionInfo
+struct FBossBodyPartDebuffInfo
 {
 	GENERATED_BODY()
-	
-	int32 action_id;
-	int32 monster_id;
-	FName animation_name;
-	FName montage_section_name;
-	EMonsterActionConditionType conditions;
-	float condition_min_health_ratio;		// only checked if condition includes Health
-	float condition_max_health_ratio;
 
-	FMonsterNonCombatActionInfo() {};
+	// Part break 
+	bool is_breakable;
+	int32 break_required_damage;
+	int32 break_accumulated_damage;
+
+	// Sever 
+	bool is_severable;
+	int32 sever_required_damage;
+	int32 sever_accumulated_damage;
+
+	// Wound 	
+	bool is_woundable;
+	int32 wound_required_damage;
+	int32 wound_accumulated_damage;
+	
+	bool is_stunnable;
+
+	FBossBodyPartDebuffInfo()
+	{
+		is_breakable = is_severable = is_woundable = is_stunnable = false;
+		break_required_damage = break_accumulated_damage = 0;
+		sever_required_damage = sever_accumulated_damage = 0;
+		wound_required_damage = wound_accumulated_damage = 0;
+	}
+	FBossBodyPartDebuffInfo(TArray<int32> damage_info) : FBossBodyPartDebuffInfo()
+	{
+		// Part break
+		if (damage_info[0] != -1)
+		{
+			is_breakable = true;
+			break_required_damage = damage_info[0];
+		}
+		// Sever
+		if (damage_info[1] != -1)
+		{
+			is_severable = true;
+			sever_required_damage = damage_info[1];
+		}
+		// Wound
+		if (damage_info[2] != -1)
+		{
+			is_woundable = true;
+			wound_required_damage = damage_info[2];
+		}
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FMonsterSightConfigs
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 radius;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 lose_radius;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float fov;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float max_age;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 auto_success_range;
+
+	FMonsterSightConfigs()
+	{
+		radius = 1000;
+		lose_radius = 1200;
+		fov = 70.0f;
+		max_age = 3.0f;
+		auto_success_range = 300.0f;
+	};
+	FMonsterSightConfigs(int32 radius, int32 lose_radius, int32 fov, float max_age, int32 auto_success_range)
+	{
+		this->radius = radius;
+		this->lose_radius = lose_radius;
+		this->fov = fov;
+		this->max_age = max_age;
+		this->auto_success_range = auto_success_range;
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -161,89 +203,86 @@ struct FBossWeaknessStats
 	}
 };
 
+struct FMonsterInfo
+{
+	int32 monster_id;
+	EMonsterBehaviorType behavior_type;
+	int32 base_hp;
+	FMonsterSightConfigs sight_configs;
+	int32 patrol_range;
+	float patrol_delay;
+	int32 percept_radius;
+	FName behavior_tree_filename;
+
+	FMonsterInfo()
+	{
+		monster_id = -1;
+		behavior_type = EMonsterBehaviorType::Neutral;
+		base_hp = 1000;
+		sight_configs = FMonsterSightConfigs();
+		patrol_range = 1000;
+		patrol_delay = 5.0f;
+		percept_radius = 1500;
+		behavior_tree_filename = NAME_None;
+	}
+};
+
+struct FBossInfo
+{
+	int32 boss_id;
+	int32 monster_id;
+	EBossRank rank;
+	int32 base_stamina;
+	float tired_duration;
+	bool has_transition_animation;
+	FBossEscapeStats escape_stats;
+	FBossWeaknessStats weakness_stats;
+	FBossBodyPartDebuffInfo head_state;
+	FBossBodyPartDebuffInfo body_state;
+	FBossBodyPartDebuffInfo wing_state;
+	FBossBodyPartDebuffInfo tail_state;
+	FBossBodyPartDebuffInfo leg_state;
+	TArray<EMonsterBodyPart> stunnable_parts;
+	FBossRageStats rage_stats;
+	float tenderised_damage_multiplier;
+};
+
 USTRUCT(BlueprintType)
-struct FBossPartBreakStats
+struct FMonsterCombatActionInfo
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 damage_head;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 damage_body;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 damage_wing;
+	int32 action_id;
+	int32 monster_id;
+	FName animation_name;
+	FName montage_section_name;
+	EAttackEffect attack_effect;
+	int32 damage_base;
+	int32 damage_poison;
+	EMonsterActionTriggerType triggers;
+	EMonsterActionConditionType conditions;
+	int32 condition_min_distance_from_target;
+	int32 condition_max_distance_from_target;
+	float cooltime;
+	float cooltime_timer;
 
-	FBossPartBreakStats() {};
-	FBossPartBreakStats(const int32 break_damage_head, const int32 break_damage_body, const int32 break_damage_wing)
-	{
-		this->damage_head = break_damage_head;
-		this->damage_body = break_damage_body;
-		this->damage_wing = break_damage_wing;
-	}
+	FMonsterCombatActionInfo() {}
 };
 
 USTRUCT(BlueprintType)
-struct FBossRageStats
-{
-	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 required_damage;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float duration;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float outgoing_damage_multiplier;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float incoming_damage_multiplier;
-
-	FBossRageStats() {};
-	FBossRageStats(const int32 required_damage, const float duration, const float outgoing_damage_multiplier, const float incoming_damage_multiplier)
-	{
-		this->required_damage = required_damage;
-		this->duration = duration;
-		this->outgoing_damage_multiplier = outgoing_damage_multiplier;
-		this->incoming_damage_multiplier = incoming_damage_multiplier;
-	}
-};
-
-USTRUCT(BlueprintType)
-struct FBossEscapeStats
-{
-	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 num_allowed_escapes;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<float> escape_health_ratios;
-
-	FBossEscapeStats() {};
-	FBossEscapeStats(const int32 num_allowed_escapes, const TArray<float>& escape_health_ratios)
-	{
-		this->num_allowed_escapes = num_allowed_escapes;
-		this->escape_health_ratios = escape_health_ratios;
-	}
-};
-
-USTRUCT(BlueprintType)
-struct FMonsterSightConfigs
-{
-	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 radius;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 lose_radius;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) float fov;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 max_age;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 auto_success_range;
-
-	FMonsterSightConfigs() {};
-	FMonsterSightConfigs(int32 radius, int32 lose_radius, int32 fov, float max_age, int32 auto_success_range)
-	{
-		this->radius = radius;
-		this->lose_radius = lose_radius;
-		this->fov = fov;
-		this->max_age = max_age;
-		this->auto_success_range = auto_success_range;
-	}
-};
-
-USTRUCT(BlueprintType)
-struct FBossBodyPartInfo
+struct FMonsterNonCombatActionInfo
 {
 	GENERATED_BODY()
 	
-	//TODO move BossWeaknessStats and BossPartBreakStats here when implementing damage by body part
-	//amount of damage needed to stun etc 
+	int32 action_id;
+	int32 monster_id;
+	FName animation_name;
+	FName montage_section_name;
+	EMonsterActionConditionType conditions;
+	float condition_min_health_ratio;		// only checked if condition includes Health
+	float condition_max_health_ratio;
+
+	FMonsterNonCombatActionInfo() {}
 };
 
 USTRUCT(BlueprintType)
@@ -253,17 +292,9 @@ struct FBossBodyCondition
 	
 	//TODO states of body parts (e.g. broken, damaged, etc)
 
-	void Reset() {};
+	void Reset() {}
 };
 
-// USTRUCT()
-// struct FAIMoveRequestResult
-// {
-// 	GENERATED_BODY()
-// 	
-// 	FAIRequestID move_request_id;
-// 	EMoveRequestResult result_code;
-// };
 
 // End of Monster
 //============================================

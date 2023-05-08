@@ -25,11 +25,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<int32> weakness_tail;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<int32> weakness_wing;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<int32> weakness_leg;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 break_damage_head;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 break_damage_body;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 break_damage_wing;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 break_damage_tail;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 sever_damage_tail;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<int32> damage_head;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<int32> damage_body;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<int32> damage_wing;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<int32> damage_tail;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<int32> damage_leg;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FString> stunnable_parts;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 rage_required_damage;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 rage_duration;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 rage_agility_multiplier;
