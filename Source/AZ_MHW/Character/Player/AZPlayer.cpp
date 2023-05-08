@@ -56,7 +56,8 @@ AAZPlayer::AAZPlayer()
 	//Base Female Face
 	Face->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FFace/SK_FFace"), nullptr, LOAD_None, nullptr));
 
-	
+	// Generic Team Agent Interface
+	SetGenericTeamId(uint8(EObjectType::Player));
 }
 
 void AAZPlayer::PostInitProperties()

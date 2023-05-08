@@ -126,16 +126,16 @@ void AAZAIController::SetUpPerceptionSystem()
 ETeamAttitude::Type AAZAIController::GetTeamAttitudeTowards(const AActor& other_actor) const
 {
 	// Check if pawn
-	const APawn* pawn = Cast<APawn>(&other_actor);
-	if (!pawn) return ETeamAttitude::Neutral;
+	const APawn* other_pawn = Cast<APawn>(&other_actor);
+	if (!other_pawn) return ETeamAttitude::Neutral;
 
 	// Check if AAZCharacter
-	const AAZCharacter* character = Cast<AAZCharacter>(&other_actor);
-	if (!character) return ETeamAttitude::Neutral;
+	const AAZCharacter* other_character = Cast<AAZCharacter>(&other_actor);
+	if (!other_character) return ETeamAttitude::Neutral;
 	
 	// Check if pawn implements GenericTeamAgentInterface
-	const auto team_agent = Cast<IGenericTeamAgentInterface>(&other_actor);
-	if (!team_agent) return ETeamAttitude::Neutral;
+	const auto other_agent = Cast<IGenericTeamAgentInterface>(&other_actor);
+	if (!other_agent) return ETeamAttitude::Neutral;
 
 	// Check actor's team id
 	if (owner_->GetBehaviorType() == EMonsterBehaviorType::Neutral)
@@ -148,7 +148,8 @@ ETeamAttitude::Type AAZAIController::GetTeamAttitudeTowards(const AActor& other_
 	}
 	else
 	{
-		if (team_agent->GetGenericTeamId() != team_id_) return ETeamAttitude::Hostile;
+		// for now, simply return hostile attitude if the object type is different
+		if (other_agent->GetGenericTeamId() != owner_->GetGenericTeamId()) return ETeamAttitude::Hostile;
 		else return ETeamAttitude::Neutral;
 	}
 }
@@ -160,7 +161,6 @@ void AAZAIController::SetUpProperties()
 	patrol_range_ = owner_->patrol_range_;
 	patrol_delay_ = owner_->patrol_delay_;
 	percept_radius_ = owner_->percept_radius_;
-	team_id_ = owner_->team_id_;
 }
 
 void AAZAIController::SetUpBehaviorTree()

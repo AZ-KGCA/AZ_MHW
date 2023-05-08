@@ -67,3 +67,11 @@ float UAZMonsterAggroComponent::GetDistance2DToTarget() const
 	else
 		return FVector::Dist2D(owner_->GetActorLocation(), GetTargetLocation());
 }
+
+float UAZMonsterAggroComponent::GetAngle2DToTarget() const
+{
+	if (!best_target_.IsValid())
+		return 0.0f;
+	else
+		return owner_->GetRelativeAngleToLocation(GetTargetLocation());
+}
