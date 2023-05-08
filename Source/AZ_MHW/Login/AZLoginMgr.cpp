@@ -6,6 +6,7 @@
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZ_MHW/Manager/AZGameConfig.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/HUD/AZHUD.h"
 
 UAZLoginMgr::UAZLoginMgr()
 {
@@ -73,4 +74,18 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 
 void UAZLoginMgr::SetServerIpPort(ESocketHolderType holderType, const FString serverIP, int32 serverPort)
 {
+}
+
+void UAZLoginMgr::OnForceKicked(EForceKick forcekick)
+{
+	FString kick_str = [](EForceKick reason) -> FString
+	{
+		switch (reason)
+		{
+		case EForceKick::NormalLogout: return "서버가 종료되었습니다.";
+		}
+		return "서버와의 연결이 끊어졌습니다.";
+	}(forcekick);
+	// FIXME 병합시 확인하기
+	//AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::OvertopBasic, kick_str, EUIMsgBoxBtnType::Confirm, this, "OnServerDisconnected");
 }

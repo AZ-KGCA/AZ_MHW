@@ -88,6 +88,12 @@ DerivedDataCache/*
 Content/*
 RawContent/UI/*
 RawContent/Font/*
+#World Partition Data
+Content/__ExternalActors__/*
+Content/__ExternalObjects__/*
+
+# JetBrain, Rider
+.idea/*
 
 ### UnrealEngine Patch ###
 # Don't ignore icon and splash images for mobile app
@@ -107,3 +113,11 @@ Plugins/**/Intermediate/*
 
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore,unrealengine
 
+#VSCode
+.vscode/*
+
+#JetBrain's Rider 
+.idea/*
+
+#ToolPDB
+Tool/*

@@ -14,9 +14,11 @@ void UAZHUDDataMgr::Init()
 {
 	widget_datas.Empty();
 
-	// �⺻ ���� ����
+	// launcher
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Scene_Launcher, false, false, TEXT("/Game/Widget/BP_Widget_Launcher.BP_Widget_Launcher_C"));
+	// default back bg
 	InitWidgetData(EUILayer::Scene, EUIName::None, false, false, TEXT(""));
-	// ��������ȭ��
+	// black bg
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_Login, false, false, TEXT(""));
 	// InOut
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_BlackInOut, true, false, TEXT(""));
@@ -54,17 +56,17 @@ bool UAZHUDDataMgr::RequestWidgetData(EUIName ui_name)
 	EAZWidgetDataRequestState current_state = GetWidgetDataRequestState(ui_name);
 	if (current_state == EAZWidgetDataRequestState::Completed)
 	{
-		//Data�� ������ ����, ������ ����.
+		//Data collect state, widget open
 		return true;
 	}
 
 	if (current_state == EAZWidgetDataRequestState::Requested)
 	{
-		// Data�� ��û ���� ����, ��ٸ�
+		// Data request state. waiting
 		return false;
 	}
 
-	// FIXME (���� ������ Ȯ���ϱ�) Data�� ��û�Ѵ�.
+	// FIXME (socket merged check) data request
 	//if (auto* socketHolder = LHGameInstance->GetSocketHolder(ESocketHolderType::Gate))
 	//{
 	//	switch (uiName)
@@ -127,8 +129,7 @@ UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget)
 	if (widget == nullptr)
 	{
 		UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(widget_full_path);
-		// FIXME Ȯ���ʿ�
-		widget_ptr = CreateWidget<UAZWidget>(load_class->GetWorld()->GetGameInstance(), load_class);
+		widget_ptr = CreateWidget<UAZWidget, UAZGameInstance*>(AZGameInstance.GetReference(), load_class);
 		widget = widget_ptr.Get();
 		bGetWidget = false;
 	}
@@ -139,7 +140,7 @@ UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget)
 
 	if (widget == nullptr)
 	{
-		//�α� �߰�
+		// FIXME need log
 	}
 	return widget;
 }

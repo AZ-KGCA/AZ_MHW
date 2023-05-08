@@ -9,7 +9,7 @@
 
 AAZGameMode_Launcher::AAZGameMode_Launcher()
 {
-	game_mode_flag = EGameModeFlag::Launcher;
+	game_mode_flag_ = EGameModeFlag::Launcher;
 
 	DefaultPawnClass = nullptr;
 

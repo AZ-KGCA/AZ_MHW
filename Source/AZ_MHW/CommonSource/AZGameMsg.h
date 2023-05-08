@@ -7,6 +7,7 @@
 enum class EGameMsgType : uint8
 {
 	None,
+	DestroyedObject
 };
 
 struct FAZGameMsg
@@ -28,5 +29,16 @@ struct FAZGameMsg
 		*this = rhs;
 	}
 	virtual ~FAZGameMsg() {}
+};
+
+struct FDestroyedObject : public FAZGameMsg
+{
+	int32 object_serial;
+	TWeakObjectPtr<AActor> object_ptr;
+	FDestroyedObject() : FAZGameMsg(EGameMsgType::DestroyedObject) {}
+	FDestroyedObject(const int32 serial) : FDestroyedObject()
+	{
+		object_serial = serial;
+	}
 };
 

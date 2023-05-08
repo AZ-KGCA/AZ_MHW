@@ -21,3 +21,12 @@
     } \
     CLEAR_WARN_COLOR();\
 }
+
+#define AZ_PRINT_LOG_IF_FALSE(exp, ...) \
+{ \
+	if(!(exp)) \
+	{ \
+	const FString logMsg = FString::Printf(TEXT("### CHECK FALSE # %s : %s() Line : %d : (%s)"), ANSI_TO_TCHAR(__FILE__) , FUNC_NAME, __LINE__, ANSI_TO_TCHAR(#exp)); \
+	UE_LOG(LogClass, Log, TEXT("%s"), *logMsg);\
+	} \
+}

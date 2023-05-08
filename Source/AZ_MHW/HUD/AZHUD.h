@@ -47,7 +47,7 @@ public:
 	{
 		bool is_get_widget = false;
 		FAZWidgetData* widget_data = GetSubWidgetData(widget_name_enum);
-		if (widget_data == nullptr;)
+		if (widget_data == nullptr)
 		{
 			return nullptr;
 		}
@@ -77,7 +77,7 @@ public:
 
 		if (GetCurSceneNameEnum() == EUIName::AZWidget_InGame)
 		{
-			//FIXME Ŭ���� ���� ����
+			//FIXME Insert clear logic
 		}
 
 		cur_scene_name_enum = widget_name_enum;
@@ -91,8 +91,8 @@ public:
 			CloseScene(prev_scene_data->widget_name_enum, false, false);
 		}
 
-		// ������ �ϴ� Scene�� ������ �����ϸ� ����
-		if (cur_scene_data->child_widget_names.Num())
+		// If a stack exists in the scene you want to open, restore it.
+		if (cur_scene_data->child_widget_names.Num() > 0)
 		{
 			if (is_need_restore == true)
 			{
@@ -173,7 +173,7 @@ public:
 				return nullptr;
 			}
 			widget->SetWidgetNameEnum(widget_name_enum);
-			if (is_get_widget == false) // �����Ǿ���.
+			if (is_get_widget == false) // created
 			{
 				widget->Init();
 			}
@@ -195,7 +195,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AAZHUD") void CloseScene(bool isBackButton = false);
 	void CloseScene(EUIName widget_name_enum, bool is_stack_delete = false, bool is_back_button = false);
-
+	void CloseAllUI();
 	void RaiseOnTopFromStack(EUIName ui_name);
 
 	void _OpenUI(class UAZWidget* widget, FAZWidgetData* widget_data, bool is_immediately = false, bool is_pre_scene = false);
@@ -211,6 +211,9 @@ public:
 
 	DECLARE_DELEGATE(FExcuteAfterOpenScene)
 	TArray<FExcuteAfterOpenScene> OnExcuteAfterOpenScene;
+
+public:
+	void OnFadeInOut(const float in_time, const float out_time);
 
 protected:
 	virtual void CheckOpenScene() {}

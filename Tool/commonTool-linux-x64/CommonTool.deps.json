@@ -1669,6 +1669,17 @@
       "any",
       "base"
     ],
+    "fedora.39-x64": [
+      "fedora.39",
+      "fedora-x64",
+      "fedora",
+      "linux-x64",
+      "linux",
+      "unix-x64",
+      "unix",
+      "any",
+      "base"
+    ],
     "gentoo-x64": [
       "gentoo",
       "linux-x64",
@@ -2906,6 +2917,19 @@
     ],
     "ubuntu.22.04-x64": [
       "ubuntu.22.04",
+      "ubuntu-x64",
+      "ubuntu",
+      "debian-x64",
+      "debian",
+      "linux-x64",
+      "linux",
+      "unix-x64",
+      "unix",
+      "any",
+      "base"
+    ],
+    "ubuntu.23.04-x64": [
+      "ubuntu.23.04",
       "ubuntu-x64",
       "ubuntu",
       "debian-x64",

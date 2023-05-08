@@ -91,4 +91,6 @@ enum class EUIName : uint16
 	AZWidget_Loading,
 	AZWidget_Waiting,
 	AZWidget_InGame,
+	AZWidget_Scene_Launcher,
+	AZWidget_Fade
 };

@@ -20,6 +20,6 @@ public:
 public:
 	void Init();
 
-	// AZHUD_Lancher���� ȣ��
+	// FIXME call in AZHUD_Lancher
 	void InitGameOption();
 };

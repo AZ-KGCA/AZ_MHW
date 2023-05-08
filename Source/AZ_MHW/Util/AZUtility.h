@@ -9,13 +9,16 @@
 #include "AZ_MHW/CommonSource/MagicEnum/magic_enum_switch.hpp"
 #include "AZUtility.generated.h"
 
-#define PRINT_FUNCTION()	UE_LOG(AZMonster, Log, TEXT("Function Called: %s"), __FUNCTIONW__)
-DECLARE_LOG_CATEGORY_EXTERN(LogShipping, Log, All);
-DECLARE_LOG_CATEGORY_EXTERN(AZMonster, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(AZ_TEST, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZ_MOVE, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZ_ATTACK, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZ_DAMAGE, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogShipping, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZMonster, Log, All)
 
-/**
- * 
- */
+#define PRINT_LOG(str)		UE_LOG(AZ_TEST, Warning, TEXT(str))
+#define PRINT_FUNCTION()	UE_LOG(AZ_TEST, Warning, TEXT("%s"), __FUNCTIONW__)
+
 UCLASS(Blueprintable, BlueprintType)
 class AZ_MHW_API UAZUtility : public UObject
 {
@@ -31,12 +34,15 @@ public:
 		return test;
 	}
 	template<typename EType>
-	static EType StringToEnum(FString enum_string)
+	static EType StringToEnum(const FString& string)
 	{
 		// Returns the enum value of the string or the first enum element if unavailable
 		static_assert(std::is_enum_v<EType>, "Non-Enum class is being used");
-		return magic_enum::enum_cast<EType>(TCHAR_TO_UTF8(*enum_string)).value_or(magic_enum::enum_value<EType>(0));
+		std::string convert_type = TCHAR_TO_ANSI(*string);
+		std::optional<EType> type = magic_enum::enum_cast<EType>(convert_type);
+		return *type;
 	}
+	
 	template<typename EType>
 	static EType StringArrToBitMaskEnum(TArray<FString> enum_string_arr)
 	{
@@ -53,6 +59,7 @@ public:
 		}
 		return enum_value;
 	}
+	
 	static float MillisecondsToSeconds(const int32 milliseconds);
 	static float PerTenThousandToPerOne(const int32 per_ten_thousand);
 };

@@ -4,7 +4,19 @@
 
 AAZCharacter::AAZCharacter()
 {
+	//PrimaryActorTick.bCanEverTick = true;
 	team_id_ = uint8(EObjectType::None);
+}
+
+void AAZCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+void AAZCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 FGenericTeamId AAZCharacter::GetGenericTeamId() const
