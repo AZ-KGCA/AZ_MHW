@@ -4,8 +4,7 @@
 
 #include <CoreMinimal.h>
 #include "AZ_MHW.h"
-#include <InputActionValue.h>
-#include "AZ_MHW/Character/Player/AZPlayer.h"
+#include "Character/Player/AZPlayer.h"
 #include "AZPlayer_Playable.generated.h"
 #pragma region Macro
 
@@ -44,30 +43,31 @@ public:
 #pragma region Inherited function
 protected:
 	/** */
-	virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	/** */
-	virtual void PossessedBy(AController* new_controller) override;
+	virtual void PossessedBy(AController* NewController) override;
 	/** */
-	virtual void Tick(float delta_seconds) override;
+	virtual void Tick(float DeltaSeconds) override;
 #pragma endregion
 public:
-	UPROPERTY() AAZPlayerController_InGame* playable_player_controller_;
-	UPROPERTY() AAZPlayerState* playable_player_state_;
-
-	//TODO: 카레마 매니저 만들기
+	UPROPERTY() AAZPlayerController_InGame* PlayablePlayerController;
+	UPROPERTY() AAZPlayerState* PlayablePlayerState;
+	
+	/** 플레이어블 카메라용도 컴포넌트
+	 * 나중에 카메라 매니저를 따로 만들어서 관리해야 시네마틱카메라할때 편함.
+	 */
 	UPROPERTY(VisibleDefaultsOnly, Category=Camera)
-	USpringArmComponent* spring_arm_comp_;//CameraControll
+	USpringArmComponent* SpringArmComp;//CameraControll
 	UPROPERTY(VisibleDefaultsOnly, Category = Camera)
-	UCameraComponent* temp_camera_comp_;//Camera
+	UCameraComponent* CameraComp;//Camera
 
 	
 	UFUNCTION() void AnimNotify_OnUseItem();
 
 public:
-	FOnUseItemDelegate on_use_item_;
-
-	void ActionLook(const FInputActionValue& value);
-	void ActionZoom(const FInputActionValue& value);
+	FOnUseItemDelegate OnUseItem;
+	
+	void ActionLook(const FInputActionValue& Value);
 
 	//환경 감지하기?
 	//피격당함
@@ -75,5 +75,6 @@ public:
 	//액션중
 	//인터렉션가능
 	//벽타기가능 등
-	//박스 이용?(밀기,들기,당기기) 어떻게 해
+	//박스 이용? 어떻게해
+	
 };

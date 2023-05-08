@@ -4,22 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
-#include "AZAnimNotify_ActionStart.generated.h"
+#include "AZAnimNotify_MeshSocket.generated.h"
 
 /**
- * 몬타주 섹션의 시작을 알림.
+ * X소켓에 있는 에셋을 Y소켓으로 옮기는 노티파이 
  */
 UCLASS()
-class AZ_MHW_API UAZAnimNotify_ActionStart : public UAnimNotify
+class AZ_MHW_API UAZAnimNotify_MeshSocket : public UAnimNotify
 {
 	GENERATED_BODY()
 public:
-	UAZAnimNotify_ActionStart();
+	UAZAnimNotify_MeshSocket();
 
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
+public:
 	UPROPERTY(EditAnywhere)
-	FName ActionName;
+	USkeletalMeshSocket* ToSocket;
 	UPROPERTY(EditAnywhere)
-	FName StateName;
+	USkeletalMeshSocket* FromSocket;
 };

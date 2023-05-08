@@ -3,7 +3,7 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "AZ_MHW.h"
+
 #include "AZPlayerAssetMgr.generated.h"
 #pragma region Macro
 
@@ -21,8 +21,7 @@
 
 #pragma endregion
 /**
- * GameInstance에 넣으면 생성시점이 Play이후이므로 실행중이지 않은 Editor에서 호출시 터진다.
- * GameSingleton을 사용해야 한다?
+ * 
  */
 UCLASS()
 class AZ_MHW_API UAZPlayerAssetMgr : public UObject
@@ -35,23 +34,28 @@ protected:
 	virtual void BeginDestroy() override;
 #pragma endregion
 public:
-	UPROPERTY() TMap<FName, UAnimSequence*> anim_sequence_map_;
-	UPROPERTY() TMap<FName, UAnimMontage*> anim_montage_map_;
-	UPROPERTY() TMap<int32, USkeletalMesh*> player_character_part_map_;//끝
-	UPROPERTY() TMap<FName, uint32> command_bit_mask_map_;
+	//Load된
+	UPROPERTY() TMap<FName,UAnimSequence*> AnimSequenceMap;
+	UPROPERTY() TMap<FName,UBlendSpace*> AnimBlendSpaceMap;
+	UPROPERTY() TMap<FName,UAnimMontage*> AnimMontageMap;
+	UPROPERTY() TMap<int32, USkeletalMesh*> PlayerCharacterPartMap;
+	UPROPERTY() TMap<FName, uint32> CommandBitMaskMap;
 	
-	UFUNCTION() UAnimSequence* GetSequence(FName name);
-	UFUNCTION() bool UnloadSequence(FName name);
 	
-	UFUNCTION() UAnimMontage* GetMontage(FName name);
-	UFUNCTION() bool UnloadMontage(FName name);
+	UFUNCTION() UAnimSequence* GetSequence(FName Name);
+	UFUNCTION() bool UnloadSequence(FName Name);
 
-	UFUNCTION() USkeletalMesh* GetSkeletalMesh(int32 item_id);
-	UFUNCTION() bool UnloadSkeletalMesh(int32 item_id);
+	UFUNCTION() UBlendSpace* GetBlendSpace(FName Name);
+	UFUNCTION() bool UnloadBlendSpace(FName Name);
 
-	UFUNCTION() void SetCommandBitMaskMap(int32 weapon_type);
-	UFUNCTION() uint32 GetCommandBitMask(FName name);
+	UFUNCTION() UAnimMontage* GetMontage(FName Name);
+	UFUNCTION() bool UnloadMontage(FName Name);
+
+	UFUNCTION() USkeletalMesh* GetSkeletalMesh(int32 ItemID);
+	UFUNCTION() bool UnloadSkeletalMesh(int32 ItemID);
+
+	UFUNCTION() void SetCommandBitMaskMap(FName WP_Name);
+	UFUNCTION() uint32 GetCommandBitMask(FName Name);
 
 	//UPROPERTY() TMap<FName, TMap<int32,FName>> MaskMap;
-
 };

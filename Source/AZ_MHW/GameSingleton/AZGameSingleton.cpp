@@ -4,11 +4,7 @@
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Manager/AZTableMgr.h"
-<<<<<<< HEAD
 #include "AZ_MHW/Manager/AZResourceMgr.h"
-=======
-#include "AZ_MHW/Manager/AZPlayerAssetMgr.h"
->>>>>>> origin/feature/Character
 
 UAZGameSingleton* UAZGameSingleton::instance_ = nullptr;
 
@@ -38,7 +34,6 @@ void UAZGameSingleton::Init()
 	table_mgr->LoadAll();
 	table_mgr->LoadComplete();
 
-<<<<<<< HEAD
 	monster_mgr = NewObject<UAZMonsterMgr>();
 	monster_mgr->Init();
 }
@@ -68,8 +63,4 @@ void UAZGameSingleton::InitResourceMgr()
 UAZResourceMgr* UAZGameSingleton::GetResourceMgr()
 {
 	return resource_mgr;
-=======
-	player_asset_mgr_ = NewObject<UAZPlayerAssetMgr>();
-	//player_asset_mgr
->>>>>>> origin/feature/Character
 }

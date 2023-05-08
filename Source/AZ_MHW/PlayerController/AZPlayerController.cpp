@@ -2,8 +2,8 @@
 
 
 #include "AZPlayerController.h"
-#include "AZ_MHW/GameInstance/AZGameInstance.h"
-#include "AZ_MHW/Manager/AZInputMgr.h"
+#include "GameInstance/AZGameInstance.h"
+#include "Manager/AZInputMgr.h"//AZGameInstance.h
 
 
 AAZPlayerController::AAZPlayerController()
@@ -15,16 +15,28 @@ void AAZPlayerController::BeginPlay()
 	Super::BeginPlay();
 	PRINT_FUNCTION();
 }
-void AAZPlayerController::OnPossess(APawn* in_pawn)
+void AAZPlayerController::OnPossess(APawn* InPawn)
 {
-	Super::OnPossess(in_pawn);
+	Super::OnPossess(InPawn);
 	
 }
 
 void AAZPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	AZGameInstance->input_mgr_->SetupDefaultBindAction(InputComponent, GetLocalPlayer());
+	AZGameInstance->input_mgr->SetupDefaultBindAction(InputComponent);
 	
+	/*
+	 *사용법
+		//기존 인풋 매핑
+		InputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AAZPlayerController::);
+		InputComponent->BindAxis("InputAxis", this, &AAZPlayerController::);
+		InputComponent->BindAction("InputAction",IE_Pressed, this, &AAZPlayerController::);
+		//인헨스드 인풋 매핑
+		if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
+		{
+			EnhancedInputComponent->BindAction(UInputAction* , ETriggerEvent::Triggered, this, &Class::Function);
+		}
+	*/
 }
 

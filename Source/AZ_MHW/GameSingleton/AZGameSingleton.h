@@ -23,7 +23,6 @@ private:
 
 public:
 	UPROPERTY() class UAZTableMgr* table_mgr;
-<<<<<<< HEAD
 	UPROPERTY() class UAZResourceMgr* resource_mgr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Classes)
@@ -33,9 +32,6 @@ public:
 
 	UPROPERTY() class UAZMonsterMgr* monster_mgr;
 	
-=======
-	UPROPERTY() class UAZPlayerAssetMgr* player_asset_mgr_;
->>>>>>> origin/feature/Character
 	static UAZGameSingleton* instance();
 	void Init();
 	void InitResourceMgr();

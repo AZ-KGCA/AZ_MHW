@@ -2,8 +2,9 @@
 
 
 #include "AZAnimInstance_Playable.h"
-#include "AZ_MHW/Character/Player/AZPlayer.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
+
+#include "Character/Player/AZPlayer.h"
+#include "PlayerState/AZPlayerState.h"
 
 UAZAnimInstance_Playable::UAZAnimInstance_Playable()
 {
@@ -16,25 +17,25 @@ void UAZAnimInstance_Playable::NativeInitializeAnimation()
 	
 }
 
-void UAZAnimInstance_Playable::NativeUpdateAnimation(float delta_seconds)
+void UAZAnimInstance_Playable::NativeUpdateAnimation(float DeltaSeconds)
 {
-	if(AAZPlayer* player = Cast<AAZPlayer>(TryGetPawnOwner()))
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	if(AAZPlayer* AZPlayer = Cast<AAZPlayer>(TryGetPawnOwner()))
 	{
-		player_cache_ = player;
+		AZPlayerCache = AZPlayer;
 		
-		if(AAZPlayerState* player_state =  Cast<AAZPlayerState>(player->GetPlayerState()))
+		if(AAZPlayerState* AZPlayerState =  Cast<AAZPlayerState>(AZPlayer->GetPlayerState()))
 		{
-			player_state_cache_ = player_state;
-
-			//AnimInstance_Player에서 초기화.
-			//current_forward_direction_ = player->GetRootComponent()->GetComponentRotation();
-
-			//Playable 초기화
-			next_forward_direction_ = player_state_cache_->action_state_.input_direction.ToOrientationRotator();
-			//Remotable은 서버에서 초기화
-			//next_forward_direction_ = GetRemotableDirection(id);
+			AZPlayerStateCache = AZPlayerState;	
 		}
+		
 	}
+	
+		
+	//OwnerPawn->GetRootComponent()->GetComponentRotation();//캐릭터 방향
+	//(컨트롤러방향) 플레이어 방향 가져오기= InputRotation() 입력 방향 가져오기
+	//OwnerPawn->GetWorldPosition();
 
 	//상태변화 체크
 	//입력변화 체크
@@ -42,31 +43,35 @@ void UAZAnimInstance_Playable::NativeUpdateAnimation(float delta_seconds)
 	//액션 선택
 	//액션 실행화
 
-	//회전보간, 전환확인
-	Super::NativeUpdateAnimation(delta_seconds);
+	//현재 액션을 실행하고 실행한다.
+	//나중 액션을 실행하고 실행한다.
+	//
 }
 
 int32 UAZAnimInstance_Playable::GetInputActionBitMask() const
 {
-	int32 result = 0;//None
+	int32 Result = 0;
+	if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	if(AZPlayerStateCache->ActionState.bMoveBack) Result|=(1<<1);
+	if(AZPlayerStateCache->ActionState.bMoveLeft) Result|=(1<<2);
+	if(AZPlayerStateCache->ActionState.bMoveRight) Result|=(1<<3);
 	
-	if(player_state_cache_->action_state_.bit_move_forward) result |=(1<<0);//W
-	if(player_state_cache_->action_state_.bit_move_left) result |=(1<<1);//A
-	if(player_state_cache_->action_state_.bit_move_back) result |=(1<<2);//S
-	if(player_state_cache_->action_state_.bit_move_right) result |=(1<<3);//D
+	if(AZPlayerStateCache->ActionState.bNormalAttack) Result|=(1<<4);
+	if(AZPlayerStateCache->ActionState.bSpecialAttack) Result|=(1<<5);
+	if(AZPlayerStateCache->ActionState.bUniqueWeaponAction) Result|=(1<<6);
+	if(AZPlayerStateCache->ActionState.bEvade) Result|=(1<<7);
 	
-	if(player_state_cache_->action_state_.bit_normal_action) result |=(1<<4);//MLB
-	if(player_state_cache_->action_state_.bit_special_action) result |=(1<<5);//MRB
-	if(player_state_cache_->action_state_.bit_evade_action) result |=(1<<6);//Space
-	if(player_state_cache_->action_state_.bit_dash_action) result |=(1<<7);//LeftShift
-	if(player_state_cache_->action_state_.bit_unique_action) result |=(1<<8);//LeftCtrl
+	if(AZPlayerStateCache->ActionState.bDashHold) Result|=(1<<8);
+	if(AZPlayerStateCache->ActionState.bUseItem) Result|=(1<<9);
 	
-	if(player_state_cache_->action_state_.bit_use_item) result |=(1<<9);//E
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//V
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//F
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//R
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//C
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//M
-	
-	return result;
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	// if(AZPlayerStateCache->ActionState.bMoveForward) Result|=(1<<0);
+	return Result;
 }

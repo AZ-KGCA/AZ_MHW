@@ -19,13 +19,8 @@
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
 #include "AZ_MHW/Manager/AZInputMgr.h"
-<<<<<<< HEAD
 #include "..\Manager\AZPlayerAssetMgr.h"
 //FIXME merged need del
-=======
-
-//FIXME 병합시 삭제
->>>>>>> origin/feature/Character
 #include <GameFramework/Character.h>
 
 //MinSuhong Add
@@ -70,15 +65,11 @@ void UAZGameInstance::Init()
 	login_mgr = NewObject<UAZLoginMgr>();
 	login_mgr->Init();
 
-<<<<<<< HEAD
 	inventory_mgr = NewObject<UAZInventoryManager>();
 	inventory_mgr->Init();
 	
 	input_mgr = NewObject<UAZInputMgr>();
 	playerAsset_mgr = NewObject<UAZPlayerAssetMgr>();
-=======
-	input_mgr_ = NewObject<UAZInputMgr>();
->>>>>>> origin/feature/Character
 
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));
 	msg_handler->OnRegister(map_mgr);
@@ -142,7 +133,8 @@ void UAZGameInstance::Shutdown()
 	game_config = nullptr;
 	map_mgr = nullptr;
 	hud_data_mgr = nullptr;
-	input_mgr_ = nullptr;
+	input_mgr = nullptr;
+	playerAsset_mgr = nullptr;
 }
 
 void UAZGameInstance::RestMgr()

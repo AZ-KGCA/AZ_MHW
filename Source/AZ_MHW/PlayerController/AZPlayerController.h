@@ -42,7 +42,7 @@ protected:
 	/** */
 	virtual void BeginPlay() override;
 	/** */
-	virtual void OnPossess(APawn* in_pawn) override;
+	virtual void OnPossess(APawn* InPawn) override;
 	/** */
 	virtual void SetupInputComponent() override;
 #pragma endregion

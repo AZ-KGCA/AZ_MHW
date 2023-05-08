@@ -36,7 +36,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void SetupPlayerInputComponent(UInputComponent* player_input_component) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 #pragma endregion
 public:
 	//Client + Server
