@@ -154,7 +154,9 @@ void AAZMonster::BeginPlay()
 
 void AAZMonster::EnterCombat()
 {
-	SetMoveState(EMoveState::StopMove);	
+	SetMoveState(EMoveState::StopMove);
+	anim_instance_->is_doing_action_ = false;
+	
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
 	else
@@ -288,10 +290,17 @@ bool AAZMonster::IsMoving() const
 
 void AAZMonster::AnimNotify_EndOfAction()
 {
+	// if the action was a transition action, finish transition
+	if (action_state_info_.action_mode == EMonsterActionMode::Transition)
+	{
+		SetActionMode(EMonsterActionMode::Combat);
+	}
+	// restore movement mode
 	if (!is_flying_)
 	{
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
+	// return to normal action state
 	anim_instance_->is_doing_action_ = false;
 	SetMoveState(EMoveState::None);
 }
