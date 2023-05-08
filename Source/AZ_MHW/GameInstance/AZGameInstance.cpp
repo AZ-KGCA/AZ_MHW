@@ -347,7 +347,7 @@ void UAZGameInstance::FSocketConncet()
 	fsocket_version = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(TEXT("Stream"), TEXT("ClientSocket"));
 
 	// IP를 FString으로 입력받아 저장
-	FString address = TEXT("127.0.0.1");
+	FString address = TEXT("192.168.0.157");
 	FIPv4Address ip;
 	FIPv4Address::Parse(address, ip);
 
@@ -374,7 +374,7 @@ void UAZGameInstance::WinSocketConnect()
 	SOCKADDR_IN sa; // 목적지 + 포트
 
 	sa.sin_family = AF_INET;
-	sa.sin_addr.s_addr = inet_addr("127.0.0.1");
+	sa.sin_addr.s_addr = inet_addr("192.168.0.157");
 	sa.sin_port = htons(10000);
 
 	connect(win_socket, (sockaddr*)&sa, sizeof(sa));
