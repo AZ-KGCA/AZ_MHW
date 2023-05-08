@@ -73,7 +73,7 @@ public:
 
 	void SetPacketData(const UINT32 data_size, char* P_data)
 	{
-		// ¸µ¹öÆÛ
+		// ë§ë²„í¼
 		if ((packet_data_buffer_w_pos_ + data_size) >= PACKET_DATA_BUFFER_SIZE)
 		{
 			auto re_main_data_size = packet_data_buffer_w_pos_ - packet_data_buffer_r_pos_;

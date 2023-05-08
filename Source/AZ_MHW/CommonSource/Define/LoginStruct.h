@@ -5,6 +5,6 @@
 UENUM(BlueprintType)
 enum class EForceKick : uint8
 {
-	NormalLogout, // Á¤»ó ·Î±×¾Æ¿ô
+	NormalLogout, // ì •ìƒ ë¡œê·¸ì•„ì›ƒ
 	Max
 };

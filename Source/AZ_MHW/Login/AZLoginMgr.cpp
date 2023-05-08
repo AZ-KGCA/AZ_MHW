@@ -82,10 +82,10 @@ void UAZLoginMgr::OnForceKicked(EForceKick forcekick)
 	{
 		switch (reason)
 		{
-		case EForceKick::NormalLogout: return "¼­¹ö°¡ Á¾·áµÇ¾ú½À´Ï´Ù.";
+		case EForceKick::NormalLogout: return "ì„œë²„ê°€ ì¢…ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.";
 		}
-		return "¼­¹ö¿ÍÀÇ ¿¬°áÀÌ ²÷¾îÁ³½À´Ï´Ù.";
+		return "ì„œë²„ì™€ì˜ ì—°ê²°ì´ ëŠì–´ì¡ŒìŠµë‹ˆë‹¤.";
 	}(forcekick);
-	// FIXME º´ÇÕ½Ã È®ÀÎÇÏ±â
+	// FIXME ë³‘í•©ì‹œ í™•ì¸í•˜ê¸°
 	//AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::OvertopBasic, kick_str, EUIMsgBoxBtnType::Confirm, this, "OnServerDisconnected");
 }

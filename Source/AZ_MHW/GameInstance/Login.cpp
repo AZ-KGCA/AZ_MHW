@@ -37,7 +37,7 @@ FString ULogin::SetLoginInfo(FString id, FString pw)
 
 	teemo_game_instance->PacketToServer((char*)&login_send_packet, login_send_packet.packet_length);
 
-	// TODO SendPakcet Á¤»ó ·Î±×ÀÎ ¼º°ø½Ã OpenLevel
+	// TODO SendPakcet ì •ìƒ ë¡œê·¸ì¸ ì„±ê³µì‹œ OpenLevel
 	//if (teemo_game_instance->LoginRecord(login_id, login_pw))
 	//{
 	//	UWidgetLayoutLibrary::RemoveAllWidgets(this);

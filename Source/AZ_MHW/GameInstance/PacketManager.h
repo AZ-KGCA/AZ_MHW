@@ -81,10 +81,10 @@ private:
 
 	std::mutex lock_;
 
-	// ½ÇÁ¦ µ¥ÀÌÅÍ°¡ ¿ÔÀ»¶§ »ç¿ë ÇÏ´Â Å¥
+	// ì‹¤ì œ ë°ì´í„°ê°€ ì™”ì„ë•Œ ì‚¬ìš© í•˜ëŠ” í
 	std::deque<UINT32> in_coming_packet_user_index_;
 
-	// ³×Æ®¿öÅ© ¿¬°á & ²÷¾îÁüÀ» Ã³¸®ÇÏ´Â Å¥
+	// ë„¤íŠ¸ì›Œí¬ ì—°ê²° & ëŠì–´ì§ì„ ì²˜ë¦¬í•˜ëŠ” í
 	std::deque<PacketInfo> system_packet_queue_;
 };
 

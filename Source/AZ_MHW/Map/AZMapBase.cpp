@@ -42,7 +42,7 @@ bool UAZMapBase::OnRequestMapOut()
 
 const FSpawnObjectInfo* UAZMapBase::FindObjectByNPC(ENpcFuncType npc_type)
 {
-	// FIXME ³ªÁß¿¡ Ãß°¡ÇÏ±â
+	// FIXME ë‚˜ì¤‘ì— ì¶”ê°€í•˜ê¸°
 	/*const TArray<const FSpawnObjectInfo*> objects = FindObjects([npc_type](const FSpawnObjectInfo* item)
 		{
 			if (const UNpcData* npc_data = GetTable(NpcData, item->object_index))

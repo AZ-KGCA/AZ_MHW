@@ -91,7 +91,7 @@ protected:
 	virtual void OnGamePaused();
 	virtual void OnGamePauseReleased();
 	
-	//ºñµ¿±â ·Îµå
+	//ë¹„ë™ê¸° ë¡œë“œ
 public:
 	TArray<ULevelStreaming*> GetAsyncLoadableStreamingLevel();
 	TArray<ULevelStreaming*> GetAsyncLoadableStreamingTile();

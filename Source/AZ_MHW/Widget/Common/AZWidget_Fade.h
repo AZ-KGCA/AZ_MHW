@@ -17,8 +17,8 @@ class AZ_MHW_API UAZWidget_Fade : public UAZWidget
 	
 public:
 	virtual void Init() override;
-	virtual void ForceHide() override {} // ¹Ì»ç¿ë
-	virtual void RestoreFromForceHidden() override {} // ¹Ì»ç¿ë
+	virtual void ForceHide() override {} // ë¯¸ì‚¬ìš©
+	virtual void RestoreFromForceHidden() override {} // ë¯¸ì‚¬ìš©
 	virtual void NativeTick(const FGeometry& my_geometry, float in_delta_time) override;
 
 protected:

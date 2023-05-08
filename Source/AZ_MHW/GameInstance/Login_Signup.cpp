@@ -13,14 +13,14 @@ bool ULogin_Signup::Login_Signup(FString id, FString pw, FString pw2)
 	signup_check_pw = pw2;
 	teemo_game_instance = Cast<UAZGameInstance>(GetGameInstance());
 
-	// TODO : ¾ÆÀÌµð Áßº¹Ã¼Å© ±â´É Ãß°¡ (true ´ë½Å db¿¡¼­ id ÀÖ´ÂÁö È®ÀÎ)
+	// TODO : ì•„ì´ë”” ì¤‘ë³µì²´í¬ ê¸°ëŠ¥ ì¶”ê°€ (true ëŒ€ì‹  dbì—ì„œ id ìžˆëŠ”ì§€ í™•ì¸)
 	if (true)
 	{
-		// ÆÐ½º¿öµå µ¿ÀÏÇÑÁö Ã¼Å©
+		// íŒ¨ìŠ¤ì›Œë“œ ë™ì¼í•œì§€ ì²´í¬
 		if (signup_pw.Equals(signup_check_pw, ESearchCase::CaseSensitive))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Password Success"));
-			// TODO1 DBÁ¶È¸ ´ë½Å id,pw Send·Î º¯°æ 
+			// TODO1 DBì¡°íšŒ ëŒ€ì‹  id,pw Sendë¡œ ë³€ê²½ 
 			//teemo_game_instance->SignupRecord(signup_id, signup_pw);
 			Signup_Packet_Send(signup_id, signup_pw, CLIENT_PACKET_ID::SIGNIN_REQUEST);
 

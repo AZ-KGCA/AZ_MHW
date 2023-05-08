@@ -15,7 +15,7 @@ TArray<FSpawnObjectInfo> UAZMapStatics::GetCurMapSpawnObjectInfo()
 
 TArray<FSpawnObjectInfo> UAZMapStatics::GetMapSpawnObjectInfo(int32 map_index)
 {
-	// ±âº» ½ºÆù ¿ÀºêÁ§Æ® ÀúÀå
+	// ê¸°ë³¸ ìŠ¤í° ì˜¤ë¸Œì íŠ¸ ì €ì¥
 	auto spawn_info_array = GetTable(USpawnData);
 	auto area_object_list = spawn_info_array.FilterByPredicate([map_index](const USpawnData* data)
 		{
@@ -29,7 +29,7 @@ TArray<FSpawnObjectInfo> UAZMapStatics::GetMapSpawnObjectInfo(int32 map_index)
 		for (int32 i = 0; i < max_count; ++i)
 		{
 			int32 object_index = spawn_data->obj_index[i];
-			//FIXME ½ºÆù ÀÛ¾÷½Ã Ãß°¡ÇÏ±â
+			//FIXME ìŠ¤í° ì‘ì—…ì‹œ ì¶”ê°€í•˜ê¸°
 		}
 	}
 

@@ -17,21 +17,21 @@ public:
 
 	virtual void OnConnect(const UINT32 client_index) override
 	{
-		//printf("[OnConnect] Å¬¶óÀÌ¾ğÆ®: Index(%d)\n", client_index);
+		//printf("[OnConnect] í´ë¼ì´ì–¸íŠ¸: Index(%d)\n", client_index);
 		UE_LOG(LogTemp, Warning, TEXT("[OnConnect] Client : Index(%d)\n"), client_index);
-		// PacketInfo Á¤º¸
+		// PacketInfo ì •ë³´
 		// UINT32 client_index_ = 0;
 		// UINT16 packet_id_ = 0;
 		// UINT16 data_size_ = 0;
 		PacketInfo packet{ client_index, (UINT16)PACKET_ID::PACKET_CHATNAME_REQ, 0 };
 
-		// SYS_USER_CONNECT ÆĞÅ¶À» Àü´Ş
+		// SYS_USER_CONNECT íŒ¨í‚·ì„ ì „ë‹¬
 		P_packet_manager_->PushSystemPacket(packet);
 	}
 
 	virtual void OnClose(const UINT32 client_index_) override
 	{
-		//printf("[OnClose] Å¬¶óÀÌ¾ğÆ®: Index(%d)\n", client_index_);
+		//printf("[OnClose] í´ë¼ì´ì–¸íŠ¸: Index(%d)\n", client_index_);
 		UE_LOG(LogTemp, Warning, TEXT("[OnClose] Client : Index(%d)\n"), client_index_);
 
 		PacketInfo packet{ client_index_, (UINT16)PACKET_ID::SYS_USER_DISCONNECT, 0 };
@@ -40,21 +40,21 @@ public:
 
 	virtual void OnReceive(const UINT32 client_index, const UINT32 size, char* P_recv_data) override
 	{
-		//printf("[OnReceive] Å¬¶óÀÌ¾ğÆ®: Index(%d), dataSize(%d), recvData : %s\n", client_index, size, P_recv_data);
+		//printf("[OnReceive] í´ë¼ì´ì–¸íŠ¸: Index(%d), dataSize(%d), recvData : %s\n", client_index, size, P_recv_data);
 
 		UE_LOG(LogTemp, Warning, TEXT("[OnReceive] Client : Index(%d), dataSize(%d), recvData : %s\n"), client_index, size, P_recv_data);
 
 		P_packet_manager_->ReceivePacketData(client_index, size, P_recv_data);
 
-		//Receive È£Ãâ Send È£ÃâÇØ¼­ ¿¡ÄÚ ¼­¹ö ÇüÅÂ·Î ¸¸µë
+		//Receive í˜¸ì¶œ Send í˜¸ì¶œí•´ì„œ ì—ì½” ì„œë²„ í˜•íƒœë¡œ ë§Œë“¬
 		//P_packet_manager_->SendPacketFunc(client_index, size, P_recv_data);
-		// ¿¡ÄÚ È£Ãâ
+		// ì—ì½” í˜¸ì¶œ
 		//SendMsg(client_index, size, P_recv_data);
 	}
 
 	void Run(const UINT32 max_client)
 	{
-		// ¶÷´Ù·Î funtion °´Ã¼¿¡ SendMsg ´ãÀ½
+		// ëŒë‹¤ë¡œ funtion ê°ì²´ì— SendMsg ë‹´ìŒ
 		auto send_packet_func = [&](UINT32 client_index, UINT16 packet_size, char* P_send_packet)
 		{
 			SendMsg(client_index, packet_size, P_send_packet);
@@ -67,18 +67,18 @@ public:
 
 
 
-		// ÆĞÅ¶ ¸Å´ÏÀú »ı¼º
+		// íŒ¨í‚· ë§¤ë‹ˆì € ìƒì„±
 		P_packet_manager_ = std::make_unique<PacketManager>();
 		P_packet_manager_->SendPacketFunc = send_packet_func;
 		P_packet_manager_->BroadCastSendPacketFunc = boradcast_send_packet_func;
 
-		// Å¬¶óÀÌ¾ğÆ® ¼ö ¸¸Å­ user »ı¼º index, packet_data_buffer ÃÊ±âÈ­
+		// í´ë¼ì´ì–¸íŠ¸ ìˆ˜ ë§Œí¼ user ìƒì„± index, packet_data_buffer ì´ˆê¸°í™”
 		P_packet_manager_->Init(max_client);
 
-		// ÆĞÅ¶¾²·¹µå »ı¼º
+		// íŒ¨í‚·ì“°ë ˆë“œ ìƒì„±
 		P_packet_manager_->Run();
 
-		// DB Á¢¼Ó
+		// DB ì ‘ì†
 		P_packet_manager_->DbRun();
 
 		StartServer(max_client);

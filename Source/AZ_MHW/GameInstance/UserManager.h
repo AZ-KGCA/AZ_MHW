@@ -11,12 +11,12 @@ public:
 	void Init(const INT32 max_user_count)
 	{
 		max_user_cnt_ = max_user_count;
-		// À¯Àú ¹Ì¸® »ı¼ºÇØ¼­ Âß ´ã±â
+		// ìœ ì € ë¯¸ë¦¬ ìƒì„±í•´ì„œ ì­‰ ë‹´ê¸°
 		user_obj_pool_ = std::vector<User*>(max_user_cnt_);
 
 		for (auto i = 0; i < max_user_cnt_; i++)
 		{
-			// user index ¹× packet data buffer »ı¼º
+			// user index ë° packet data buffer ìƒì„±
 			user_obj_pool_[i] = new User();
 			user_obj_pool_[i]->Init(i);
 		}
@@ -36,7 +36,7 @@ public:
 		}
 	}
 
-	// »õ·Î¿î ¿¬°áÀÌ µÇ¸é ClinetInfo ¼¼ÆÃ index¿Í 1:1 ¸ÅÄª
+	// ìƒˆë¡œìš´ ì—°ê²°ì´ ë˜ë©´ ClinetInfo ì„¸íŒ… indexì™€ 1:1 ë§¤ì¹­
 	ERROR_CODE Adduser(char* user_id, int client_index)
 	{
 		auto user_idx = client_index;
@@ -72,7 +72,7 @@ private:
 	INT32 max_user_cnt_ = 0;
 	INT32 current_user_cnt_ = 0;
 
-	std::vector<User*> user_obj_pool_; //vector·Î
+	std::vector<User*> user_obj_pool_; //vectorë¡œ
 	std::unordered_map<std::string, int> user_id_dictionary_;
 };
 

@@ -61,7 +61,7 @@ UAZMapMgr::UAZMapMgr()
 
 UAZMapMgr::~UAZMapMgr()
 {
-	// FIXME ¾Æ·¹¾Æ ¸Ê ÃÊ±âÈ­
+	// FIXME ì•„ë ˆì•„ ë§µ ì´ˆê¸°í™”
 }
 
 void UAZMapMgr::Init()
@@ -118,7 +118,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 	}
 
 
-	// ÀÌÀü ¸Ê¿¡¼­ ³ª°¨
+	// ì´ì „ ë§µì—ì„œ ë‚˜ê°
 	OnMapExit();
 
 	enter_pos_ = enter_pos;
@@ -142,7 +142,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 
 	const UMapData* map_data = GetMapData();
 
-	// FIXME ½ºÆ÷³Ê ¼³Ä¡ÇÏ±â(³ªÁß¿¡ ³Ö±â)
+	// FIXME ìŠ¤í¬ë„ˆ ì„¤ì¹˜í•˜ê¸°(ë‚˜ì¤‘ì— ë„£ê¸°)
 	//{
 
 	//}
@@ -153,7 +153,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 		is_open_map = false;
 	}
 
-	// ¸ÊÀ» ·ÎµùÇÏ°í Player¸¦ À§Ä¡½ÃÅ´
+	// ë§µì„ ë¡œë”©í•˜ê³  Playerë¥¼ ìœ„ì¹˜ì‹œí‚´
 	if (map_data != nullptr)
 	{
 		if (is_open_map == true)
@@ -208,10 +208,10 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 			}
 		}*/
 
-		if (is_open_map == false) // µé¾î¿ÀÁö´Â ¾ÊÀ»°Å °°À½
+		if (is_open_map == false) // ë“¤ì–´ì˜¤ì§€ëŠ” ì•Šì„ê±° ê°™ìŒ
 		{
 			bool immediately_same_map_enter_proc = true;
-			// ¿ø·¡ ·Îºñ¸ÊÀ¸·Î µ¹¾Æ¿È
+			// ì›ë˜ ë¡œë¹„ë§µìœ¼ë¡œ ëŒì•„ì˜´
 			EMapType map_type = UAZUtility::StringToEnum<EMapType>(map_data->map_type);
 			if (EMapType::Lobby == static_cast<EMapType>(map_type))
 			{
@@ -227,7 +227,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 				//		bImmediatelySameMapEnterProc = false;
 				//		gm->GetStateMachine()->ChangeState(EGameState::BeginChapter);
 
-				//		auto func = [this, enterPos, enterAngle]()->void			// Áö±İ ¸»°í ³ªÁß¿¡ ¿¬Ãâ ³¡³ª¸é À§Ä¡ ÀÌµ¿ 
+				//		auto func = [this, enterPos, enterAngle]()->void			// ì§€ê¸ˆ ë§ê³  ë‚˜ì¤‘ì— ì—°ì¶œ ëë‚˜ë©´ ìœ„ì¹˜ ì´ë™ 
 				//		{
 				//			this->SameMapEnterProc(enterPos, enterAngle);
 				//		};
@@ -279,19 +279,19 @@ void UAZMapMgr::SameMapEnterPorc(FVector enter_pos, float enter_angle)
 {
 	same_map_enter_ready_ = true;
 
-	// FIXME º´ÇÕ½Ã Ç®±â
+	// FIXME ë³‘í•©ì‹œ í’€ê¸°
 	/*AAZPlayer_Playable* player = AZGameInstance->GetPlayer();
 	if (player != nullptr)
 	{
-		// ¹°¸®ÀûÀ¸·Î °°Àº ¸ÊÀÌ¶ó¸é À§Ä¡ ÀÌµ¿
+		// ë¬¼ë¦¬ì ìœ¼ë¡œ ê°™ì€ ë§µì´ë¼ë©´ ìœ„ì¹˜ ì´ë™
 		player->OnWarp(enter_pos, enter_angle);
 
-		// FIXME ÀÌµ¿ ½Ã Å» °Í ³»¸®±â (¼­¹ö¿¡¼­´Â ³»¸®´Â °ÍÀ¸·Î Ã³¸®)
+		// FIXME ì´ë™ ì‹œ íƒˆ ê²ƒ ë‚´ë¦¬ê¸° (ì„œë²„ì—ì„œëŠ” ë‚´ë¦¬ëŠ” ê²ƒìœ¼ë¡œ ì²˜ë¦¬)
 	}*/
 
-	// FIXME ¸ŞÀÎ¸Ş´º µõµå °»½Å
+	// FIXME ë©”ì¸ë©”ë‰´ ë”¤ë“œ ê°±ì‹ 
 	
-	// FIXME Äù½ºÆ® ui ¾ø¾Ö±â
+	// FIXME í€˜ìŠ¤íŠ¸ ui ì—†ì• ê¸°
 
 	CloseLoadingScene();
 	SendMapEnter();
@@ -306,7 +306,7 @@ void UAZMapMgr::PostLoadMapFunction(UWorld* world)
 	current_streaming_state_ = world->WorldComposition ? Waiting : None;
 
 	TArray<AActor*> actors;
-	// FIXME º´ÇÕ½Ã Ç®±â
+	// FIXME ë³‘í•©ì‹œ í’€ê¸°
 	/*UGameplayStatics::GetAllActorsOfClass(world, AAZPlayer_Playable::StaticClass(), actors);
 	if (actors.Num() > 0)
 	{
@@ -322,7 +322,7 @@ void UAZMapMgr::PostLoadMapFunction(UWorld* world)
 
 	if (world->WorldComposition)
 	{
-		//FIXME ÇÃ·¯±×ÀÎ¿¡¼­ ÀçÁ¤ÀÇ ÇÑ°ÍÀ¸·Î º¸ÀÓ
+		//FIXME í”ŒëŸ¬ê·¸ì¸ì—ì„œ ì¬ì •ì˜ í•œê²ƒìœ¼ë¡œ ë³´ì„
 		/*if (world->bDisableUpdateStreamingState == false)
 		{
 			world->bDisableUpdateStreamingState = true;
@@ -368,13 +368,13 @@ void UAZMapMgr::OnMapEnter_Ack()
 	if (same_map_enter_ready_ && AZGameInstance->GetPlayer())
 	{
 		same_map_enter_ready_ = false;
-		// FIXME º´ÇÕ½Ã È®ÀÎÇÏ±â
+		// FIXME ë³‘í•©ì‹œ í™•ì¸í•˜ê¸°
 		//AZGameInstance->GetPlayer()->ReleaseMapMove();
 	}
 
 	if (UAZWidget_InGame* ui = AZGameInstance->GetHUD()->GetUI<UAZWidget_InGame>(EUIName::AZWidget_InGame))
 	{
-		// FIXME Äù½ºÆ® Ãß°¡½Ã UIº¯°æÇÏ±â
+		// FIXME í€˜ìŠ¤íŠ¸ ì¶”ê°€ì‹œ UIë³€ê²½í•˜ê¸°
 		/*if (AZGameInstance->QuestMgr->GetStartQuestInformIndex() > 0 && GetCurrentMapType() != EMapType::RealmWar)
 		{
 			ui->SetLeftTabVisible(false);
@@ -389,11 +389,11 @@ void UAZMapMgr::OnMapEnter_Ack()
 	// 
 	/*if (IsAutoMovePortalReserved())
 	{
-		// FIXME ¼ø°£ÀÌµ¿ Á¾·ù
+		// FIXME ìˆœê°„ì´ë™ ì¢…ë¥˜
 
 		ResetAutoMovePortalInfo();
 	}
-	// FIXME ÀÚµ¿ÀÌµ¿Àº ³ªÁß¿¡(Ç®¹ú·¹¿¡ ¾²¸é ÁÁÀ»µí
+	// FIXME ìë™ì´ë™ì€ ë‚˜ì¤‘ì—(í’€ë²Œë ˆì— ì“°ë©´ ì¢‹ì„ë“¯
 	else if (save_auto_move_data.MapIdx != -1)
 	{
 		SetAutoMove(saved_auto_move_data.map_index, saved_auto_move_data.auto_move_type, saved_auto_move_data.target_location);
@@ -409,15 +409,15 @@ void UAZMapMgr::OnMapExit()
 		game_mode->OnMapExit();
 	}
 
-	// FIXME Area Á¤º¸ ÃÊ±âÈ­
+	// FIXME Area ì •ë³´ ì´ˆê¸°í™”
 	//MapArea.Empty();
 
-	// FIXME Æ÷Å»Á¤º¸ ÃÊ±âÈ­
+	// FIXME í¬íƒˆì •ë³´ ì´ˆê¸°í™”
 	//PortalMoveTriggerList.Empty();
 
 	is_map_entered_ = false;
 
-	// FIXME Character¿¡°Ô ¸ÊÀ» ³ª°¬´Ù ¾Ë¸²
+	// FIXME Characterì—ê²Œ ë§µì„ ë‚˜ê°”ë‹¤ ì•Œë¦¼
 	// AZGameInstance->Characdter_Mgr->OnMapExit();
 }
 
@@ -435,11 +435,11 @@ void UAZMapMgr::SendMapEnter()
 {
 	if (IsMapEnterRequestReserved())
 	{
-		// FIXME ¸Ê ³ª°¨ ¸Ş½ÃÁö
+		// FIXME ë§µ ë‚˜ê° ë©”ì‹œì§€
 		//FCG_MAP_ENTER_REQUEST_CMD msg;
 		//msg.map_index = reserved_map_enter_request_.map_index;
 		ResetMapEnterRequest();
-		// FIXME ¼­¹öµé¾î °¥½Ã È®ÀÎÇÏ±â
+		// FIXME ì„œë²„ë“¤ì–´ ê°ˆì‹œ í™•ì¸í•˜ê¸°
 		//OnRecvMapEnterRequest(msg, true);
 		return;
 	}
@@ -449,7 +449,7 @@ void UAZMapMgr::SendMapEnter()
 		return;
 	}
 
-	// FIXME ÇÕº´½Ã È®ÀÎÇÏ±â
+	// FIXME í•©ë³‘ì‹œ í™•ì¸í•˜ê¸°
 	/*UAZSocketHolder* game_socket_holder = AZGameInstance->GetSocketHolder(ESocketHolderType::Gate);
 	if (game_socket_holder != nullptr)
 	{
@@ -458,7 +458,7 @@ void UAZMapMgr::SendMapEnter()
 		game_socket_holder->SendPacket(&msg_syn);
 	}*/
 
-	// FIXME ÇÕº´½Ã È®ÀÎÇÏ±â
+	// FIXME í•©ë³‘ì‹œ í™•ì¸í•˜ê¸°
 	/*
 	if (AZGameInstance && AZGameInstance->GetPlayer())
 	{
@@ -473,7 +473,7 @@ void UAZMapMgr::StartPlayManuallyProc()
 {
 	if (AZGameInstance->GetGameMode()->CollectAsyncLoadPackage() <= 0)
 	{
-		// FIXME ¼Ö·Î ´øÀü¿¡¼­ È®ÀÎÇÏ±â
+		// FIXME ì†”ë¡œ ë˜ì „ì—ì„œ í™•ì¸í•˜ê¸°
 		/*if (GetCurrentMapType() == EMapType::AloneQUestDungeon)
 		{
 			PreLoadResources_Sync();
@@ -511,7 +511,7 @@ void UAZMapMgr::MapDestroy()
 
 void UAZMapMgr::MapExit_Syn()
 {
-	// FIXME º´ÇÕ ½Ã È®ÀÎÇÏ±â
+	// FIXME ë³‘í•© ì‹œ í™•ì¸í•˜ê¸°
 	/*if (UAZSocketHolder* game_socket_holder = AZGameInstance->GetSocketHolder(ESocketHolderType::Game))
 	{
 		FCG_MAP_EXIT_SYN msg_syn;
@@ -584,7 +584,7 @@ void UAZMapMgr::ProcessDisappearObject(int32 object_serial)
 		msg.object_ptr = object;
 		AZGameInstance->OnGameMsg(&msg);
 
-		// FIXME º´ÇÕ½Ã Ãß°¡ÇÏ±â
+		// FIXME ë³‘í•©ì‹œ ì¶”ê°€í•˜ê¸°
 		/*if (AAZPlayer_Playable* player = AZGameInstance->GetPlayer())
 		{
 			player->TargetFinder->OnTargetDisappeared(object_serial);
@@ -630,7 +630,7 @@ UAZMapBase* UAZMapMgr::CreateMap(int32 map_index)
 
 void UAZMapMgr::OnRecvMapEnterRequest(const FCG_MAP_ENTER_REQUEST_CMD& recv_msg, bool reserved)
 {
-	// FIXME º´ÇÕ½Ã Ç®±â
+	// FIXME ë³‘í•©ì‹œ í’€ê¸°
 	/*if (reserved == false && IsOnLoading() && GetCurrentMapType() != EMapType::Prologue && AZGameInstance->map_channel_info.map_index != recv_msg.map_index)
 	{
 		ReserveMapEnterRequest(recv_msg);
@@ -639,10 +639,10 @@ void UAZMapMgr::OnRecvMapEnterRequest(const FCG_MAP_ENTER_REQUEST_CMD& recv_msg,
 
 	if (AZGameInstance->map_channel_info.map_index == recv_msg.map_index)
 	{
-		// °°Àº ³ÀÀÇ Ã¤³Î ÀÌµ¿
+		// ê°™ì€ ëƒ…ì˜ ì±„ë„ ì´ë™
 		MapChannelMove(recv_msg.map_index, recv_msg.channel_index);
 
-		// À§Ä¡ ÀÌµ¿
+		// ìœ„ì¹˜ ì´ë™
 		if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(AZGameInstance->GetGameMode()))
 		{
 			if (AAZPlayer_Playable* player = game_mode->GetPlayablePlayer())
@@ -739,7 +739,7 @@ void UAZMapMgr::UpdateStreaming()
 		return;
 	}
 
-	// FIXME È®ÀÎ ÇÊ¿ä
+	// FIXME í™•ì¸ í•„ìš”
 	/*if (AZGameInstance->GetWorld()->bDisableUpdateStreamingState == false)
 	{
 		AZGameInstance->GetWorld()->bDisableUpdateStreamingState = true;
@@ -889,7 +889,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 
 			if (current_streaming_state_ == PrepareCinematic)
 			{
-				// FIXME È®ÀÎÇÊ¿ä
+				// FIXME í™•ì¸í•„ìš”
 			}
 			else
 			{
@@ -915,7 +915,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 
 			if (streaming_level->IsStreamingStatePending())
 			{
-				// ÇÏ³ª¶óµµ Ææµù °É·ÁÀÖÀ¸¸é ±â´Ù¸²
+				// í•˜ë‚˜ë¼ë„ íœë”© ê±¸ë ¤ìˆìœ¼ë©´ ê¸°ë‹¤ë¦¼
 				end_waiting = false;
 				break;
 			}
@@ -930,7 +930,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 		{
 			if (end_waiting)
 			{
-				//FIXME º´ÇÕ½Ã È®ÀÎ
+				//FIXME ë³‘í•©ì‹œ í™•ì¸
 				if (/*HasFloor(AZGameInstance->GetPlayer())*/true)
 				{
 					if (AZGameInstance->GetGameMode()->HasActorBegunPlay())
@@ -986,7 +986,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 			{
 				current_streaming_state_ = Normal;
 				UpdateWorldCompositionStreamingState(true);
-				// ¿Ïº®ÇÑ ¿Ï·á
+				// ì™„ë²½í•œ ì™„ë£Œ
 			}
 		}
 		else if (current_streaming_state_ == PrepareCinematic)
@@ -1050,7 +1050,7 @@ void UAZMapMgr::UpdateLoadingLightHiddenCheck()
 			TArray<UActorComponent*> components;
 
 			actors[i]->GetComponents(ULightComponent::StaticClass(), components, true);
-			// ºû ÄÄÆ÷³ÍÆ® ·Îµù ³Ñ¾î°¡±â
+			// ë¹› ì»´í¬ë„ŒíŠ¸ ë¡œë”© ë„˜ì–´ê°€ê¸°
 			for (int j = 0; j < components.Num(); ++j)
 			{
 				if (auto light = Cast<ULightComponent>(components[j]))
@@ -1077,7 +1077,7 @@ void UAZMapMgr::UpdateLoadingLightHiddenCheck()
 	}
 }
 
-void UAZMapMgr::RenewLevelStreamingState(bool force_flush, /*FIXME º´ÇÕ½Ã È®ÀÎ*/ACharacter* player, bool close_loading_scene_on_finish)
+void UAZMapMgr::RenewLevelStreamingState(bool force_flush, /*FIXME ë³‘í•©ì‹œ í™•ì¸*/ACharacter* player, bool close_loading_scene_on_finish)
 {
 	UWorld* world = AZGameInstance->GetWorld();
 
@@ -1122,7 +1122,7 @@ void UAZMapMgr::OnFinishStreamingLevelShown()
 		return;
 	}
 
-	// FIXME º´ÇÕ½Ã È®ÀÎ
+	// FIXME ë³‘í•©ì‹œ í™•ì¸
 	if (renew_streaming_recursive_count_ < 10 /*&& HasFloor(AZGameInstance->GetPlayer()) == false*/)
 	{
 		++renew_streaming_recursive_count_;
@@ -1140,12 +1140,12 @@ void UAZMapMgr::OnFinishStreamingLevelShown()
 	}
 
 	TArray<AActor*> characters;
-	// FIXME º´ÇÕ½Ã Ä³¸¯ÅÍ·Î º¯°æÇÏ±â
+	// FIXME ë³‘í•©ì‹œ ìºë¦­í„°ë¡œ ë³€ê²½í•˜ê¸°
 	UGameplayStatics::GetAllActorsOfClass(world, ACharacter::StaticClass(), characters);
 
 	for (int32 i = 0; i < characters.Num(); ++i)
 	{
-		// FIXME º´ÇÕ½Ã Ä³¸¯ÅÍ·Î º¯°æÇÏ±â
+		// FIXME ë³‘í•©ì‹œ ìºë¦­í„°ë¡œ ë³€ê²½í•˜ê¸°
 		/*if (auto character = Cast<AAZCharacter>(characters[i]))
 		{
 			if (AAZPlayer_Playable* player = Cast<AAZPlayer_Playable>(character))
@@ -1165,14 +1165,14 @@ void UAZMapMgr::OnFinishStreamingLevelShown()
 
 	close_loading_scene_on_finish_ = false;
 
-	// FIXME º´ÇÕ½Ã È®ÀÎÇÊ¿ä
+	// FIXME ë³‘í•©ì‹œ í™•ì¸í•„ìš”
 	/*if (AZGameInstance->GetPlayer())
 	{
 		AZGameInstance->GetPlayer()->GetAZCharacterMovement_Sync()->SetIgnoreSync(false);
 	}*/
 
 	
-	// FIXME º´ÇÕ½Ã Ä³¸¯ÅÍ »óÅÂ µ¿±âÈ­ È®ÀÎÃ¼Å©ÇÏ±â.
+	// FIXME ë³‘í•©ì‹œ ìºë¦­í„° ìƒíƒœ ë™ê¸°í™” í™•ì¸ì²´í¬í•˜ê¸°.
 	/*if (ready_server_sync_streaming_)
 	{
 		if (use_teleport_after_sync_streaming)
@@ -1181,7 +1181,7 @@ void UAZMapMgr::OnFinishStreamingLevelShown()
 			AZGameInstance->GetPlayer()->SetCharacterState(state);
 		}
 
-		// FIXME ¿öÇÁ ¸Ş½ÃÁö
+		// FIXME ì›Œí”„ ë©”ì‹œì§€
 	}*/
 
 	ready_server_sync_streaming_ = false;
@@ -1209,14 +1209,14 @@ void UAZMapMgr::OnRecvWarpRequest(bool is_teleport)
 	}
 	else
 	{
-		// FIXME º´ÇÕ½Ã Ã¼Å© ÇÊ¿ä
+		// FIXME ë³‘í•©ì‹œ ì²´í¬ í•„ìš”
 		/*if (is_teleport && AZGameInstance->GetPlayer())
 		{
 			ECharacterState state = AZGameInstance->GetPlayer()->GetCharacterState() == ECharacterState::WarpFly ? ECharacterState::WarpFlyEnd : ECharacterState::WarpEnd;
 			AZGameInstance->GetPlayer()->SetCharacterState(state);
 		}*/
 
-		//FixMe ¿öÇÁ End ¸Ş½ÃÁö
+		//FixMe ì›Œí”„ End ë©”ì‹œì§€
 		/*if (ULHSocketHolder* socketHolder = LHGameInstance->GetSocketHolder(ESocketHolderType::Gate))
 		{
 			FCG_MAP_WARP_ENTER_SYN msg;
@@ -1271,7 +1271,7 @@ void UAZMapMgr::OpenLoadingScene(int32 map_index)
 
 	if (loading_widget_)
 	{
-		//FixMe º´ÇÕ½Ã ¼öÁ¤ÇÏ±â
+		//FixMe ë³‘í•©ì‹œ ìˆ˜ì •í•˜ê¸°
 		auto info = GetTable(UModelData);
 		const UModelData* model_data = *info.GetData();
 		SyncLoadingActorInstance(model_data, map_index);
@@ -1279,7 +1279,7 @@ void UAZMapMgr::OpenLoadingScene(int32 map_index)
 		return;
 	}
 
-	// FIXME °æ·Î È®ÀÎÇÏ±â
+	// FIXME ê²½ë¡œ í™•ì¸í•˜ê¸°
 	FString path = TEXT("/Game/FIXME..");
 	UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(path);
 	if (load_class)
@@ -1291,7 +1291,7 @@ void UAZMapMgr::OpenLoadingScene(int32 map_index)
 			loading_widget_->AddToViewport((int32)EUILayer::Max);
 			loading_widget_->OnOpen();
 
-			//FixMe º´ÇÕ½Ã ¼öÁ¤ÇÏ±â
+			//FixMe ë³‘í•©ì‹œ ìˆ˜ì •í•˜ê¸°
 			auto info = GetTable(UModelData);
 			const UModelData* model_data = *info.GetData();
 			SyncLoadingActorInstance(model_data, map_index);
@@ -1346,8 +1346,8 @@ void UAZMapMgr::CloseLoadingScene()
 	loading_widget_->ConditionalBeginDestroy();
 	loading_widget_ = NULL;
 
-	// FIXME ÃßÈÄ ÀÛ¾÷ÇÏ±â
-	// ·Îµù³¡³ª°í Ã¼Å©ÇÑ¹ø
+	// FIXME ì¶”í›„ ì‘ì—…í•˜ê¸°
+	// ë¡œë”©ëë‚˜ê³  ì²´í¬í•œë²ˆ
 	/*if (IsValid(AZGameInstance->SoundAlarmMgr))
 	{
 		AZGameInstance->SoundAlarmMgr->CheckAllAlarm(true);
@@ -1491,12 +1491,12 @@ TArray<FVector> UAZMapMgr::GetStreamingLocations() const
 		FRotator rot;
 		AZGameInstance->GetPlayerController()->GetPlayerViewPoint(loc, rot);
 		locations.Add(loc);
-		// FIXME º´ÇÕ½Ã ¼öÁ¤ ÇÊ¿ä.
+		// FIXME ë³‘í•©ì‹œ ìˆ˜ì • í•„ìš”.
 		//locations.Add(AZGameInstance->GetPlayer()->GetActorLocation());
 	}
 	if (include_additional_location)
 	{
-		// FIXME º´ÇÕ½Ã level streaming position À§Ä¡ È®ÀÎÇÏ±â
+		// FIXME ë³‘í•©ì‹œ level streaming position ìœ„ì¹˜ í™•ì¸í•˜ê¸°
 		locations.Add(level_streaming_position_);
 	}
 	return locations;
@@ -1539,7 +1539,7 @@ void UAZMapMgr::AddSubLevelFromPackageName(const FName& package_name, UPackage* 
 
 bool UAZMapMgr::HasFloor(AAZCharacter* character)
 {
-	// FIXME º´ÇÕ½Ã ¹Ù´ÚÃ¼Å© ³Ö±â
+	// FIXME ë³‘í•©ì‹œ ë°”ë‹¥ì²´í¬ ë„£ê¸°
 	/*float traceZ = character->GetLHCharacterMovement()->ClinetZ_TraceStartZ;
 	FVector location = character->GetActorServerLocation();
 	FVector start = location + FVector::UpVector * traceZ;
@@ -1596,7 +1596,7 @@ void UAZMapMgr::SyncLoadingActorInstance(const UModelData* model_data, int32 map
 		}
 
 		FString model_bp = (model_data->model_bp.Num() > 0 ? model_data->model_bp[FMath::Rand() % model_data->model_bp.Num()] : TEXT(""));
-		// FIXME º´ÇÕ½Ã °æ·Î È®ÀÎÇÏ±â
+		// FIXME ë³‘í•©ì‹œ ê²½ë¡œ í™•ì¸í•˜ê¸°
 		FString loading_scene_path(TEXT("Environment/LoadingScene/"));
 		FString load_path = FString(TEXT("/Game/Blueprint/")) + loading_scene_path + model_bp + "." + model_bp + "_C";
 		FSoftClassPath path(load_path);

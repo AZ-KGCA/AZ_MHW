@@ -133,7 +133,7 @@ public:
 	UFUNCTION() void SecondTickAfterStartPlayManuallyProc();
 	UFUNCTION() void ThirdTickAfterStartPlayManuallyProc();
 
-	//FIXME º´ÇÕ½Ã Ãß°¡ÇÏ±â
+	//FIXME ë³‘í•©ì‹œ ì¶”ê°€í•˜ê¸°
 	//void AppearObject(...);
 	//void DisappearObject(const TArray<int32>& array_object_serial);
 	void ProcessDisappearObject(int32 object_serial);
@@ -193,6 +193,6 @@ private:
 	TArray<FVector> GetStreamingLocations() const;
 	bool IsInBoundAtLeastOneLocation(const FBox& bound) const;
 
-	//FIXME º´ÇÕ½Ã È®ÀÎÇÊ¿ä
+	//FIXME ë³‘í•©ì‹œ í™•ì¸í•„ìš”
 	bool HasFloor(class AAZCharacter* character);
 };
