@@ -40,7 +40,7 @@ public:
 		void ServerConnect();
 
 	UFUNCTION(BlueprintCallable, Category = Login)
-		void InGameConnect();
+	void InGameConnect();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

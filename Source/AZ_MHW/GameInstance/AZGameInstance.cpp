@@ -254,67 +254,6 @@ void UAZGameInstance::PacketToServer(const char* packet, int packet_size)
 	client_connect->Server_Packet_Send(packet, packet_size);
 }
 
-bool UAZGameInstance::LoginRecord(FString login_id, FString login_pw)
-{
-	dbitem record;
-
-	// 아이디
-	SQLTCHAR name[255];
-	std::string login_id_string = TCHAR_TO_ANSI(*login_id);
-	std::wstring wstring_id(login_id_string.begin(), login_id_string.end());
-	wcscpy_s(name, 255, wstring_id.c_str());
-
-	// 패스워드
-	SQLTCHAR pw[255];
-	std::string login_pw_string = TCHAR_TO_ANSI(*login_pw);
-	std::wstring wstring_pw(login_pw_string.begin(), login_pw_string.end());
-	wcscpy_s(pw, 255, wstring_pw.c_str());
-
-	if (g_odbc.LoginCheckSQL(name, pw))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Login Success"));
-
-		return true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Login Fail"));
-
-		return false;
-	}
-}
-
-bool UAZGameInstance::SignupRecord(FString signup_id, FString signup_pw)
-{
-	dbitem record;
-
-	// 아이디
-	SQLTCHAR name[255];
-	std::string signup_id_string = TCHAR_TO_ANSI(*signup_id);
-	std::wstring wstring_signup_id(signup_id_string.begin(), signup_id_string.end());
-	wcscpy_s(name, 255, wstring_signup_id.c_str());
-
-	// 패스워드 1
-	SQLTCHAR pw[255];
-	std::string signup_pw_string = TCHAR_TO_ANSI(*signup_pw);
-	std::wstring wstring_signup_pw(signup_pw_string.begin(), signup_pw_string.end());
-	wcscpy_s(pw, 255, wstring_signup_pw.c_str());
-
-	record.name = name;
-	record.pass = pw;
-
-	if (g_odbc.AddSQL(record))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Signup Success"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Signup Fail"));
-	}
-
-	return false;
-}
-
 void UAZGameInstance::IocpServerStart()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Iocp & Mssql Open\n"));
@@ -327,11 +266,6 @@ void UAZGameInstance::IocpServerStart()
 	iocp_net_server_.Run(MAX_CLIENT);
 }
 
-bool UAZGameInstance::ClientSignin()
-{
-	return false;
-}
-
 void UAZGameInstance::FSocketConncet()
 {
 	socket_type = 0;
@@ -340,7 +274,7 @@ void UAZGameInstance::FSocketConncet()
 	fsocket_version = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(TEXT("Stream"), TEXT("ClientSocket"));
 
 	// IP를 FString으로 입력받아 저장
-	FString address = TEXT("127.0.0.1");
+	FString address = TEXT("192.168.0.157");
 	FIPv4Address ip;
 	FIPv4Address::Parse(address, ip);
 
@@ -367,7 +301,7 @@ void UAZGameInstance::WinSocketConnect()
 	SOCKADDR_IN sa; // 목적지 + 포트
 
 	sa.sin_family = AF_INET;
-	sa.sin_addr.s_addr = inet_addr("127.0.0.1");
+	sa.sin_addr.s_addr = inet_addr("192.168.0.157");
 	sa.sin_port = htons(10000);
 
 	connect(win_socket, (sockaddr*)&sa, sizeof(sa));

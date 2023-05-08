@@ -72,11 +72,7 @@ public:
 	void PacketToServer(const char* packet, int packet_size);
 
 public:
-	bool LoginRecord(FString login_id, FString login_pw);
-	bool SignupRecord(FString signup_id, FString signup_pw);
 	void IocpServerStart();
-
-	bool ClientSignin();
 
 	// socket_type = 0
 	UFUNCTION(BlueprintCallable, Category = Game_Instance)
