@@ -37,7 +37,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* player_input_component) override;
-	void SetGenericTeamId(const FGenericTeamId& team_id);
 #pragma endregion
 public:
 	//Client + Server
