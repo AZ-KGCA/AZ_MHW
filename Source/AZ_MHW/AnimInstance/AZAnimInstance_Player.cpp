@@ -1,41 +1,164 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AnimInstance/AZAnimInstance_Player.h"
-#include "GameInstance/AZGameInstance.h"
-#include "Manager/AZPlayerAssetMgr.h"
+#include "AZ_MHW/AnimInstance/AZAnimInstance_Player.h"
+#include "AZ_MHW/GameSingleton/AZGameSingleton.h"
+#include "AZ_MHW/Manager/AZPlayerAssetMgr.h"
 
 UAZAnimInstance_Player::UAZAnimInstance_Player()
 {
-	//CurrentAnimMontage = LoadObject<UAnimMontage>(nullptr,TEXT("Base"),"/Game/Content/Character/Animation/",)
-	CurrentAnimPlayRate = 1.5f;
+	//기본설정은 몽타주를 재생하는 것.
+	is_montage_ = true;
+	is_hold_rotation_ = true;
+	current_anim_play_rate_ = 1.5f;
+	handle_animation_transition_trigger_.BindLambda([this](UAZAnimInstance* T) -> bool {return false;});
 }
-
 void UAZAnimInstance_Player::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
-	
-}
-
-void UAZAnimInstance_Player::NativeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeUpdateAnimation(DeltaSeconds);
-	//TryGetPawnOwner()->GetPlayerState()
-}
-
-void UAZAnimInstance_Player::SetMontage(FName MontageName)
-{
-	bIsMontage = true;
-	if(const auto& MontageAsset = AZGameInstance->playerAsset_mgr->GetMontage(MontageName))
+	//플레이어 에셋매니저에서 Base 몽타주를 가져와서 할당
+	if(const auto& anim_montage_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetMontage(TEXT("Base")))
 	{
-		CurrentAnimMontage = MontageAsset;
+		current_anim_montage_ = anim_montage_asset;
+		Montage_Play(current_anim_montage_, current_anim_play_rate_);
 	}
-	//Base
+}
+
+void UAZAnimInstance_Player::NativeUpdateAnimation(float delta_seconds)
+{
+	Super::NativeUpdateAnimation(delta_seconds);
+	//if(TryGetPawnOwner()->GetPlayerState()) playable? remotable?
+
+	if(APawn* owner = TryGetPawnOwner())
+	{
+		//Playable과 Remotable 공통사항
+		current_forward_direction_ = owner->GetRootComponent()->GetComponentRotation();
+		//playable_next_forward_direction = player controller
+		//remotable_next_forward_direction = server 
+		
+		if(is_hold_rotation_ == false)
+		{
+			FRotator owner_forward_direction;
+			UE_LOG(AZ_TEST,Warning,TEXT("current: %f"),current_forward_direction_.Yaw);
+			UE_LOG(AZ_TEST,Error,TEXT("next: %f"),next_forward_direction_.Yaw);
+			
+			// if(current_forward_direction_.Yaw > next_forward_direction_.Yaw)//캐릭터 방향이 목표방향보다 큰경우
+			// {
+			// 	float lerp_yaw = FMath::Lerp(current_forward_direction_.Yaw,next_forward_direction_.Yaw,0.9);
+			// 	owner_forward_direction = FRotator(0,lerp_yaw,0);
+			// }
+			// else
+			// {
+			// 	float lerp_yaw = FMath::Lerp(next_forward_direction_.Yaw, current_forward_direction_.Yaw,0.9);
+			// 	owner_forward_direction = FRotator(0,lerp_yaw,0);
+			// }
+			// owner->GetRootComponent()->SetWorldRotation(owner_forward_direction);
+
+			FQuat AQuat(next_forward_direction_);
+			FQuat BQuat(current_forward_direction_);
+			FQuat Result = FQuat::Slerp(AQuat, BQuat,0.9);
+			owner->GetRootComponent()->SetWorldRotation( FQuat::Slerp(AQuat, BQuat,0.9).Rotator());
+		}
+	}
+
+	if(should_transition_)//즉시 전환 or 지연 전환()
+	{
+		OnAnimationTransitionTrigger();
+		should_transition_ = false;
+	}
+	else//조건 전환
+	{
+		//매업데이트 종료조건 델리게이트를 체크한다.
+		//기본은 false만 반환하여 특수 종료조건을 처리하지 않는다
+		if(handle_animation_transition_trigger_.IsBound())
+		{
+			if(handle_animation_transition_trigger_.Execute(this))
+			{
+				OnAnimationTransitionTrigger();
+			}
+		}
+	}
+}
+
+void UAZAnimInstance_Player::OnAnimationTransitionTrigger()
+{
+	if(is_montage_)//몽타주 모드
+	{
+		if(next_montage_name_ != NAME_None)//몽타주 변경
+		{
+			if(current_montage_name_ != next_montage_name_)//동일 몽타주일시 무시
+			{
+				if(const auto& next_montage_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetMontage(next_montage_name_))
+				{
+					Montage_Stop(0.5f, current_anim_montage_);
+					Montage_Play(next_montage_asset, current_anim_play_rate_);
+
+				
+					current_anim_montage_ = next_montage_asset;
+
+					current_montage_name_ = next_montage_name_;
+				
+				
+					current_section_name_ = TEXT("Default");//일단 기본 섹션으로 지정
+				}
+			}
+			next_montage_name_ = NAME_None;
+		}
+		
+		if(next_section_name_ != NAME_None)//섹션 변경도 있다면
+		{
+			if(current_section_name_ != next_section_name_)//동일 섹션이 아니라면 실행
+			{
+				if(current_anim_montage_->IsValidSectionName(next_section_name_))//유효한 섹션 이름 체크
+				{
+					current_section_name_ = next_section_name_;
+
+					//점프 투 섹션 엔드를 해야 노티파이들과 원활하게 작동되는데(끝지점에서 다른 체크가 필요한 애니메이션의 경우),
+					//섹션의 끝 시점의 애니메이션 포즈가 출력되서... 튀는 모습이 연출되어서 제거
+					//Montage_JumpToSectionsEnd(current_section_name_, current_anim_montage_);
+					
+					Montage_JumpToSection(current_section_name_, current_anim_montage_);
+				}
+			}
+			next_section_name_ = NAME_None;
+		}
+	}
+	else//시퀀스 모드
+	{
+		if(next_sequence_name_ != NAME_None)//시퀀스 체크
+		{
+			if(const auto& next_sequence_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSequence(next_sequence_name_))
+			{
+				current_anim_sequence_ = next_sequence_asset;
+				current_sequence_name_ = next_sequence_name_;
+				next_sequence_name_ = NAME_None;
+			}
+		}
+	}
+	
+	//전환 조건 트리거 초기화
+	handle_animation_transition_trigger_.Unbind();
+	handle_animation_transition_trigger_.BindLambda([this](UAZAnimInstance* T) -> bool {return false;});
+}
+
+void UAZAnimInstance_Player::SetDirectAnimSequence(FName sequence_name)
+{
+	is_montage_ = false;
+	should_transition_ = true;
+	next_sequence_name_= sequence_name;
+}
+void UAZAnimInstance_Player::SetDirectAnimMontage(FName montage_name)
+{
+	is_montage_ = true;
+	should_transition_ = true;
+	next_montage_name_ = montage_name;
+	
+	//Base(Move,Dash,Slide,Jump)
 	//Crouch
 	//Hit
-	//Guard
-	//WP00
-	//WP11
+	//Airborne
+	//WP00 ~ WP11
+	//Interaction
 
 	//Grapple
 	//Swing
@@ -45,45 +168,63 @@ void UAZAnimInstance_Player::SetMontage(FName MontageName)
 	//Swim
 	//Fishing
 }
-
-void UAZAnimInstance_Player::SetNextMontage(FName MontageName)
+void UAZAnimInstance_Player::SetDirectSection(FName section_name)
 {
-	CurrentMontageName = MontageName;
+	is_montage_ = true;
+	should_transition_ = true;
+	next_section_name_ = section_name;
 }
 
-//강제로 섹션변경해라
-void UAZAnimInstance_Player::SetSection(FName SectionName)
+void UAZAnimInstance_Player::SetNextAnimMontage(FName montage_name)
 {
-	Montage_JumpToSectionsEnd(CurrentSectionName, CurrentAnimMontage);
-	CurrentSectionName = SectionName;
-	Montage_JumpToSection(CurrentSectionName, CurrentAnimMontage);
+	next_montage_name_ = montage_name;
+	is_montage_ = true;
 }
-//현재 섹션끝나면 자연스럽게 옮겨라 노티파이로(연계기)
-void UAZAnimInstance_Player::SetNextSection(FName SectionName)
+void UAZAnimInstance_Player::SetNextSection(FName section_name)
 {
-	NextSectionName = SectionName;
+	next_section_name_ = section_name;
+	is_montage_ = true;
 }
 
-void UAZAnimInstance_Player::SetBlendSpace(FName BlendSpaceName)
+void UAZAnimInstance_Player::PauseAnimation()
 {
-	bIsMontage = false;
-	bIsBlend = true;
-	//WASDLockRotate(Guard, Charge?)
-}
-
-void UAZAnimInstance_Player::SetSequence(FName SequenceName)
-{
-	bIsMontage = false;
-	bIsBlend = false;
-	//SequenceName
-	//Gesture
-}
-
-void UAZAnimInstance_Player::SetPlayRate(float PlayRate)
-{
-	if(Montage_IsPlaying(CurrentAnimMontage))
+	if(is_montage_)
 	{
-		Montage_SetPlayRate(CurrentAnimMontage, PlayRate);
+		Montage_Pause(current_anim_montage_);
 	}
-	CurrentAnimPlayRate = PlayRate;
+	else
+	{
+		//정지
+		SetAnimPlayRate(0);
+		//TODO: 이전 스피드 저장하여 사용하기
+	}
+}
+
+void UAZAnimInstance_Player::ResumeAnimation()
+{
+	if(is_montage_)
+	{
+		Montage_Resume(current_anim_montage_);
+	}
+	else
+	{
+		SetAnimPlayRate(15000);
+		//Default 15000
+		//TODO: 이전 스피드 저장하여 사용하기
+	}
+}
+
+void UAZAnimInstance_Player::SetAnimPlayRate(int32 play_rate)
+{
+	float play_rate_permyriad;
+	
+	if(play_rate == 0) play_rate_permyriad = 0;
+	else play_rate_permyriad = play_rate/10000.f;
+	
+	current_anim_play_rate_ = play_rate_permyriad;
+	if(Montage_IsPlaying(current_anim_montage_))
+	{
+		Montage_SetPlayRate(current_anim_montage_, current_anim_play_rate_);
+	}
+	//SequencePlayer의 AnimPlayRate는 AnimGraph에서 바인딩되어서 실행
 }

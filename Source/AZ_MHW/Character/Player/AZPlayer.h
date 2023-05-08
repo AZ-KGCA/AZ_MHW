@@ -4,7 +4,7 @@
 
 #include <CoreMinimal.h>
 #include "AZ_MHW.h"
-#include "Character/AZCharacter.h"
+#include "AZ_MHW/Character/AZCharacter.h"
 #include "AZPlayer.generated.h"
 #pragma region Macro
 
@@ -14,6 +14,7 @@
 #pragma endregion 
 #pragma region ForwardDeclaration
 class AAZSocketActor;
+class UAZAnimInstance_Player;
 #pragma endregion
 #pragma region Enum
 
@@ -24,7 +25,8 @@ class AAZSocketActor;
 /**
  * 모든 플레이어들은 동일하게 움직이고, 동일한 구조를 지녓다.
  * 플레이어블과 리모트의 차이는 직접 명령을 받느냐 아니냐의 차이
- * 리소스의 포인터만 들고있다. 
+ * 화려한 센서다. 주변의 이벤트를 수집해 플레이어 스테이트에 전달하고,
+ * 변화에 따른 캐릭터의 변동사항을 나타낸다.(메시변경, 이펙트 등)
  */
 UCLASS(Abstract)
 class AZ_MHW_API AAZPlayer : public AAZCharacter
@@ -41,41 +43,41 @@ protected:
 	/** */
 	virtual void BeginPlay() override;
 	/** */
-	virtual void PossessedBy(AController* NewController) override;
+	virtual void PossessedBy(AController* new_controller) override;
 	/** */
-	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	//virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
 	/** */
 	virtual  void BeginDestroy() override;
 #pragma endregion
 public:
-	//모든 플레이어 캐릭터(폰)가 가지는 게임요소들
-	//UCapsuleComponent//SceneComponent(Physics)
-	//UCharacterMovement//MovementComponent
-	//SkeletalMeshComponent//Animation BaseBone
+	UPROPERTY() USkeletalMeshComponent* face_mesh_;
+	UPROPERTY() USkeletalMeshComponent* head_mesh_;
+	UPROPERTY() USkeletalMeshComponent* hair_mesh_;
+	UPROPERTY() USkeletalMeshComponent* body_mesh_;
+	UPROPERTY() USkeletalMeshComponent* arm_mesh_;
+	UPROPERTY() USkeletalMeshComponent* waist_mesh_;
+	UPROPERTY() USkeletalMeshComponent* leg_mesh_;
 
-	//UPROPERTY()
-	//TMap<FName, USkeletalMeshComponent*> Parts;
-	UPROPERTY() USkeletalMeshComponent* Head;
-	UPROPERTY() USkeletalMeshComponent* Hair;
-	UPROPERTY() USkeletalMeshComponent* Face;
-	UPROPERTY() USkeletalMeshComponent* Body;
-	UPROPERTY() USkeletalMeshComponent* Arm;
-	UPROPERTY() USkeletalMeshComponent* Waist;
-	UPROPERTY() USkeletalMeshComponent* Leg;
-
-	UPROPERTY() AAZSocketActor* FirstSocket;
-	UPROPERTY() AAZSocketActor* SecondSocket;
+	//UPROPERTY() TMap<FName, USkeletalMeshComponent*> character_parts_map_;
+	UPROPERTY() TMap<FName, AAZSocketActor*> character_sockets_map_;
 	
 	/** playerState의 CharacterEquipState 변경후 호출하여 갱신*/
 	UFUNCTION() void SetSKMeshParts();
 	/** bForceUpdate: 이미 붙어 있는 컴포넌트도 또 호출할 것인가 */
-	UFUNCTION() void CombineSKMeshParts(bool bForceUpdate);
+	UFUNCTION() void CombineSKMeshParts(bool is_force_update = true);
 	/** playerState의 CharacterEquipState 변경후 호출하여 갱신*/
 	UFUNCTION() void SetSKMeshSocket();
+
+	/** 장비타입, 아이템아이디 부위별 변경기능*/
+	UFUNCTION() void ChangeEquipmentMesh(int32 item_id);
 	
-	//Cache
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UAnimInstance> BodyAnimInstanceClass;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UAnimInstance> FaceAnimInstanceClass;
+	/** 소켓액터 추가*/
+	UFUNCTION() void CreateSocketActor(FName new_socket_actor_name, FName in_socket_name);
+	/** 소켓장비 변경*/
+	UFUNCTION() void ChangeSocketMesh(FName socket_actor_name, int32 item_id);
+	/** 소켓위치 변경*/
+	UFUNCTION() void ChangeSocketSlot(FName socket_actor_name, FName in_socket_name);
+	
+	//UPROPERTY() UAZAnimInstance_Player* BodyAnimInstanceClass;
+	//UPROPERTY() UAZAnimInstance_Player* FaceAnimInstanceClass;
 };

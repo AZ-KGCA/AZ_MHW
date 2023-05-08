@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
+#include "AZ_MHW.h"
 #include "AZAnimInstance_Player.h"
 #include "AZAnimInstance_Remotable.generated.h"
 #pragma region Macro

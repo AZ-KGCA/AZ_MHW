@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Animation/AnimNotifies/AnimNotify.h"
+#include <CoreMinimal.h>
+#include "AZ_MHW.h"
+#include <Animation/AnimNotifies/AnimNotify.h>
 #include "AZAnimNotify_ActionStart.generated.h"
 
 /**
@@ -16,10 +17,7 @@ class AZ_MHW_API UAZAnimNotify_ActionStart : public UAnimNotify
 public:
 	UAZAnimNotify_ActionStart();
 
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+	virtual void Notify(USkeletalMeshComponent* mesh_comp, UAnimSequenceBase* animation, const FAnimNotifyEventReference& event_reference) override;
 
-	UPROPERTY(EditAnywhere)
-	FName ActionName;
-	UPROPERTY(EditAnywhere)
-	FName StateName;
+
 };

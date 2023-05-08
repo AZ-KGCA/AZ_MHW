@@ -4,7 +4,7 @@
 
 #include <CoreMinimal.h>
 #include "AZ_MHW.h"
-#include "Character/Player/AZPlayer.h"
+#include "AZ_MHW/Character/Player/AZPlayer.h"
 #include "AZPlayer_Remotable.generated.h"
 
 /**

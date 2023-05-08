@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include <CoreMinimal.h>
+#include "AZ_MHW.h"
+#include <GameFramework/Actor.h>
 #include "AZSocketActor.generated.h"
 
 UCLASS()
@@ -12,25 +13,23 @@ class AZ_MHW_API AAZSocketActor : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AAZSocketActor();
-
+ 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
+	//현재 소켓 오브젝트(스켈레탈 메시)
 	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* SocketObject;
-	UPROPERTY(VisibleAnywhere)
-	USceneComponent* SocketParentActor;
+	USkeletalMeshComponent* socket_mesh_asset_;
 	
-	FName CurrentSocketName;
+	//소켓 부모 액터
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* socket_parent_actor_;
+	
+	//액터의 부착 소켓변경(생성자에서 호출불가. BeginPlay()부터 가능)
+	void SetSocketComponent(FName socket_name, USceneComponent* parent_component = nullptr);
 
-	void SetSocketComponent(FName SocketName, USceneComponent* Parent = nullptr);
-	//아이템로드
-	//아이템언로드
-	//소켓옮기기
 };
 //auto SocketItem = GetWorld()->SpawnActor<AAZSocketActor>(FVector::ZeroVector,FRotator::ZeroRotator);
 //if(SocketItem != nullptr) SocketItem->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);

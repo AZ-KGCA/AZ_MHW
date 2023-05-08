@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Animation/AnimNotifies/AnimNotifyState.h"
+#include <CoreMinimal.h>
+#include "AZ_MHW.h"
+#include <Animation/AnimNotifies/AnimNotifyState.h>
 #include "AZAnimNotifyState.generated.h"
 #pragma region Macro
 
@@ -34,9 +35,9 @@ public:
 	UAZAnimNotifyState();
 #pragma region Inherited function
 protected:
-	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration) override;
-	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration) override;
-	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
+	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
+	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 #pragma endregion
 public:
 	//UPROPERTY(EditAnywhere) FName NameID;

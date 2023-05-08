@@ -1,6 +1,11 @@
 #include "AZ_MHW/Character/AZCharacter.h"
 
+<<<<<<< HEAD
 #include "Kismet/KismetMathLibrary.h"
+=======
+
+#include "AZ_MHW/Character/AZCharacter.h"
+>>>>>>> origin/feature/Character
 
 AAZCharacter::AAZCharacter()
 {
@@ -14,8 +19,9 @@ void AAZCharacter::BeginPlay()
 
 }
 
-void AAZCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AAZCharacter::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
+<<<<<<< HEAD
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
@@ -61,4 +67,8 @@ float AAZCharacter::GetRelativeAngleToLocation(const FVector& target_location) c
 float AAZCharacter::GetDistance2DToLocation(const FVector& target_location) const
 {
 	return FVector2D::Distance(FVector2D(GetActorLocation()), FVector2D(target_location));
+=======
+	Super::SetupPlayerInputComponent(player_input_component);
+
+>>>>>>> origin/feature/Character
 }

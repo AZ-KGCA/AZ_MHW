@@ -51,7 +51,7 @@ protected:
 	 * 애님 인스턴스 캡쳐 업데이트
 	 * 애니메이션 실행 조건값 동기화용도
 	 */
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	virtual void NativeUpdateAnimation(float delta_seconds) override;
 	
 #pragma endregion
 public:
