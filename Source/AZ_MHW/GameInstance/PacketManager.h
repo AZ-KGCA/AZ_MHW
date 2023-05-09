@@ -1,9 +1,6 @@
 #pragma once
 
 #include "Packet.h"
-//#define WIN32_LEAN_AND_MEAN
-//#include <Windows.h>
-//#include "Odbc.h"
 
 #include <unordered_map>
 #include <deque>
@@ -14,7 +11,6 @@
 class UserManager;
 class RoomManger;
 class RedisManager;
-
 
 class PacketManager
 {
@@ -67,6 +63,8 @@ private:
 
 	void ProcessChatting(UINT32 client_index, UINT16 packet_size, char* P_packet);
 
+	void ProocessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet);
+
 	typedef void (PacketManager::* PROCESS_RECV_PACKET_FUNCTION)(UINT32, UINT16, char*);
 
 	std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION> recv_funtion_dictionary_;
@@ -87,4 +85,3 @@ private:
 	// 네트워크 연결 & 끊어짐을 처리하는 큐
 	std::deque<PacketInfo> system_packet_queue_;
 };
-

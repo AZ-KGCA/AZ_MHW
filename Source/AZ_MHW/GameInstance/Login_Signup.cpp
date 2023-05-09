@@ -5,13 +5,20 @@
 #include <Kismet/GameplayStatics.h>
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "AZGameInstance.h"
+#include "Client_To_Server.h"
+
+void ULogin_Signup::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	az_game_instance = Cast<UAZGameInstance>(GetGameInstance());
+}
 
 bool ULogin_Signup::Login_Signup(FString id, FString pw, FString pw2)
 {
 	signup_id = id;
 	signup_pw = pw;
-	signup_check_pw = pw2;
-	teemo_game_instance = Cast<UAZGameInstance>(GetGameInstance());
+	signup_check_pw = pw2;	
 
 	// TODO : 아이디 중복체크 기능 추가 (true 대신 db에서 id 있는지 확인)
 	if (true)
@@ -21,7 +28,7 @@ bool ULogin_Signup::Login_Signup(FString id, FString pw, FString pw2)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Password Success"));
 			// TODO1 DB조회 대신 id,pw Send로 변경 
-			//teemo_game_instance->SignupRecord(signup_id, signup_pw);
+			//az_game_instance->SignupRecord(signup_id, signup_pw);
 			Signup_Packet_Send(signup_id, signup_pw, CLIENT_PACKET_ID::SIGNIN_REQUEST);
 
 			return true;
@@ -41,13 +48,11 @@ void ULogin_Signup::Signup_Packet_Send(FString id, FString pw, CLIENT_PACKET_ID 
 {
 	Login_Send_Packet login_send_packet;
 	login_send_packet.packet_id = (int)packet_id;
-	strcpy(login_send_packet.user_id, TCHAR_TO_ANSI(*id));
-	strcpy(login_send_packet.user_pw, TCHAR_TO_ANSI(*pw));
+	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), TCHAR_TO_ANSI(*id));
+	strcpy_s(login_send_packet.user_pw, sizeof(login_send_packet.user_pw), TCHAR_TO_ANSI(*pw));
 	login_send_packet.packet_length = sizeof(login_send_packet);
 
 	UE_LOG(LogTemp, Warning, TEXT("[Signup_Packet_Send] pakcet_id : %d, pakcet_userid : %s\n"), login_send_packet.packet_id, login_send_packet.user_id);
 
-	teemo_game_instance = Cast<UAZGameInstance>(GetGameInstance());
-
-	teemo_game_instance->PacketToServer((char*)&login_send_packet, login_send_packet.packet_length);
+	az_game_instance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
 }

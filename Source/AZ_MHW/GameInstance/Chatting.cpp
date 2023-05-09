@@ -6,7 +6,9 @@
 #include "Components/TextBlock.h"
 #include "Components/ScrollBox.h"
 #include "Kismet/GameplayStatics.h"
+#include "Client_To_Server.h"
 #include "AZGameInstance.h"
+
 
 void UChatting::NativeConstruct()
 {
@@ -17,12 +19,12 @@ void UChatting::NativeConstruct()
 	ChatHistory = Cast<UScrollBox>(GetWidgetFromName(TEXT("ChatHistory")));
 	ChatMsgBlock = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
 
-	teemo_game_instance = Cast<UAZGameInstance>(GetGameInstance());
+	az_game_instance = Cast<UAZGameInstance>(GetGameInstance());
 
-	if (teemo_game_instance->client_connect != nullptr)
+	if (az_game_instance->client_connect != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[UChatting if]\n"));
-		teemo_game_instance->client_connect->Fuc_boradcast_success.BindUFunction(this, FName("ChatHistory_Msg"));
+		az_game_instance->client_connect->Fuc_boradcast_success.BindUFunction(this, FName("ChatHistory_Msg"));
 	}
 }
 
@@ -36,12 +38,12 @@ void UChatting::ChatMsgSend(FString msg)
 {
 	Login_Send_Packet login_send_packet;
 	login_send_packet.packet_id = (int)CLIENT_PACKET_ID::CHAT_SEND_REQUEST;
-	strcpy(login_send_packet.user_id, FStringToCharArray(*msg));
+	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), FStringToCharArray(*msg));
 	login_send_packet.packet_length = sizeof(login_send_packet);
 
 	UE_LOG(LogTemp, Warning, TEXT("[ChatMsgSend.cpp] pakcet_id : %d, pakcet_userid : %s \n"), login_send_packet.packet_id, *CharArrayToFString(login_send_packet.user_id));
 
-	teemo_game_instance->PacketToServer((char*)&login_send_packet, login_send_packet.packet_length);
+	az_game_instance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
 }
 
 
@@ -50,7 +52,7 @@ char* UChatting::FStringToCharArray(FString fString)
 {
 	std::string stdString(TCHAR_TO_UTF8(*fString));
 	char* charArray = new char[stdString.length() + 1];
-	strcpy(charArray, stdString.c_str());
+	strcpy_s(charArray, sizeof(charArray), stdString.c_str());
 
 	return charArray;
 }
@@ -67,16 +69,16 @@ void UChatting::ChatHistory_Msg(FString msg)
 {
 	UE_LOG(LogTemp, Warning, TEXT("ChatHistory_Msg / %s"), *msg)
 
-		// TODO Ã¤ÆÃ ºê·ÎµåÄ³½ºÆ® µ¨¸®°ÔÀÌÆ® ¹Ş°í Ã¤ÆÃÃ¢¿¡ ±Û¾¾ ³Ö´Â°Çµ¥ ... ÄÚµå·Î Àû¿ëÇÏ¸é¾ÈµÊ..
-		//AddChatMessage(msg);
+	// TODO ì±„íŒ… ë¸Œë¡œë“œìºìŠ¤íŠ¸ ë¸ë¦¬ê²Œì´íŠ¸ ë°›ê³  ì±„íŒ…ì°½ì— ê¸€ì”¨ ë„£ëŠ”ê±´ë° ... ì½”ë“œë¡œ ì ìš©í•˜ë©´ì•ˆë¨..
+	//AddChatMessage(msg);
 }
 
 void UChatting::AddChatMessage(const FString& Message)
 {
-	// Text ¿ÀºêÁ§Æ®¸¦ »ı¼ºÇÏ°í, ScrollBox¿¡ Ãß°¡ÇÑ´Ù.
+	// Text ì˜¤ë¸Œì íŠ¸ë¥¼ ìƒì„±í•˜ê³ , ScrollBoxì— ì¶”ê°€í•œë‹¤.
 	UTextBlock* NewTextBlock = NewObject<UTextBlock>(ChatHistory);
 	NewTextBlock->SetText(FText::FromString(Message));
 
 	ChatHistory->AddChild(NewTextBlock);
-	ChatHistory->ScrollToEnd(); // °¡Àå ÃÖ±Ù Ã¤ÆÃÀ» º¸±â À§ÇØ, ½ºÅ©·ÑÀ» °¡Àå ¾Æ·¡·Î ³»¸°´Ù.
+	ChatHistory->ScrollToEnd(); // ê°€ì¥ ìµœê·¼ ì±„íŒ…ì„ ë³´ê¸° ìœ„í•´, ìŠ¤í¬ë¡¤ì„ ê°€ì¥ ì•„ë˜ë¡œ ë‚´ë¦°ë‹¤.
 }

@@ -20,6 +20,7 @@ void PacketManager::Init(const UINT32 max_client)
 	recv_funtion_dictionary_[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
 	recv_funtion_dictionary_[(int)PACKET_ID::SIGNIN_REQUEST] = &PacketManager::ProcessSignup;
 	recv_funtion_dictionary_[(int)PACKET_ID::CHAT_SEND_REQUEST] = &PacketManager::ProcessChatting;
+	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_REQUEST] = &PacketManager::ProocessInGame;
 
 	CreateCompent(max_client);
 }
@@ -261,9 +262,6 @@ void PacketManager::ProcessSignup(UINT32 client_index, UINT16 packet_size, char*
 	record.name = P_user_id;
 	record.pass = P_user_pw;
 
-	//UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup] Id : %s / PW : %s\n"), record.name, record.pass);
-	///////////////////////////
-
 	if (odbc.AddSQL(record))
 	{
 		//odbc.Load();
@@ -296,10 +294,24 @@ void PacketManager::ProcessChatting(UINT32 client_index, UINT16 packet_size, cha
 	Login_Send_Packet login_res_packet;
 	login_res_packet.packet_id = (int)PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS;
 	login_res_packet.packet_length = sizeof(login_res_packet);
-	strcpy(login_res_packet.user_id, P_login_req_packet->user_id);
+	strcpy_s(login_res_packet.user_id, sizeof(login_res_packet.user_id), P_login_req_packet->user_id);
 
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessChatting Send] packet_id : %d, packet_length : %d packet_data %s\n"),
 		login_res_packet.packet_id, login_res_packet.packet_length, *defind.CharArrayToFString(login_res_packet.user_id));
+
+	BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
+	//SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
+}
+
+void PacketManager::ProocessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet)
+{
+	SetMoveInfo login_res_packet;
+	login_res_packet.packet_id = (int)PACKET_ID::IN_GAME_SUCCESS;
+	login_res_packet.packet_length = sizeof(login_res_packet);
+	login_res_packet.fvector_ = FVector(100.0f, 0.0f, 0.0f);
+	login_res_packet.frotator_ = FRotator(0.0f, 0.0f, 500.0f);
+
+	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame] fvector_ : %s / frotator_ : %s\n"), *login_res_packet.fvector_.ToString(), *login_res_packet.frotator_.ToString());
 
 	BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 	//SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);

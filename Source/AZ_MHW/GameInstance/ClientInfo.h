@@ -36,7 +36,7 @@ public:
 
 		Clear();
 
-		// Å¬¶óÀÌ¾ğÆ®°¡ Á¢¼ÓÇÏ¸é listen_socket_ -> ReadyAccept()»ı¼º SocketÀ¸·Î º¯°æ
+		// í´ë¼ì´ì–¸íŠ¸ê°€ ì ‘ì†í•˜ë©´ listen_socket_ -> ReadyAccept()ìƒì„± Socketìœ¼ë¡œ ë³€ê²½
 		if (SetIocpBindSocket(iocpHandle) == false)
 		{
 			return false;
@@ -47,24 +47,24 @@ public:
 
 	void Close(bool bIsForce = false)
 	{
-		struct linger stLinger = { 0,0 }; // SO_DONTLINGER·Î ¼³Á¤
+		struct linger stLinger = { 0,0 }; // SO_DONTLINGERë¡œ ì„¤ì •
 
-		// bIsForce°¡ trueÀÌ¸é SO_LINGER, timeout = 0À¸·Î ¼³Á¤ÇÏ¿© °­Á¦ Á¾·á ½ÃÅ²´Ù. ÁÖÀÇ : µ¥ÀÌÅÍ ¼Õ½ÇÀÌ ÀÖÀ»¼ö ÀÖÀ½ 
+		// bIsForceê°€ trueì´ë©´ SO_LINGER, timeout = 0ìœ¼ë¡œ ì„¤ì •í•˜ì—¬ ê°•ì œ ì¢…ë£Œ ì‹œí‚¨ë‹¤. ì£¼ì˜ : ë°ì´í„° ì†ì‹¤ì´ ìˆì„ìˆ˜ ìˆìŒ 
 		if (true == bIsForce)
 		{
 			stLinger.l_onoff = 1;
 		}
 
-		//socketClose¼ÒÄÏÀÇ µ¥ÀÌÅÍ ¼Û¼ö½ÅÀ» ¸ğµÎ Áß´Ü ½ÃÅ²´Ù.
+		//socketCloseì†Œì¼“ì˜ ë°ì´í„° ì†¡ìˆ˜ì‹ ì„ ëª¨ë‘ ì¤‘ë‹¨ ì‹œí‚¨ë‹¤.
 		shutdown(socket_, SD_BOTH);
 
-		//¼ÒÄÏ ¿É¼ÇÀ» ¼³Á¤ÇÑ´Ù.
+		//ì†Œì¼“ ì˜µì…˜ì„ ì„¤ì •í•œë‹¤.
 		setsockopt(socket_, SOL_SOCKET, SO_LINGER, (char*)&stLinger, sizeof(stLinger));
 
 		is_connect_ = 0;
 		latest_closed_time_sec_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 
-		//¼ÒÄÏ ¿¬°áÀ» Á¾·á ½ÃÅ²´Ù. 
+		//ì†Œì¼“ ì—°ê²°ì„ ì¢…ë£Œ ì‹œí‚¨ë‹¤. 
 		closesocket(socket_);
 		socket_ = INVALID_SOCKET;
 	}
@@ -73,7 +73,7 @@ public:
 	{
 	}
 
-	// ºñµ¿±â accept ¿¬°á ¿¹¾à
+	// ë¹„ë™ê¸° accept ì—°ê²° ì˜ˆì•½
 	bool ReadyAccept(SOCKET listen_socket, const UINT64 cur_time_sec)
 	{
 		//printf_s("ReadyAccept. client Index: %d\n", GetIndex());
@@ -81,7 +81,7 @@ public:
 
 		latest_closed_time_sec_ = UINT32_MAX;
 
-		// socket_ = INVALID_SOCKET ¿¡¼­ ÀÎÅÍ³İ °¡´É ¼ÒÄÏÀ» ÇÒ´ç
+		// socket_ = INVALID_SOCKET ì—ì„œ ì¸í„°ë„· ê°€ëŠ¥ ì†Œì¼“ì„ í• ë‹¹
 		socket_ = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED);
 		if (INVALID_SOCKET == socket_)
 		{
@@ -99,16 +99,16 @@ public:
 		accept_overlapped_ex_.E_operation_ = IOOperation::ACCEPT;
 		accept_overlapped_ex_.session_index_ = index_;
 
-		// AcceptEx : ºñµ¿±â accept
+		// AcceptEx : ë¹„ë™ê¸° accept
 		// https://snowfleur.tistory.com/116
 		if (FALSE == AcceptEx(
-			listen_socket, // ¼­¹ö ¾ÖÇÃ¸®ÄÉÀÌ¼ÇÀÌ ÀÌ ¼ÒÄÏ¿¡¼­ ¿¬°áÀ» ½Ãµµ ÇÒ¶§±îÁö ±â´Ù¸²
-			socket_, // µé¾î¿À´Â ¿¬°áÀ» ¼ö¶ôÇÒ ¼ÒÄÏ
-			accept_buf_,  // »õ ¿¬°á¿¡¼­ º¸³½ Ã¹ ¹øÂ° µ¥ÀÌÅÍ ºí·Ï, ¼­¹öÀÇ ·ÎÄÃ ÁÖ¼Ò ¹× Å¬¶óÀÌ¾ğÆ®ÀÇ ¿ø°İ ÁÖ¼Ò¸¦ ¼ö½ÅÇÏ´Â ¹öÆÛ¿¡ ´ëÇÑ Æ÷ÀÎÅÍ
-			0, // 0ÀÌ¸é ¼ö½Å ÀÛ¾÷ÀÌ ¹ß»ıÇÏÁö ¾Ê°í ¿¬°á ÇÏ´Â Áï½Ã ¿Ï·á
-			sizeof(SOCKADDR_IN) + 16, // ·ÎÄÃ Á¤º¸ ÁÖ¼Ò À§ÇÑ ¿¹¾àµÈ ¹ÙÀÌÆ® ¼ö Àü¼Û ÇÁ·ÎÅäÄİº¸´Ù 16 ´õ ±æ¾î¾ßÇÔ
-			sizeof(SOCKADDR_IN) + 16,  // ¿ø°İ ÁÖ¼Ò Á¤º¸¸¦ À§ÇÑ ¿¹¾àµÈ ¹ÙÀÌÆ® ¼ö Àü¼Û ÇÁ·ÎÅäÄİº¸´Ù 16 ´õ ±æ¾î¾ßÇÔ
-			&bytes, (LPWSAOVERLAPPED) & (accept_overlapped_ex_))) // ¿äÃ»Ã³¸®¸¦ »ç¿ëµÇ´Â OVERLAPPED ±¸Á¶Ã¼ (NULLÀÏ¼ö°¡ ¾øÀ½)
+			listen_socket, // ì„œë²„ ì• í”Œë¦¬ì¼€ì´ì…˜ì´ ì´ ì†Œì¼“ì—ì„œ ì—°ê²°ì„ ì‹œë„ í• ë•Œê¹Œì§€ ê¸°ë‹¤ë¦¼
+			socket_, // ë“¤ì–´ì˜¤ëŠ” ì—°ê²°ì„ ìˆ˜ë½í•  ì†Œì¼“
+			accept_buf_,  // ìƒˆ ì—°ê²°ì—ì„œ ë³´ë‚¸ ì²« ë²ˆì§¸ ë°ì´í„° ë¸”ë¡, ì„œë²„ì˜ ë¡œì»¬ ì£¼ì†Œ ë° í´ë¼ì´ì–¸íŠ¸ì˜ ì›ê²© ì£¼ì†Œë¥¼ ìˆ˜ì‹ í•˜ëŠ” ë²„í¼ì— ëŒ€í•œ í¬ì¸í„°
+			0, // 0ì´ë©´ ìˆ˜ì‹  ì‘ì—…ì´ ë°œìƒí•˜ì§€ ì•Šê³  ì—°ê²° í•˜ëŠ” ì¦‰ì‹œ ì™„ë£Œ
+			sizeof(SOCKADDR_IN) + 16, // ë¡œì»¬ ì •ë³´ ì£¼ì†Œ ìœ„í•œ ì˜ˆì•½ëœ ë°”ì´íŠ¸ ìˆ˜ ì „ì†¡ í”„ë¡œí† ì½œë³´ë‹¤ 16 ë” ê¸¸ì–´ì•¼í•¨
+			sizeof(SOCKADDR_IN) + 16,  // ì›ê²© ì£¼ì†Œ ì •ë³´ë¥¼ ìœ„í•œ ì˜ˆì•½ëœ ë°”ì´íŠ¸ ìˆ˜ ì „ì†¡ í”„ë¡œí† ì½œë³´ë‹¤ 16 ë” ê¸¸ì–´ì•¼í•¨
+			&bytes, (LPWSAOVERLAPPED) & (accept_overlapped_ex_))) // ìš”ì²­ì²˜ë¦¬ë¥¼ ì‚¬ìš©ë˜ëŠ” OVERLAPPED êµ¬ì¡°ì²´ (NULLì¼ìˆ˜ê°€ ì—†ìŒ)
 		{
 			if (WSAGetLastError() != WSA_IO_PENDING)
 			{
@@ -121,7 +121,7 @@ public:
 		return true;
 	}
 
-	// accept ¿Ï·á ÇÔ¼ö
+	// accept ì™„ë£Œ í•¨ìˆ˜
 	bool AcceptCompletion()
 	{
 		//printf_s("AcceptCompletion : SessionIndex(%d)\n", index_);
@@ -136,24 +136,24 @@ public:
 		int addr_len = sizeof(SOCKADDR_IN);
 		char client_ip[32] = { 0, };
 		inet_ntop(AF_INET, &(st_client_addr.sin_addr), client_ip, 32 - 1);
-		//printf("Å¬¶óÀÌ¾ğÆ® Á¢¼Ó : IP(%s) SOCKET(%d)\n", client_ip, (int)socket_);
-		UE_LOG(LogTemp, Warning, TEXT("Å¬¶óÀÌ¾ğÆ® Á¢¼Ó : IP(%s) SOCKET(%d)\n"), client_ip, (int)socket_);
+		//printf("í´ë¼ì´ì–¸íŠ¸ ì ‘ì† : IP(%s) SOCKET(%d)\n", client_ip, (int)socket_);
+		UE_LOG(LogTemp, Warning, TEXT("í´ë¼ì´ì–¸íŠ¸ ì ‘ì† : IP(%s) SOCKET(%d)\n"), client_ip, (int)socket_);
 
 		return true;
 	}
 
 	bool SetIocpBindSocket(HANDLE iocpHandle)
 	{
-		// listen_socket_ -> ReadyAccept()¿¡¼­ »ı¼ºÇÑ ¼ÒÄÏÀ¸·Î º¯°æ
+		// listen_socket_ -> ReadyAccept()ì—ì„œ ìƒì„±í•œ ì†Œì¼“ìœ¼ë¡œ ë³€ê²½
 		auto H_iocp = CreateIoCompletionPort((HANDLE)GetSock(),
-			iocpHandle, // ExistingCompletionPort : ÆÄÀÏ ¶Ç´Â ¼ÒÄÏ°ú ¿¬°áÇÒ ÀÔÃâ·Â ¿Ï·á Æ÷Æ®
-			(ULONG_PTR)(this), // CompletionKey·Î ¾î¶² ¼ÒÄÏÀÌ I/O¸¦ Çß´ÂÁö ¾Ë ¼ö ÀÖÀ½
+			iocpHandle, // ExistingCompletionPort : íŒŒì¼ ë˜ëŠ” ì†Œì¼“ê³¼ ì—°ê²°í•  ì…ì¶œë ¥ ì™„ë£Œ í¬íŠ¸
+			(ULONG_PTR)(this), // CompletionKeyë¡œ ì–´ë–¤ ì†Œì¼“ì´ I/Oë¥¼ í–ˆëŠ”ì§€ ì•Œ ìˆ˜ ìˆìŒ
 			0);
 
 		if (H_iocp == INVALID_HANDLE_VALUE)
 		{
-			//printf("[¿¡·¯] CreateIoCompletionPort()ÇÔ¼ö ½ÇÆĞ: %d\n", GetLastError());
-			UE_LOG(LogTemp, Warning, TEXT("[¿¡·¯] CreateIoCompletionPort()ÇÔ¼ö ½ÇÆĞ: %d\n"), GetLastError());
+			//printf("[ì—ëŸ¬] CreateIoCompletionPort()í•¨ìˆ˜ ì‹¤íŒ¨: %d\n", GetLastError());
+			UE_LOG(LogTemp, Warning, TEXT("[ì—ëŸ¬] CreateIoCompletionPort()í•¨ìˆ˜ ì‹¤íŒ¨: %d\n"), GetLastError());
 			return false;
 		}
 		return true;
@@ -174,11 +174,11 @@ public:
 			(LPWSAOVERLAPPED) & (recv_overlapped_ex_),
 			NULL);
 
-		// socket_errorÀÌ¸é client socketÀÌ ²÷¾îÁø°É·Î Ã³¸®ÇÑ´Ù.
+		// socket_errorì´ë©´ client socketì´ ëŠì–´ì§„ê±¸ë¡œ ì²˜ë¦¬í•œë‹¤.
 		if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
 		{
-			//printf("[¿¡·¯] WSARecv()ÇÔ¼ö ½ÇÆĞ : %d\n", WSAGetLastError());
-			UE_LOG(LogTemp, Warning, TEXT("[¿¡·¯] WSARecv()ÇÔ¼ö ½ÇÆĞ : %d\n"), WSAGetLastError());
+			//printf("[ì—ëŸ¬] WSARecv()í•¨ìˆ˜ ì‹¤íŒ¨ : %d\n", WSAGetLastError());
+			UE_LOG(LogTemp, Warning, TEXT("[ì—ëŸ¬] WSARecv()í•¨ìˆ˜ ì‹¤íŒ¨ : %d\n"), WSAGetLastError());
 			return false;
 		}
 
@@ -192,22 +192,22 @@ public:
 		UE_LOG(LogTemp, Warning, TEXT("[SendMsg] packet_id : %d, packet_length : %d packet_data %s\n"),
 			P_login_req_packet->packet_id, P_login_req_packet->packet_length, *defind.CharArrayToFString(P_login_req_packet->user_id));
 		P_login_req_packet->user_id;
-		// send_overlapped ±¸Á¶Ã¼ »ı¼º
+		// send_overlapped êµ¬ì¡°ì²´ ìƒì„±
 		auto send_overlapped_ex = new stOverlappedEx;
 		ZeroMemory(send_overlapped_ex, sizeof(stOverlappedEx));
 		send_overlapped_ex->wsa_buf_.len = data_size_;
-		// Send º¸³¾ µ¥ÀÌÅÍ »çÀÌÁî¸¸Å­ buf µ¿Àû ÇÒ´ç
+		// Send ë³´ë‚¼ ë°ì´í„° ì‚¬ì´ì¦ˆë§Œí¼ buf ë™ì  í• ë‹¹
 		send_overlapped_ex->wsa_buf_.buf = new char[data_size_];
 		CopyMemory(send_overlapped_ex->wsa_buf_.buf, P_msg_, data_size_);
-		// send_overlapped ÇüÅÂ ¾Ë·ÁÁÖ±â 
+		// send_overlapped í˜•íƒœ ì•Œë ¤ì£¼ê¸° 
 		send_overlapped_ex->E_operation_ = IOOperation::SEND;
 
 		std::lock_guard<std::mutex> guard(send_lock_);
 
-		// send queue¿¡ µ¥ÀÌÅÍ ¹Ğ¾î ³Ö±â
+		// send queueì— ë°ì´í„° ë°€ì–´ ë„£ê¸°
 		send_data_queue_.push(send_overlapped_ex);
 
-		// ÇöÀç Å¥¿¡ ÇÑ°³ ¹Û¿¡ ¾øÀ¸¸é ½ÇÇàÇØµµ µÇ°í 2°³ ÀÌ»óÀÌ¸é ÇöÀç ÁøÇàÁßÀÎ WSASend°¡ ÀÖ´Ù
+		// í˜„ì¬ íì— í•œê°œ ë°–ì— ì—†ìœ¼ë©´ ì‹¤í–‰í•´ë„ ë˜ê³  2ê°œ ì´ìƒì´ë©´ í˜„ì¬ ì§„í–‰ì¤‘ì¸ WSASendê°€ ìˆë‹¤
 		if (send_data_queue_.size() == 1)
 		{
 			SendIO();
@@ -218,20 +218,20 @@ public:
 
 	void SendCompleted(const UINT32 dataSize_)
 	{
-		//printf("[¼Û½Å ¿Ï·á] bytes : %d\n", dataSize_);
-		UE_LOG(LogTemp, Warning, TEXT("[¼Û½Å ¿Ï·á] bytes : %d\n"), dataSize_);
+		//printf("[ì†¡ì‹  ì™„ë£Œ] bytes : %d\n", dataSize_);
+		UE_LOG(LogTemp, Warning, TEXT("[ì†¡ì‹  ì™„ë£Œ] bytes : %d\n"), dataSize_);
 
 		std::lock_guard<std::mutex> guard(send_lock_);
 
-		// Å¥ÀÇ Á¦ÀÏ ¾Õ ¹è¿­ »èÁ¦
+		// íì˜ ì œì¼ ì• ë°°ì—´ ì‚­ì œ
 		delete[] send_data_queue_.front()->wsa_buf_.buf;
-		// Å¥ Á¦ÀÏ ¾Õ »èÁ¦
+		// í ì œì¼ ì• ì‚­ì œ
 		delete send_data_queue_.front();
 
-		// Å¥ Á¦ÀÏ ¾Õ »©¹ö¸®±â
+		// í ì œì¼ ì• ë¹¼ë²„ë¦¬ê¸°
 		send_data_queue_.pop();
 
-		// Å¥°¡ ºñ¾î ÀÖ´Â »óÅÂ°¡ ¾Æ´Ï¸é ±× ´ÙÀ½ºÎÅÍ ´Ù½Ã wsasend
+		// íê°€ ë¹„ì–´ ìˆëŠ” ìƒíƒœê°€ ì•„ë‹ˆë©´ ê·¸ ë‹¤ìŒë¶€í„° ë‹¤ì‹œ wsasend
 		if (send_data_queue_.empty() == false)
 		{
 			SendIO();
@@ -241,24 +241,24 @@ public:
 private:
 	bool SendIO()
 	{
-		// Å¥ÀÇ Á¦ÀÏ ¾ÕºÎºĞ stOverlappedEx·Î °´Ã¼¿¡ ´ã±â
+		// íì˜ ì œì¼ ì•ë¶€ë¶„ stOverlappedExë¡œ ê°ì²´ì— ë‹´ê¸°
 		auto send_overlapped_ex = send_data_queue_.front();
 
 		DWORD dwRecvNumBytes = 0;
 		int nRet = WSASend(
-			socket_, // ºñµ¿±â ÀÔÃâ·Â ¼ÒÄÏ
-			&(send_overlapped_ex->wsa_buf_), // WSABUF ±¸Á¶Ã¼ ¹è¿­ ÁÖ¼Ò
-			1, // WSABUF ±¸Á¶Ã¼ °¹¼ö
-			&dwRecvNumBytes, // ÇÔ¼ö È£ÃâÀÌ ¼º°øÇÏ¸é ÀÌ º¯¼ö¿¡ º¸³»°Å³ª ¹ŞÀº ¹ÙÀÌÆ® ¼ö°¡ ÀúÀå
-			0, // send()¿Í recv()ÇÔ¼öÀÇ ¸¶Áö¸· ÀÎÀÚ¿Í µ¿ÀÏÇÑ ¿ªÇÒ
-			(LPWSAOVERLAPPED)send_overlapped_ex, // WSAOVERLAPPED ±¸Á¶Ã¼ º¯¼ö ÁÖ¼Ò°ª
-			NULL); // ÀÔÃâ·Â ÀÛ¾÷ÀÌ ¿Ï·áµÇ¸é ¿î¿µÃ¼Á¦°¡ ÀÚµ¿À¸·Î È£ÃâÇÒ ¿Ï·á·çÆ¾ ÁÖ¼Ò °ª
+			socket_, // ë¹„ë™ê¸° ì…ì¶œë ¥ ì†Œì¼“
+			&(send_overlapped_ex->wsa_buf_), // WSABUF êµ¬ì¡°ì²´ ë°°ì—´ ì£¼ì†Œ
+			1, // WSABUF êµ¬ì¡°ì²´ ê°¯ìˆ˜
+			&dwRecvNumBytes, // í•¨ìˆ˜ í˜¸ì¶œì´ ì„±ê³µí•˜ë©´ ì´ ë³€ìˆ˜ì— ë³´ë‚´ê±°ë‚˜ ë°›ì€ ë°”ì´íŠ¸ ìˆ˜ê°€ ì €ì¥
+			0, // send()ì™€ recv()í•¨ìˆ˜ì˜ ë§ˆì§€ë§‰ ì¸ìì™€ ë™ì¼í•œ ì—­í• 
+			(LPWSAOVERLAPPED)send_overlapped_ex, // WSAOVERLAPPED êµ¬ì¡°ì²´ ë³€ìˆ˜ ì£¼ì†Œê°’
+			NULL); // ì…ì¶œë ¥ ì‘ì—…ì´ ì™„ë£Œë˜ë©´ ìš´ì˜ì²´ì œê°€ ìë™ìœ¼ë¡œ í˜¸ì¶œí•  ì™„ë£Œë£¨í‹´ ì£¼ì†Œ ê°’
 
-		//socket_errorÀÌ¸é client socketÀÌ ²÷¾îÁø°É·Î Ã³¸®ÇÑ´Ù.
+		//socket_errorì´ë©´ client socketì´ ëŠì–´ì§„ê±¸ë¡œ ì²˜ë¦¬í•œë‹¤.
 		if (nRet == SOCKET_ERROR && (WSAGetLastError() != ERROR_IO_PENDING))
 		{
-			//printf("[¿¡·¯] WSASend()ÇÔ¼ö ½ÇÆĞ : %d\n", WSAGetLastError());
-			UE_LOG(LogTemp, Warning, TEXT("[¿¡·¯] WSASend()ÇÔ¼ö ½ÇÆĞ : %d\n"), WSAGetLastError());
+			//printf("[ì—ëŸ¬] WSASend()í•¨ìˆ˜ ì‹¤íŒ¨ : %d\n", WSAGetLastError());
+			UE_LOG(LogTemp, Warning, TEXT("[ì—ëŸ¬] WSASend()í•¨ìˆ˜ ì‹¤íŒ¨ : %d\n"), WSAGetLastError());
 			return false;
 		}
 		return true;
@@ -293,17 +293,17 @@ private:
 	UINT64 latest_closed_time_sec_ = 0;
 
 
-	SOCKET socket_; //Cliet¿Í ¿¬°áµÇ´Â ¼ÒÄÏ
+	SOCKET socket_; //Clietì™€ ì—°ê²°ë˜ëŠ” ì†Œì¼“
 
 	// Accept
 	stOverlappedEx accept_overlapped_ex_;
 	char accept_buf_[64];
 
 	// Recv
-	stOverlappedEx recv_overlapped_ex_; //RECV Overlapped I/OÀÛ¾÷À» À§ÇÑ º¯¼ö
-	char recv_buf_[MAX_SOCKBUF];  //µ¥ÀÌÅÍ ¹öÆÛ
+	stOverlappedEx recv_overlapped_ex_; //RECV Overlapped I/Oì‘ì—…ì„ ìœ„í•œ ë³€ìˆ˜
+	char recv_buf_[MAX_SOCKBUF];  //ë°ì´í„° ë²„í¼
 
-	// Send (queue ÇüÅÂ)
+	// Send (queue í˜•íƒœ)
 	std::mutex send_lock_;
 	std::queue<stOverlappedEx*> send_data_queue_;
 };

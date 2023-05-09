@@ -26,6 +26,6 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UAZGameInstance* teemo_game_instance;
+		class UAZGameInstance* az_game_instance;
 
 };

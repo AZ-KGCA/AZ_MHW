@@ -1,5 +1,5 @@
 #pragma once
-#define _CRT_SECURE_NO_WARNINGS
+
 #define PACKET_HEADER_SIZE 4
 
 #include <winsock2.h>
@@ -35,12 +35,13 @@ struct Test_Login_Send_Packet
 	char user_pw[33];
 
 };
-
-const int32 PACKET_HEADER_SIZE2 = 5;
-const int MAX_USER_ID_BYTE_LENGTH = 33;
-const int MAX_USER_PW_BYTE_LENGTH = 33;
-const int MAX_CHAT_MSG_SIZE = 256;
-
+//typedef struct
+//{
+//	int32 PACKET_HEADER_SIZE2 = 5;
+//	int MAX_USER_ID_BYTE_LENGTH = 33;
+//	int MAX_USER_PW_BYTE_LENGTH = 33;
+//	int MAX_CHAT_MSG_SIZE = 257;
+//}HEADER_PACKET2;
 
 //#define PACKET_CHAR_MSG   1000      // client ->
 //#define PACKET_CHATNAME_REQ   1001  // server -> client
@@ -56,7 +57,7 @@ public:
 	{
 		std::string stdString(TCHAR_TO_UTF8(*fString));
 		char* charArray = new char[stdString.length() + 1];
-		strcpy(charArray, stdString.c_str());
+		strcpy_s(charArray, sizeof(charArray), stdString.c_str());
 
 		return charArray;
 	}

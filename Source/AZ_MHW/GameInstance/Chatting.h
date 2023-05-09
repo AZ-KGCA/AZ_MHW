@@ -21,16 +21,16 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Chatting)
-		void ChatMsgSend(FString msg);
+	void ChatMsgSend(FString msg);
 	char* FStringToCharArray(FString fstring);
 	FString CharArrayToFString(const char* CharArray);
 
 public: //ScorllBox
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-		class UScrollBox* ChatHistory;
+	class UScrollBox* ChatHistory;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UTextBlock* ChatMsgBlock;
+	class UTextBlock* ChatMsgBlock;
 
 public:
 	UFUNCTION()
@@ -41,5 +41,5 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UAZGameInstance* teemo_game_instance;
+	class UAZGameInstance* az_game_instance;
 };

@@ -10,6 +10,14 @@ struct Login_Send_Packet
 	char user_pw[33];
 };
 
+struct SetMoveInfo
+{
+	unsigned short packet_length;
+	unsigned short packet_id;
+	FVector fvector_;
+	FRotator frotator_;
+};
+
 struct header_check_packet
 {
 	unsigned short packet_length;
@@ -17,13 +25,11 @@ struct header_check_packet
 
 	char user_id[33];
 	char user_pw[33];
-	//char* pDataPtr = nullptr;
-	//bool packet_type;
 };
 
 enum class CLIENT_PACKET_ID : UINT16
 {
-	// TODO ¿À´Ã ¼öÁ¤ÇØ¾ßÇÔ
+	// TODO ì˜¤ëŠ˜ ìˆ˜ì •í•´ì•¼í•¨
 
 	//SYSTEM
 	SYS_USER_CONNECT = 11,
@@ -48,15 +54,9 @@ enum class CLIENT_PACKET_ID : UINT16
 	CHAT_SEND_RESPONSE_SUCCESS = 302,
 	CHAT_SEND_RESPONSE_FAIL = 303,
 
-	//ROOM_ENTER_REQUEST = 206,
-	//ROOM_ENTER_RESPONSE = 207,
-
-	//ROOM_LEAVE_REQUEST = 215,
-	//ROOM_LEAVE_RESPONSE = 216,
-
-	//ROOM_CHAT_REQUEST = 221,
-	//ROOM_CHAT_RESPONSE = 222,
-	//ROOM_CHAT_NOTIFY = 223,
+	IN_GAME_REQUEST = 401,
+	IN_GAME_SUCCESS = 402,
+	IN_GAME_FAIL = 403,
 
 	PACKET_CHATNAME_REQ = 1001,
 };

@@ -8,13 +8,15 @@ UClient_To_Server::UClient_To_Server()
 
 }
 
-void UClient_To_Server::Socket_Init()
+void UClient_To_Server::Server_Connect()
 {
+    client_check = true;
+
     WSADATA wsa;
     WSAStartup(MAKEWORD(2, 2), &wsa);
 
     /*----------------------
-    SOCKET »ı¼º
+    SOCKET ìƒì„±
     -----------------------*/
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -23,27 +25,23 @@ void UClient_To_Server::Socket_Init()
     short fData = 0x1027;
 
     sa.sin_family = AF_INET;
-    sa.sin_addr.s_addr = inet_addr("192.168.0.157");
+    sa.sin_addr.s_addr = inet_addr("127.0.0.1");
     sa.sin_port = htons(10000);
-}
 
-void UClient_To_Server::Server_Connect()
-{
     /*----------------------
-        SOCKET ¿¬°á
+        SOCKET ì—°ê²°
         -----------------------*/
     int iRet = connect(sock, (sockaddr*)&sa, sizeof(sa));
 
     u_long iMode = 1;
-    /*----------------------¾ğ¸®¾ó ¿£Áø vector deleting destructor'() ¿¡·¯ ¿øÀÎÀÌ ¹¹¾ß?
-    SOCKET ³íºí·°Å· ¼³Á¤  | ioctlsocket
+    /*----------------------ì–¸ë¦¬ì–¼ ì—”ì§„ vector deleting destructor'() ì—ëŸ¬ ì›ì¸ì´ ë­ì•¼ : Endì‹œ Threadì— joiní•˜ê³  ëë‚´ì•¼í•¨ ì•ˆí•˜ë©´ ì´ì§€ë„ë‚¨
+    SOCKET ë…¼ë¸”ëŸ­í‚¹ ì„¤ì •  | ioctlsocket
     -----------------------*/
     ioctlsocket(sock, FIONBIO, &iMode);
 
     rece_thread = std::thread(&UClient_To_Server::receive_thread, this);
     rece_queue_thread = std::thread(&UClient_To_Server::receive_data_read_thread, this);
-
-    client_check = true;
+    rece_queue_move_info_thread = std::thread(&UClient_To_Server::receive_ingame_moveinfo_data_read_thread, this);
 }
 
 void UClient_To_Server::Client_Shutdown()
@@ -53,6 +51,7 @@ void UClient_To_Server::Client_Shutdown()
 
     rece_thread.join();
     rece_queue_thread.join();
+    rece_queue_move_info_thread.join();
 
     closesocket(sock);
     WSACleanup();
@@ -80,47 +79,53 @@ void UClient_To_Server::receive_thread()
         result = recv(sock, buffer, sizeof(buffer), 0);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        // TODO ÀÌ°÷¿¡¼­ µ¥ÀÌÅÍ Àü¼Û ¹Ş´Â°Å È®ÀÎÇÏ±â
+        // TODO ì´ê³³ì—ì„œ ë°ì´í„° ì „ì†¡ ë°›ëŠ”ê±° í™•ì¸í•˜ê¸°
 
         if (result > 0)
         {
             Login_Send_Packet Login_data;
             ZeroMemory(&Login_data, sizeof(Login_data));
-            //CopyMemory(&Login_data, (Login_Send_Packet*)buffer, sizeof((Login_Send_Packet*)buffer));
             CopyMemory(&Login_data, buffer, sizeof(Login_data));
 
             UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_thread] packet id : %d data : %s\n"), Login_data.packet_id, *defind.CharArrayToFString(Login_data.user_id));
-            // TODO ¿©±â¼­ Çì´õ¿¡ µû¶ó¼­ ºĞ±âÇØ¾ßÇÒµí?
 
-            std::lock_guard<std::mutex> lock(received_data_mutex);
+            // ë¡œê·¸ì¸ ì±„íŒ… ê´€ë ¨ íŒ¨í‚· : 400ì´í•˜
+            if (Login_data.packet_id <= 400)
+            {
+                std::lock_guard<std::mutex> lock(received_data_mutex);
 
-            // ¹ŞÀº µ¥ÀÌÅÍ Å¥¿¡ ¹Ğ¾î ³Ö±â
-            receive_header_check_data_queue.push(&Login_data);
+                // ë°›ì€ ë°ì´í„° íì— ë°€ì–´ ë„£ê¸°
+                receive_header_check_data_queue.push(&Login_data);
+            }
+            // ì¸ê²Œì„ ê´€ë ¨ íŒ¨í‚· 400ì´ìƒ
+            else
+            {
+                FSetMoveInfo in_game_move_data_;
+                ZeroMemory(&in_game_move_data_, sizeof(in_game_move_data_));
+                CopyMemory(&in_game_move_data_, buffer, sizeof(in_game_move_data_));
+                UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_thread else] packet id : %d size : %d fvector : %s frotator : %s\n"),
+                    in_game_move_data_.packet_id, in_game_move_data_.packet_length, *in_game_move_data_.fvector_.ToString(), *in_game_move_data_.frotator_.ToString());
 
-            // ReceivedData ±¸Á¶Ã¼¸¦ ¸¸µé°í ¹ŞÀº µ¥ÀÌÅÍ¸¦ ÀúÀåÇÕ´Ï´Ù.
-            //ReceivedData received_data = { new char[result], result };
-            //std::copy(buffer, buffer + result, received_data.buffer);
+                std::lock_guard<std::mutex> lock(received_data_mutex);
 
-            //// Acquire the lock to access the queue
-            //std::lock_guard<std::mutex> lock(received_data_mutex);
-
-            //// Store the received data in the queue
-            //received_data_queue.push(received_data);
-
+                // ë°›ì€ ë°ì´í„° íì— ë°€ì–´ ë„£ê¸°
+                receive_ingame_moveinfo_data_queue.push(&in_game_move_data_);
+            }
         }
     }
 }
 
+// ë¡œê·¸ì¸ ë° ì±„íŒ… ê´€ë ¨ ì“°ë ˆë“œ
 void UClient_To_Server::receive_data_read_thread()
 {
     while (recevie_connected)
     {
-        // ´ë±â¿­¿¡ ¾×¼¼½ºÇÏ±â À§ÇÑ Àá±İ È¹µæ
+        // ëŒ€ê¸°ì—´ì— ì•¡ì„¸ìŠ¤í•˜ê¸° ìœ„í•œ ì ê¸ˆ íšë“
         std::lock_guard<std::mutex> lock(received_data_mutex);
 
-        // Å¥¿¡ ¹ŞÀº µ¥ÀÌÅÍ°¡ ÀÖ´ÂÁö È®ÀÎ
+        // íì— ë°›ì€ ë°ì´í„°ê°€ ìˆëŠ”ì§€ í™•ì¸
         if (!receive_header_check_data_queue.empty()) {
-            // ´ë±â¿­¿¡¼­ Ã³À½ ¹ŞÀº µ¥ÀÌÅÍ °¡Á®¿À±â
+            // ëŒ€ê¸°ì—´ì—ì„œ ì²˜ìŒ ë°›ì€ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
             Login_Send_Packet* received_data = receive_header_check_data_queue.front();
 
             switch (received_data->packet_id)
@@ -128,7 +133,7 @@ void UClient_To_Server::receive_data_read_thread()
             case (UINT32)CLIENT_PACKET_ID::LOGIN_RESPONSE_SUCCESS:
                 ::MessageBox(NULL, L"Signin_Success", L"SignIn", 0);
                 UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 201] packet id : %d\n"), received_data->packet_id);
-                // Ä³¸¯ÅÍ ¼±ÅÃÃ¢ µ¨¸®°ÔÀÌÆ® ´Ş¾î¾ßÇÏÁö¸¸ ÀÎ°ÔÀÓ ÁøÀÔÀ¸·Î ÀÏ´Ü º¯°æ
+                // ìºë¦­í„° ì„ íƒì°½ ë¸ë¦¬ê²Œì´íŠ¸ ë‹¬ì–´ì•¼í•˜ì§€ë§Œ ì¸ê²Œì„ ì§„ì…ìœ¼ë¡œ ì¼ë‹¨ ë³€ê²½
                 if (Fuc_in_game_connect.IsBound() == true) Fuc_in_game_connect.Execute();
                 break;
             case (UINT32)CLIENT_PACKET_ID::LOGIN_RESPONSE_FAIL:
@@ -145,8 +150,13 @@ void UClient_To_Server::receive_data_read_thread()
                 break;
             case (UINT32)CLIENT_PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS:
                 ::MessageBox(NULL, L"BroadCast Msg", L"Signup", 0);
-                // TODO ¿©±â¿¡ µ¨¸®°ÔÀÌÆ® ´Ş¾Æ¼­ Ãª ¸Ş¼¼Áö µé¾î¿Â°Å È®ÀÎÇÏ±â
-                //FString min = *defind.CharArrayToFString(received_data->user_id);                       
+                // TODO ì—¬ê¸°ì— ë¸ë¦¬ê²Œì´íŠ¸ ë‹¬ì•„ì„œ ì±— ë©”ì„¸ì§€ ë“¤ì–´ì˜¨ê±° í™•ì¸í•˜ê¸°                     
+                UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 302] packet id : %d Data : %s\n"), received_data->packet_id, *defind.CharArrayToFString(received_data->user_id));
+                if (Fuc_boradcast_success.IsBound() == true) Fuc_boradcast_success.Execute(*defind.CharArrayToFString(received_data->user_id));
+                break;
+            case (UINT32)CLIENT_PACKET_ID::IN_GAME_SUCCESS:
+                ::MessageBox(NULL, L"IN_GAME_SUCCESS", L"Signup", 0);
+                // TODO ì—¬ê¸°ì— ë¸ë¦¬ê²Œì´íŠ¸ ë‹¬ì•„ì„œ ì±— ë©”ì„¸ì§€ ë“¤ì–´ì˜¨ê±° í™•ì¸í•˜ê¸°                  
                 UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 302] packet id : %d Data : %s\n"), received_data->packet_id, *defind.CharArrayToFString(received_data->user_id));
                 if (Fuc_boradcast_success.IsBound() == true) Fuc_boradcast_success.Execute(*defind.CharArrayToFString(received_data->user_id));
                 break;
@@ -156,10 +166,52 @@ void UClient_To_Server::receive_data_read_thread()
             }
 
             receive_header_check_data_queue.pop();
-
-            // ¹ŞÀº µ¥ÀÌÅÍ »ç¿ë
-            // ...
-            // TODO ÆĞÅ¶ Çì´õ¸¸ ¿ì¼± ¹Ş°í ³ª¸ÓÁö¸¦ ¹Ş¾î¾ßµÇ³ª .......??
         }
     }
+}
+
+// ì¸ê²Œì„ ì“°ë ˆë“œ
+void UClient_To_Server::receive_ingame_moveinfo_data_read_thread()
+{
+    while (recevie_connected)
+    {
+        // ëŒ€ê¸°ì—´ì— ì•¡ì„¸ìŠ¤í•˜ê¸° ìœ„í•œ ì ê¸ˆ íšë“
+        std::lock_guard<std::mutex> lock(received_data_mutex);
+
+        // íì— ë°›ì€ ë°ì´í„°ê°€ ìˆëŠ”ì§€ í™•ì¸
+        if (!receive_ingame_moveinfo_data_queue.empty()) {
+            // ëŒ€ê¸°ì—´ì—ì„œ ì²˜ìŒ ë°›ì€ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
+            FSetMoveInfo* received_ingmae_data_ = receive_ingame_moveinfo_data_queue.front();
+
+            switch (received_ingmae_data_->packet_id)
+            {
+            case (UINT32)CLIENT_PACKET_ID::IN_GAME_SUCCESS:
+                ::MessageBox(NULL, L"IN_GAME_SUCCESS", L"SignIn", 0);
+                UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 402] packet id : %d data : %s\n"), received_ingmae_data_->packet_id, *received_ingmae_data_->fvector_.ToString());
+                // ìºë¦­í„° ì„ íƒì°½ ë¸ë¦¬ê²Œì´íŠ¸ ë‹¬ì–´ì•¼í•˜ì§€ë§Œ ì¸ê²Œì„ ì§„ì…ìœ¼ë¡œ ì¼ë‹¨ ë³€ê²½
+                if (Fuc_in_game_init.IsBound() == true) Fuc_in_game_init.Execute(*received_ingmae_data_);
+                break;
+            case (UINT32)CLIENT_PACKET_ID::LOGIN_RESPONSE_FAIL:
+                ::MessageBox(NULL, L"Signin_Fail", L"SignIn", 0);
+                UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 202] packet id : %d\n"), received_ingmae_data_->packet_id);
+                break;
+            default:
+                UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch default] packet id : %d\n"), received_ingmae_data_->packet_id);
+                break;
+            }
+
+            receive_ingame_moveinfo_data_queue.pop();
+        }
+    }
+}
+
+void UClient_To_Server::InGameAccept()
+{
+    UE_LOG(LogTemp, Warning, TEXT("[InGameAccept]\n"));
+
+    Login_Send_Packet login_send_packet;
+    login_send_packet.packet_id = (int)CLIENT_PACKET_ID::IN_GAME_REQUEST;
+    login_send_packet.packet_length = sizeof(login_send_packet);
+
+    Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
 }

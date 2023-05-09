@@ -1,5 +1,4 @@
 #pragma once
-#define _CRT_SECURE_NO_WARNINGS
 #include <windows.h>
 #include <sqltypes.h>
 #include <sql.h>
@@ -125,4 +124,3 @@ public:
 	TIMESTAMP_STRUCT loginTS;		SQLLEN  llogin;
 	TIMESTAMP_STRUCT logoutTS;		SQLLEN  llogout;
 };
-

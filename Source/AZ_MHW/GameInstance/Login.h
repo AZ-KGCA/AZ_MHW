@@ -2,14 +2,12 @@
 
 #pragma once
 
-#include "Client_Packet.h"
-
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Login.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class AZ_MHW_API ULogin : public UUserWidget
@@ -21,28 +19,28 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Login)
-		FString login_id;
+	FString login_id;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Login)
-		FString login_pw;
+	FString login_pw;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyCategory")
-		bool login_to_ingame = false;
+	bool login_to_ingame = false;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Login)
-		FString SetLoginInfo(FString id, FString pw);
+	FString SetLoginInfo(FString id, FString pw);
 
 	UFUNCTION(BlueprintCallable, Category = Login)
-		void PacketSend();
+	void ServerConnect();
 
 	UFUNCTION(BlueprintCallable, Category = Login)
-		void ServerConnect();
-
-	UFUNCTION(BlueprintCallable, Category = Login)
-		void InGameConnect();
+	void InGameConnect();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UAZGameInstance* teemo_game_instance;
+	class UAZGameInstance* az_game_instance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UClient_To_Server* client_to_server;
 };

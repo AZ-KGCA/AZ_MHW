@@ -16,21 +16,24 @@ class AZ_MHW_API ULogin_Signup : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
+
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Signup)
-		FString signup_id;
+	FString signup_id;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Signup)
-		FString signup_pw;
+	FString signup_pw;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Signup)
-		FString signup_check_pw;
+	FString signup_check_pw;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Signup)
-		bool Login_Signup(FString id, FString pw, FString pw2);
+	bool Login_Signup(FString id, FString pw, FString pw2);
 
 	void Signup_Packet_Send(FString id, FString pw, CLIENT_PACKET_ID packet_id);
 
 public:
-	UAZGameInstance* teemo_game_instance;
+	class UAZGameInstance* az_game_instance;
 };

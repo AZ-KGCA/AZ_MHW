@@ -9,6 +9,11 @@
 #include <mutex>
 #include <memory>
 
+const UINT16 SERVER_PORT = 10000;
+const UINT16 MAX_CLIENT = 5;		//총 접속할수 있는 클라이언트 수
+const int SLEEP_TIME = 3000;
+const UINT32 MAX_IO_WORKER_THREAD = 4;
+
 class AppServer : public IocpNetServer
 {
 public:
@@ -65,8 +70,6 @@ public:
 			BroadcastSendMsg(client_index, packet_size, P_send_packet);
 		};
 
-
-
 		// 패킷 매니저 생성
 		P_packet_manager_ = std::make_unique<PacketManager>();
 		P_packet_manager_->SendPacketFunc = send_packet_func;
@@ -90,6 +93,10 @@ public:
 
 		DestroyThread();
 	}
+
+	void ServerStart();
+public:
+	bool server_check_ = false;
 
 private:
 	std::unique_ptr<PacketManager> P_packet_manager_;

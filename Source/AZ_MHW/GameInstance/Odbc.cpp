@@ -1,15 +1,11 @@
 #include "Odbc.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-
 void Odbc::Load()
 {
 	m_dbDataList.clear();
 	m_ColumnList.clear();
 
 	// 전체 레코드 조회, 추가, 수정, 삭제
-	/*TCHAR sql[] = L"select * from tblCigar";
-	SQLRETURN hr = SQLExecDirect(g_odbc.g_hStmt, sql, SQL_NTS);*/
 	SQLRETURN hr = SQLExecute(g_hSelectAllStmt);
 	if (hr != SQL_SUCCESS)
 	{
@@ -320,14 +316,16 @@ bool Odbc::UpdateSQL(dbitem& record, std::wstring selectName)
 		0, &m_cbColumn);
 
 	std::time_t now = std::time(NULL); // 1970,01,01, 0시
-	std::tm* ptm = std::localtime(&now);
+	//std::tm* ptm = std::localtime(&now);
+	std::tm ptm;
+	localtime_s(&ptm, &now);
 
-	m_ts.year = ptm->tm_year + 1900;
-	m_ts.month = ptm->tm_mon + 1;
-	m_ts.day = ptm->tm_mday;
-	m_ts.hour = ptm->tm_hour;
-	m_ts.minute = ptm->tm_min;
-	m_ts.second = ptm->tm_sec;
+	m_ts.year = ptm.tm_year + 1900;
+	m_ts.month = ptm.tm_mon + 1;
+	m_ts.day = ptm.tm_mday;
+	m_ts.hour = ptm.tm_hour;
+	m_ts.minute = ptm.tm_min;
+	m_ts.second = ptm.tm_sec;
 	m_ts.fraction = 0;
 
 	SQLRETURN hr = SQLExecute(g_hUpdateStmt);

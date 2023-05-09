@@ -264,7 +264,7 @@ private:
 			auto P_overlapped_ex = (stOverlappedEx*)lpOverlapped;
 
 			//client가 접속을 끊었을때..			
-			if (false == bSuccess || (0 == dwIoSize && IOOperation::ACCEPT != P_overlapped_ex->E_operation_))
+			if (FALSE == bSuccess || (0 == dwIoSize && IOOperation::ACCEPT != P_overlapped_ex->E_operation_))
 			{
 				//printf("socket(%d) 접속 끊김\n", (int)pClientInfo->_socketClient);
 				CloseSocket(P_client_info);
@@ -396,4 +396,3 @@ private:
 	//CompletionPort객체 핸들
 	HANDLE		iocp_handle_ = INVALID_HANDLE_VALUE;
 };
-

@@ -2,7 +2,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Odbc.h"
-#include "Define.h"
 
 struct RawPacketData
 {
@@ -69,6 +68,10 @@ enum class PACKET_ID : UINT16
 	CHAT_SEND_RESPONSE_SUCCESS = 302,
 	CHAT_SEND_RESPONSE_FAIL = 303,
 
+	IN_GAME_REQUEST = 401,
+	IN_GAME_SUCCESS = 402,
+	IN_GAME_FAIL = 403,
+
 	//ROOM_ENTER_REQUEST = 206,
 	//ROOM_ENTER_RESPONSE = 207,
 
@@ -134,6 +137,7 @@ struct ROOM_LEAVE_RESPONSE_PACKET : public PACKET_HEADER
 };
 
 // 룸 채팅
+const int MAX_CHAT_MSG_SIZE = 256;
 struct ROOM_CHAT_REQUEST_PACKET : public PACKET_HEADER
 {
 	char message_[MAX_CHAT_MSG_SIZE + 1] = { 0, };
@@ -154,4 +158,3 @@ struct ROOM_CHAT_NOTIFY_PACKET : public PACKET_HEADER
 class Packet
 {
 };
-
