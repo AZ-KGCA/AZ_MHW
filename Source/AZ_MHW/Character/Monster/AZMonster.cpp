@@ -6,12 +6,16 @@
 #include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent.h"
 #include "AZ_MHW/CommonSource/AZStruct.h"
-#include <Perception/AIPerceptionStimuliSourceComponent.h>
+#include "AZ_MHW/Manager/AZMonsterMgr.h"
+#include "AZ_MHW/Util/AZUtility.h"
+#include "AZ_MHW/CommonSource/Define/GameDefine.h"
+#include "AZ_MHW/Character/Player/AZPlayer.h"
+
+#include <PhysicalMaterials/PhysicalMaterial.h>
 #include <Perception/AISense_Sight.h>
 #include <GameFrameWork/CharacterMovementComponent.h>
 #include <Kismet/KismetSystemLibrary.h>
-#include "AZ_MHW/Manager/AZMonsterMgr.h"
-#include "AZ_MHW/Util/AZUtility.h"
+
 
 AAZMonster::AAZMonster()
 {
@@ -22,7 +26,7 @@ AAZMonster::AAZMonster()
 
     // TODO 
 	// Set default objects to hit check
-	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)); // AZCharacter (player)
+	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECC_AZPLAYER)); // AZCharacter (player)
 	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
 
 	// Set AI Controller class
@@ -68,6 +72,14 @@ void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rota
 		out_location = GetMesh()->GetSocketLocation("HeadSocket");
 		out_rotation = GetMesh()->GetSocketRotation("HeadSocket");
 	}
+}
+
+void AAZMonster::BeginDestroy()
+{
+	// Damage Interface
+	OnTakeDamage.RemoveDynamic(this, &AAZMonster::PostProcessDamage);
+	
+	Super::BeginDestroy();
 }
 
 void AAZMonster::SetUpDefaultProperties()
@@ -150,6 +162,9 @@ void AAZMonster::BeginPlay()
 	Super::BeginPlay();
 	SpawnDefaultController();
 	anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
+
+	// Damage Interface
+	OnTakeDamage.AddDynamic(this, &AAZMonster::PostProcessDamage);
 }
 
 void AAZMonster::EnterCombat()
@@ -320,6 +335,8 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 {
 	TArray<FHitResult> hit_results;
 	TArray<AActor*, FDefaultAllocator> ignore_actors;
+	TArray<AActor*> overlapped_actors;
+	ignore_actors.Add(this);
 
 	// Get the location to start trace at
 	FVector trace_start_loc = GetMesh()->GetSocketLocation(socket_name);
@@ -327,22 +344,35 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 	{
 		trace_start_loc.Z -= 100.0f;
 	}
-	FVector trace_end_loc = trace_start_loc - FVector(0, 0, 1);
+	//FVector trace_end_loc = trace_start_loc - FVector(0, 0, 1);
 
 	// Do Sphere trace
 	if (duration_type == EEffectDurationType::Instant)
 	{
-		UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), trace_start_loc, trace_end_loc, radius, hit_object_types_, false,
-			ignore_actors, EDrawDebugTrace::ForDuration, hit_results, true);
-
-		//@TODO do something with hit_results
-		FString text_string = "Hit Actors: ";
-		for (FHitResult hit_result : hit_results)
+		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), trace_start_loc, radius, hit_object_types_, AAZCharacter::StaticClass(), ignore_actors, overlapped_actors);
+		for (auto actor : overlapped_actors)
 		{
-			text_string += UKismetSystemLibrary::GetObjectName(hit_result.GetActor());
-			text_string += ", ";
+			AAZPlayer* overlapped_player = Cast<AAZPlayer>(actor);
+			// 플레이어는 어차피 인터페이스 상속 받아서 확인할 필요 없는데 원하시면 이런식으로 상속여부 확인하시면 됩니다
+			if (overlapped_player->GetClass()->ImplementsInterface(UAZDamageAgentInterface::StaticClass()))
+			{
+				// 원래는 현재 스킬 상태 보고 데미지타입과 데미지 등 계산해서 넘겨야합니다 
+				IAZDamageAgentInterface::Execute_ApplyDamage(this, actor, FHitResult(), GetController(), nullptr, 100);
+			}
 		}
-		UE_LOG(AZMonster, Log, TEXT("%s"), *text_string);
+		
+		// SphereTrace Currently Not In Use
+		//UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), trace_start_loc, trace_end_loc, radius, hit_object_types_, false,
+			//ignore_actors, EDrawDebugTrace::ForDuration, hit_results, true);
+
+		// //@TODO do something with hit_results
+		// FString text_string = "Hit Actors: ";
+		// for (FHitResult hit_result : hit_results)
+		// {
+		// 	text_string += UKismetSystemLibrary::GetObjectName(hit_result.GetActor());
+		// 	text_string += ", ";
+		// }
+		// UE_LOG(AZMonster, Log, TEXT("%s"), *text_string);
 
 		//@TODO get current action and handle damage
 
@@ -350,6 +380,37 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 	else if (duration_type == EEffectDurationType::ForDuration)
 	{
 		//@TODO
+	}
+}
+
+float AAZMonster::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
+	AController* instigator, TSubclassOf<UDamageType> damage_type_class, float base_damage)
+{
+	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, instigator, damage_type_class, base_damage);
+}
+
+float AAZMonster::ProcessDamage(const FHitResult& hit_result, AController* instigator,
+	TSubclassOf<UDamageType> damage_type_class, float base_damage)
+{
+	//TEMP
+	AAZCharacter* instigator_character = Cast<AAZCharacter>(instigator->GetPawn());
+	if (!instigator_character)
+	{
+		UE_LOG(AZMonster, Warning, TEXT("[AAZMonster] Damage dealt by non-AZCharacter actor %s"), *instigator_character->GetName());
+		return 0.f;
+	}
+	UE_LOG(AZMonster, Warning, TEXT("[AAZMonster] Damage dealt to material %s"), *hit_result.PhysMaterial.Get()->GetName());
+	return Super::ProcessDamage(hit_result, instigator, damage_type_class, base_damage);
+}
+
+void AAZMonster::PostProcessDamage(float total_damage, const UDamageType* damage_type, AController* instigator)
+{
+	UE_LOG(AZMonster, Log, TEXT("[AAZMonster] PostProcessDamage Called with total damage: %f"), total_damage);
+	//TEMP Test
+	health_component_->current_hp_ -= total_damage;
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Health: %d"), health_component_->current_hp_));
 	}
 }
 

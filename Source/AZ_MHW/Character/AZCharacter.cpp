@@ -1,5 +1,6 @@
 ﻿#include "AZ_MHW/Character/AZCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 AAZCharacter::AAZCharacter()
 {

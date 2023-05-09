@@ -36,6 +36,6 @@ private:
 	TWeakObjectPtr<AAZCharacter> best_target_;
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TMap<int32, int32> aggro_info_;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) TMap<int32, int32> aggro_info_;
 	UPROPERTY(VisibleAnywhere) int32 test_;
 };

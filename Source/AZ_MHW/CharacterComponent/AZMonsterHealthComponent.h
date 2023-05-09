@@ -20,12 +20,17 @@ public:
 	// Property Getters
 	float GetHealthRatio() const;
 	float GetStaminaRatio() const;
+
+	// Escape Functionalities
 	//TODO bool CanEscape() const;
+
+	// Take Damage functions
+	
 	
 protected:
 	virtual void InitializeComponent() override;
-	UFUNCTION() void TakeDamage(AActor* damaged_actor, float damage_amount, const class UDamageType* damage_type, class AController* event_instigator, AActor* damage_causer);
-
+	//UFUNCTION() void TakeDamage(AActor* damaged_actor, float damage_amount, const class UDamageType* damage_type, class AController* event_instigator, AActor* damage_causer);
+	
 private:
 	TWeakObjectPtr<class AAZMonster> owner_;
 	
@@ -34,15 +39,15 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") int32 tired_duration_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Health") FBossEscapeStats escape_stats_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") FBossWeaknessStats weakness_stats_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") TMap<EMonsterBodyPart, FBossBodyPartDebuffInfo> body_part_states_;
+	UPROPERTY(EditDefaultsOnly, Category = "AZ | Damage") TMap<EMonsterBodyPart, FBossBodyPartDebuffInfo> body_part_states_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") float tenderised_damage_multiplier_;
 
+public:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_stamina_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_num_escapes_;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Current State") FBossBodyCondition body_condition_;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Current State") FBossBodyCondition body_condition_; // currently not in use
 
-	//TODO Add current damage per parts (sever, part break, stun, etc)
 };

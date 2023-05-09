@@ -3,7 +3,7 @@
 #include <GenericTeamAgentInterface.h>
 #include <GameFramework/Character.h>
 #include "AZ_MHW/CommonSource/AZEnum.h"
-#include <GameFramework/Character.h>
+#include "AZ_MHW/Interface/AZDamageAgentInterface.h"
 #include "AZCharacter.generated.h"
 #pragma region Macro
 
@@ -26,7 +26,7 @@
 * AZ_ Player, NPC, Enemy?Monster? Base Clas
 */
 UCLASS(Abstract)
-class AZ_MHW_API AAZCharacter : public ACharacter, public IGenericTeamAgentInterface
+class AZ_MHW_API AAZCharacter : public ACharacter, public IGenericTeamAgentInterface, public IAZDamageAgentInterface
 {
 	GENERATED_BODY()
 

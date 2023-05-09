@@ -21,8 +21,9 @@ enum class EEffectDurationType : uint8;
 enum class EBossRank : uint8;
 enum class EMonsterBehaviorType : uint8;
 
-//TODO
 // Delegates
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FTakeDamageSignature, AActor*, DamagedActor, float, Damage, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser, FName, physics_material);
+
 //DECLARE_DELEGATE_OneParam(FOnDamaged, int32, damage_amount);
 
 UCLASS(Blueprintable)
@@ -38,7 +39,8 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 	virtual void GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const override;
-		
+	virtual void BeginDestroy() override;
+	
 	// Property Initialisers
 	void SetUpStimulus();
 	void SetUpDefaultProperties();
@@ -71,7 +73,15 @@ public:
 	virtual void AnimNotify_SetMovementMode(EMovementMode movement_mode) override;
 	virtual void AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration) override;
 
-	// StateReceiveHandlers
+	// Damage Agent Overrides
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result,
+	                  AController* event_instigator, TSubclassOf<UDamageType> damage_type_class, float base_damage);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
+							 AController* instigator, TSubclassOf<UDamageType> damage_type_class, float base_damage) override;
+	virtual float ProcessDamage(const FHitResult& hit_result, AController* instigator,
+							TSubclassOf<UDamageType> damage_type_class, float applied_damage) override;
+	UFUNCTION() void PostProcessDamage(float total_damage, const UDamageType* damage_type, AController* damage_instigator);
 
 	// Validity Checkers
 	bool IsABoss() const;

@@ -66,9 +66,9 @@ float UAZMonsterHealthComponent::GetStaminaRatio() const
 	return current_stamina_ / base_stamina_;
 }
 
-void UAZMonsterHealthComponent::TakeDamage(AActor* damaged_actor, float damage_amount, const UDamageType* damage_type,
-                                           AController* event_instigator, AActor* damage_causer)
-{
-	// TODO update current hp
-	// TODO update health state information if needed
-}
+// void UAZMonsterHealthComponent::TakeDamage(AActor* damaged_actor, float damage_amount, const UDamageType* damage_type,
+//                                            AController* event_instigator, AActor* damage_causer, FName physics_material)
+// {
+// 	UE_LOG(AZMonster, Log, TEXT("Damaged Actor: %s, Damage Amount: %f, Damage Type: %s, Event Instigator: %s, Damage Causer: %s"),
+// 		*damaged_actor->GetName(), damage_amount, *damage_type->GetName(), *event_instigator->GetName(), *damage_causer->GetName());
+// }
