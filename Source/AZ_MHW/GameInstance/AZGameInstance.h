@@ -11,6 +11,7 @@
 #include "AppServer.h" // ODBC 연결 Packet.h
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
+// test1
 
 // window 기본 타입 Hide
 #include "Windows/AllowWindowsPlatformTypes.h"
@@ -58,14 +59,14 @@ public:
 	AppServer iocp_net_server_;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Server_Chioce)
-		int32 socket_type = 10;
+	int32 socket_type = 10;
 
 	//Client_Connect client_connect;
 
 public:
 	//UPROPERTY(Transient)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UClient_To_Server* client_connect;
+	UClient_To_Server* client_connect;
 public: // 좌표값 받는 곳
 	//FVector CurrentLocation;
 	TArray<FVector> current_location_array;
