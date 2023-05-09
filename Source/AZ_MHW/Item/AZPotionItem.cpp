@@ -6,44 +6,44 @@
 
 void UAZPotionItem::InitItem(FPotionInfo& new_info)
 {
-	info = &new_info;
+	info_ = &new_info;
 }
 
 void UAZPotionItem::SetCount(int32 count)
 {
-	info->item_count = count;
+	info_->item_count = count;
 }
 
 void UAZPotionItem::IncreaseCount(int32 count)
 {
-	info->item_count = info->item_count + count;
+	info_->item_count = info_->item_count + count;
 }
 
 void UAZPotionItem::DecreaseCount(int32 count)
 {
-	info->item_count = info->item_count - count;
-	if(info->item_count <= 0)
+	info_->item_count = info_->item_count - count;
+	if(info_->item_count <= 0)
 	{
-		info->item_count = 0;
+		info_->item_count = 0;
 	}
 }
 
 FPotionInfo* UAZPotionItem::GetItemInfo() const
 {
-	return info;
+	return info_;
 }
 
 int32 UAZPotionItem::GetItemCount()
 {
-	return info->item_count;
+	return info_->item_count;
 }
 
 int32 UAZPotionItem::GetItemKey()
 {
-	return info->item_key;
+	return info_->item_key;
 }
 
 EStorageType UAZPotionItem::GetItemStorageType()
 {
-	return info->storage_type;
+	return info_->storage_type;
 }

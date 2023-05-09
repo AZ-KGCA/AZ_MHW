@@ -2,4 +2,14 @@
 
 
 #include "AZArmorItem.h"
+#include "AZItemData.h"
 
+void UAZArmorItem::InitItem(FArmorInfo& info)
+{
+	info_ = &info;
+}
+
+FArmorInfo* UAZArmorItem::GetItemInfo()
+{
+	return info_;
+}

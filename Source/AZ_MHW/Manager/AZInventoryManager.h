@@ -6,6 +6,7 @@
 #include "AZ_MHW/Item/AZPotionItem.h"
 #include  "AZ_MHW/Item/AZAmmoItem.h"
 #include "AZ_MHW/Item/AZItemData.h"
+#include "Item/AZWeaponItem.h"
 #include "UObject/NoExportTypes.h"
 #include "AZInventoryManager.generated.h"
 
@@ -18,12 +19,14 @@ class AZ_MHW_API UAZInventoryManager : public UObject
 	GENERATED_BODY()
 public:
 	
-	UPROPERTY() TMap<int32, UAZPotionItem*> potion_pocket;
-	UPROPERTY() TMap<int32, UAZPotionItem*> potion_warehouse;
-	UPROPERTY() TMap<int32, UAZAmmoItem*> bottle_pocket;
-	UPROPERTY() TMap<int32, UAZAmmoItem*> bottle_warehouse;
-	UPROPERTY() class UAZGameSingleton* instance;
-
+	UPROPERTY() TMap<int32, UAZPotionItem*> potion_pocket_;
+	UPROPERTY() TMap<int32, UAZPotionItem*> potion_warehouse_;
+	UPROPERTY() TMap<int32, UAZAmmoItem*> bottle_pocket_;
+	UPROPERTY() TMap<int32, UAZAmmoItem*> bottle_warehouse_;
+	UPROPERTY() TMap<int32, UAZWeaponItem*> weapon_warehouse_;
+	UPROPERTY() class UAZGameSingleton* instance_;
+	
+	
 	void			Init();
 	void			ResetMgr();
 	void			SetMaxCount();
@@ -47,6 +50,9 @@ public:
 	bool			ChangeBottleStorage(int32 item_key, EStorageType type, int32 move_count);
 	UAZAmmoItem*	CreateBottle(FAmmoInfo& info);
 
+	//weapon
+	UAZWeaponItem*	CreateWeapon(FWeaponInfo& info);
+	bool			AddWarehouseWeapon(FWeaponInfo& info);
 	
 	//UAZPotionItem*	GetPotionItem(FPotionInfo& info);
 	/*bool		AddWarehouseItem(const FItemInfo& item_info);

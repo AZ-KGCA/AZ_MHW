@@ -14,5 +14,9 @@ UCLASS()
 class AZ_MHW_API UAZArmorItem : public UObject
 {
 	GENERATED_BODY()
-	
+private:
+	FArmorInfo* info_;
+public:
+	void InitItem(FArmorInfo& info);
+	FArmorInfo* GetItemInfo();
 };

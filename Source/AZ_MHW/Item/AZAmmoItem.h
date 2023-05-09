@@ -18,7 +18,7 @@ class AZ_MHW_API UAZAmmoItem : public UObject
 {
 	GENERATED_BODY()
 private:
-	FAmmoInfo* info;
+	FAmmoInfo* info_;
 public:
 	void InitItem(FAmmoInfo& item_info);
 	void IncreaseCount(int32 count = 1);

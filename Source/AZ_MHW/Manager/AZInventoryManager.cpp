@@ -11,7 +11,7 @@
 
 void UAZInventoryManager::Init()
 {
-	instance = UAZGameSingleton::instance();
+	instance_ = UAZGameSingleton::instance();
 	
 	ResetMgr();
 	SetMaxCount();
@@ -20,8 +20,8 @@ void UAZInventoryManager::Init()
 
 void UAZInventoryManager::ResetMgr()
 {
-	potion_pocket.Empty();
-	potion_warehouse.Empty();
+	potion_pocket_.Empty();
+	potion_warehouse_.Empty();
 }
 
 void UAZInventoryManager::SetMaxCount()
@@ -54,21 +54,21 @@ int32 UAZInventoryManager::GetInventoryCurrCount(EItemType item_type, EStorageTy
 	case EItemType::Potion:
 		if (type == EStorageType::Warehouse)
 		{
-			count = potion_warehouse.Num();
+			count = potion_warehouse_.Num();
 		}
 		else
 		{
-			count = potion_pocket.Num();
+			count = potion_pocket_.Num();
 		}
 		break;
 	case EItemType::Bottle:
 		if (type == EStorageType::Warehouse)
 		{
-			count = bottle_warehouse.Num();
+			count = bottle_warehouse_.Num();
 		}
 		else
 		{
-			count = bottle_pocket.Num();
+			count = bottle_pocket_.Num();
 		}
 		break;
 	}
@@ -126,11 +126,11 @@ bool UAZInventoryManager::IsPocketFull(EItemType type)
 
 void UAZInventoryManager::SortWarehouse()
 {
-	potion_warehouse.KeySort([](int32 left, int32 right)
+	potion_warehouse_.KeySort([](int32 left, int32 right)
 	{
 		return left < right;
 	});
-	bottle_warehouse.KeySort([](int32 left, int32 right)
+	bottle_warehouse_.KeySort([](int32 left, int32 right)
 	{
 		return left<right;
 	});
@@ -138,11 +138,11 @@ void UAZInventoryManager::SortWarehouse()
 
 void UAZInventoryManager::SortPocket()
 {
-	potion_pocket.KeySort([](int32 left, int32 right)
+	potion_pocket_.KeySort([](int32 left, int32 right)
 	{
 		return left<right;
 	});
-	bottle_pocket.KeySort([](int32 left, int32 right)
+	bottle_pocket_.KeySort([](int32 left, int32 right)
 	{
 		return left<right;
 	});
@@ -156,21 +156,21 @@ void UAZInventoryManager::RemoveItem(int32 item_key, EItemType item_type, EStora
 	case EItemType::Potion:
 		if(type == EStorageType::Warehouse)
 		{
-			potion_warehouse.Remove(item_key);
+			potion_warehouse_.Remove(item_key);
 		}
 		else if(type == EStorageType::Pocket)
 		{
-			potion_pocket.Remove(item_key);
+			potion_pocket_.Remove(item_key);
 		}
 		break;
 	case EItemType::Bottle:
 		if(type == EStorageType::Warehouse)
 		{
-			bottle_warehouse.Remove(item_key);
+			bottle_warehouse_.Remove(item_key);
 		}
 		else if(type == EStorageType::Pocket)
 		{
-			bottle_pocket.Remove(item_key);
+			bottle_pocket_.Remove(item_key);
 		}
 		break;
 	}
@@ -185,7 +185,7 @@ bool UAZInventoryManager::AddWarehousePotion(FPotionInfo& info)
 		return false;
 	}
 
-	UAZPotionItem** potion = potion_warehouse.Find(info.item_key);
+	UAZPotionItem** potion = potion_warehouse_.Find(info.item_key);
 
 	if(potion!= nullptr)
 	{
@@ -194,7 +194,7 @@ bool UAZInventoryManager::AddWarehousePotion(FPotionInfo& info)
 	else
 	{
 		info.storage_type = EStorageType::Warehouse;
-		potion_warehouse.Emplace(info.item_key,CreatePotion(info));
+		potion_warehouse_.Emplace(info.item_key,CreatePotion(info));
 	}
 	return true;
 }
@@ -206,7 +206,7 @@ bool UAZInventoryManager::AddPocketPotion(FPotionInfo& info)
 	{
 		return false;
 	}
-	UAZPotionItem** potion = potion_pocket.Find(info.item_key);
+	UAZPotionItem** potion = potion_pocket_.Find(info.item_key);
 	if(potion != nullptr)
 	{
 		(*potion)->IncreaseCount(info.item_count);
@@ -214,7 +214,7 @@ bool UAZInventoryManager::AddPocketPotion(FPotionInfo& info)
 	else
 	{
 		info.storage_type = EStorageType::Pocket;
-		potion_pocket.Emplace(info.item_key, CreatePotion(info));
+		potion_pocket_.Emplace(info.item_key, CreatePotion(info));
 	}
 	
 	return true;
@@ -235,11 +235,11 @@ bool UAZInventoryManager::ChangePotionStorage(int32 item_key, EStorageType type,
 	UAZPotionItem** potion = nullptr;
 	if(pre_state == EStorageType::Warehouse)
 	{
-		potion =  potion_warehouse.Find(item_key);
+		potion =  potion_warehouse_.Find(item_key);
 	}
 	else if(pre_state == EStorageType::Pocket)
 	{
-		potion = potion_pocket.Find(item_key);
+		potion = potion_pocket_.Find(item_key);
 	}
 	
 	if(potion == nullptr)
@@ -272,7 +272,7 @@ bool UAZInventoryManager::AddWarehouseBottle(FAmmoInfo& info)
 	{
 		return false;
 	}
-	UAZAmmoItem** bottle = bottle_warehouse.Find(info.item_key);
+	UAZAmmoItem** bottle = bottle_warehouse_.Find(info.item_key);
 
 	if(bottle != nullptr)
 	{
@@ -281,7 +281,7 @@ bool UAZInventoryManager::AddWarehouseBottle(FAmmoInfo& info)
 	else
 	{
 		info.storage_type = EStorageType::Warehouse;
-		bottle_warehouse.Emplace(info.item_key, CreateBottle(info));
+		bottle_warehouse_.Emplace(info.item_key, CreateBottle(info));
 	}
 	return true;
 }
@@ -293,7 +293,7 @@ bool UAZInventoryManager::AddPocketBottle(FAmmoInfo& info)
 	{
 		return false;
 	}
-	UAZAmmoItem** bottle = bottle_pocket.Find(info.item_key);
+	UAZAmmoItem** bottle = bottle_pocket_.Find(info.item_key);
 	if(bottle != nullptr)
 	{
 		(*bottle)->IncreaseCount();
@@ -301,7 +301,7 @@ bool UAZInventoryManager::AddPocketBottle(FAmmoInfo& info)
 	else
 	{
 		info.storage_type = EStorageType::Pocket;
-		bottle_pocket.Emplace(info.item_key,CreateBottle(info));
+		bottle_pocket_.Emplace(info.item_key,CreateBottle(info));
 	}
 	return true;
 }
@@ -313,6 +313,29 @@ UAZAmmoItem* UAZInventoryManager::CreateBottle(FAmmoInfo& info)
 	return bottle;
 }
 
+UAZWeaponItem* UAZInventoryManager::CreateWeapon(FWeaponInfo& info)
+{
+	UAZWeaponItem* weapon = NewObject<UAZWeaponItem>();
+	weapon->InitItem(info);
+	return weapon;
+}
+
+bool UAZInventoryManager::AddWarehouseWeapon(FWeaponInfo& info)
+{
+	UAZWeaponItem** weapon = weapon_warehouse_.Find(info.item_key);
+
+	if(weapon != nullptr)
+	{
+		return false;
+	}
+	else
+	{
+		weapon_warehouse_.Emplace(info.item_key, CreateWeapon(info));
+	}
+
+	return true;
+}
+
 bool UAZInventoryManager::ChangeBottleStorage(int32 item_key, EStorageType type, int32 move_count)
 {
 	EStorageType pre_state = type;
@@ -320,11 +343,11 @@ bool UAZInventoryManager::ChangeBottleStorage(int32 item_key, EStorageType type,
 	UAZAmmoItem** bottle = nullptr;
 	if(pre_state == EStorageType::Warehouse)
 	{
-		bottle = bottle_warehouse.Find(item_key);
+		bottle = bottle_warehouse_.Find(item_key);
 	}
 	else if(pre_state == EStorageType::Pocket)
 	{
-		bottle = bottle_pocket.Find(item_key);
+		bottle = bottle_pocket_.Find(item_key);
 	}
 	if(bottle == nullptr)
 	{

@@ -20,7 +20,7 @@ class AZ_MHW_API UAZPotionItem : public UObject
 
 private:
 	
-	FPotionInfo* info;
+	FPotionInfo* info_;
 public:
 	void			InitItem(FPotionInfo& new_info);
 	void			SetCount(int32 count);
