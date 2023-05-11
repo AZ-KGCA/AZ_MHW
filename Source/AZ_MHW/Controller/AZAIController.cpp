@@ -95,6 +95,16 @@ void AAZAIController::Tick(float delta_seconds)
 			active_move_request_id_ = FAIRequestID::InvalidRequest;
 		}
 	}
+
+	// DEBUG : if in combat, print distance to the target
+	if (owner_->IsInCombat())
+	{
+		if (GEngine)
+		{
+			float distance = owner_->aggro_component_->GetDistance2DToTarget();
+			GEngine->AddOnScreenDebugMessage(-1, delta_seconds, FColor::Black, FString::Printf(TEXT("Distance to target: %f"), distance));
+		}
+	}
 }
 
 void AAZAIController::SetUpPerceptionSystem()

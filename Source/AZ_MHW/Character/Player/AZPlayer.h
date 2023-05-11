@@ -80,4 +80,12 @@ public:
 	
 	//UPROPERTY() UAZAnimInstance_Player* BodyAnimInstanceClass;
 	//UPROPERTY() UAZAnimInstance_Player* FaceAnimInstanceClass;
+
+protected:
+	// Damage Processing
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info) override;
+	virtual float ProcessDamage(const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info, float applied_damage) override;
+	UFUNCTION() void PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* damage_instigator);
 };

@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZPlayer_Playable.h"
@@ -14,11 +14,10 @@
 #include <EnhancedInputSubsystems.h>
 
 
-
 AAZPlayer_Playable::AAZPlayer_Playable()
 {
 	PrimaryActorTick.bStartWithTickEnabled = true;
-	
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -35,15 +34,17 @@ AAZPlayer_Playable::AAZPlayer_Playable()
 }
 
 
-
 //TODO: CameraManager 만들어서 플레이어 캐릭터와 입력처리 완전히 분리
 void AAZPlayer_Playable::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
 	Super::SetupPlayerInputComponent(player_input_component);
-	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<UEnhancedInputComponent>(player_input_component)) 
+	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<
+		UEnhancedInputComponent>(player_input_component))
 	{
-		enhanced_input_component->BindAction(AZGameInstance->input_mgr_->GetInputAction("Look"), ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionLook);
-		enhanced_input_component->BindAction(AZGameInstance->input_mgr_->GetInputAction("Zoom"), ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionZoom);
+		enhanced_input_component->BindAction(AZGameInstance->input_mgr_->GetInputAction("Look"),
+		                                     ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionLook);
+		enhanced_input_component->BindAction(AZGameInstance->input_mgr_->GetInputAction("Zoom"),
+		                                     ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionZoom);
 		//...
 	}
 }
@@ -70,7 +71,7 @@ void AAZPlayer_Playable::Tick(float delta_seconds)
 	//절벽감지(벽타기)
 
 	//물감지
-	
+
 	//벽감지(벽타기)
 	//덩굴감지(덩굴타기)
 	//인터렉션감지(채집등)
@@ -83,7 +84,7 @@ void AAZPlayer_Playable::Tick(float delta_seconds)
 void AAZPlayer_Playable::ActionLook(const FInputActionValue& value)
 {
 	FVector2D look_axis_vector = value.Get<FVector2D>();
-	
+
 	if (Controller != nullptr)
 	{
 		AddControllerYawInput(look_axis_vector.X);
@@ -95,9 +96,17 @@ void AAZPlayer_Playable::ActionZoom(const FInputActionValue& value)
 {
 	float zoom_axis_float = value.Get<float>();
 	zoom_axis_float *= 10.f;
+
+	if (spring_arm_comp_->TargetArmLength < 100 && zoom_axis_float < 0)
+	{
+		return;
+	}
 	
-	if(spring_arm_comp_->TargetArmLength < 100 && zoom_axis_float < 0) return;
-	if(spring_arm_comp_->TargetArmLength > 400 && zoom_axis_float > 0) return;
+	if (spring_arm_comp_->TargetArmLength > 400 && zoom_axis_float > 0)
+	{
+		return;
+	}
+	
 	spring_arm_comp_->TargetArmLength += zoom_axis_float;
 }
 
@@ -107,4 +116,3 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 	//사용한 아이템을 id로 넘겨줘야한다면 oneparam쓰기
 	//또는 플레이어스테이트를 캐싱해서 사용한 아이템 체크하기
 }
-

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -7,19 +7,6 @@
 #include <GameFramework/PlayerState.h>
 #include <AZPlayerState.generated.h>
 
-#pragma region Macro
-
-#pragma endregion
-#pragma region TypeDefine
-
-#pragma endregion 
-#pragma region ForwardDeclaration
-
-#pragma endregion
-#pragma region Enum
-
-#pragma endregion 
-#pragma region Struct
 /** 플레이어 액션(인풋) 상태 <-플레이어 컨트롤러가 갱신
  * 이외에도 추가할 것,
  * 아이템목록불러오기 메뉴 키도 추가하되, 서버에서는 처리안하기.
@@ -244,7 +231,6 @@ struct FAZPlayerEquipmentState
 };
 /** 플레이어 제스쳐? 표정? 머리색? 피부색? */
 //FAZPlayerDecorationState?
-#pragma endregion
 
 /**
  * 클라이언트유저 소유정의 = PlayerController + PlayerPawn + PlayerState
@@ -269,7 +255,7 @@ protected:
 #pragma endregion
 public:
 	/** 이 PlayerState 고유 ID */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	int32 guid_;
 	
 	//플레이어 입력상태(애니메이션)

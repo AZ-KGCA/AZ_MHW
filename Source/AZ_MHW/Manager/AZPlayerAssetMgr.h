@@ -1,25 +1,11 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
 #include <CoreMinimal.h>
 #include "AZ_MHW.h"
 #include "AZPlayerAssetMgr.generated.h"
-#pragma region Macro
 
-#pragma endregion
-#pragma region TypeDefine
-
-#pragma endregion 
-#pragma region ForwardDeclaration
-
-#pragma endregion
-#pragma region Enum
-
-#pragma endregion 
-#pragma region Struct
-
-#pragma endregion
 /**
  * GameInstance에 넣으면 생성시점이 Play이후이므로 실행중이지 않은 Editor에서 호출시 터진다.
  * GameSingleton을 사용해야 한다?
@@ -53,5 +39,5 @@ public:
 	UFUNCTION() uint32 GetCommandBitMask(FName name);
 
 	//UPROPERTY() TMap<FName, TMap<int32,FName>> MaskMap;
-	void			Init();
+	void Init();
 };

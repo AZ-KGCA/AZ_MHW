@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -6,21 +6,9 @@
 #include "AZ_MHW.h"
 #include "AZAnimInstance_Player.h"
 #include "AZAnimInstance_Playable.generated.h"
-#pragma region Macro
 
-#pragma endregion
-#pragma region TypeDefine
 //DECLARE_DELEGATE_TwoParams(FOn)
-#pragma endregion 
-#pragma region ForwardDeclaration
 
-#pragma endregion
-#pragma region Enum
-
-#pragma endregion 
-#pragma region Struct
-
-#pragma endregion
 /**
  * 
  */

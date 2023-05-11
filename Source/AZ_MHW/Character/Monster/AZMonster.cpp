@@ -6,23 +6,27 @@
 #include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent.h"
 #include "AZ_MHW/CommonSource/AZStruct.h"
-#include <Perception/AIPerceptionStimuliSourceComponent.h>
+#include "AZ_MHW/Manager/AZMonsterMgr.h"
+#include "AZ_MHW/Util/AZUtility.h"
+#include "AZ_MHW/CommonSource/Define/GameDefine.h"
+#include "AZ_MHW/Character/Player/AZPlayer.h"
+
 #include <Perception/AISense_Sight.h>
 #include <GameFrameWork/CharacterMovementComponent.h>
 #include <Kismet/KismetSystemLibrary.h>
-#include "AZ_MHW/Manager/AZMonsterMgr.h"
-#include "AZ_MHW/Util/AZUtility.h"
+
 
 AAZMonster::AAZMonster()
 {
 	// Initialise common properties
 	monster_id_ = -1;
 	boss_id_ = -1;
+	active_combat_action_name_ = NAME_None;
 	SetGenericTeamId(uint8(EObjectType::Monster));
 
     // TODO 
 	// Set default objects to hit check
-	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)); // AZCharacter (player)
+	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECC_AZPLAYER)); // AZCharacter (player)
 	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
 
 	// Set AI Controller class
@@ -33,16 +37,6 @@ AAZMonster::AAZMonster()
 	aggro_component_ = CreateDefaultSubobject<UAZMonsterAggroComponent>(TEXT("AggroComponent"));
 	health_component_ = CreateDefaultSubobject<UAZMonsterHealthComponent>(TEXT("HealthComponent"));
 	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent>(TEXT("MeshComponent"));
-	
-	// Set up stimulus
-	//SetUpStimulus();
-}
-
-void AAZMonster::SetUpStimulus()
-{
-	//stimulus_component_ = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("Stimulus Component"));
-	//stimulus_component_->RegisterForSense(TSubclassOf<UAISense_Sight>());
-	//stimulus_component_->RegisterWithPerceptionSystem();
 }
 
 void AAZMonster::PreInitializeComponents()
@@ -59,7 +53,6 @@ void AAZMonster::PostInitializeComponents()
 
 void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const
 {
-	return Super::GetActorEyesViewPoint(out_location, out_rotation);
 	if (!GetMesh()->DoesSocketExist("HeadSocket"))
 	{
 		return Super::GetActorEyesViewPoint(out_location, out_rotation);
@@ -69,6 +62,11 @@ void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rota
 		out_location = GetMesh()->GetSocketLocation("HeadSocket");
 		out_rotation = GetMesh()->GetSocketRotation("HeadSocket");
 	}
+}
+
+void AAZMonster::BeginDestroy()
+{
+	Super::BeginDestroy();
 }
 
 void AAZMonster::SetUpDefaultProperties()
@@ -92,7 +90,7 @@ void AAZMonster::SetMonsterInfo()
 
 	// Set properties
 	behavior_type_				= monster_info->behavior_type;
-	sight_configs_				= FMonsterSightConfigs(monster_info->sight_radius, monster_info->sight_lose_radius, monster_info->sight_fov, monster_info->sight_max_age, monster_info->sight_auto_success_range);
+	sight_configs_				= monster_info->sight_configs;
 	patrol_range_				= monster_info->patrol_range;
 	patrol_delay_				= monster_info->patrol_delay;
 	percept_radius_				= monster_info->percept_radius;
@@ -115,7 +113,7 @@ void AAZMonster::SetBossInfo()
 	// Set properties
 	boss_id_					= boss_info->boss_id;
 	has_combat_transition_anim_	= boss_info->has_transition_animation;
-	rage_stats_					= FBossRageStats(boss_info->rage_required_damage, boss_info->rage_duration, boss_info->rage_outgoing_damage_multiplier, boss_info->rage_incoming_damage_multiplier);
+	rage_stats_					= boss_info->rage_stats;
 }
 
 void AAZMonster::SetActionInfo()
@@ -155,7 +153,6 @@ void AAZMonster::BeginPlay()
 
 void AAZMonster::EnterCombat()
 {
-	anim_instance_->is_doing_action_ = false;
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
 	else
@@ -194,7 +191,6 @@ void AAZMonster::ResetTargetAngle()
 	action_state_info_.target_angle = 0.0f;
 }
 
-//TODO Cinematic states are yet to be implemented
 void AAZMonster::SetActionState(int32 action_id)
 {
 	// if current action has higher priority than next action, do not update
@@ -218,6 +214,7 @@ void AAZMonster::SetActionState(int32 action_id)
 			break;
 		}
 	case EMonsterActionMode::Transition:
+		anim_instance_->is_doing_action_ = false;
 	case EMonsterActionMode::Combat:
 		{
 			if (const FMonsterCombatActionInfo* action_data = combat_action_map_.Find(action_id))
@@ -230,7 +227,6 @@ void AAZMonster::SetActionState(int32 action_id)
 		}
 	default:
 		{
-			//@TODO Cinematic
 			return;
 		}
 	}
@@ -252,7 +248,8 @@ void AAZMonster::SetActionState(int32 action_id)
 	if (IsInCombat())
 	{
 		float angle = GetRelativeAngleToLocation(aggro_component_->GetTargetLocation());
-		SetTargetAngle(angle);	
+		SetTargetAngle(angle);
+		active_combat_action_name_ = FName(action_state_info_.animation_name.ToString().Mid(3));
 	}
 }
 
@@ -287,6 +284,11 @@ bool AAZMonster::IsMoving() const
 		&& action_state_info_.move_state >= EMoveState::Walk);
 }
 
+bool AAZMonster::IsInRageMode() const
+{
+	return is_in_ragemode_;
+}
+
 void AAZMonster::AnimNotify_EndOfAction()
 {
 	// if the action was a transition action, finish transition
@@ -295,7 +297,7 @@ void AAZMonster::AnimNotify_EndOfAction()
 		SetActionMode(EMonsterActionMode::Combat);
 	}
 	// restore movement mode
-	if (!is_flying_)
+	if (!is_flying_ && GetCharacterMovement()->MovementMode == MOVE_Flying)
 	{
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
@@ -306,7 +308,6 @@ void AAZMonster::AnimNotify_EndOfAction()
 
 void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name)
 {
-	// TODO use "Montage Set Next Section" if it is a montage
 	action_state_info_.animation_name = next_animation_name;
 	action_state_info_.montage_section_name = next_montage_section_name;
 	SetTargetAngle(aggro_component_->GetAngle2DToTarget());
@@ -322,32 +323,47 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 {
 	TArray<FHitResult> hit_results;
 	TArray<AActor*, FDefaultAllocator> ignore_actors;
+	TArray<AActor*> overlapped_actors;
+	ignore_actors.Add(this);
 
 	// Get the location to start trace at
-	FVector trace_location = GetMesh()->GetSocketLocation(socket_name);
+	FVector trace_start_loc = GetMesh()->GetSocketLocation(socket_name);
+	if (socket_name.IsEqual(FName("LeftFootSocket")) || socket_name.IsEqual(FName("RightFootSocket")))
+	{
+		trace_start_loc.Z -= 100.0f;
+	}
 
 	// Do Sphere trace
 	if (duration_type == EEffectDurationType::Instant)
 	{
-		UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), trace_location, trace_location, radius, hit_object_types_, false,
-			ignore_actors, EDrawDebugTrace::ForDuration, hit_results, true);
-
-		//@TODO do something with hit_results
-		FString text_string = "Hit Actors: ";
-		for (FHitResult hit_result : hit_results)
+		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), trace_start_loc, radius, hit_object_types_, AAZCharacter::StaticClass(), ignore_actors, overlapped_actors);
+		for (auto actor : overlapped_actors)
 		{
-			text_string += UKismetSystemLibrary::GetObjectName(hit_result.GetActor());
-			text_string += ", ";
+			AAZPlayer* overlapped_player = Cast<AAZPlayer>(actor);
+			if (overlapped_player->GetClass()->ImplementsInterface(UAZDamageAgentInterface::StaticClass()))
+			{
+				// TODO get current action and alter
+				FAttackInfo attack_info(50, EDamageType::None);
+				attack_info.status_effects.Add(FStatusEffectInfo(EStatusEffectType::RoarStagger, 0));
+				IAZDamageAgentInterface::Execute_ApplyDamage(this, actor, FHitResult(), GetController(), attack_info);
+			}
 		}
-		UE_LOG(AZMonster, Log, TEXT("%s"), *text_string);
-
-		//@TODO get current action and handle damage
-
 	}
 	else if (duration_type == EEffectDurationType::ForDuration)
 	{
 		//@TODO
 	}
+}
+
+// Damage functions are handled in the health component
+float AAZMonster::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info)
+{
+	return health_component_->ApplyDamage(damaged_actor, hit_result, instigator, attack_info);
+}
+
+float AAZMonster::ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage)
+{
+	return health_component_->ProcessDamage(hit_result, instigator, attack_info, applied_damage);
 }
 
 bool AAZMonster::IsABoss() const

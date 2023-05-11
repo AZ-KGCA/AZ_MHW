@@ -78,11 +78,10 @@ bool UAZMonsterMgr::ConvertMonsterTable()
 		monster_info.monster_id					= monster_data->monster_id;
 		monster_info.behavior_type				= UAZUtility::StringToEnum<EMonsterBehaviorType>(monster_data->behavior_type);
 		monster_info.base_hp					= monster_data->base_hp;
-		monster_info.sight_radius				= monster_data->sight_radius;
-		monster_info.sight_lose_radius			= monster_data->sight_lose_radius;
-		monster_info.sight_fov					= monster_data->sight_fov;
-		monster_info.sight_max_age				= UAZUtility::MillisecondsToSeconds(monster_data->sight_max_age);
-		monster_info.sight_auto_success_range	= monster_data->sight_auto_success_range;
+		monster_info.sight_configs				= FMonsterSightConfigs(monster_data->sight_radius,
+													monster_data->sight_lose_radius, monster_data->sight_fov,
+													UAZUtility::MillisecondsToSeconds(monster_data->sight_max_age),
+													monster_data->sight_auto_success_range);
 		monster_info.patrol_range				= monster_data->patrol_range;
 		monster_info.patrol_delay				= UAZUtility::MillisecondsToSeconds(monster_data->patrol_delay);
 		monster_info.percept_radius				= monster_data->percept_radius;
@@ -107,26 +106,19 @@ bool UAZMonsterMgr::ConvertBossTable()
 		boss_info.base_stamina						= boss_data->base_stamina;
 		boss_info.tired_duration					= UAZUtility::MillisecondsToSeconds(boss_data->tired_duration);
 		boss_info.has_transition_animation			= boss_data->has_transition_animation;
-		boss_info.num_allowed_escapes				= boss_data->num_allowed_escapes;
-		boss_info.weakness_head						= boss_data->weakness_head;
-		boss_info.weakness_neck						= boss_data->weakness_neck;
-		boss_info.weakness_body						= boss_data->weakness_body;
-		boss_info.weakness_tail						= boss_data->weakness_tail;
-		boss_info.weakness_wing						= boss_data->weakness_wing;
-		boss_info.weakness_leg						= boss_data->weakness_leg;
-		boss_info.break_damage_head 				= boss_data->break_damage_head;
-		boss_info.break_damage_body 				= boss_data->break_damage_body;
-		boss_info.break_damage_wing 				= boss_data->break_damage_wing;
-		boss_info.sever_damage_tail 				= boss_data->sever_damage_tail;
-		boss_info.rage_required_damage				= boss_data->rage_required_damage;
-		boss_info.rage_duration						= UAZUtility::MillisecondsToSeconds(boss_data->rage_duration);
-		boss_info.rage_outgoing_damage_multiplier	= UAZUtility::PerTenThousandToPerOne(boss_data->rage_outgoing_damage_multiplier);
-		boss_info.rage_incoming_damage_multiplier	= UAZUtility::PerTenThousandToPerOne(boss_data->rage_incoming_damage_multiplier);
+		boss_info.weakness_stats					= FBossWeaknessStats(boss_data->weakness_head, boss_data->weakness_neck,
+														boss_data->weakness_body, boss_data->weakness_tail,
+														boss_data->weakness_wing,boss_data->weakness_leg);
+		boss_info.head_state						= FBossBodyPartDebuffInfo(boss_data->damage_head);
+		boss_info.body_state						= FBossBodyPartDebuffInfo(boss_data->damage_body);
+		boss_info.wing_state						= FBossBodyPartDebuffInfo(boss_data->damage_wing);
+		boss_info.tail_state						= FBossBodyPartDebuffInfo(boss_data->damage_tail);
+		boss_info.leg_state							= FBossBodyPartDebuffInfo(boss_data->damage_leg);
+		boss_info.stunnable_parts					= UAZUtility::StringArrToEnumArr<EMonsterBodyPart>(boss_data->stunnable_parts);
+		boss_info.rage_stats						= FBossRageStats(boss_data->rage_required_damage, boss_data->rage_duration,
+														boss_data->rage_outgoing_damage_multiplier,	boss_data->rage_incoming_damage_multiplier);
 		boss_info.tenderised_damage_multiplier		= UAZUtility::PerTenThousandToPerOne(boss_data->tenderised_damage_multiplier);
-		for (const int32 escape_health_ratio : boss_data->escape_health_ratios)
-		{
-			boss_info.escape_health_ratios.Add(UAZUtility::PerTenThousandToPerOne(escape_health_ratio));
-		}
+		boss_info.escape_stats						= FBossEscapeStats(boss_data->num_allowed_escapes, boss_data->escape_health_ratios);
 
 		boss_info_map_.Add(MakeTuple(boss_info.monster_id, boss_info.rank), boss_info);
 	}

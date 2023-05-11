@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -18,11 +18,12 @@ class AZ_MHW_API UAZAnimInstance_Weapon : public UAZAnimInstance
 public:
 	UAZAnimInstance_Weapon();
 protected:
+	/** */
 	virtual void NativeInitializeAnimation() override;
-	
+	/** */
 	virtual void NativeUpdateAnimation(float delta_seconds) override;
 public:
 	//SheathWeapon 납도상태
 	//DrawWeapon 발도상태
-	//Animation 중간중간 애니메이션
+	//Animation 중간중간 애니메이션(렌스)
 };

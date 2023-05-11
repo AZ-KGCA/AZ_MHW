@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZAnimInstance_Remotable.h"
@@ -12,7 +12,7 @@ void UAZAnimInstance_Remotable::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 }
 
-void UAZAnimInstance_Remotable::NativeUpdateAnimation(float DeltaSeconds)
+void UAZAnimInstance_Remotable::NativeUpdateAnimation(float delta_seconds)
 {
-	Super::NativeUpdateAnimation(DeltaSeconds);
+	Super::NativeUpdateAnimation(delta_seconds);
 }

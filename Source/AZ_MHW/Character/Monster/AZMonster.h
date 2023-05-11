@@ -21,9 +21,6 @@ enum class EEffectDurationType : uint8;
 enum class EBossRank : uint8;
 enum class EMonsterBehaviorType : uint8;
 
-//TODO
-// Delegates
-//DECLARE_DELEGATE_OneParam(FOnDamaged, int32, damage_amount);
 
 UCLASS(Blueprintable)
 class AZ_MHW_API AAZMonster : public AAZCharacter
@@ -38,9 +35,9 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 	virtual void GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const override;
-		
+	virtual void BeginDestroy() override;
+	
 	// Property Initialisers
-	void SetUpStimulus();
 	void SetUpDefaultProperties();
 	void SetMonsterInfo();
 	void SetBossInfo();
@@ -64,6 +61,7 @@ public:
 	bool IsInCombat() const;
 	bool IsFlying() const;
 	bool IsMoving() const;
+	bool IsInRageMode() const;
 	
 	// AnimNotifyHandlers
 	virtual void AnimNotify_EndOfAction() override;
@@ -71,13 +69,31 @@ public:
 	virtual void AnimNotify_SetMovementMode(EMovementMode movement_mode) override;
 	virtual void AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration) override;
 
-	// StateReceiveHandlers
-
 	// Validity Checkers
 	bool IsABoss() const;
 	bool IsAValidMonster() const;
+
+	// Delegates
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundedSignature, EMonsterBodyPart)
+	FOnWoundedSignature OnBodyPartWounded;
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
+	FOnBrokenSigature OnBodyPartBroken;
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
+	FOnSeveredSigature OnBodyPartSevered;
+
+protected:
+	// Damage Agent Overrides
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info) override;
+
+public:
+	virtual float ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage) override;
 	
 public:
+	// TEMP TODO
+	UPROPERTY(EditAnywhere, Category = "AZ") FName tail_bone_name_;
+	
 	// BlueprintReadWrite FOR DEBUG ONLY
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Monster | States") FMonsterActionStateInfo action_state_info_;
 	
@@ -85,7 +101,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterAggroComponent> aggro_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterHealthComponent> health_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterMeshComponent> mesh_component_;
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAIPerceptionStimuliSourceComponent> stimulus_component_;
 
 	// AIController Properties: Defined from table
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") FMonsterSightConfigs sight_configs_;
@@ -99,7 +114,6 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation")	TMap<int32, FMonsterCombatActionInfo> combat_action_map_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation")	TMap<int32, FMonsterNonCombatActionInfo> noncombat_action_map_;
 	
-protected:
 	// Monster base information set from blueprint
 	UPROPERTY(EditAnywhere, Category = "AZ | Monster | Properties") int32 monster_id_;
 	UPROPERTY(EditAnywhere, Category = "AZ | Boss") EBossRank rank_;
@@ -109,14 +123,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") int32 boss_id_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") bool has_combat_transition_anim_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") FBossRageStats rage_stats_;
-	
+
+protected:
 	// Properties: Defined runtime
 	UPROPERTY(EditAnywhere, Category = "AZ | Monster | States") bool is_flying_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | States") bool is_in_ragemode_;
 
 	// Other properties
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation") UAZAnimInstance_Monster* anim_instance_;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ") FName active_combat_action_name_;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ") TMap<FName, FAttackInfo> attack_info_map_;
+	
 	// Event
 	//DECLARE_EVENT(AAZMonster, FEnterCombatEvent) FEnterCombatEvent OnEnterCombatEvent;
 	DECLARE_EVENT(AAZMonster, FEnterRageModeEvent) FEnterRageModeEvent OnEnterRageModeEvent; //TODO

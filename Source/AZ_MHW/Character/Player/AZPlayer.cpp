@@ -3,17 +3,22 @@
 
 #include "AZPlayer.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
+#include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/PlayerState/AZPlayerState.h"
 #include "AZ_MHW/Actor/AZSocketActor.h"
 #include "AZ_MHW/Manager/AZPlayerAssetMgr.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include <Components/SkeletalMeshComponent.h>
+
 //#include "AZ_MHW/Manager/AZTableMgr.h"
 //#include <Components/CapsuleComponent.h>
 
 
 AAZPlayer::AAZPlayer()
 {
+    // Generic Team Agent Interface
+    SetGenericTeamId(uint8(EObjectType::Player));
+    
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	//캡슐 크기조정
 	//GetCapsuleComponent()->InitCapsuleSize();
@@ -80,6 +85,9 @@ void AAZPlayer::BeginPlay()
 	
 	SetSKMeshParts();
 	SetSKMeshSocket();
+
+	// Damage Interface
+	OnTakeDamage.AddDynamic(this, &AAZPlayer::PostProcessDamage);
 }
 
 void AAZPlayer::PossessedBy(AController* new_controller)
@@ -90,8 +98,10 @@ void AAZPlayer::PossessedBy(AController* new_controller)
 
 void AAZPlayer::BeginDestroy()
 {
-	Super::BeginDestroy();
+	// Damage Interface
+	OnTakeDamage.RemoveDynamic(this, &AAZPlayer::PostProcessDamage);
 	
+	Super::BeginDestroy();
 }
 
 void AAZPlayer::CombineSKMeshParts(bool is_force_update)
@@ -245,3 +255,85 @@ void AAZPlayer::ChangeSocketSlot(FName socket_actor_name, FName in_socket_name)
 		(*socket_actor)->SetSocketComponent(in_socket_name);
 	}
 }
+
+float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info)
+{
+	// TEMP
+	float base_damage = attack_info.base_damage;
+
+	float applied_damage = 100;
+
+	// Process Damage on damaged actor
+	AAZMonster* monster = Cast<AAZMonster>(damaged_actor);
+	return monster->ProcessDamage(hit_result, instigator, attack_info, applied_damage);
+}
+
+float AAZPlayer::ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage)
+{
+	float final_damage = applied_damage;
+	// TODO 여기서 받은 데미지 값에서 캐릭터의 장비, 능력치 등 고려하셔서 최종 데미지 인자값으로 넘기시면 됩니다
+	// Super함수 호출은 이 함수 포함 다른 함수에서도 안 해도 되는데 ProcessDamage에서 안할 경우에는 OnTakeDamage.BroadCast 해주셔야합니다
+
+	return Super::ProcessDamage(hit_result, instigator, attack_info, final_damage);
+}
+
+void AAZPlayer::PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* instigator)
+{
+	AAZMonster* instigator_monster = Cast<AAZMonster>(instigator->GetPawn());
+	if (!instigator_monster)
+	{
+		UE_LOG(AZMonster, Warning, TEXT("[AAZPlayer] Damage dealt by non-AZMonster actor %s"), *instigator_monster->GetName());
+		return;
+	}
+	
+	//함수화하기
+	const FVector forward_direction = GetActorForwardVector();
+	const FVector from_hit_direction = (instigator_monster->GetActorLocation());
+	const FVector to_hit_direction = (from_hit_direction - GetActorLocation()).GetSafeNormal();
+
+	const double cos_theta = FVector::DotProduct(forward_direction,to_hit_direction);
+	double theta = FMath::Acos(cos_theta);
+	theta = FMath::RadiansToDegrees(theta);
+
+	const FVector cross_vector = FVector::CrossProduct(forward_direction,to_hit_direction);
+	if(cross_vector.Z<0)
+	{
+		theta *=-1.f;
+	}
+	//피해 타입(약(살짝경직),중(날라가지만 자세),강(날라가서구르기))에 따라 강제회전타입(앞뒤 넉백 에어본)도 넣기
+
+	//Default Back
+	if(theta >=-45.f && theta < 45.f)
+	{
+		//Front
+		UE_LOG(AZ_DAMAGE,Error,TEXT("Front"));
+		//Cast<UAZAinmInstance_Player>(GetMesh()->GetAnimInstance())->SetMontageName(TEXT(Hit Front));
+	}
+	else if(theta >= -135.f && theta <-45.f)
+	{
+		//Left
+		UE_LOG(AZ_DAMAGE,Error,TEXT("Left"));
+	}
+	else if(theta >=45.f && theta < 135.f)
+	{
+		//Right
+		UE_LOG(AZ_DAMAGE,Error,TEXT("Right"));
+	}
+	
+	
+	if(const auto player_state = GetPlayerState<AAZPlayerState>())
+	{
+		player_state->character_state_.current_health_point -= total_damage;
+		if(player_state->character_state_.current_health_point <= 0)
+		{
+			player_state->character_state_.current_health_point = 0;
+		}
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Player Health: %d"),
+				player_state->character_state_.current_health_point));
+		}
+	}
+}
+

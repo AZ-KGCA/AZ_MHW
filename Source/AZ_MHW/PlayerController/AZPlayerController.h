@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -6,21 +6,7 @@
 #include "AZ_MHW.h"
 #include <GameFramework/PlayerController.h>
 #include "AZPlayerController.generated.h"
-#pragma region Macro
 
-#pragma endregion
-#pragma region TypeDefine
-
-#pragma endregion 
-#pragma region ForwardDeclaration
-
-#pragma endregion
-#pragma region Enum
-
-#pragma endregion 
-#pragma region Struct
-
-#pragma endregion
 /**
  * 모든 PlayerController Base
  * 
@@ -47,7 +33,15 @@ protected:
 	virtual void SetupInputComponent() override;
 #pragma endregion
 public:
-	//UPROPERTY(BlueprintReadOnly) AAZCameraManager* CameraMgr;
-	//UPROPERTY(BlueprintReadOnly) AAZHUDManager* HUDMgr;
-	//UPROPERTY(BlueprintReadOnly) AAZPlayerState* State;
+	//UPROPERTY(BlueprintReadOnly)
+	//AAZCameraManager* CameraMgr;
+	
+	//UPROPERTY(BlueprintReadOnly)
+	//AAZPlayerState* State;
+
+	//UPROPERTY(BlueprintReadOnly)
+	//AAZHUDManager* HUDMgr;
+
+	//UPROPERTY(BlueprintReadOnly)
+	//AAZPlayer* Player;
 };

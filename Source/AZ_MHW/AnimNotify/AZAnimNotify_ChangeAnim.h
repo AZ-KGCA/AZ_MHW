@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -13,6 +13,7 @@ UCLASS()
 class AZ_MHW_API UAZAnimNotify_ChangeAnim : public UAnimNotify
 {
 	GENERATED_BODY()
+	
 public:
 	UAZAnimNotify_ChangeAnim();
 

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZPlayerController_InGame.h"
@@ -23,7 +23,6 @@ AAZPlayerController_InGame::AAZPlayerController_InGame()
 void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
-	UE_LOG(LogTemp,Warning,TEXT("SAD"));
 	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
 	playable_player_state_ = Cast<AAZPlayerState>(playable_player_->GetPlayerState());
 }
@@ -33,7 +32,11 @@ void AAZPlayerController_InGame::AddRemotePlayer(int32 guid, AAZPlayerState* oth
 	//id GetWorld()->SpawnActor<AAZPlayer_Remotable>();
 	
 }
-
+// void AAZPlayerController_InGame::RemoveRemotePlayer(int32 guid)
+// {
+// 	//id GetWorld()->SpawnActor<AAZPlayer_Remotable>();
+// 	
+// }
 
 
 
