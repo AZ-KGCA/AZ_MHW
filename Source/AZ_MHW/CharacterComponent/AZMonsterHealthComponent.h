@@ -30,24 +30,20 @@ public:
 	float ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage);
 	UFUNCTION() void PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* damage_instigator);
 
-	// Body Part State Change Events
-	DECLARE_EVENT_OneParam(AAZMonsterHealthComponent, FWoundEvent, EMonsterBodyPart)
-	FWoundEvent wound_event_;
-	
 protected:
 	// Damage functions
 	bool IsReceivedAttackValid(EDamageType damage_type, EMonsterBodyPart damaged_part);
 	void ApplyDamageToBodyPart(EDamageType damage_type, EMonsterBodyPart damaged_part, float damage_amount);
 	void CheckBeWounded(EMonsterBodyPart damaged_part, float damage_amount);
-	UFUNCTION() void OnBodyPartWounded(EMonsterBodyPart body_part);
 	void CheckBeBroken(EMonsterBodyPart damaged_part, float damage_amount);
-	UFUNCTION() void OnBodyPartBroken(EMonsterBodyPart body_part);
 	void CheckBeSevered(EMonsterBodyPart damaged_part, float damage_amount);
-	UFUNCTION() void OnBodyPartSevered(EMonsterBodyPart body_part);
-	
-	// State Setters
 	void ReduceHealth(float amount);
-	void Kill();
+
+	// Broadcasted via owner delegate
+	UFUNCTION() void OnBodyPartWounded(EMonsterBodyPart body_part);
+	UFUNCTION() void OnBodyPartBroken(EMonsterBodyPart body_part);
+	UFUNCTION() void OnBodyPartSevered(EMonsterBodyPart body_part);
+	UFUNCTION() void OnDeath();
 	
 protected:
 	virtual void InitializeComponent() override;
@@ -63,7 +59,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") FBossWeaknessStats weakness_stats_;
 	UPROPERTY(EditDefaultsOnly, Category = "AZ | Damage") TMap<EMonsterBodyPart, FBossBodyPartDebuffInfo> body_part_states_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") float tenderised_damage_multiplier_;
-
+	
 public:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_stamina_;

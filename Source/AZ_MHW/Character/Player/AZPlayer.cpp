@@ -260,8 +260,7 @@ float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitRes
 {
 	// TEMP
 	float base_damage = attack_info.base_damage;
-
-	float applied_damage = 100;
+	float applied_damage = base_damage * 1;
 
 	// Process Damage on damaged actor
 	AAZMonster* monster = Cast<AAZMonster>(damaged_actor);

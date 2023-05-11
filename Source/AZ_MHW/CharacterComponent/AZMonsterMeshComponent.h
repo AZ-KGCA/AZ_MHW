@@ -27,6 +27,9 @@ protected:
 	
 	// Body Mesh Material Opacity Setters
 	void SetMaterialVisibility(uint8 material_idx, bool is_visible);
+	void SetMaterialVisibility(FName slot_name, bool is_visible);
+
+	// Responders to body state changes
 	UFUNCTION() void OnBodyPartWounded(EMonsterBodyPart body_part);
 	UFUNCTION() void OnBodyPartBroken(EMonsterBodyPart body_part);
 	UFUNCTION() void OnBodyPartSevered(EMonsterBodyPart body_part);
@@ -40,4 +43,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Material")
 	TMap<EMonsterBodyPart, int32> mesh_material_indices_wounded_;
+
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Material")
+	TMap<EMonsterBodyPart, int32> mesh_material_indices_cutsurface_;
 };

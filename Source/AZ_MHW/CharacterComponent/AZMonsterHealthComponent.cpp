@@ -60,6 +60,7 @@ void UAZMonsterHealthComponent::BeginPlay()
 	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWounded);
 	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartBroken);
 	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartSevered);
+	owner_->OnDeath.AddUObject(this, &UAZMonsterHealthComponent::OnDeath);
 }
 
 void UAZMonsterHealthComponent::InitializeRuntimeValues()
@@ -225,11 +226,16 @@ void UAZMonsterHealthComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 
 void UAZMonsterHealthComponent::ReduceHealth(float amount)
 {
+	if (IsPendingKill()) return;
+	
 	current_hp_ -= amount;
-	if (current_hp_ <= 0) Kill();
+	if (current_hp_ <= 0)
+	{
+		owner_->SetDead();
+	};
 }
 
-void UAZMonsterHealthComponent::Kill()
+void UAZMonsterHealthComponent::OnDeath()
 {
 	//owner_->GetCharacterMovement()->StopMovementImmediately();
 	// TODO
@@ -237,6 +243,4 @@ void UAZMonsterHealthComponent::Kill()
 
 	// Damage Interface
 	owner_->OnTakeDamage.RemoveDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
-	
-	owner_->Destroy();
 }
