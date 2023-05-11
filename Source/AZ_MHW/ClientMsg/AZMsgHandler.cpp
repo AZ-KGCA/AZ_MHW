@@ -3,7 +3,8 @@
 #include "AZ_MHW/ClientMsg/AZMsgHandler.h"
 #include "AZ_MHW/CommonSource/AZGameMsg.h"
 #include "AZ_MHW/CommonSource/Define/GameDefine.h"
-
+#undef GetObjectW
+#undef GetObject
 UAZMsgHandler::UAZMsgHandler()
 {
 
