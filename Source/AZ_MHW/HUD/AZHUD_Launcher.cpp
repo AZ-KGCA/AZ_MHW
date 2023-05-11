@@ -3,6 +3,7 @@
 
 #include "AZ_MHW/HUD/AZHUD_Launcher.h"
 #include "AZ_MHW/Widget/Launcher/AZWidget_Launcher.h"
+#include "AZ_MHW/CommonSource/AZLog.h"
 
 void AAZHUD_Launcher::BeginPlay()
 {

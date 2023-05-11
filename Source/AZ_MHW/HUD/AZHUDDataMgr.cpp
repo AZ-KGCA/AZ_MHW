@@ -15,11 +15,11 @@ void UAZHUDDataMgr::Init()
 	widget_datas.Empty();
 
 	// launcher
-	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Scene_Launcher, false, false, TEXT("/Game/Widget/BP_Widget_Launcher.BP_Widget_Launcher_C"));
-	// default back bg
-	InitWidgetData(EUILayer::Scene, EUIName::None, false, false, TEXT(""));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Scene_Launcher, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Launcher.BP_Widget_Launcher_C"));
 	// black bg
-	InitWidgetData(EUILayer::Top, EUIName::AZWidget_Login, false, false, TEXT(""));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Login, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Login.BP_Widget_Login_C"));
+	// default back bg
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Menu, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Menu.BP_Widget_Menu_C"));
 	// InOut
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_BlackInOut, true, false, TEXT(""));
 

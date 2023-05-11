@@ -283,7 +283,7 @@ void AAZHUD::UpdateWorldRender()
 	{
 		return;
 	}
-	SetWorldRender(widget_data->disable_world_rendering);
+	SetWorldRender(!widget_data->disable_world_rendering);
 }
 
 void AAZHUD::SetWorldRender(bool value)

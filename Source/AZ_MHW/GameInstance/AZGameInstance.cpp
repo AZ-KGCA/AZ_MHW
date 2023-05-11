@@ -180,7 +180,16 @@ void UAZGameInstance::InitSocketOnMapLoad()
 
 AAZHUD* UAZGameInstance::GetHUD()
 {
-	return GetPlayerController() ? Cast<AAZHUD>(GetPlayerController()->GetHUD()) : nullptr;
+	if (GetPlayerController() == nullptr)
+	{
+		return nullptr;
+	}
+	auto hud = Cast<AAZHUD>(GetPlayerController()->GetHUD());
+	if (hud == nullptr)
+	{
+		return nullptr;
+	}
+	return hud;
 }
 
 AAZHUD_InGame* UAZGameInstance::GetHUDInGame()

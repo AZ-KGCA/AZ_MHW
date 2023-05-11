@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "AZInputMgr.h"
@@ -10,7 +10,7 @@
 UAZInputMgr::UAZInputMgr()
 {
 	// 에셋 레지스트리 모듈을 얻음
-	FAssetRegistryModule& asset_registry_module = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetRegistryModule& asset_registry_module = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
 #pragma region InputMappingContext_로드
 	{
 		const FString input_mapping_context_directory = TEXT("/Game/AZ/DataAsset/Input/InputMappingContext");
@@ -86,7 +86,7 @@ UAZInputMgr::UAZInputMgr()
 	}
 	//사용한 에셋 레지스트리 모듈 해제
 	//(다른곳에서도 이것을 사용하고 있는데 해제한다면? 애초에 계속 로드해놓을 필요가 없는 모듈.)
-	FModuleManager::Get().UnloadModule("AssetRegistry");
+	FModuleManager::Get().UnloadModule(TEXT("AssetRegistry"));
 #pragma endregion
 }
 

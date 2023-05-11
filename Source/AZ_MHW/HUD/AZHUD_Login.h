@@ -13,5 +13,9 @@ UCLASS()
 class AZ_MHW_API AAZHUD_Login : public AAZHUD
 {
 	GENERATED_BODY()
-	
+
+public:
+	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
+	virtual void EndPlay(const EEndPlayReason::Type end_play_reason);
 };

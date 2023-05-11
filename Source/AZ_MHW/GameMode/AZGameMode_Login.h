@@ -14,4 +14,8 @@ class AZ_MHW_API AAZGameMode_Login : public AAZGameMode
 {
 	GENERATED_BODY()
 	
+public:
+	AAZGameMode_Login();
+	virtual void InitGame(const FString& map_name, const FString& options, FString& error_message) override;
+	virtual EGameModeType GetGameModeType() { return EGameModeType::Login; }
 };
