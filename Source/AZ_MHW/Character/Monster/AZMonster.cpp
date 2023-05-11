@@ -15,6 +15,8 @@
 #include <GameFrameWork/CharacterMovementComponent.h>
 #include <Kismet/KismetSystemLibrary.h>
 
+#include "BrainComponent.h"
+
 
 AAZMonster::AAZMonster()
 {
@@ -189,6 +191,18 @@ void AAZMonster::SetTargetAngle(float angle)
 void AAZMonster::ResetTargetAngle()
 {
 	action_state_info_.target_angle = 0.0f;
+}
+
+void AAZMonster::SetDead()
+{
+	// Stop all processes
+	AAIController* controller = Cast<AAIController>(GetController());
+	controller->BrainComponent->StopLogic(TEXT("Death"));
+	
+	OnDeath.Broadcast();
+	
+	// TODO Play death animation
+	
 }
 
 void AAZMonster::SetActionState(int32 action_id)

@@ -51,6 +51,7 @@ public:
 	UFUNCTION(BlueprintCallable) void SetTargetAngle(float angle);
 	void SetActionState(int32 action_id);
 	void ResetTargetAngle();
+	UFUNCTION() void SetDead();
 
 	// Property Getters
 	int32 GetMonsterID() const;
@@ -73,26 +74,27 @@ public:
 	bool IsABoss() const;
 	bool IsAValidMonster() const;
 
-	// Delegates
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundedSignature, EMonsterBodyPart)
-	FOnWoundedSignature OnBodyPartWounded;
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
-	FOnBrokenSigature OnBodyPartBroken;
-	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
-	FOnSeveredSigature OnBodyPartSevered;
-
 protected:
 	// Damage Agent Overrides
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info) override;
 
+	// Delegates
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundedSignature, EMonsterBodyPart)
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
+	DECLARE_MULTICAST_DELEGATE(FOnDeathSignature /*, int32 HighestContributionPlayerSerial */) //TODO Change to event
+	
 public:
 	virtual float ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage) override;
 	
 public:
-	// TEMP TODO
-	UPROPERTY(EditAnywhere, Category = "AZ") FName tail_bone_name_;
+	// Delegates
+	FOnWoundedSignature OnBodyPartWounded;
+	FOnBrokenSigature OnBodyPartBroken;
+	FOnSeveredSigature OnBodyPartSevered;
+	FOnDeathSignature OnDeath;
 	
 	// BlueprintReadWrite FOR DEBUG ONLY
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Monster | States") FMonsterActionStateInfo action_state_info_;
@@ -128,7 +130,8 @@ protected:
 	// Properties: Defined runtime
 	UPROPERTY(EditAnywhere, Category = "AZ | Monster | States") bool is_flying_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | States") bool is_in_ragemode_;
-
+	bool is_dead_;
+	
 	// Other properties
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation") UAZAnimInstance_Monster* anim_instance_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ") FName active_combat_action_name_;
@@ -136,13 +139,8 @@ protected:
 	
 	// Event
 	//DECLARE_EVENT(AAZMonster, FEnterCombatEvent) FEnterCombatEvent OnEnterCombatEvent;
-	DECLARE_EVENT(AAZMonster, FEnterRageModeEvent) FEnterRageModeEvent OnEnterRageModeEvent; //TODO
+	//DECLARE_EVENT(AAZMonster, FEnterRageModeEvent) FEnterRageModeEvent OnEnterRageModeEvent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Others")
 	TArray<TEnumAsByte<EObjectTypeQuery>> hit_object_types_;
 };
-
-/*
- *	TODO: Check validity of new action state in monster class, not animation instance 
- *		move related variables and functions
-*/

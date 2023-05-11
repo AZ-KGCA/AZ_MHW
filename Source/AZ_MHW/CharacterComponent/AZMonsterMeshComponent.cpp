@@ -72,6 +72,10 @@ void UAZMonsterMeshComponent::SetUpBodyPartMaterialMaps()
 		{
 			mesh_material_indices_wounded_.Add(UAZUtility::StringToEnum<EMonsterBodyPart>(body_part_str), material_idx);
 		}
+		else if (mesh_type_str.Equals("CutSurface", ESearchCase::IgnoreCase))
+        {
+        	mesh_material_indices_cutsurface_.Add(UAZUtility::StringToEnum<EMonsterBodyPart>(body_part_str), material_idx);
+        }
 		material_idx++;
 	}
 }
@@ -86,18 +90,17 @@ void UAZMonsterMeshComponent::InitializeRuntimeValues()
 	{
 		SetMaterialVisibility(material_idx_pair.Value, false);
 	}
+
+	// Hide all cut surfaces
+	for (const auto material_idx_pair : mesh_material_indices_cutsurface_)
+	{
+		SetMaterialVisibility(material_idx_pair.Value, false);
+	}
 	
 	// Hide eyelid mesh by default
 	if (const auto eyelid_material_idx = mesh_material_indices_default_.Find(EMonsterBodyPart::Eyelid))
 	{
 		SetMaterialVisibility(*eyelid_material_idx, false);
-	}
-	
-	// Hide tail cut surface
-	const int32 tail_cutsurface_material_idx = mesh_->GetMaterialIndex(FName(TEXT("Tail_CutSurface")));
-	if (tail_cutsurface_material_idx != INDEX_NONE)
-	{
-		SetMaterialVisibility(tail_cutsurface_material_idx, false);
 	}
 }
 
@@ -106,9 +109,16 @@ void UAZMonsterMeshComponent::SetMaterialVisibility(uint8 material_idx, bool is_
 {
 	if (!owner_.IsValid()) return;
 	UMaterialInterface* parent_material = mesh_->GetMaterial(material_idx);
+	if (!parent_material) return;
+	
 	UMaterialInstanceDynamic* dynamic_material = UMaterialInstanceDynamic::Create(parent_material, owner_.Get());
 	dynamic_material->SetScalarParameterValue(FName("Opacity"), is_visible == 1 ? 1.0f : 0.0f);
 	mesh_->SetMaterial(material_idx, dynamic_material);
+}
+
+void UAZMonsterMeshComponent::SetMaterialVisibility(FName slot_name, bool is_visible)
+{
+	SetMaterialVisibility(mesh_->GetMaterialIndex(slot_name), is_visible);
 }
 
 void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
@@ -117,7 +127,7 @@ void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
 	if (const auto material_idx = mesh_material_indices_wounded_.Find(body_part))
 	{
 		SetMaterialVisibility(*material_idx, true);
-		// TODO Save somewhere that the part is wounded
+		//TODO Add animation
 	}
 	else
 	{
@@ -131,7 +141,11 @@ void UAZMonsterMeshComponent::OnBodyPartBroken(EMonsterBodyPart body_part)
 	if (const auto material_idx = mesh_material_indices_default_.Find(body_part))
 	{
 		SetMaterialVisibility(*material_idx, false);
-		// TODO Save somewhere that the part is broken
+		//TODO Add animation
+	}
+	if (const auto material_idx = mesh_material_indices_cutsurface_.Find(body_part))
+	{
+		SetMaterialVisibility(*material_idx, true);
 	}
 	else
 	{
@@ -141,10 +155,14 @@ void UAZMonsterMeshComponent::OnBodyPartBroken(EMonsterBodyPart body_part)
 
 void UAZMonsterMeshComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 {
-	//TODO
-	UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] %s severed!"), *UAZUtility::EnumToString(body_part));
-	if (body_part == EMonsterBodyPart::Tail)
+	if (const auto material_idx = mesh_material_indices_default_.Find(body_part))
 	{
-		//owner_->SetBoneScale
+		SetMaterialVisibility(*material_idx, false);
 	}
+	if (const auto material_idx = mesh_material_indices_cutsurface_.Find(body_part))
+	{
+		SetMaterialVisibility(*material_idx, true);
+	}
+	//TODO Add animation
+	//TODO Drop tail mesh
 }
