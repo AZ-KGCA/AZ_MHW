@@ -10,10 +10,6 @@
 /**
  * 
  */
-struct FAmmoInfo;
-
-enum class EStorageType : uint8;
-
 UCLASS()
 class AZ_MHW_API UAZAmmoItem : public UObject
 {

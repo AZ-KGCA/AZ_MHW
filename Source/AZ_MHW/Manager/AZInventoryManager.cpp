@@ -18,9 +18,6 @@ void UAZInventoryManager::Init()
 	SetPotionSlot();
 	SetBottleSlot();
 	
-	UsePotion(0);
-	UseBottle(0);
-	
 }
 
 void UAZInventoryManager::ResetMgr()
@@ -76,7 +73,6 @@ void UAZInventoryManager::GetTableData()
 		FBuffDataStruct data;
 		data.id = buff_data->id;
 		data.effect = buff_data->effect;
-		UE_LOG(LogTemp, Warning, TEXT("%f"), data.effect);
 		data.target = UAZUtility::StringToEnum<EItemTarget>(buff_data->target);
 		data.calc = UAZUtility::StringToEnum<ECalculation>(buff_data->calculation);
 		buff_data_map_.Emplace(data.id,data);
@@ -101,7 +97,6 @@ void UAZInventoryManager::CreateStartItem()
 				FBuffDataStruct* buff_data = buff_data_map_.Find(info.item_key);
 				if(buff_data == nullptr)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("nullptr"));
 					return;
 				}
 				info.item_effect = buff_data->effect;
@@ -317,7 +312,6 @@ UAZPotionItem* UAZInventoryManager::CreatePotion(FPotionInfo& info)
 {
 	UAZPotionItem* potion = NewObject<UAZPotionItem>();
 	potion->InitItem(info);
-	UE_LOG(LogTemp, Warning , TEXT("%s"), *potion->GetItemInfo().item_name);
 	return potion;
 }
 
