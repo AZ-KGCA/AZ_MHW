@@ -221,10 +221,17 @@ protected:
 	virtual void OnSceneOpened();
 	virtual void OnSceneClosed();
 
+public:
+	bool GetHandledTouchPosition(FVector2D& position, bool try_get_touch_state = true) const;
+	void SetHandledTouchPosition(const struct FPointerEvent& pointer);
+
 protected:
 	TMap<EUIName, AZSceneData> scene_datas;
 	EUIName cur_scene_name_enum;
 	TArray<EUIName> scenes_stack;
 	UPROPERTY() class UAZWidget_Waiting* waiting_widget;
 	UPROPERTY() int32 hide_ui_flag = 0;
+
+	FVector2D handled_touch_position_;
+
 };

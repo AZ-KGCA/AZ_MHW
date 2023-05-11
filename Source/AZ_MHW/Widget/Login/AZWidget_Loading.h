@@ -33,4 +33,43 @@ public:
 	UFUNCTION() void OnPressedTouchScreen();
 	UFUNCTION() void OnReleasedTouchScreen();
 	UFUNCTION() void OnMoveTouchScreen(const FGeometry& my_geometry, const FPointerEvent& mouse_event);
+
+	void SetAvatarInfo(int32 avatar_index);
+	void SetModelText(const class UModelData* model_data);
+
+private:
+	UPROPERTY() UWidgetAnimation* text_animation_;
+	UPROPERTY() UWidgetAnimation* fade_out_animation_;
+
+	UPROPERTY(EditAnywhere, Category = "AZ Loading")
+	TArray<class UTexture2D*> loading_textures_;
+
+	UPROPERTY() class UWidgetSwitcher* c_desc_widget_switcher_;
+
+	UPROPERTY() class UImage* c_image_player_class_;
+	UPROPERTY() class UAZTextBlock* c_text_avatar_class_;
+	UPROPERTY() class UTextBlock* c_avatar_name_text_;
+	UPROPERTY() class UTextBlock* c_avatar_job_name_text_;
+	UPROPERTY() class UWidgetSwitcher* c_character_widget_switcher_;
+
+	UPROPERTY() UImage* loading_bg_image_;
+
+	UPROPERTY() class UAZButton* c_touch_screen_;
+	uint8 touch_screen_pressed_ : 1;
+	FVector last_touch_location_;
+
+	UPROPERTY(EditAnywhere, Category = "AZ Loading")
+	FVector spawn_location_;
+
+	UPROPERTY(EditAnywhere, Category = "AZ Loading")
+	float auto_rotate_value_;
+
+	UPROPERTY() class UCanvasPanel* c_canvas_;
+	UPROPERTY() class UImage* c_image_loading_actor_;
+
+	UPROPERTY() class UAZTextBlock* c_text_name_;
+	UPROPERTY() class UAZTextBlock* c_text_desc_;
+	UPROPERTY() class UAZTextBlock* c_text_tip_;
+	UPROPERTY() class UAZTextBlock* text_desc_;
+	float cached_ratio_;
 };

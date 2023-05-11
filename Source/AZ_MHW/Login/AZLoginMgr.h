@@ -20,18 +20,17 @@ public:
 	enum class ESequence : uint8
 	{
 		GameExit,
-		Splash,						// ���� �ΰ�.
-		WaitingForAnyKey,			// �ƹ�Ű�� �����ּ���.
-		LoginPageStart,				// LoginPage ������.
-		ConnectLoginServerReady,	// ����� �Է�(ID, Password, Touch)�� ��ٸ���.
-		ConnectLoginServer,			// �α��� ���� ����.
-		AuthLoginServer,			// �α��� ���� ����.
-		AuthGameServer,				// ���� ���� ���� �� ����.
-		PlayerSelectEnter,			// ĳ���� ����â.(������ �÷��̾� ����Ʈ ��û)
-		PlayerSelect,				// �÷��̾� ����.(����, ������ �� �� ����)
-		GameMapLoading,				// ���Ӹ� �ε�.
-		GameMapEnter,				// ���Ӹ� ���� �Ϸ�
-
+		Splash,						// 시작로고
+		LoginPageStart,				// LoginPageStart
+		WaitingForTouch,			// 사용자 입력을 기다린다.
+		ConnectLoginServerReady,	// 사용자 입력(ID, Password, Touch)를 기다림
+		ConnectLoginServer,			// 로그인 서버 접속
+		AuthLoginServer,			// 로그인 서버 접속 및 인증
+		AuthGameServer,				// 게임 서버 접속 및 인증
+		PlayerSelectEnter,			// 캐릭터 선택창.(생성된 플레이어 리스트 요청)
+		PlayerSelect,				// 플레이어 선택(생성, 삭제도 할 수 있음)
+		GameMapLoading,				// 게임맵 로딩.
+		GameMapEnter,				// 게임맵 입장 완료
 
 		None
 	};
@@ -40,7 +39,7 @@ private:
 	ESequence sequence_;
 	ESequence login_page_start_sequence_;
 
-	// ���� ���� ����
+	// 서버 선택 관련
 	int32 recent_server_id_;
 	int32 game_auth_serial_;
 	FString server_ip_[(int32)ESocketHolderType::Max];

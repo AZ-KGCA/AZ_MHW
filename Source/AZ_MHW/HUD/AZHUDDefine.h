@@ -88,6 +88,7 @@ enum class EUIName : uint16
 	AZWidget_Black,
 	AZWidget_BlackInOut,
 	AZWidget_Login,
+	AZWidget_Menu,
 	AZWidget_Loading,
 	AZWidget_Waiting,
 	AZWidget_InGame,

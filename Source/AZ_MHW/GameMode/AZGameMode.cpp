@@ -10,6 +10,8 @@
 #include "AZ_MHW/CommonSource/AZLog.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Level/AZWorldSettings.h"
+#include "AZ_MHW/PlayerController/AZPlayerController.h"
+#include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
 #include "Engine/AssetManager.h"
 #include "Engine/LevelStreaming.h"
 #include "Engine/WorldComposition.h"
@@ -17,10 +19,8 @@
 
 AAZGameMode::AAZGameMode()
 {
-	// FIXME (merged add)
-	//DefaultPawnClass = ALHPlayer_Playable::StaticClass();
-	// FIXME (merged add)
-	//PlayerControllerClass = ALHPlayerController::StaticClass();
+	DefaultPawnClass = AAZPlayer_Playable::StaticClass();
+	PlayerControllerClass = AAZPlayerController::StaticClass();
 	HUDClass = AAZHUD::StaticClass();
 
 	PrimaryActorTick.bCanEverTick = true;

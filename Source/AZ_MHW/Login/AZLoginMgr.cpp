@@ -6,7 +6,12 @@
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZ_MHW/Manager/AZGameConfig.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Widget/Login/AZWidget_Login.h"
+#include "AZ_MHW/Widget/StartMenu/AZWidget_Menu.h"
 #include "AZ_MHW/HUD/AZHUD.h"
+#include "Kismet/GameplayStatics.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
+#include "ShaderPipelineCache.h"
 
 UAZLoginMgr::UAZLoginMgr()
 {
@@ -40,22 +45,38 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 	{
 	case ESequence::GameExit:
 	{
-		//FGenericPlatformMisc::Requ
+		FGenericPlatformMisc::RequestExit(false);
 	}break;
 	case ESequence::Splash:
 	{
 	}break;
 	case ESequence::LoginPageStart:
 	{
+		FShaderPipelineCache::SetBatchMode(FShaderPipelineCache::BatchMode::Background);
+		FShaderPipelineCache::ResumeBatching();
+		UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), FName("/Game/AZ/Map/Map_Login"));
+	}break;
+	case ESequence::WaitingForTouch:
+	{
+		UAZWidget_Login* login_page = AZGameInstance->GetHUD()->GetUI<UAZWidget_Login>(EUIName::AZWidget_Login);
+		login_page->SetLoginMode(UAZWidget_Login::ELogInMode::TouchConnect);
 	}break;
 	case ESequence::ConnectLoginServerReady:
 	{
+		UAZWidget_Login* login_page = AZGameInstance->GetHUD()->GetUI<UAZWidget_Login>(EUIName::AZWidget_Login);
+		login_page->SetLoginMode(UAZWidget_Login::ELogInMode::IDPassword);
 	}break;
 	case ESequence::ConnectLoginServer:
-	{
-	}break;
+	//{
+		// FIXME Server
+		// 커넥트 진행(서버// 비동기로 진행)
+	//}break;
 	case ESequence::AuthLoginServer:
 	{
+		// FIXME Sever
+		// 패킷 보내기(인증 되었다고 생각하고 넘기기)
+		AZGameInstance->GetHUD()->CloseAllUI();
+		AZGameInstance->GetHUD()->OpenScene<UAZWidget_Menu>(EUIName::AZWidget_Menu);
 	}break;
 	case ESequence::AuthGameServer:
 	{

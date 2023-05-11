@@ -1564,6 +1564,14 @@ bool UAZMapMgr::HasFloor(AAZCharacter* character)
 	return false;
 }
 
+void UAZMapMgr::StopLoadingActorSceneCapture()
+{
+	if (IsValid(loading_scene_actor_instance_))
+	{
+		loading_scene_actor_instance_->StopCapture();
+	}
+}
+
 void UAZMapMgr::SyncLoadingActorInstance(const UModelData* model_data, int32 map_index)
 {
 	if (model_data == nullptr)
@@ -1634,4 +1642,9 @@ void UAZMapMgr::SyncLoadingActorInstance(const UModelData* model_data, int32 map
 	{
 		loading_scene_actor_instance_ = Cast<AAZActor_LoadingScene>(temp_array[0]);
 	}
+}
+
+AAZActor_LoadingScene* UAZMapMgr::GetLoadingSceneActor() const
+{
+	return loading_scene_actor_instance_;
 }

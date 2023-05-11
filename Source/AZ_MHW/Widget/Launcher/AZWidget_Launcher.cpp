@@ -2,6 +2,9 @@
 
 
 #include "AZ_MHW/Widget/Launcher/AZWidget_Launcher.h"
+#include "AZ_MHW/Login/AZLoginMgr.h"
+#include "AZ_MHW/Manager/AZMapMgr.h"
+#include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "TimerManager.h"
 
 void UAZWidget_Launcher::Init()
@@ -29,6 +32,11 @@ void UAZWidget_Launcher::OnAnimationStarted_Implementation(const UWidgetAnimatio
 void UAZWidget_Launcher::OnAnimationFinished_Implementation(const UWidgetAnimation* animation)
 {
 	Super::OnAnimationFinished_Implementation(animation);
+
+	if (animation)
+	{
+		AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::LoginPageStart);
+	}
 }
 
 void UAZWidget_Launcher::OnBegin()

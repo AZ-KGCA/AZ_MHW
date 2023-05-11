@@ -34,6 +34,6 @@ void UAZWidget_Splash::OnAnimationFinished_Implementation(const UWidgetAnimation
 
 	if (animation == splash_ani)
 	{
-		AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::WaitingForAnyKey);
+		AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::LoginPageStart);
 	}
 }
