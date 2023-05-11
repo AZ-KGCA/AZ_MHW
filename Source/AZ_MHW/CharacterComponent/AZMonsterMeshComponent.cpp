@@ -22,6 +22,10 @@ void UAZMonsterMeshComponent::InitializeComponent()
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] Invalid owner actor!"));
 	}
+	if (!owner_->GetMesh())
+	{
+		UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] Invalid owner mesh!"));
+	}
 	SetUpBodyPartMaterialMaps();
 }
 
@@ -33,12 +37,16 @@ void UAZMonsterMeshComponent::BeginPlay()
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[AZMonsterMeshComponent] Mesh material indices not set for a boss monster!"));
 	}
+
+	// Bind events and delegates
+	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterMeshComponent::OnBodyPartWounded);
+	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterMeshComponent::OnBodyPartBroken);
+	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterMeshComponent::OnBodyPartSevered);
 }
 
 void UAZMonsterMeshComponent::SetUpBodyPartMaterialMaps()
 {
-	if (!owner_.IsValid()) return;
-	if (!owner_->GetMesh()) return;
+	mesh_ = owner_->GetMesh();
 	if (!owner_->IsABoss()) return;
 
 	int32 material_idx = 0;
@@ -86,7 +94,7 @@ void UAZMonsterMeshComponent::InitializeRuntimeValues()
 	}
 	
 	// Hide tail cut surface
-	const int32 tail_cutsurface_material_idx = owner_->GetMesh()->GetMaterialIndex(FName(TEXT("Tail_CutSurface")));
+	const int32 tail_cutsurface_material_idx = mesh_->GetMaterialIndex(FName(TEXT("Tail_CutSurface")));
 	if (tail_cutsurface_material_idx != INDEX_NONE)
 	{
 		SetMaterialVisibility(tail_cutsurface_material_idx, false);
@@ -97,10 +105,10 @@ void UAZMonsterMeshComponent::InitializeRuntimeValues()
 void UAZMonsterMeshComponent::SetMaterialVisibility(uint8 material_idx, bool is_visible)
 {
 	if (!owner_.IsValid()) return;
-	UMaterialInterface* parent_material = owner_->GetMesh()->GetMaterial(material_idx);
+	UMaterialInterface* parent_material = mesh_->GetMaterial(material_idx);
 	UMaterialInstanceDynamic* dynamic_material = UMaterialInstanceDynamic::Create(parent_material, owner_.Get());
 	dynamic_material->SetScalarParameterValue(FName("Opacity"), is_visible == 1 ? 1.0f : 0.0f);
-	owner_->GetMesh()->SetMaterial(material_idx, dynamic_material);
+	mesh_->SetMaterial(material_idx, dynamic_material);
 }
 
 void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
@@ -128,5 +136,15 @@ void UAZMonsterMeshComponent::OnBodyPartBroken(EMonsterBodyPart body_part)
 	else
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] %s is not found in the default material map!"), *UAZUtility::EnumToString(body_part));
+	}
+}
+
+void UAZMonsterMeshComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
+{
+	//TODO
+	UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] %s severed!"), *UAZUtility::EnumToString(body_part));
+	if (body_part == EMonsterBodyPart::Tail)
+	{
+		//owner_->SetBoneScale
 	}
 }

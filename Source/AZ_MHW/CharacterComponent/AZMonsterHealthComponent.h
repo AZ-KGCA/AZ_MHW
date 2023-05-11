@@ -20,16 +20,38 @@ public:
 	// Property Getters
 	float GetHealthRatio() const;
 	float GetStaminaRatio() const;
+	bool IsPendingKill() const;
 
 	// Escape Functionalities
 	//TODO bool CanEscape() const;
 
-	// Take Damage functions
+	// Damage Agent Overrides
+	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
+	float ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage);
+	UFUNCTION() void PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* damage_instigator);
+
+	// Body Part State Change Events
+	DECLARE_EVENT_OneParam(AAZMonsterHealthComponent, FWoundEvent, EMonsterBodyPart)
+	FWoundEvent wound_event_;
 	
+protected:
+	// Damage functions
+	bool IsReceivedAttackValid(EDamageType damage_type, EMonsterBodyPart damaged_part);
+	void ApplyDamageToBodyPart(EDamageType damage_type, EMonsterBodyPart damaged_part, float damage_amount);
+	void CheckBeWounded(EMonsterBodyPart damaged_part, float damage_amount);
+	UFUNCTION() void OnBodyPartWounded(EMonsterBodyPart body_part);
+	void CheckBeBroken(EMonsterBodyPart damaged_part, float damage_amount);
+	UFUNCTION() void OnBodyPartBroken(EMonsterBodyPart body_part);
+	void CheckBeSevered(EMonsterBodyPart damaged_part, float damage_amount);
+	UFUNCTION() void OnBodyPartSevered(EMonsterBodyPart body_part);
+	
+	// State Setters
+	void ReduceHealth(float amount);
+	void Kill();
 	
 protected:
 	virtual void InitializeComponent() override;
-	//UFUNCTION() void TakeDamage(AActor* damaged_actor, float damage_amount, const class UDamageType* damage_type, class AController* event_instigator, AActor* damage_causer);
+	virtual void BeginPlay() override;
 	
 private:
 	TWeakObjectPtr<class AAZMonster> owner_;

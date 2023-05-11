@@ -17,9 +17,8 @@ class AZ_MHW_API AAZPlayer_Remotable : public AAZPlayer
 	
 public:
 	AAZPlayer_Remotable();
-	
+
+protected:
 	// Damage Processing
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
-	                                         AController* event_instigator, TSubclassOf<UDamageType> damage_type_class,
-	                                         float base_damage) override;
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info) override;
 };

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AZ_MHW/CommonSource/AZStruct.h"
 #include "UObject/Interface.h"
 #include "AZDamageAgentInterface.generated.h"
 
@@ -15,19 +16,15 @@ class UAZDamageAgentInterface : public UInterface
 class AZ_MHW_API IAZDamageAgentInterface
 {
 	GENERATED_BODY()
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTakeDamageSignature, float, damage, const class UDamageType*, damage_type, class AController*, instigator /* Actor*, DamageCauser*/ );
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTakeDamageSignature, float, damage, const FAttackInfo&, attack_info, class AController*, instigator /* Actor*, DamageCauser*/ );
 
 public:
 	FOnTakeDamageSignature OnTakeDamage;
 	
-public:
+protected:
 	// Damage functions
-	// If multiple damage types need to be handled in the future, need to change parameters accordingly
-	// TEMP: Declared blueprintNativeEvent for bp debugging purposes
 	UFUNCTION(BlueprintNativeEvent)
-	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result,
-	                         AController* event_instigator, TSubclassOf<UDamageType> damage_type_class, float base_damage);
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
-							 AController* event_instigator, TSubclassOf<UDamageType> damage_type_class, float base_damage);
-	virtual float ProcessDamage(const FHitResult& hit_result, AController* event_instigator, TSubclassOf<UDamageType> damage_type_class, float applied_damage);
+	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
+	virtual float ProcessDamage(const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info, float applied_damage);
 };
