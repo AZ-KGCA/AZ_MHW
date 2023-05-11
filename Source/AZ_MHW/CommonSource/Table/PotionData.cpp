@@ -8,10 +8,10 @@ void UPotionData::Load(TMap<FString, FString>& data)
 	{
 		id = FCString::Atoi(**value_ptr);
 	}
-	value_ptr = data.Find("buff_type");
+	value_ptr = data.Find("is_buff");
 	if (value_ptr != nullptr)
 	{
-		buff_type = **value_ptr;
+		is_buff = (*value_ptr).ToBool();
 	}
 	value_ptr = data.Find("usable");
 	if (value_ptr != nullptr)

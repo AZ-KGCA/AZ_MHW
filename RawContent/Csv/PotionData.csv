@@ -1,5 +1,5 @@
-id,buff_type,usable
-int,string,bool
-101,buff,TRUE
-102,buff,TRUE
-103,buff,TRUE
+id,is_buff,usable
+int,bool,bool
+101,TRUE,TRUE
+102,TRUE,TRUE
+103,TRUE,TRUE

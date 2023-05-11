@@ -18,13 +18,15 @@ void UAZTableMgr::LoadComplete()
 		return false;
 		});*/
 	LoadTotalItemTable();
-	LoadConsumeTable();
+	LoadPotionTable();
 	LoadBuffTable();
+	LoadBottleTable();
 }
 
 void UAZTableMgr::LoadTotalItemTable()
 {
-	total_item_array = GetData<UTotalItemData>([](const UTotalItemData* total_item) {
+	total_item_array_ = GetData<UTotalItemData>([](const UTotalItemData* total_item)
+	{
 	if (total_item->type != "hair")
 	{
 		return true;
@@ -33,19 +35,30 @@ void UAZTableMgr::LoadTotalItemTable()
 	});
 }
 
-void UAZTableMgr::LoadConsumeTable()
+void UAZTableMgr::LoadPotionTable()
 {
-	
-	consume_item_array = GetData<UPotionData>([](const UPotionData* consume_item)
+	potion_item_array_ = GetData<UPotionData>([](const UPotionData* consume_item)
 	{
-		return true;
+		if(consume_item->is_buff == true)
+		{
+			return true;	
+		}
+		return false;
 	});
 
 }
 
 void UAZTableMgr::LoadBuffTable()
 {
-	buff_array =GetData<UItemBuffData>([](const UItemBuffData* buff)
+	buff_array_ =GetData<UItemBuffData>([](const UItemBuffData* buff)
+	{
+		return true;
+	});
+}
+
+void UAZTableMgr::LoadBottleTable()
+{
+	bottle_array_ = GetData<UBottleData>([](const UBottleData* bottle)
 	{
 		return true;
 	});

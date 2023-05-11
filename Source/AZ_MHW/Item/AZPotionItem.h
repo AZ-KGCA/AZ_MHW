@@ -4,29 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-
+#include "AZItemData.h"
 #include "AZPotionItem.generated.h"
 
 /**
  * 
  */
-struct FPotionInfo;
 
-enum class EStorageType : uint8;
 UCLASS()
 class AZ_MHW_API UAZPotionItem : public UObject
 {
 	GENERATED_BODY()
 
 private:
-	
-	FPotionInfo* info;
+	FPotionInfo info_;
 public:
 	void			InitItem(FPotionInfo& new_info);
 	void			SetCount(int32 count);
 	void			IncreaseCount(int32 count =1);
 	void			DecreaseCount(int32 count =1);
-	FPotionInfo*	GetItemInfo() const;
+	FPotionInfo		GetItemInfo() const;
 	int32			GetItemCount();
 	int32			GetItemKey();
 	EStorageType	GetItemStorageType();

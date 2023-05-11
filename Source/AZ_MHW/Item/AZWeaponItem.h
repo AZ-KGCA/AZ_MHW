@@ -18,10 +18,10 @@ class AZ_MHW_API UAZWeaponItem : public UObject
 	GENERATED_BODY()
 
 private:
-	FWeaponInfo* info;
+	FWeaponInfo* info_;
 public:
 	void InitItem(FWeaponInfo& info);
 	EWeaponType GetWeaponType();
-	FWeaponInfo GetWeaponInfo();
+	FWeaponInfo* GetWeaponInfo();
 	bool GetEquipState();
 };
