@@ -3,7 +3,6 @@
 
 #include "AZInventoryManager.h"
 #include "AZTableMgr.h"
-#include "SNegativeActionButton.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "Util/AZUtility.h"
 
