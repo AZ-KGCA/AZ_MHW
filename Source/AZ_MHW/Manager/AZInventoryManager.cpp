@@ -2,12 +2,10 @@
 
 
 #include "AZInventoryManager.h"
-
-
 #include "AZTableMgr.h"
+#include "SNegativeActionButton.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
-#include "AZ_MHW/CommonSource/MagicEnum/magic_enum.hpp"
-#include "AZ_MHW/Item/AZItemData.h"
+#include "Util/AZUtility.h"
 
 void UAZInventoryManager::Init()
 {
@@ -15,7 +13,14 @@ void UAZInventoryManager::Init()
 	
 	ResetMgr();
 	SetMaxCount();
+	GetTableData();
 	CreateStartItem();
+	SetPotionSlot();
+	SetBottleSlot();
+	
+	UsePotion(0);
+	UseBottle(0);
+	
 }
 
 void UAZInventoryManager::ResetMgr()
@@ -31,27 +36,105 @@ void UAZInventoryManager::SetMaxCount()
 	bottle_warehouse_max_count = 20;
 	bottle_pocket_max_count = 10;
 }
+
+void UAZInventoryManager::GetTableData()
+{
+	for(auto total_item : instance_->table_mgr->total_item_array_)
+	{
+		if(total_item->count == 1)
+		{
+			FTotalItemDataStruct data;
+			data.id = total_item->id;
+			data.name = total_item->name;
+			data.warehouse_max = total_item->warehouse_max;
+			data.pocket_max = total_item->pocket_max;
+			data.init_count = total_item->init_count;
+			FString type = total_item->type;
+			data.type = UAZUtility::StringToEnum<EItemType>(type);
+			total_data_map_.Emplace(data.id, data);
+		}
+	}
+	
+	for(auto potion_data : instance_->table_mgr->potion_item_array_)
+	{
+		FPotionDataStruct data;
+		data.id = potion_data->id;
+		data.is_buff = potion_data->is_buff;
+		data.is_usable = potion_data->usable;
+		potion_data_map_.Emplace(data.id, data);
+		
+	}
+	for(auto bottle_data : instance_->table_mgr->bottle_array_)
+	{
+		FBottleDataStruct data;
+		data.id = bottle_data->id;
+		data.is_buff = bottle_data->is_buff;
+		bottle_data_map_.Emplace(data.id, data);
+	}
+	for(auto buff_data : instance_->table_mgr->buff_array_)
+	{
+		FBuffDataStruct data;
+		data.id = buff_data->id;
+		data.effect = buff_data->effect;
+		UE_LOG(LogTemp, Warning, TEXT("%f"), data.effect);
+		data.target = UAZUtility::StringToEnum<EItemTarget>(buff_data->target);
+		data.calc = UAZUtility::StringToEnum<ECalculation>(buff_data->calculation);
+		buff_data_map_.Emplace(data.id,data);
+	}
+}
+
 void UAZInventoryManager::CreateStartItem()
 {
-	/*for(auto item : instance->table_mgr->total_item_array)
+	for(auto item : total_data_map_)
 	{
-		if(item->type == "potion")
+		if(item.Value.type == EItemType::potion)
 		{
 			FPotionInfo info;
-			info.item_key = item->id;
-			info.item_name = item->name;
-			info.storage_type = EStorageType::Warehouse;
-			info.item_count = item->init_count;
-			info.item_type = EItemType::Potion;
+			info.item_key = item.Value.id;
+			info.item_name = item.Value.name;
+			info.item_type = item.Value.type;
+			info.item_count = item.Value.init_count;
+			FPotionDataStruct* potion_data =  potion_data_map_.Find(item.Value.id);
+			info.usable = potion_data->is_usable;
+			if(potion_data->is_buff == true)
+			{
+				FBuffDataStruct* buff_data = buff_data_map_.Find(info.item_key);
+				if(buff_data == nullptr)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("nullptr"));
+					return;
+				}
+				info.item_effect = buff_data->effect;
+				info.calc_type = buff_data->calc;
+				info.target = buff_data->target;
+			}
+			AddPocketPotion(info);
 		}
-	}*/
+		else if(item.Value.type == EItemType::ammo)
+		{
+			FAmmoInfo info;
+			info.item_key = item.Value.id;
+			info.item_name = item.Value.name;
+			info.item_type = item.Value.type;
+			info.item_count = item.Value.init_count;
+			FBottleDataStruct* bottle_data = bottle_data_map_.Find(info.item_key);
+			if(bottle_data->is_buff == true)
+			{
+				FBuffDataStruct* buff_data = buff_data_map_.Find(info.item_key);
+				info.item_effect = buff_data->effect;
+				info.calc_type = buff_data->calc;
+				info.effect_type = buff_data->target;
+			}
+			AddPocketBottle(info);
+		}
+	}
 }
 int32 UAZInventoryManager::GetInventoryCurrCount(EItemType item_type, EStorageType type)
 {
 	int32 count = 0;
 	switch (item_type)
-	{
-	case EItemType::Potion:
+	{ 
+	case EItemType::potion:
 		if (type == EStorageType::Warehouse)
 		{
 			count = potion_warehouse_.Num();
@@ -61,7 +144,7 @@ int32 UAZInventoryManager::GetInventoryCurrCount(EItemType item_type, EStorageTy
 			count = potion_pocket_.Num();
 		}
 		break;
-	case EItemType::Bottle:
+	case EItemType::ammo:
 		if (type == EStorageType::Warehouse)
 		{
 			count = bottle_warehouse_.Num();
@@ -82,12 +165,12 @@ bool UAZInventoryManager::IsWarehouseFull(EItemType type)
 	int32 empty = 0;
 	switch (type)
 	{
-	case EItemType::Potion:
-		curr_count = GetInventoryCurrCount(EItemType::Potion, EStorageType::Warehouse);
+	case EItemType::potion:
+		curr_count = GetInventoryCurrCount(EItemType::potion, EStorageType::Warehouse);
 		max_count = potion_warehouse_max_count;
 		break;
-	case EItemType::Bottle:
-		curr_count = GetInventoryCurrCount(EItemType::Bottle, EStorageType::Warehouse);
+	case EItemType::ammo:
+		curr_count = GetInventoryCurrCount(EItemType::ammo, EStorageType::Warehouse);
 		max_count = bottle_warehouse_max_count;
 		break;
 	}
@@ -107,12 +190,12 @@ bool UAZInventoryManager::IsPocketFull(EItemType type)
 	int32 empty = 0;
 	switch (type)
 	{
-	case EItemType::Potion:
-		curr_count = GetInventoryCurrCount(EItemType::Potion, EStorageType::Pocket);
+	case EItemType::potion:
+		curr_count = GetInventoryCurrCount(EItemType::potion, EStorageType::Pocket);
 		max_count = potion_pocket_max_count;
 		break;
-	case EItemType::Bottle:
-		curr_count = GetInventoryCurrCount(EItemType::Bottle, EStorageType::Pocket);
+	case EItemType::ammo:
+		curr_count = GetInventoryCurrCount(EItemType::ammo, EStorageType::Pocket);
 		max_count = bottle_pocket_max_count;
 		break;
 	}
@@ -153,7 +236,7 @@ void UAZInventoryManager::RemoveItem(int32 item_key, EItemType item_type, EStora
 {
 	switch (item_type)
 	{
-	case EItemType::Potion:
+	case EItemType::potion:
 		if(type == EStorageType::Warehouse)
 		{
 			potion_warehouse_.Remove(item_key);
@@ -163,7 +246,7 @@ void UAZInventoryManager::RemoveItem(int32 item_key, EItemType item_type, EStora
 			potion_pocket_.Remove(item_key);
 		}
 		break;
-	case EItemType::Bottle:
+	case EItemType::ammo:
 		if(type == EStorageType::Warehouse)
 		{
 			bottle_warehouse_.Remove(item_key);
@@ -176,10 +259,20 @@ void UAZInventoryManager::RemoveItem(int32 item_key, EItemType item_type, EStora
 	}
 }
 
+TArray<UAZPotionItem*> UAZInventoryManager::GetPotionSlot()
+{
+	return potion_slot_;
+}
+
+
+TArray<UAZAmmoItem*> UAZInventoryManager::GetBottleSlot()
+{
+	return bottle_slot_;
+}
 
 bool UAZInventoryManager::AddWarehousePotion(FPotionInfo& info)
 {
-	bool is_full = IsWarehouseFull(EItemType::Potion);
+	bool is_full = IsWarehouseFull(EItemType::potion);
 	if (is_full == true)
 	{
 		return false;
@@ -199,9 +292,9 @@ bool UAZInventoryManager::AddWarehousePotion(FPotionInfo& info)
 	return true;
 }
 
-bool UAZInventoryManager::AddPocketPotion(FPotionInfo& info)
+bool UAZInventoryManager::AddPocketPotion( FPotionInfo& info)
 {
-	bool is_full = IsPocketFull(EItemType::Potion);
+	bool is_full = IsPocketFull(EItemType::potion);
 	if (is_full == true)
 	{
 		return false;
@@ -224,6 +317,7 @@ UAZPotionItem* UAZInventoryManager::CreatePotion(FPotionInfo& info)
 {
 	UAZPotionItem* potion = NewObject<UAZPotionItem>();
 	potion->InitItem(info);
+	UE_LOG(LogTemp, Warning , TEXT("%s"), *potion->GetItemInfo().item_name);
 	return potion;
 }
 
@@ -246,13 +340,13 @@ bool UAZInventoryManager::ChangePotionStorage(int32 item_key, EStorageType type,
 	{
 		return false;
 	}
-	FPotionInfo* info = (*potion)->GetItemInfo();
-	info->item_count -= move_count;
-	if(info->item_count<=0)
+	FPotionInfo info = (*potion)->GetItemInfo();
+	info.item_count -= move_count;
+	if(info.item_count<=0)
 	{
-		RemoveItem(info->item_key,info->item_type, info->storage_type);
+		RemoveItem(info.item_key,info.item_type, info.storage_type);
 	}
-	new_info = *info;
+	new_info = info;
 	new_info.item_count = move_count;
 	if(pre_state == EStorageType::Warehouse)
 	{
@@ -265,9 +359,37 @@ bool UAZInventoryManager::ChangePotionStorage(int32 item_key, EStorageType type,
 	return true;
 }
 
+void UAZInventoryManager::SetPotionSlot()
+{
+	for(auto item : potion_pocket_)
+	{
+		potion_slot_.Emplace(item.Value);
+	}
+}
+
+FBuffDataStruct UAZInventoryManager::UsePotion(int32 item_index)
+{
+	UAZPotionItem* potion = potion_slot_[item_index];
+	FBuffDataStruct buff;
+	
+	potion->DecreaseCount();
+	if(potion->GetItemCount() == 0)
+	{
+		potion_pocket_.Remove(potion->GetItemInfo().item_key);
+	}
+	buff = *buff_data_map_.Find(potion->GetItemInfo().item_key);
+	UAZPotionItem** temp =  potion_pocket_.Find(buff.id);
+	if(temp != nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,  FString::Printf(TEXT("item : %s , count : %d"),
+			*((*temp)->GetItemInfo().item_name),(*temp)->GetItemInfo().item_count));
+	}
+	return buff;
+}
+
 bool UAZInventoryManager::AddWarehouseBottle(FAmmoInfo& info)
 {
-	bool is_full = IsWarehouseFull(EItemType::Bottle);
+	bool is_full = IsWarehouseFull(EItemType::ammo);
 	if(is_full == true)
 	{
 		return false;
@@ -288,7 +410,7 @@ bool UAZInventoryManager::AddWarehouseBottle(FAmmoInfo& info)
 
 bool UAZInventoryManager::AddPocketBottle(FAmmoInfo& info)
 {
-	bool is_full = IsPocketFull(EItemType::Bottle);
+	bool is_full = IsPocketFull(EItemType::ammo);
 	if(is_full == true)
 	{
 		return false;
@@ -353,12 +475,12 @@ bool UAZInventoryManager::ChangeBottleStorage(int32 item_key, EStorageType type,
 	{
 		return false;
 	}
-	FAmmoInfo* info = (*bottle)->GetItemInfo();
-	new_info = *info;
+	FAmmoInfo info = (*bottle)->GetItemInfo();
+	new_info = info;
 	(*bottle)->DecreaseCount(move_count);
 	if((*bottle)->GetItemCount() == 0)
 	{
-		RemoveItem(info->item_key, info->item_type, info->storage_type);
+		RemoveItem(info.item_key, info.item_type, info.storage_type);
 	}
 	new_info.item_count = move_count;
 	if(pre_state ==EStorageType::Warehouse)
@@ -370,6 +492,39 @@ bool UAZInventoryManager::ChangeBottleStorage(int32 item_key, EStorageType type,
 		AddWarehouseBottle(new_info);
 	}
 	return true;
+}
+
+void UAZInventoryManager::SetBottleSlot()
+{
+	for(auto item : bottle_pocket_)
+	{
+		bottle_slot_.Emplace(item.Value);
+	}
+}
+
+FBuffDataStruct UAZInventoryManager::UseBottle(int32 index)
+{
+	UAZAmmoItem* item =bottle_slot_[index];
+	FBuffDataStruct buff;
+
+	if(item->GetItemInfo().item_name != "normal_bottle")
+	{
+		item->DecreaseCount();
+	}
+	
+	if(item->GetItemCount() == 0)
+	{
+		bottle_pocket_.Remove(item->GetItemKey());
+	}
+	buff = *buff_data_map_.Find(item->GetItemKey());
+	UAZAmmoItem** temp =  bottle_pocket_.Find(buff.id);
+	if(temp != nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,  FString::Printf(TEXT("item : %s , count : %d"),
+			*((*temp)->GetItemInfo().item_name),(*temp)->GetItemInfo().item_count));
+
+	}
+	return buff;
 }
 
 /*

@@ -12,7 +12,7 @@ class AZ_MHW_API UPotionData : public UTableBase
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 id;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString buff_type;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool is_buff;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) bool usable;
 
 public:

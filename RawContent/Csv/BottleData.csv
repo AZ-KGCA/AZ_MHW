@@ -1,3 +1,4 @@
-id,buff_type
-201,buff
-202,buff
+id,is_buff
+int,bool
+201,TRUE
+202,TRUE

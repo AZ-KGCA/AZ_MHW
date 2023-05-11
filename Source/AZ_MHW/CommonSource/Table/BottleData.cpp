@@ -6,9 +6,11 @@ void UBottleData::Load(TMap<FString, FString>& data)
 	value_ptr = data.Find("id");
 	if (value_ptr != nullptr)
 	{
+		id = FCString::Atoi(**value_ptr);
 	}
-	value_ptr = data.Find("buff_type");
+	value_ptr = data.Find("is_buff");
 	if (value_ptr != nullptr)
 	{
+		is_buff = (*value_ptr).ToBool();
 	}
 }

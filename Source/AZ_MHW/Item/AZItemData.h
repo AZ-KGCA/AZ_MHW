@@ -6,11 +6,11 @@
 UENUM(BlueprintType)
 enum class EItemType :uint8
 {
-	Info = 0,
-	Potion,
-	Bottle,
-	Weapon,
-	Armor,
+	info,
+	potion,
+	ammo,
+	weapon,
+	armor,
 	
 };
 UENUM(BlueprintType)
@@ -29,16 +29,10 @@ enum class EStorageType : uint8
 };
 
 UENUM(BlueprintType)
-enum class EPotionTarget :uint8
-{
-	Health,
-	Damage,
-};
-
-UENUM(BlueprintType)
-enum class EBottleEffect : uint8
+enum class EItemTarget :uint8
 {
 	None,
+	Health,
 	Damage,
 };
 
@@ -67,37 +61,6 @@ enum class EBottleType : uint8
 	PowerBottle,// 데미지 업
 };
 
-/*
-UENUM(BlueprintType)
-enum class EItemEffect :uint8
-{
-	PotionEffect,
-};
-
-USTRUCT(BlueprintType)
-struct FTotalItemInfo
-{	
-	GENERATED_BODY()
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)	int32 item_index;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)	FString item_name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 count;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) FString desc;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 warehouse_max_count;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 pocket_max_count;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) EItemType type;
-
-	FTotalItemInfo()
-	{
-		item_index = 0;
-		item_name = "none";
-		count = 0;
-		desc = "none";
-		warehouse_max_count = 0;
-		pocket_max_count = 0;
-		
-	}
-
-};*/
 
 USTRUCT(BlueprintType)
 struct FItemInfo
@@ -118,7 +81,7 @@ struct FItemInfo
 	{
 		item_key = 0;
 		item_name = "none";
-		item_type = EItemType::Potion;
+		item_type = EItemType::potion;
 
 	}
 };
@@ -127,8 +90,8 @@ USTRUCT(BlueprintType)
 struct FPotionInfo : public FItemInfo
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) EPotionTarget target;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 item_effect;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) EItemTarget target;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float item_effect;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 item_count;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool usable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) EStorageType storage_type;
@@ -138,7 +101,7 @@ struct FPotionInfo : public FItemInfo
 	{
 		item_key = 101;
 		item_name = "none";
-		target = EPotionTarget::Health;
+		target = EItemTarget::Health;
 		item_effect = 0;
 		usable = true;
 		item_count = 0;
@@ -153,7 +116,7 @@ struct FAmmoInfo : public FItemInfo
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 item_count;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) EBottleEffect effect_type;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) EItemTarget effect_type;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 item_effect;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) EStorageType storage_type;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) ECalculation calc_type;
@@ -163,7 +126,7 @@ struct FAmmoInfo : public FItemInfo
 		item_key = 0;
 		item_name = "none";
 		item_count = 0;
-		effect_type = EBottleEffect::None;
+		effect_type = EItemTarget::None;
 		
 		item_effect = 0;
 		calc_type = ECalculation::Multi;
@@ -204,5 +167,69 @@ struct FArmorInfo : public FItemInfo
 		armor_type = EArmorType::Helmet;
 		defense = 10;
 		is_equip = false;
+	}
+};
+
+USTRUCT()
+struct FTotalItemDataStruct
+{
+	GENERATED_BODY()
+	int32 id;
+	FString name;
+	int32 warehouse_max;
+	int32 pocket_max;
+	int32  init_count;
+	EItemType type;
+	FTotalItemDataStruct()
+	{
+		id = 0;
+		name = "none";
+		warehouse_max = 0;
+		pocket_max = 0;
+		init_count = 0;
+	}
+};
+
+USTRUCT()
+struct FPotionDataStruct
+{
+	GENERATED_BODY()
+	int32 id;
+	bool is_buff;
+	bool is_usable;
+	FPotionDataStruct()
+	{
+		id =0;
+		is_buff = false;
+		is_usable = false;
+	}
+};
+
+USTRUCT()
+struct FBuffDataStruct
+{
+	GENERATED_BODY()
+	int32 id;
+	EItemTarget target;
+	ECalculation calc;
+	float effect; //TODO : change int
+	FBuffDataStruct()
+	{
+		id = 0;
+		target = EItemTarget::None;
+		effect = 0.0f;
+	}
+};
+
+USTRUCT()
+struct FBottleDataStruct
+{
+	GENERATED_BODY()
+	int32 id;
+	bool is_buff;
+	FBottleDataStruct()
+	{
+		id =0;
+		is_buff = false;
 	}
 };
