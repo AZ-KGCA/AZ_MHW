@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/AnimNotify/AZAnimNotify_ActionStart.h"
@@ -20,7 +20,7 @@ void UAZAnimNotify_ActionStart::Notify(USkeletalMeshComponent* mesh_comp, UAnimS
 			player_anim_instance->is_montage_ = true;
 			player_anim_instance->should_transition_ = true;
 
-			player_anim_instance->can_input_control_;
+			//player_anim_instance->can_input_control_;
 		}	
 	}
 }

@@ -4,8 +4,8 @@
 #include "AZ_MHW/Character/AZCharacter.h"
 #include "AZ_MHW/Util/AZUtility.h"
 
-float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator,
-	TSubclassOf<UDamageType> damage_type_class, float base_damage)
+float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
+                                                          AController* event_instigator, const FAttackInfo& attack_info)
 {
 	// Validity Checks
 	if (!damaged_actor)
@@ -33,21 +33,19 @@ float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor,
 	}
 
 	// Debug log
-	UDamageType const* const damage_type_cdo = damage_type_class? damage_type_class->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
-	UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ApplyDamage called by %s to %s (type: %s, base damage: %f)"),
-		*instigator_character->GetName(), *damaged_character->GetName(), *damage_type_cdo->GetName(), base_damage);
+	UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ApplyDamage called by %s to %s (type: %s, base damage: %d)"),
+		*instigator_character->GetName(), *damaged_character->GetName(), *UAZUtility::EnumToString(attack_info.damage_type), attack_info.base_damage);
 
 	// Process Damage on damaged actor
-	return damaged_agent->ProcessDamage(hit_result, event_instigator, damage_type_class, base_damage);
+	return damaged_agent->ProcessDamage(hit_result, event_instigator, attack_info, attack_info.base_damage);
 }
 
-float IAZDamageAgentInterface::ProcessDamage(const FHitResult& hit_result, AController* instigator,	TSubclassOf<UDamageType> damage_type_class, float applied_damage)
+float IAZDamageAgentInterface::ProcessDamage(const FHitResult& hit_result, AController* instigator,	const FAttackInfo& attack_info, float applied_damage)
 {
 	// Broadcast Post Damage delegate bound functions
-	UDamageType const* const damage_type_cdo = damage_type_class? damage_type_class->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
 	if (OnTakeDamage.IsBound())
 	{
-		OnTakeDamage.Broadcast(applied_damage, damage_type_cdo, instigator);
+		OnTakeDamage.Broadcast(applied_damage, attack_info, instigator);
 	}
 	
 	// Debug log
@@ -61,7 +59,7 @@ float IAZDamageAgentInterface::ProcessDamage(const FHitResult& hit_result, ACont
 	else
 	{
 		UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ProcessDamage called by %s to %s (type: %s, base damage: %f)"),
-		*instigator_character->GetName(), *damaged_character->GetName(), *damage_type_cdo->GetName(), applied_damage);
+		*instigator_character->GetName(), *damaged_character->GetName(), *UAZUtility::EnumToString(attack_info.damage_type), applied_damage);
 	}
 	
 	return applied_damage;

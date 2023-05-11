@@ -69,6 +69,11 @@ public:
 		}
 		return enum_value;
 	}
+	template<typename EType>
+	static uint8 EnumToByte(EType enum_type)
+	{
+		return static_cast<uint8>(enum_type);
+	}
 	
 	static float MillisecondsToSeconds(const int32 milliseconds);
 	static float PerTenThousandToPerOne(const int32 per_ten_thousand);

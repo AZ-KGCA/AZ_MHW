@@ -11,7 +11,6 @@
 #include "AZ_MHW/CommonSource/Define/GameDefine.h"
 #include "AZ_MHW/Character/Player/AZPlayer.h"
 
-#include <PhysicalMaterials/PhysicalMaterial.h>
 #include <Perception/AISense_Sight.h>
 #include <GameFrameWork/CharacterMovementComponent.h>
 #include <Kismet/KismetSystemLibrary.h>
@@ -22,6 +21,7 @@ AAZMonster::AAZMonster()
 	// Initialise common properties
 	monster_id_ = -1;
 	boss_id_ = -1;
+	active_combat_action_name_ = NAME_None;
 	SetGenericTeamId(uint8(EObjectType::Monster));
 
     // TODO 
@@ -37,16 +37,6 @@ AAZMonster::AAZMonster()
 	aggro_component_ = CreateDefaultSubobject<UAZMonsterAggroComponent>(TEXT("AggroComponent"));
 	health_component_ = CreateDefaultSubobject<UAZMonsterHealthComponent>(TEXT("HealthComponent"));
 	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent>(TEXT("MeshComponent"));
-	
-	// Set up stimulus
-	//SetUpStimulus();
-}
-
-void AAZMonster::SetUpStimulus()
-{
-	//stimulus_component_ = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("Stimulus Component"));
-	//stimulus_component_->RegisterForSense(TSubclassOf<UAISense_Sight>());
-	//stimulus_component_->RegisterWithPerceptionSystem();
 }
 
 void AAZMonster::PreInitializeComponents()
@@ -76,9 +66,6 @@ void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rota
 
 void AAZMonster::BeginDestroy()
 {
-	// Damage Interface
-	OnTakeDamage.RemoveDynamic(this, &AAZMonster::PostProcessDamage);
-	
 	Super::BeginDestroy();
 }
 
@@ -162,9 +149,6 @@ void AAZMonster::BeginPlay()
 	Super::BeginPlay();
 	SpawnDefaultController();
 	anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
-
-	// Damage Interface
-	OnTakeDamage.AddDynamic(this, &AAZMonster::PostProcessDamage);
 }
 
 void AAZMonster::EnterCombat()
@@ -207,7 +191,6 @@ void AAZMonster::ResetTargetAngle()
 	action_state_info_.target_angle = 0.0f;
 }
 
-//TODO Cinematic states are yet to be implemented
 void AAZMonster::SetActionState(int32 action_id)
 {
 	// if current action has higher priority than next action, do not update
@@ -244,7 +227,6 @@ void AAZMonster::SetActionState(int32 action_id)
 		}
 	default:
 		{
-			//@TODO Cinematic
 			return;
 		}
 	}
@@ -266,7 +248,8 @@ void AAZMonster::SetActionState(int32 action_id)
 	if (IsInCombat())
 	{
 		float angle = GetRelativeAngleToLocation(aggro_component_->GetTargetLocation());
-		SetTargetAngle(angle);	
+		SetTargetAngle(angle);
+		active_combat_action_name_ = FName(action_state_info_.animation_name.ToString().Mid(3));
 	}
 }
 
@@ -299,6 +282,11 @@ bool AAZMonster::IsMoving() const
 {
 	return (action_state_info_.priority_score == EMonsterActionPriority::Locomotion
 		&& action_state_info_.move_state >= EMoveState::Walk);
+}
+
+bool AAZMonster::IsInRageMode() const
+{
+	return is_in_ragemode_;
 }
 
 void AAZMonster::AnimNotify_EndOfAction()
@@ -344,7 +332,6 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 	{
 		trace_start_loc.Z -= 100.0f;
 	}
-	//FVector trace_end_loc = trace_start_loc - FVector(0, 0, 1);
 
 	// Do Sphere trace
 	if (duration_type == EEffectDurationType::Instant)
@@ -353,29 +340,14 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 		for (auto actor : overlapped_actors)
 		{
 			AAZPlayer* overlapped_player = Cast<AAZPlayer>(actor);
-			// 플레이어는 어차피 인터페이스 상속 받아서 확인할 필요 없는데 원하시면 이런식으로 상속여부 확인하시면 됩니다
 			if (overlapped_player->GetClass()->ImplementsInterface(UAZDamageAgentInterface::StaticClass()))
 			{
-				// 원래는 현재 스킬 상태 보고 데미지타입과 데미지 등 계산해서 넘겨야합니다 
-				IAZDamageAgentInterface::Execute_ApplyDamage(this, actor, FHitResult(), GetController(), nullptr, 100);
+				// TODO get current action and alter
+				FAttackInfo attack_info(50, EDamageType::None);
+				attack_info.status_effects.Add(FStatusEffectInfo(EStatusEffectType::RoarStagger, 0));
+				IAZDamageAgentInterface::Execute_ApplyDamage(this, actor, FHitResult(), GetController(), attack_info);
 			}
 		}
-		
-		// SphereTrace Currently Not In Use
-		//UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), trace_start_loc, trace_end_loc, radius, hit_object_types_, false,
-			//ignore_actors, EDrawDebugTrace::ForDuration, hit_results, true);
-
-		// //@TODO do something with hit_results
-		// FString text_string = "Hit Actors: ";
-		// for (FHitResult hit_result : hit_results)
-		// {
-		// 	text_string += UKismetSystemLibrary::GetObjectName(hit_result.GetActor());
-		// 	text_string += ", ";
-		// }
-		// UE_LOG(AZMonster, Log, TEXT("%s"), *text_string);
-
-		//@TODO get current action and handle damage
-
 	}
 	else if (duration_type == EEffectDurationType::ForDuration)
 	{
@@ -383,35 +355,15 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 	}
 }
 
-float AAZMonster::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
-	AController* instigator, TSubclassOf<UDamageType> damage_type_class, float base_damage)
+// Damage functions are handled in the health component
+float AAZMonster::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info)
 {
-	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, instigator, damage_type_class, base_damage);
+	return health_component_->ApplyDamage(damaged_actor, hit_result, instigator, attack_info);
 }
 
-float AAZMonster::ProcessDamage(const FHitResult& hit_result, AController* instigator,
-	TSubclassOf<UDamageType> damage_type_class, float base_damage)
+float AAZMonster::ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage)
 {
-	//TEMP
-	AAZCharacter* instigator_character = Cast<AAZCharacter>(instigator->GetPawn());
-	if (!instigator_character)
-	{
-		UE_LOG(AZMonster, Warning, TEXT("[AAZMonster] Damage dealt by non-AZCharacter actor %s"), *instigator_character->GetName());
-		return 0.f;
-	}
-	UE_LOG(AZMonster, Warning, TEXT("[AAZMonster] Damage dealt to material %s"), *hit_result.PhysMaterial.Get()->GetName());
-	return Super::ProcessDamage(hit_result, instigator, damage_type_class, base_damage);
-}
-
-void AAZMonster::PostProcessDamage(float total_damage, const UDamageType* damage_type, AController* instigator)
-{
-	UE_LOG(AZMonster, Log, TEXT("[AAZMonster] PostProcessDamage Called with total damage: %f"), total_damage);
-	//TEMP Test
-	health_component_->current_hp_ -= total_damage;
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Health: %d"), health_component_->current_hp_));
-	}
+	return health_component_->ProcessDamage(hit_result, instigator, attack_info, applied_damage);
 }
 
 bool AAZMonster::IsABoss() const

@@ -256,26 +256,28 @@ void AAZPlayer::ChangeSocketSlot(FName socket_actor_name, FName in_socket_name)
 	}
 }
 
-float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
-	AController* instigator, TSubclassOf<UDamageType> damage_type_class, float base_damage)
+float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info)
 {
-	float applied_damage = base_damage;
-	// TODO 여기서 예리도 등 계산하셔서 넘기면 됩니다
-	
-	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, instigator, damage_type_class, applied_damage);
+	// TEMP
+	float base_damage = attack_info.base_damage;
+
+	float applied_damage = 100;
+
+	// Process Damage on damaged actor
+	AAZMonster* monster = Cast<AAZMonster>(damaged_actor);
+	return monster->ProcessDamage(hit_result, instigator, attack_info, applied_damage);
 }
 
-float AAZPlayer::ProcessDamage(const FHitResult& hit_result, AController* instigator,
-	TSubclassOf<UDamageType> damage_type_class, float applied_damage)
+float AAZPlayer::ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage)
 {
 	float final_damage = applied_damage;
 	// TODO 여기서 받은 데미지 값에서 캐릭터의 장비, 능력치 등 고려하셔서 최종 데미지 인자값으로 넘기시면 됩니다
 	// Super함수 호출은 이 함수 포함 다른 함수에서도 안 해도 되는데 ProcessDamage에서 안할 경우에는 OnTakeDamage.BroadCast 해주셔야합니다
 
-	return Super::ProcessDamage(hit_result, instigator, damage_type_class, final_damage);
+	return Super::ProcessDamage(hit_result, instigator, attack_info, final_damage);
 }
 
-void AAZPlayer::PostProcessDamage(float total_damage, const UDamageType* damage_type, AController* instigator)
+void AAZPlayer::PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* instigator)
 {
 	AAZMonster* instigator_monster = Cast<AAZMonster>(instigator->GetPawn());
 	if (!instigator_monster)
@@ -283,15 +285,55 @@ void AAZPlayer::PostProcessDamage(float total_damage, const UDamageType* damage_
 		UE_LOG(AZMonster, Warning, TEXT("[AAZPlayer] Damage dealt by non-AZMonster actor %s"), *instigator_monster->GetName());
 		return;
 	}
-	// TEMP Test
-	static int32 health = 1000;
-	health -= total_damage;
-	if (GEngine)
+	
+	//함수화하기
+	const FVector forward_direction = GetActorForwardVector();
+	const FVector from_hit_direction = (instigator_monster->GetActorLocation());
+	const FVector to_hit_direction = (from_hit_direction - GetActorLocation()).GetSafeNormal();
+
+	const double cos_theta = FVector::DotProduct(forward_direction,to_hit_direction);
+	double theta = FMath::Acos(cos_theta);
+	theta = FMath::RadiansToDegrees(theta);
+
+	const FVector cross_vector = FVector::CrossProduct(forward_direction,to_hit_direction);
+	if(cross_vector.Z<0)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Player Health: %d"), health));
+		theta *=-1.f;
+	}
+	//피해 타입(약(살짝경직),중(날라가지만 자세),강(날라가서구르기))에 따라 강제회전타입(앞뒤 넉백 에어본)도 넣기
+
+	//Default Back
+	if(theta >=-45.f && theta < 45.f)
+	{
+		//Front
+		UE_LOG(AZ_DAMAGE,Error,TEXT("Front"));
+		//Cast<UAZAinmInstance_Player>(GetMesh()->GetAnimInstance())->SetMontageName(TEXT(Hit Front));
+	}
+	else if(theta >= -135.f && theta <-45.f)
+	{
+		//Left
+		UE_LOG(AZ_DAMAGE,Error,TEXT("Left"));
+	}
+	else if(theta >=45.f && theta < 135.f)
+	{
+		//Right
+		UE_LOG(AZ_DAMAGE,Error,TEXT("Right"));
 	}
 	
-	// TODO 여기서 부가적인 데미지 프로세싱 (체력 및 상태 수정 등) 하시면 됩니다
-	// Super::ProcessDamage에서 브로드캐스트 됩니다 
+	
+	if(const auto player_state = GetPlayerState<AAZPlayerState>())
+	{
+		player_state->character_state_.current_health_point -= total_damage;
+		if(player_state->character_state_.current_health_point <= 0)
+		{
+			player_state->character_state_.current_health_point = 0;
+		}
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Player Health: %d"),
+				player_state->character_state_.current_health_point));
+		}
+	}
 }
 

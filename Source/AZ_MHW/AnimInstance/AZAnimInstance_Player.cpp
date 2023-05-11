@@ -1,17 +1,23 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZ_MHW/AnimInstance/AZAnimInstance_Player.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZPlayerAssetMgr.h"
+#include "Character/AZCharacter.h"
+#include "PlayerState/AZPlayerState.h"
 
 UAZAnimInstance_Player::UAZAnimInstance_Player()
 {
 	//기본설정은 몽타주를 재생하는 것.
 	is_montage_ = true;
-	is_hold_rotation_ = true;
-	current_anim_play_rate_ = 1.5f;
-	handle_animation_transition_trigger_.BindLambda([this](UAZAnimInstance* T) -> bool {return false;});
+	is_rotation_ = false;
+	current_anim_play_rate_ = 2.f;
+	handle_animation_transition_trigger_.BindLambda(
+		[this](UAZAnimInstance* T) -> bool
+		{
+			return false;
+		});
 }
 void UAZAnimInstance_Player::NativeInitializeAnimation()
 {
@@ -28,34 +34,37 @@ void UAZAnimInstance_Player::NativeUpdateAnimation(float delta_seconds)
 {
 	Super::NativeUpdateAnimation(delta_seconds);
 	//if(TryGetPawnOwner()->GetPlayerState()) playable? remotable?
-
-	if(APawn* owner = TryGetPawnOwner())
+	if(owner_ != nullptr)
 	{
-		//Playable과 Remotable 공통사항
-		current_forward_direction_ = owner->GetRootComponent()->GetComponentRotation();
-		//playable_next_forward_direction = player controller
-		//remotable_next_forward_direction = server 
-		
-		if(is_hold_rotation_ == false)
-		{
-			FRotator owner_forward_direction;
-			
-			// if(current_forward_direction_.Yaw > next_forward_direction_.Yaw)//캐릭터 방향이 목표방향보다 큰경우
-			// {
-			// 	float lerp_yaw = FMath::Lerp(current_forward_direction_.Yaw,next_forward_direction_.Yaw,0.9);
-			// 	owner_forward_direction = FRotator(0,lerp_yaw,0);
-			// }
-			// else
-			// {
-			// 	float lerp_yaw = FMath::Lerp(next_forward_direction_.Yaw, current_forward_direction_.Yaw,0.9);
-			// 	owner_forward_direction = FRotator(0,lerp_yaw,0);
-			// }
-			// owner->GetRootComponent()->SetWorldRotation(owner_forward_direction);
 
-			FQuat AQuat(next_forward_direction_);
-			FQuat BQuat(current_forward_direction_);
-			FQuat Result = FQuat::Slerp(AQuat, BQuat,0.9);
-			owner->GetRootComponent()->SetWorldRotation( FQuat::Slerp(AQuat, BQuat,0.9).Rotator());
+		//Playable과 Remotable 공통사항
+		current_forward_direction_ = owner_->GetRootComponent()->GetComponentRotation();
+
+		//playable
+		//next_forward_direction = player controller
+
+		//remotable
+		//next_forward_direction = server 
+
+		if(is_rotation_)//애니메이션이 회전보간을 사용할때(이동, 정지회전)
+		{
+			// if(auto player_state = owner_->GetPlayerState())
+			// {
+			// 	if(auto az_player_state = Cast<AAZPlayerState>(player_state))
+			// 	{
+			// 		FRotator owner_forward_direction = az_player_state->action_state_.input_direction.ToOrientationRotator();
+			// 	}
+			// }
+
+			const FQuat next_quaternion(next_forward_direction_);
+			const FQuat current_quaternion(current_forward_direction_);
+			owner_->GetRootComponent()->SetWorldRotation( FQuat::Slerp(next_quaternion, current_quaternion,0.9).Rotator());
+
+			//회전 보간 종료
+			if(FMath::Abs(next_forward_direction_.Yaw) -  FMath::Abs(current_forward_direction_.Yaw) < 0.1f)
+			{
+				is_rotation_ = false;
+			}
 		}
 	}
 
@@ -216,7 +225,7 @@ void UAZAnimInstance_Player::SetAnimPlayRate(int32 play_rate)
 {
 	float play_rate_permyriad;
 	
-	if(play_rate == 0) play_rate_permyriad = 0;
+	if(play_rate == 0) play_rate_permyriad = 0; 
 	else play_rate_permyriad = play_rate/10000.f;
 	
 	current_anim_play_rate_ = play_rate_permyriad;
@@ -225,4 +234,8 @@ void UAZAnimInstance_Player::SetAnimPlayRate(int32 play_rate)
 		Montage_SetPlayRate(current_anim_montage_, current_anim_play_rate_);
 	}
 	//SequencePlayer의 AnimPlayRate는 AnimGraph에서 바인딩되어서 실행
+}
+
+void UAZAnimInstance_Player::SetActionFromTable(int32 anim_hash_code)
+{
 }

@@ -6,13 +6,7 @@
 #include "AZ_MHW.h"
 #include "AZ_MHW/PlayerController/AZPlayerController.h"//상속
 #include "AZPlayerController_InGame.generated.h"
-#pragma region Macro
 
-#pragma endregion
-#pragma region TypeDefine
-
-#pragma endregion 
-#pragma region ForwardDeclaration
 class UInputAction;
 class UInputMappingContext;
 
@@ -23,13 +17,6 @@ class UAZAnimInstance_Remotable;
 class AAZPlayerState;
 class AAZPlayer_Playable;
 class AAZPlayer_Remotable;
-#pragma endregion
-#pragma region Enum
-
-#pragma endregion 
-#pragma region Struct
-
-#pragma endregion
 
 /**
  * 플레이어의 입력과 서버의 이벤트로 움직이는 플레이들을 관리
@@ -83,8 +70,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	TMap<int32, AAZPlayerState*> remotable_player_state_map_;
 
+
+	/** */
+	void ChangeInputMappingContext(int32 weapon_type);
+	
 	/** 서버에서 호출, 원격 캐릭터생성 */
 	UFUNCTION() void AddRemotePlayer(int32 guid, AAZPlayerState* other_player_state);
+	
 #pragma region//Input Event function
 public:
 	//ToDo:CameraManager만들고 Player_Playable에서 여기로 옮기기?

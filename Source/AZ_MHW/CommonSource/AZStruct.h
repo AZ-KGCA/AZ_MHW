@@ -1,9 +1,41 @@
 #pragma once
+
+#include "CoreMinimal.h"
 #include "AZ_MHW/CommonSource/AZEnum.h"
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZStruct.generated.h"
 
+//============================================
+// Character Common
 
+USTRUCT(BlueprintType)
+struct FStatusEffectInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) EStatusEffectType type;
+	UPROPERTY(EditAnywhere) float duration;
+
+	FStatusEffectInfo() : type(EStatusEffectType::None), duration(0) {};
+	FStatusEffectInfo(EStatusEffectType type, float duration) : type(type), duration(duration) {};
+};
+
+USTRUCT(BlueprintType)
+struct FAttackInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere) int32 base_damage;
+	UPROPERTY(EditAnywhere) EDamageType damage_type;
+	UPROPERTY(EditAnywhere) TArray<FStatusEffectInfo> status_effects;
+
+	FAttackInfo() : base_damage(0), damage_type(EDamageType::None) {};
+	FAttackInfo(int32 base_damage, EDamageType damage_type) : base_damage(base_damage), damage_type(damage_type) {};
+	FAttackInfo(int32 base_damage, EDamageType damage_type, TArray<FStatusEffectInfo> status_effects) :
+		base_damage(base_damage), damage_type(damage_type), status_effects(status_effects) {};
+};
+
+// End of Character Common
 //============================================
 // Monster
 
@@ -101,6 +133,11 @@ struct FBossBodyPartDebuffInfo
 {
 	GENERATED_BODY()
 
+	// Wound 	
+	bool is_woundable;
+	int32 wound_required_damage;
+	int32 wound_accumulated_damage;
+	
 	// Part break 
 	bool is_breakable;
 	int32 break_required_damage;
@@ -110,11 +147,6 @@ struct FBossBodyPartDebuffInfo
 	bool is_severable;
 	int32 sever_required_damage;
 	int32 sever_accumulated_damage;
-
-	// Wound 	
-	bool is_woundable;
-	int32 wound_required_damage;
-	int32 wound_accumulated_damage;
 	
 	bool is_stunnable;
 
@@ -127,23 +159,23 @@ struct FBossBodyPartDebuffInfo
 	}
 	FBossBodyPartDebuffInfo(TArray<int32> damage_info) : FBossBodyPartDebuffInfo()
 	{
-		// Part break
+		// Wound
 		if (damage_info[0] != -1)
+		{
+			is_woundable = true;
+			wound_required_damage = damage_info[2];
+		}
+		// Break
+		if (damage_info[1] != -1)
 		{
 			is_breakable = true;
 			break_required_damage = damage_info[0];
 		}
 		// Sever
-		if (damage_info[1] != -1)
+		if (damage_info[2] != -1)
 		{
 			is_severable = true;
 			sever_required_damage = damage_info[1];
-		}
-		// Wound
-		if (damage_info[2] != -1)
-		{
-			is_woundable = true;
-			wound_required_damage = damage_info[2];
 		}
 	}
 };
@@ -182,24 +214,40 @@ struct FBossWeaknessStats
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<int32> head;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<int32> neck;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<int32> body;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<int32> tail;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<int32> wing;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TArray<int32> leg;
-
+	TArray<int32> head;
+	TArray<int32> neck;
+	TArray<int32> body;
+	TArray<int32> tail;
+	TArray<int32> wing;
+	TArray<int32> leg;
+	TArray<TArray<int32>> weakness_array;
+	TMap<EMonsterBodyPart, TArray<int32>*> weakness_map;
+	
 	FBossWeaknessStats() {};
 	FBossWeaknessStats(const TArray<int32>& head_weakness, const TArray<int32>& neck_weakness,
 		const TArray<int32>& body_weakness,	const TArray<int32>& tail_weakness,
 		const TArray<int32>& wing_weakness, const TArray<int32>& leg_weakness)
 	{
+		// cut - blunt - ammo
 		head = head_weakness;
 		neck = neck_weakness;
 		body = body_weakness;
 		tail = tail_weakness;
 		wing = wing_weakness;
 		leg  = leg_weakness;
+
+		TArray<int32> empty_array;
+		weakness_array = { empty_array, head_weakness, wing_weakness, wing_weakness,
+			tail_weakness, neck_weakness, body_weakness, body_weakness, leg_weakness };
+
+		weakness_map.Add(EMonsterBodyPart::Head, &head);
+		weakness_map.Add(EMonsterBodyPart::RightWing, &wing);
+		weakness_map.Add(EMonsterBodyPart::LeftWing, &wing);
+		weakness_map.Add(EMonsterBodyPart::Tail, &tail);
+		weakness_map.Add(EMonsterBodyPart::Neck, &neck);
+		weakness_map.Add(EMonsterBodyPart::Body, &body);
+		weakness_map.Add(EMonsterBodyPart::Back, &body);
+		weakness_map.Add(EMonsterBodyPart::Leg, &leg);
 	}
 };
 

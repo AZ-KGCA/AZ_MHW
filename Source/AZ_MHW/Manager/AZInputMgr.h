@@ -1,26 +1,14 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
 #include <CoreMinimal.h>
 #include "AZ_MHW.h"
 #include "AZInputMgr.generated.h"
-#pragma region Macro
 
-#pragma endregion
-#pragma region TypeDefine
-
-#pragma endregion 
-#pragma region ForwardDeclaration
 class UInputAction;
 class UInputMappingContext;
-#pragma endregion
-#pragma region Enum
 
-#pragma endregion 
-#pragma region Struct
-
-#pragma endregion
 /**
  * InputMappingContext, InputAction 데이터들을 보유하는 매니저 클래스
  * BluePrint에서 사용해야 된다면, UCLASS에 지정자사용. 사용하기 쉽도록 TARRAY도 지원해야 한다. 
@@ -32,7 +20,7 @@ class AZ_MHW_API UAZInputMgr : public UObject
 	
 public:
 	UAZInputMgr();
-	void			Init();
+	void Init();
 #pragma region Inherited function
 protected:
 	/** */
@@ -68,6 +56,7 @@ private:
 	UPROPERTY() TMap<FName, UInputAction*> input_action_map_;
 
 	UPROPERTY() const ULocalPlayer* local_player_;
+	
 	/** test용 함수 */
 	void ActionTest();
 };

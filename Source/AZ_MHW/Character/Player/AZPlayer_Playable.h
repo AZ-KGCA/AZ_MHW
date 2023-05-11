@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -7,13 +7,6 @@
 #include <InputActionValue.h>
 #include "AZ_MHW/Character/Player/AZPlayer.h"
 #include "AZPlayer_Playable.generated.h"
-#pragma region Macro
-
-#pragma endregion
-#pragma region TypeDefine
-
-#pragma endregion 
-#pragma region ForwardDeclaration
 
 DECLARE_MULTICAST_DELEGATE(FOnUseItemDelegate);
 
@@ -23,13 +16,7 @@ struct FInputActionValue;
 
 class AAZPlayerController_InGame;
 class AAZPlayerState;
-#pragma endregion
-#pragma region Enum
 
-#pragma endregion 
-#pragma region Struct
-
-#pragma endregion
 /**
  * 
  */
@@ -61,7 +48,8 @@ public:
 	UCameraComponent* temp_camera_comp_;//Camera
 
 	
-	UFUNCTION() void AnimNotify_OnUseItem();
+	UFUNCTION()
+	void AnimNotify_OnUseItem();
 
 public:
 	FOnUseItemDelegate on_use_item_;

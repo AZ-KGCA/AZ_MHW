@@ -1,4 +1,6 @@
-﻿#include "AZ_MHW/Character/AZCharacter.h"
+﻿// Copyright Team AZ. All Rights Reserved.
+
+#include "AZ_MHW/Character/AZCharacter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 
@@ -14,9 +16,9 @@ void AAZCharacter::BeginPlay()
 
 }
 
-void AAZCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AAZCharacter::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	Super::SetupPlayerInputComponent(player_input_component);
 }
 
 void AAZCharacter::SetGenericTeamId(const FGenericTeamId& team_id)

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include <Math/NumericLimits.h>
 #include "AZEnum.generated.h"
 
@@ -48,6 +49,36 @@ enum class EGameModeFlag : uint8
 };
 
 
+// -------------------------------------------------
+// Character Common
+
+UENUM(BlueprintType)
+enum class EStatusEffectType : uint8
+{
+	None,
+	KnockBack,
+	RoarStagger,
+	Stun,
+	Trip,
+};
+
+UENUM(BlueprintType)
+enum class EDamageType : uint8
+{
+	// Hunter
+	Cut,
+	Blunt,
+	Ammo,
+
+	// Monster
+	Fire,
+	Poison,
+
+	None,
+};
+
+
+// End of Character
 // -------------------------------------------------
 // Monster
 
@@ -183,15 +214,18 @@ namespace AZBlackboardKey
 UENUM(BlueprintType)
 enum class EMonsterBodyPart : uint8
 {
+	Default,
+	Head,
 	RightWing,
 	LeftWing,
-	Back,
-	Body,
-	Head,
 	Tail,
+	Neck,
+	Body,
+	Back,
 	Leg,
 	Eyelid,	
 	Eyeball,	// not used
+	Max,
 };
 
 UENUM()

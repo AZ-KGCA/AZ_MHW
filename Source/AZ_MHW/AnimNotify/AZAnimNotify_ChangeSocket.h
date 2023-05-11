@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -26,8 +26,6 @@ public:
 	//이펙트나 등등
 	//소켓과 소켓사이의 선형보간기능
 	
-	//UPROPERTY(EditAnywhere)
-	//FName from_socket_name_;
 	UPROPERTY(EditAnywhere)
 	FName to_socket_name_;
 };

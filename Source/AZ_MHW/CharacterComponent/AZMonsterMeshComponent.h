@@ -27,11 +27,13 @@ protected:
 	
 	// Body Mesh Material Opacity Setters
 	void SetMaterialVisibility(uint8 material_idx, bool is_visible);
-	void OnBodyPartWounded(EMonsterBodyPart body_part);
-	void OnBodyPartBroken(EMonsterBodyPart body_part);
+	UFUNCTION() void OnBodyPartWounded(EMonsterBodyPart body_part);
+	UFUNCTION() void OnBodyPartBroken(EMonsterBodyPart body_part);
+	UFUNCTION() void OnBodyPartSevered(EMonsterBodyPart body_part);
 	
 private:
 	TWeakObjectPtr<class AAZMonster> owner_;
+	TWeakObjectPtr<USkeletalMeshComponent> mesh_;
 	
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Material")
 	TMap<EMonsterBodyPart, int32> mesh_material_indices_default_;
