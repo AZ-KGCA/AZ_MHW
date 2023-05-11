@@ -1,10 +1,9 @@
-﻿// Copyright Team AZ. All Rights Reserved.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZAnimNotifyState_LineTrace.h"
 
 #include "CollisionDebugDrawingPublic.h"
-#include "SNodePanel.h"
 #include "AZ_MHW/Actor/AZSocketActor.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/Character/Player/AZPlayer.h"
