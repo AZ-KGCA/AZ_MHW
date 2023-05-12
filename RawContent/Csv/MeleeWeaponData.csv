@@ -1,0 +1,4 @@
+id,name,type,damage,hone,critical
+int,string,string,int,int,int
+1001,normal_sword,greatSword,288,20,500
+1002,guild_sword,greatSword,336,30,1000

@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "AZItemData.h"
 #include "AZWeaponItem.generated.h"
 
 /**
  * 
  */
-struct FWeaponInfo;
 enum class EWeaponType :uint8;
 
 UCLASS()
@@ -18,10 +18,10 @@ class AZ_MHW_API UAZWeaponItem : public UObject
 	GENERATED_BODY()
 
 private:
-	FWeaponInfo* info_;
+	FWeaponInfo info_;
 public:
 	void InitItem(FWeaponInfo& info);
 	EWeaponType GetWeaponType();
-	FWeaponInfo* GetWeaponInfo();
+	FWeaponInfo GetWeaponInfo();
 	bool GetEquipState();
 };

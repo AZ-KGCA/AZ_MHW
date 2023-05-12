@@ -239,5 +239,38 @@ USTRUCT()
 struct FMeleeWeaponDataStruct
 {
 	GENERATED_BODY()
-	
+	int32 id;
+	FString name;
+	EWeaponType type;
+	int32 damage;
+	int32 hone;
+	int32 critical;
+	FMeleeWeaponDataStruct()
+	{
+		id = 0;
+		name = "none";
+		type = EWeaponType::none;
+		damage = 0;
+		hone = 0;
+		critical = 0;
+	}
+};
+
+USTRUCT()
+struct FRangeWeaponDataStruct
+{
+	GENERATED_BODY()
+	int32 id;
+	FString name;
+	EWeaponType type;
+	int32 damage;
+	int32 critical;
+	FRangeWeaponDataStruct()
+	{
+		id = 0;
+		name = "none";
+		type = EWeaponType::bow;
+		damage = 0;
+		critical = 0;
+	}
 };

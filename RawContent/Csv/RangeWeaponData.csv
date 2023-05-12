@@ -1,0 +1,4 @@
+id,name,type,damage,ammo_type,critical
+int,string,string,int,array_string,int
+6501,normal_bow,bow,72,nor,500
+6502,power_bow,bow,84,nor|pow,1000

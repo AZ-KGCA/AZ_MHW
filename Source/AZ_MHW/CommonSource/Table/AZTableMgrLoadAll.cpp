@@ -9,11 +9,13 @@
 #include "AZ_MHW/CommonSource/Table/ItemBuffData.h"
 #include "AZ_MHW/CommonSource/Table/LoadingData.h"
 #include "AZ_MHW/CommonSource/Table/MapData.h"
+#include "AZ_MHW/CommonSource/Table/MeleeWeaponData.h"
 #include "AZ_MHW/CommonSource/Table/ModelData.h"
 #include "AZ_MHW/CommonSource/Table/MonsterCombatActionData.h"
 #include "AZ_MHW/CommonSource/Table/MonsterData.h"
 #include "AZ_MHW/CommonSource/Table/MonsterNonCombatActionData.h"
 #include "AZ_MHW/CommonSource/Table/PotionData.h"
+#include "AZ_MHW/CommonSource/Table/RangeWeaponData.h"
 #include "AZ_MHW/CommonSource/Table/SpawnData.h"
 #include "AZ_MHW/CommonSource/Table/TestData.h"
 #include "AZ_MHW/CommonSource/Table/TotalItemData.h"
@@ -52,6 +54,10 @@ void UAZTableMgr::LoadAll()
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UMapData] Load Fail!")));
 	}
+	if (!_Load<UMeleeWeaponData>("MeleeWeaponData.csv"))
+	{
+		UAZUtility::ShippingLog(FString::Printf(TEXT("[UMeleeWeaponData] Load Fail!")));
+	}
 	if (!_Load<UModelData>("ModelData.csv"))
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UModelData] Load Fail!")));
@@ -71,6 +77,10 @@ void UAZTableMgr::LoadAll()
 	if (!_Load<UPotionData>("PotionData.csv"))
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UPotionData] Load Fail!")));
+	}
+	if (!_Load<URangeWeaponData>("RangeWeaponData.csv"))
+	{
+		UAZUtility::ShippingLog(FString::Printf(TEXT("[URangeWeaponData] Load Fail!")));
 	}
 	if (!_Load<USpawnData>("SpawnData.csv"))
 	{

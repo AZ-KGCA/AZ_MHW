@@ -63,3 +63,16 @@ void UAZTableMgr::LoadBottleTable()
 		return true;
 	});
 }
+
+void UAZTableMgr::LoadWeaponTable()
+{
+	melee_weapon_array_ = GetData<UMeleeWeaponData>([](const UMeleeWeaponData* m_weapon)
+	{
+		return true;
+	});
+
+	range_weapon_array_ = GetData<URangeWeaponData>([](const URangeWeaponData* r_weapon)
+	{
+		return true;
+	});
+}

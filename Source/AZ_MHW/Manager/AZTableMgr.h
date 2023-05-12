@@ -10,6 +10,8 @@
 #include "AZ_MHW/CommonSource/Table/PotionData.h"
 #include "AZ_MHW/CommonSource/Table/ItemBuffData.h"
 #include "AZ_MHW/CommonSource/Table/BottleData.h"
+#include "AZ_MHW/CommonSource/Table/MeleeWeaponData.h"
+#include "AZ_MHW/CommonSource/Table/RangeWeaponData.h"
 #include "AZTableMgr.generated.h"
 
 
@@ -33,7 +35,9 @@ public:
 	UPROPERTY() TArray<const UPotionData*> potion_item_array_;
 	UPROPERTY() TArray<const UItemBuffData*> buff_array_;
 	UPROPERTY() TArray<const UBottleData*> bottle_array_;
-
+	UPROPERTY() TArray<const UMeleeWeaponData*> melee_weapon_array_;
+	UPROPERTY() TArray<const URangeWeaponData*> range_weapon_array_;
+	
 	template<class Table>
 	bool _Load(FString file_name)
 	{
@@ -192,4 +196,5 @@ public:
 	void LoadPotionTable();
 	void LoadBuffTable();
 	void LoadBottleTable();
+	void LoadWeaponTable();
 };
