@@ -61,7 +61,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") float tenderised_damage_multiplier_;
 	
 public:
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_hp_;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Current State") int32 current_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_stamina_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_num_escapes_;
 	UPROPERTY(EditAnywhere, Category = "AZ | Current State") float temp_damage_;

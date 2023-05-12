@@ -141,7 +141,7 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* o
 			//TODO currently no trigger is implemented for combat actions
 			continue;
 		}
-		if (triggers != EMonsterActionTriggerType::Auto)
+		if (triggers == EMonsterActionTriggerType::Auto)
 		{
 			continue;
 		}
