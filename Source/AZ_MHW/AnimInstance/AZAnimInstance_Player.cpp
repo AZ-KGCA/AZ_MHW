@@ -129,6 +129,11 @@ void UAZAnimInstance_Player::OnAnimationTransitionTrigger()
 			}
 			next_section_name_ = NAME_None;
 		}
+		else//섹션변경이 없다면
+		{
+			current_section_name_ = TEXT("Default");//이름을 디폴트로
+			Montage_JumpToSection(current_section_name_, current_anim_montage_);
+		}
 	}
 	else//시퀀스 모드
 	{

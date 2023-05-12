@@ -13,6 +13,9 @@
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 
+#include "AZ_MHW/Manager/AZInventoryManager.h"
+#include "AZ_MHW/Item/AZItemData.h"
+
 
 AAZPlayer_Playable::AAZPlayer_Playable()
 {
@@ -112,7 +115,57 @@ void AAZPlayer_Playable::ActionZoom(const FInputActionValue& value)
 
 void AAZPlayer_Playable::AnimNotify_OnUseItem()
 {
-	on_use_item_.Broadcast();
+	//on_use_item_.Broadcast();
+	//const auto& item_index;// uimanager한테서 가져오기
+	const auto& buff = AZGameInstance->inventory_mgr->UsePotion(0);
+
+	switch (buff.target)
+	{
+	case EItemTarget::Health:
+		if(auto player_state = GetPlayerState())
+		{
+			if(auto az_player_state = Cast<AAZPlayerState>(player_state))
+			{
+				int32 result_health_point = 0;
+				switch (buff.calc)
+				{
+				case ECalculation::Plus:
+					result_health_point = az_player_state->character_state_.current_health_point + (int)buff.effect;
+					if(az_player_state->character_state_.max_health_point < result_health_point)
+					{
+						az_player_state->character_state_.current_health_point = az_player_state->character_state_.max_health_point;
+					}
+					else
+					{
+						az_player_state->character_state_.current_health_point = result_health_point;
+					}
+					UE_LOG(AZ_TEST,Warning,TEXT("%d"),az_player_state->character_state_.current_health_point);
+					break;
+				case ECalculation::Multi:
+					break;
+				}
+			}
+		}
+		break;
+	case EItemTarget::Damage:
+		if(auto player_state = GetPlayerState())
+		{
+			if(auto az_player_state = Cast<AAZPlayerState>(player_state))
+			{
+				switch (buff.calc)
+				{
+				case ECalculation::Plus:
+					UE_LOG(AZ_TEST,Warning,TEXT("공격력 더해짐"));
+					break;
+				case ECalculation::Multi:
+					UE_LOG(AZ_TEST,Warning,TEXT("공격력 곱해서 올라감"));
+					break;
+				}
+			}
+		}
+		break;
+	}
+	
 	//사용한 아이템을 id로 넘겨줘야한다면 oneparam쓰기
 	//또는 플레이어스테이트를 캐싱해서 사용한 아이템 체크하기
 }
