@@ -3,7 +3,9 @@
 #include <cstring>
 #include "UserManager.h"
 #include "AppServer.h"
+#include "Windows/AllowWindowsPlatformTypes.h"
 #include <Windows.h>
+#include "Windows/HideWindowsPlatformTypes.h"
 #include <sqltypes.h>
 
 #include "Client_Packet.h"

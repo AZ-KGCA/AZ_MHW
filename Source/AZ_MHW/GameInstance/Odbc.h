@@ -1,5 +1,7 @@
 #pragma once
+#include "Windows/AllowWindowsPlatformTypes.h"
 #include <windows.h>
+#include "Windows/HideWindowsPlatformTypes.h"
 #include <sqltypes.h>
 #include <sql.h>
 #include <sqlext.h>

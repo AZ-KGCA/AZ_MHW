@@ -7,7 +7,9 @@
 
 #include <iostream>
 #include <winsock2.h>
+#include "Windows/AllowWindowsPlatformTypes.h"
 #include <windows.h>
+#include "Windows/HideWindowsPlatformTypes.h"
 #include <thread>
 #include <queue>
 #include <mutex>

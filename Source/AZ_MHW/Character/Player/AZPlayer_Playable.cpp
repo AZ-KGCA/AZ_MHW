@@ -1,4 +1,4 @@
-﻿// Copyright Team AZ. All Rights Reserved.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZPlayer_Playable.h"
@@ -121,7 +121,7 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 
 	switch (buff.target)
 	{
-	case EItemTarget::Health:
+	case EItemTarget::health:
 		if(auto player_state = GetPlayerState())
 		{
 			if(auto az_player_state = Cast<AAZPlayerState>(player_state))
@@ -129,7 +129,7 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 				int32 result_health_point = 0;
 				switch (buff.calc)
 				{
-				case ECalculation::Plus:
+				case ECalculation::plus:
 					result_health_point = az_player_state->character_state_.current_health_point + (int)buff.effect;
 					if(az_player_state->character_state_.max_health_point < result_health_point)
 					{
@@ -141,23 +141,23 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 					}
 					UE_LOG(AZ_TEST,Warning,TEXT("%d"),az_player_state->character_state_.current_health_point);
 					break;
-				case ECalculation::Multi:
+				case ECalculation::multi:
 					break;
 				}
 			}
 		}
 		break;
-	case EItemTarget::Damage:
+	case EItemTarget::damage:
 		if(auto player_state = GetPlayerState())
 		{
 			if(auto az_player_state = Cast<AAZPlayerState>(player_state))
 			{
 				switch (buff.calc)
 				{
-				case ECalculation::Plus:
+				case ECalculation::plus:
 					UE_LOG(AZ_TEST,Warning,TEXT("공격력 더해짐"));
 					break;
-				case ECalculation::Multi:
+				case ECalculation::multi:
 					UE_LOG(AZ_TEST,Warning,TEXT("공격력 곱해서 올라감"));
 					break;
 				}
