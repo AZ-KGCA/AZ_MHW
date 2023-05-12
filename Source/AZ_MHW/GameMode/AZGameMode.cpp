@@ -16,9 +16,15 @@
 #include "Engine/LevelStreaming.h"
 #include "Engine/WorldComposition.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
 
 AAZGameMode::AAZGameMode()
 {
+	audio_component_ = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	audio_component_->SetTickableWhenPaused(true);
+	audio_component_->bAutoActivate = false;
+	RootComponent = audio_component_;
+
 	DefaultPawnClass = AAZPlayer_Playable::StaticClass();
 	PlayerControllerClass = AAZPlayerController::StaticClass();
 	HUDClass = AAZHUD::StaticClass();
@@ -49,11 +55,11 @@ void AAZGameMode::InitGameState()
 
 void AAZGameMode::StartPlay()
 {
-	if (AZGameInstance->map_mgr == nullptr ||
-		AZGameInstance->map_mgr->GetMapData() == nullptr)
-	{
+	//if (AZGameInstance->map_mgr == nullptr ||
+	//	AZGameInstance->map_mgr->GetMapData() == nullptr)
+	//{
 		StartPlayManually();
-	}
+	//}
 }
 
 void AAZGameMode::StartPlayManually()
@@ -66,6 +72,15 @@ void AAZGameMode::StartPlayManually()
 	PreStartPlay();
 
 	Super::StartPlay();
+
+	USoundWave* sound_wave = GetBaseBGM();
+
+	if (sound_wave != nullptr)
+	{
+		audio_component_->SetSound(sound_wave);
+
+		audio_component_->Play();
+	}
 
 	if (state_machine != nullptr)
 	{
@@ -286,9 +301,27 @@ void AAZGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//FIXME 발표 임시코드
+	AZGameInstance->GetPlayerController()->SetShowMouseCursor(false);
 	//PlatformSetting();
 
 	//PostLightLoaded();
+}
+
+USoundWave* AAZGameMode::GetBaseBGM()
+{
+	if (bgm_sound_wave_)
+	{
+		return bgm_sound_wave_;
+	}
+
+	// FIXME 맵 인덱스에 따라 bgm 틀어줌
+	//if (ULHGameSingleton::Instance()->GetResourceMgr())
+	//{
+	//	return ULHGameSingleton::Instance()->GetResourceMgr()->GetBaseBGM(GetGameModeType(), LHGameInstance->MapMgr->GetMapIndex());
+	//}
+
+	return nullptr;
 }
 
 int32 AAZGameMode::CollectAsyncLoadPackage()
