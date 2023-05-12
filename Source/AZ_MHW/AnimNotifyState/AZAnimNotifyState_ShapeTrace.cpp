@@ -1,9 +1,9 @@
-﻿// Copyright Team AZ. All Rights Reserved.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZAnimNotifyState_ShapeTrace.h"
 
-inline UAZAnimNotifyState_ShapeTrace::UAZAnimNotifyState_ShapeTrace()
+UAZAnimNotifyState_ShapeTrace::UAZAnimNotifyState_ShapeTrace()
 {
 }
 
