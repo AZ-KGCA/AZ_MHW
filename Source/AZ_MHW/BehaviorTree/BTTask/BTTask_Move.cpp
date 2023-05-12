@@ -98,9 +98,11 @@ EBTNodeResult::Type UBTTask_Move::ExecuteTask(UBehaviorTreeComponent& owner_comp
 			UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] Start: %s | End: %s"), *(owner_->GetActorLocation().ToString()), *(final_dest_.ToString()));
 			for (int point_iter = 1; point_iter < nav_path->PathPoints.Num(); point_iter++)
 			{
+#if WITH_EDITOR
 				UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [PathPoint %d] %s"), point_iter, *(nav_path->PathPoints[point_iter].ToString()));
 				DrawDebugSphere(GetWorld(), nav_path->PathPoints[point_iter], 5.0f, 16, FColor::Red, false, 10.0f, 0U, 20.f);
 				DrawDebugLine(GetWorld(), nav_path->PathPoints[point_iter - 1], nav_path->PathPoints[point_iter], FColor::Red, false, 10.0f, 0U, 5.f);
+#endif
 			}
 		}
 

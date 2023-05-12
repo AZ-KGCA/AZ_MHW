@@ -85,6 +85,7 @@ protected:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE(FOnDeathSignature /*, int32 HighestContributionPlayerSerial */) //TODO Change to event
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterCombatSignature);
 	
 public:
 	virtual float ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage) override;
@@ -95,6 +96,7 @@ public:
 	FOnBrokenSigature OnBodyPartBroken;
 	FOnSeveredSigature OnBodyPartSevered;
 	FOnDeathSignature OnDeath;
+	UPROPERTY(BlueprintAssignable) FOnEnterCombatSignature OnEnterCombat;
 	
 	// BlueprintReadWrite FOR DEBUG ONLY
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Monster | States") FMonsterActionStateInfo action_state_info_;
@@ -137,8 +139,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ") FName active_combat_action_name_;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ") TMap<FName, FAttackInfo> attack_info_map_;
 	
-	// Event
-	//DECLARE_EVENT(AAZMonster, FEnterCombatEvent) FEnterCombatEvent OnEnterCombatEvent;
 	//DECLARE_EVENT(AAZMonster, FEnterRageModeEvent) FEnterRageModeEvent OnEnterRageModeEvent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Others")

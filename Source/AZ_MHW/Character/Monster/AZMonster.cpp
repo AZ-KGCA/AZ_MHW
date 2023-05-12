@@ -155,6 +155,7 @@ void AAZMonster::BeginPlay()
 
 void AAZMonster::EnterCombat()
 {
+	OnEnterCombat.Broadcast();
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
 	else

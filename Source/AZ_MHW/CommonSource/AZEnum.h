@@ -175,9 +175,10 @@ enum class EMonsterActionTriggerType : uint8
 {
 	None			= 0,		
 	Transition		= 1 << 0,	// used for transition actions only
-	Damage			= 1 << 1,	// used for transition actions only
-	Sight			= 1 << 2,	// used for transition actions only
-	InRange			= 1 << 3,	// used for noncombat actions only
+	Auto			= 1 << 1,
+	Damage			= 1 << 2,	// used for transition actions only
+	Sight			= 1 << 3,	// used for transition actions only
+	InRange			= 1 << 4,	// used for noncombat actions only
 };
 ENUM_CLASS_FLAGS(EMonsterActionTriggerType);
 

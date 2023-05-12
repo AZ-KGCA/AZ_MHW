@@ -135,19 +135,18 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* o
 	TArray<int32> available_action_ids;
 	for (auto action_info : owner->combat_action_map_)
 	{
-		//TODO currently no trigger is implemented for combat actions
 		const EMonsterActionTriggerType triggers = action_info.Value.triggers;
 		if (triggers != EMonsterActionTriggerType::None)
+		{
+			//TODO currently no trigger is implemented for combat actions
+			continue;
+		}
+		if (triggers != EMonsterActionTriggerType::Auto)
 		{
 			continue;
 		}
 		// Filter out actions that fail the conditions
 		const EMonsterActionConditionType conditions = action_info.Value.conditions;
-		if (conditions == EMonsterActionConditionType::None)
-		{
-			// Acceptable if there is no conditions to check for
-			continue;
-		}
 		if ((conditions & EMonsterActionConditionType::Flying) == EMonsterActionConditionType::Flying)
 		{
 			// Unacceptable if the owner should be flying but is not
