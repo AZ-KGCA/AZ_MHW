@@ -16,8 +16,9 @@ enum class EItemType :uint8
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
-	WeaponFar,
-	WeaponMelee,
+	none,
+	greatSword,
+	bow,
 };
 
 UENUM(BlueprintType)
@@ -32,15 +33,15 @@ UENUM(BlueprintType)
 enum class EItemTarget :uint8
 {
 	None,
-	Health,
-	Damage,
+	health,
+	damage,
 };
 
 UENUM(BlueprintType)
 enum class ECalculation :uint8
 {
-	Plus,
-	Multi,
+	plus,
+	multi,
 };
 
 UENUM(BlueprintType)
@@ -101,11 +102,11 @@ struct FPotionInfo : public FItemInfo
 	{
 		item_key = 101;
 		item_name = "none";
-		target = EItemTarget::Health;
+		target = EItemTarget::health;
 		item_effect = 0;
 		usable = true;
 		item_count = 0;
-		calc_type = ECalculation::Plus;
+		calc_type = ECalculation::plus;
 		storage_type = EStorageType::Warehouse;
 	}
 };
@@ -129,7 +130,7 @@ struct FAmmoInfo : public FItemInfo
 		effect_type = EItemTarget::None;
 		
 		item_effect = 0;
-		calc_type = ECalculation::Multi;
+		calc_type = ECalculation::multi;
 	}
 };
 
@@ -147,7 +148,7 @@ struct FWeaponInfo : public FItemInfo
 		item_key = 0;
 		item_name = "none";
 		damage = 0;
-		weapon_type  = EWeaponType::WeaponMelee;
+		weapon_type  = EWeaponType::none;
 		bottle_count = 0;
 		is_equip = false;
 	}
@@ -232,4 +233,11 @@ struct FBottleDataStruct
 		id =0;
 		is_buff = false;
 	}
+};
+
+USTRUCT()
+struct FMeleeWeaponDataStruct
+{
+	GENERATED_BODY()
+	
 };

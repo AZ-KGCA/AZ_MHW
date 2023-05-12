@@ -16,7 +16,8 @@ void UAZInventoryManager::Init()
 	CreateStartItem();
 	SetPotionSlot();
 	SetBottleSlot();
-	
+
+	UsePotion(0);
 }
 
 void UAZInventoryManager::ResetMgr()
@@ -39,42 +40,42 @@ void UAZInventoryManager::GetTableData()
 	{
 		if(total_item->count == 1)
 		{
-			FTotalItemDataStruct data;
-			data.id = total_item->id;
-			data.name = total_item->name;
-			data.warehouse_max = total_item->warehouse_max;
-			data.pocket_max = total_item->pocket_max;
-			data.init_count = total_item->init_count;
+			FTotalItemDataStruct total_data;
+			total_data.id = total_item->id;
+			total_data.name = total_item->name;
+			total_data.warehouse_max = total_item->warehouse_max;
+			total_data.pocket_max = total_item->pocket_max;
+			total_data.init_count = total_item->init_count;
 			FString type = total_item->type;
-			data.type = UAZUtility::StringToEnum<EItemType>(type);
-			total_data_map_.Emplace(data.id, data);
+			total_data.type = UAZUtility::StringToEnum<EItemType>(type);
+			total_data_map_.Emplace(total_data.id, total_data);
 		}
 	}
 	
 	for(auto potion_data : instance_->table_mgr->potion_item_array_)
 	{
-		FPotionDataStruct data;
-		data.id = potion_data->id;
-		data.is_buff = potion_data->is_buff;
-		data.is_usable = potion_data->usable;
-		potion_data_map_.Emplace(data.id, data);
+		FPotionDataStruct potion_struct;
+		potion_struct.id = potion_data->id;
+		potion_struct.is_buff = potion_data->is_buff;
+		potion_struct.is_usable = potion_data->usable;
+		potion_data_map_.Emplace(potion_struct.id, potion_struct);
 		
 	}
 	for(auto bottle_data : instance_->table_mgr->bottle_array_)
 	{
-		FBottleDataStruct data;
-		data.id = bottle_data->id;
-		data.is_buff = bottle_data->is_buff;
-		bottle_data_map_.Emplace(data.id, data);
+		FBottleDataStruct bottle_struct;
+		bottle_struct.id = bottle_data->id;
+		bottle_struct.is_buff = bottle_data->is_buff;
+		bottle_data_map_.Emplace(bottle_struct.id, bottle_struct);
 	}
 	for(auto buff_data : instance_->table_mgr->buff_array_)
 	{
-		FBuffDataStruct data;
-		data.id = buff_data->id;
-		data.effect = buff_data->effect;
-		data.target = UAZUtility::StringToEnum<EItemTarget>(buff_data->target);
-		data.calc = UAZUtility::StringToEnum<ECalculation>(buff_data->calculation);
-		buff_data_map_.Emplace(data.id,data);
+		FBuffDataStruct buff_struct;
+		buff_struct.id = buff_data->id;
+		buff_struct.effect = buff_data->effect;
+		buff_struct.target = UAZUtility::StringToEnum<EItemTarget>(buff_data->target);
+		buff_struct.calc = UAZUtility::StringToEnum<ECalculation>(buff_data->calculation);
+		buff_data_map_.Emplace(buff_struct.id,buff_struct);
 	}
 }
 
@@ -364,7 +365,6 @@ FBuffDataStruct UAZInventoryManager::UsePotion(int32 item_index)
 {
 	UAZPotionItem* potion = potion_slot_[item_index];
 	FBuffDataStruct buff;
-	
 	potion->DecreaseCount();
 	if(potion->GetItemCount() == 0)
 	{
@@ -449,6 +449,11 @@ bool UAZInventoryManager::AddWarehouseWeapon(FWeaponInfo& info)
 	}
 
 	return true;
+}
+
+void UAZInventoryManager::EquipWeapon(int32 item_key)
+{
+	UAZWeaponItem** weapon = weapon_warehouse_.Find(item_key);
 }
 
 bool UAZInventoryManager::ChangeBottleStorage(int32 item_key, EStorageType type, int32 move_count)
