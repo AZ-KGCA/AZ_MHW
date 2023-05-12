@@ -4,3 +4,4 @@ int,int,string,string,string,int,int,array_string,array_string,int,int
 1,0,AM_StandRoar,RoarPrep,RoarStagger,0,0,Transition|Sight,None,0,0
 2,0,BS_StandRoar,None,RoarStagger,0,0,None,InRange,0,600
 3,0,BS_RecklessCharge,None,Trip,0,50,None,None,0,0
+4,0,BS_TurnInPlace,None,None,0,0,None,InRange,150,-1

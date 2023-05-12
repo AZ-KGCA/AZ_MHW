@@ -60,7 +60,7 @@ void UAZMonsterHealthComponent::BeginPlay()
 	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWounded);
 	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartBroken);
 	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartSevered);
-	owner_->OnDeath.AddUObject(this, &UAZMonsterHealthComponent::OnDeath);
+	owner_->OnDeath.AddDynamic(this, &UAZMonsterHealthComponent::OnDeath);
 }
 
 void UAZMonsterHealthComponent::InitializeRuntimeValues()
@@ -109,6 +109,8 @@ float UAZMonsterHealthComponent::ProcessDamage(const FHitResult& hit_result, ACo
 	const EMonsterBodyPart damaged_body_part = static_cast<EMonsterBodyPart>(hit_result.PhysMaterial.Get()->SurfaceType.GetValue());
 	const EDamageType damage_type = attack_info.damage_type;
 	if (!IsReceivedAttackValid(damage_type, damaged_body_part)) return 0.f;
+
+	applied_damage = temp_damage_;
 	
 	// Apply weakness
 	int32 weakness = weakness_stats_.weakness_array[UAZUtility::EnumToByte(damaged_body_part)][UAZUtility::EnumToByte(damage_type)];

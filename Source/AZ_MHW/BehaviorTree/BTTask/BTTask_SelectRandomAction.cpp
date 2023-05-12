@@ -157,8 +157,14 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* o
 			// Unacceptable if the target player is not in range
 			FVector target_location = Cast<AActor>(blackboard->GetValueAsObject(key_target_character_.SelectedKeyName))->GetActorLocation();
 			float distance_to_target = owner->GetDistance2DToLocation(target_location);
-			if (distance_to_target < action_info.Value.condition_min_distance_from_target) continue;
-			if (distance_to_target > action_info.Value.condition_max_distance_from_target) continue;
+			if (action_info.Value.condition_min_distance_from_target != -1)
+			{
+				if (distance_to_target < action_info.Value.condition_min_distance_from_target) continue;
+			}
+			if (action_info.Value.condition_max_distance_from_target != -1)
+			{
+				if (distance_to_target > action_info.Value.condition_max_distance_from_target) continue;
+			}
 		}
 		if ((conditions & EMonsterActionConditionType::Health) == EMonsterActionConditionType::Health)
 		{

@@ -84,7 +84,8 @@ protected:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundedSignature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
-	DECLARE_MULTICAST_DELEGATE(FOnDeathSignature /*, int32 HighestContributionPlayerSerial */) //TODO Change to event
+	// TEMP Dynamic for debug
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature /*, int32 HighestContributionPlayerSerial */); //TODO Change to event
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterCombatSignature);
 	
 public:
@@ -95,7 +96,7 @@ public:
 	FOnWoundedSignature OnBodyPartWounded;
 	FOnBrokenSigature OnBodyPartBroken;
 	FOnSeveredSigature OnBodyPartSevered;
-	FOnDeathSignature OnDeath;
+	UPROPERTY(BlueprintAssignable) FOnDeathSignature OnDeath;
 	UPROPERTY(BlueprintAssignable) FOnEnterCombatSignature OnEnterCombat;
 	
 	// BlueprintReadWrite FOR DEBUG ONLY
