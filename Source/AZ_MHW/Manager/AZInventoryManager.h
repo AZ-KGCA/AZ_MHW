@@ -20,6 +20,7 @@ class AZ_MHW_API UAZInventoryManager : public UObject
 {
 
 	GENERATED_BODY()
+	
 private:
 	UPROPERTY() TMap<int32, FTotalItemDataStruct> total_data_map_;
 	UPROPERTY() TMap<int32, FPotionDataStruct> potion_data_map_;
@@ -58,6 +59,7 @@ public:
 	bool				AddPocketPotion(FPotionInfo& info);
 	bool				ChangePotionStorage(int32 item_key, EStorageType type, int32 move_count);
 	void				SetPotionSlot();
+	void				ResetPotionSlot();
 	FBuffDataStruct		UsePotion(int32 index);
 	UAZPotionItem*		CreatePotion(FPotionInfo& info);
 
@@ -73,24 +75,10 @@ public:
 	UAZWeaponItem*		CreateWeapon(FWeaponInfo& info);
 	bool				AddWarehouseWeapon(FWeaponInfo& info);
 	void				EquipWeapon(int32 item_key);
-	
-	//UAZPotionItem*	GetPotionItem(FPotionInfo& info);
-	/*
-	bool		AddWarehouseItem(const FItemInfo& item_info);
-	bool		AddPocketItem(const FItemInfo& item_info);
-	bool		RemoveItem(const FItemInfo& item_info);
-	bool		ChangeItem(const FItemInfo& item_info, EStorageType type, int32  move_count = 1);
-	bool		UseItem(int32 pocket_index);
-	bool		IsInventoryFUll(EStorageType type);
-	void		SortInventoryByIndex();
-	void		InitInventoryCount();
-	void		RemoveAll(int32 item_index, EStorageType type);
-	void		CreateDefaultItem();
-	UAZPotionItem*	FindItem(const FItemInfo& item_info);
-	UAZPotionItem*	InitializeItem(const FItemInfo &ItemInfo);
-	int32		GetInventoryMaxCount(EStorageType type);
-	int32		GetInventoryCurCount(EStorageType type);
-	*/
+	UAZWeaponItem*		GetEquipWeapon();
+
+
+
 private:
 	int32 potion_warehouse_max_count;
 	int32 potion_pocket_max_count;

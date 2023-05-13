@@ -22,3 +22,8 @@ bool UAZWeaponItem::GetEquipState()
 {
 	return info_.is_equip;
 }
+
+void UAZWeaponItem::SetEquipState(bool state)
+{
+	info_.is_equip = state;
+}
