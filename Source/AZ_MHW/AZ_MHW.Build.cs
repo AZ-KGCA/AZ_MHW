@@ -7,8 +7,8 @@ public class AZ_MHW : ModuleRules
 	public AZ_MHW(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(
+
+        PublicDependencyModuleNames.AddRange(
 			new string[] 
 			{ 
 				"Core", 
