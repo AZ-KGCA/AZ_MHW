@@ -19,7 +19,6 @@ class AZ_MHW_API UAZGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
-
 public:
 	//MinSuhong
 	class AppServer* iocp_net_server_;
