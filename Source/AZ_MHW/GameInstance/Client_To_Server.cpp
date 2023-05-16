@@ -25,7 +25,8 @@ void UClient_To_Server::Server_Connect()
     short fData = 0x1027;
 
     sa.sin_family = AF_INET;
-    sa.sin_addr.s_addr = inet_addr("127.0.0.1");
+    //sa.sin_addr.s_addr = inet_addr("127.0.0.1");
+    sa.sin_addr.s_addr = inet_addr("192.168.0.157");
     sa.sin_port = htons(10000);
 
     /*----------------------

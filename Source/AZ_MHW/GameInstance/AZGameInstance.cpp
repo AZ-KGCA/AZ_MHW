@@ -74,10 +74,10 @@ void UAZGameInstance::Init()
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UAZGameInstance::BeginLoadingScreen);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UAZGameInstance::EndLoadingScreen);
 
-	//if (client_connect == nullptr)
-	//{
-	//	client_connect = NewObject<UClient_To_Server>(this, TEXT("client_to_server"));
-	//}
+	if (client_connect == nullptr)
+	{
+		client_connect = NewObject<UClient_To_Server>(this, TEXT("client_to_server"));
+	}
 
 	//iocp_net_server_ = new AppServer;
 
@@ -97,10 +97,10 @@ void UAZGameInstance::Shutdown()
 	//	delete iocp_net_server_;
 	//}
 
-	//if (client_connect->client_check == true)
-	//{
-	//	client_connect->Client_Shutdown();
-	//}
+	if (client_connect->client_check == true)
+	{
+		client_connect->Client_Shutdown();
+	}
 
 	//SendLogoutCmd();
 
