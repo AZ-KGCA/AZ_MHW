@@ -20,6 +20,9 @@ void UAZHUDDataMgr::Init()
 	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Login, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Login.BP_Widget_Login_C"));
 	// default back bg
 	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Menu, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Menu.BP_Widget_Menu_C"));
+	// WaitingWidget
+	InitWidgetData(EUILayer::WaitingWidget, EUIName::AZWidget_Waiting, true, false, TEXT("/Game/AZ/Widget/BP_Widget_Waiting.BP_Widget_Waiting_C"));
+
 	// InOut
 	InitWidgetData(EUILayer::Top, EUIName::AZWidget_BlackInOut, true, false, TEXT(""));
 

@@ -40,6 +40,9 @@ public:
 	UPROPERTY() class UAZInventoryManager* inventory_mgr;
 	UPROPERTY() class UAZInputMgr* input_mgr_;
 	UPROPERTY() FMapChannelInfo map_channel_info;
+
+private:
+	UPROPERTY() TArray<class UAZSocketHolder*> array_socket_holder_;
 	
 public:
 	UAZGameInstance();
@@ -54,7 +57,8 @@ public:
 
 	void CreateSocketHolder();
 	void DestroySocketHolder();
-	void InitSocketOnMapLoad();
+	
+	UAZSocketHolder* GetSocketHolder(ESocketHolderType socket_type);
 
 	UFUNCTION(BlueprintCallable, Category = "AZ") 
 	class AAZHUD* GetHUD();
