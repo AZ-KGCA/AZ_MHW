@@ -24,3 +24,10 @@ bool UAZArmorItem::GetEquipState()
 {
 	return info_.is_equip;
 }
+
+void UAZArmorItem::EquipStateChange(bool equip)
+{
+	info_.is_equip = equip;
+}
+
+

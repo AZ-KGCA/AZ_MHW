@@ -26,6 +26,9 @@ private:
 	UPROPERTY() TMap<int32, FPotionDataStruct> potion_data_map_;
 	UPROPERTY() TMap<int32, FBuffDataStruct> buff_data_map_;
 	UPROPERTY() TMap<int32, FBottleDataStruct> bottle_data_map_;
+	UPROPERTY() TMap<int32, FMeleeWeaponDataStruct> melee_weapon_data_map_;
+	UPROPERTY() TMap<int32, FRangeWeaponDataStruct> range_weapon_data_map_;
+	UPROPERTY() TMap<int32, FArmorDataStruct> armor_data_map_;
 public:
 	UPROPERTY() TMap<int32, UAZPotionItem*> potion_pocket_;
 	UPROPERTY() TMap<int32, UAZPotionItem*> potion_warehouse_;
@@ -38,7 +41,6 @@ public:
 	//UI 
 	UPROPERTY() TArray<UAZPotionItem*> potion_slot_;
 	UPROPERTY() TArray<UAZAmmoItem*> bottle_slot_;
-	
 	
 	void					Init();
 	void					ResetMgr();
@@ -77,8 +79,12 @@ public:
 	void				EquipWeapon(int32 item_key);
 	UAZWeaponItem*		GetEquipWeapon();
 
-
-
+	//armor
+	UAZArmorItem*		CreateArmor(FArmorInfo& info);
+	bool				AddWarehouseArmor(FArmorInfo& info);
+	void				EquipArmor(int32 item_key);
+	UAZArmorItem*		GetEquipArmor(int32 ui_index);
+	
 private:
 	int32 potion_warehouse_max_count;
 	int32 potion_pocket_max_count;

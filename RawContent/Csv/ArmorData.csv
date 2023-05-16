@@ -1,0 +1,12 @@
+id,type,defense
+int,string,int
+10001,Armor,21
+10297,Armor,54
+10501,Coil,17
+10797,Coil,43
+11001,Glove,17
+11297,Glove,43
+11501,Greave,10
+11797,Greave,31
+12001,Helmet,20
+12297,Helmet,33

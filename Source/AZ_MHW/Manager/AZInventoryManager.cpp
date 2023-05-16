@@ -36,18 +36,15 @@ void UAZInventoryManager::GetTableData()
 {
 	for(auto total_item : instance_->table_mgr->total_item_array_)
 	{
-		if(total_item->count == 1)
-		{
-			FTotalItemDataStruct total_data;
-			total_data.id = total_item->id;
-			total_data.name = total_item->name;
-			total_data.warehouse_max = total_item->warehouse_max;
-			total_data.pocket_max = total_item->pocket_max;
-			total_data.init_count = total_item->init_count;
-			FString type = total_item->type;
-			total_data.type = UAZUtility::StringToEnum<EItemType>(type);
-			total_data_map_.Emplace(total_data.id, total_data);
-		}
+		FTotalItemDataStruct total_data;
+		total_data.id = total_item->id;
+		total_data.name = total_item->name;
+		total_data.warehouse_max = total_item->warehouse_max;
+		total_data.pocket_max = total_item->pocket_max;
+		FString type = total_item->type;
+		total_data.type = UAZUtility::StringToEnum<EItemType>(type);
+		total_data_map_.Emplace(total_data.id, total_data);
+		UE_LOG(LogTemp,Warning,TEXT("%s"),*total_data.name);
 	}
 	
 	for(auto potion_data : instance_->table_mgr->potion_item_array_)
@@ -74,6 +71,37 @@ void UAZInventoryManager::GetTableData()
 		buff_struct.target = UAZUtility::StringToEnum<EItemTarget>(buff_data->target);
 		buff_struct.calc = UAZUtility::StringToEnum<ECalculation>(buff_data->calculation);
 		buff_data_map_.Emplace(buff_struct.id,buff_struct);
+	}
+	for(auto melee_weapon : instance_->table_mgr->melee_weapon_array_)
+	{
+		FMeleeWeaponDataStruct m_weapon_struct;
+		m_weapon_struct.id = melee_weapon->id;
+		m_weapon_struct.name = melee_weapon->name;
+		m_weapon_struct.type = UAZUtility::StringToEnum<EWeaponType>(melee_weapon->type);
+		m_weapon_struct.damage = melee_weapon->damage;
+		m_weapon_struct.hone = melee_weapon->hone;
+		m_weapon_struct.critical = melee_weapon->critical;
+		melee_weapon_data_map_.Emplace(m_weapon_struct.id, m_weapon_struct);
+	
+	}
+	for(auto range_weapon : instance_->table_mgr->range_weapon_array_)
+	{
+		FRangeWeaponDataStruct r_weapon_struct;
+		r_weapon_struct.id = range_weapon->id;
+		r_weapon_struct.name = range_weapon->name;
+		r_weapon_struct.type = UAZUtility::StringToEnum<EWeaponType>(range_weapon->type);
+		r_weapon_struct.damage = range_weapon->damage;
+		r_weapon_struct.bottle_array = UAZUtility::StringArrToEnumArr<EBottleType>(range_weapon->ammo_type);
+		r_weapon_struct.critical = range_weapon->critical;
+		range_weapon_data_map_.Emplace(r_weapon_struct.id, r_weapon_struct);
+	}
+	for(auto armor : instance_->table_mgr->armor_array_)
+	{
+		FArmorDataStruct armor_struct;
+		armor_struct.id = armor->id;
+		armor_struct.type = UAZUtility::StringToEnum<EArmorType>(armor->type);
+		armor_struct.defense = armor->defense;
+		armor_data_map_.Emplace(armor_struct.id, armor_struct);
 	}
 }
 
@@ -465,7 +493,11 @@ void UAZInventoryManager::EquipWeapon(int32 item_key)
 	}
 	if((*weapon)->GetEquipState() == false)
 	{
-		(*weapon)->SetEquipState(true);
+		(*weapon)->EquipStateChange(true);
+	}
+	else if((*weapon)->GetEquipState() == true)
+	{
+		(*weapon)->EquipStateChange(false);
 	}
 }
 
@@ -480,6 +512,47 @@ UAZWeaponItem* UAZInventoryManager::GetEquipWeapon()
 		}
 	}
 	return equip_weapon;
+}
+
+UAZArmorItem* UAZInventoryManager::CreateArmor(FArmorInfo& info)
+{
+	UAZArmorItem* armor = NewObject<UAZArmorItem>();
+	armor->InitItem(info);
+	return armor;
+}
+
+bool UAZInventoryManager::AddWarehouseArmor(FArmorInfo& info)
+{
+	UAZArmorItem** armor = armor_warehouse_.Find(info.item_key);
+
+	if(armor != nullptr)
+	{
+		return false;
+	}
+	armor_warehouse_.Emplace(info.item_key, CreateArmor(info));
+	return true;
+}
+
+void UAZInventoryManager::EquipArmor(int32 item_key)
+{
+	UAZArmorItem** armor = armor_warehouse_.Find(item_key);
+	if(armor == nullptr)
+	{
+		return;
+	}
+	if((*armor)->GetEquipState() == false)
+	{
+		(*armor)->EquipStateChange(true);
+	}
+	else if((*armor)->GetEquipState() == true)
+	{
+		(*armor)->EquipStateChange(false);
+	}
+}
+
+UAZArmorItem* UAZInventoryManager::GetEquipArmor(int32 ui_index)
+{
+	return nullptr;
 }
 
 bool UAZInventoryManager::ChangeBottleStorage(int32 item_key, EStorageType type, int32 move_count)

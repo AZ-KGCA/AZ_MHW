@@ -23,7 +23,7 @@ bool UAZWeaponItem::GetEquipState()
 	return info_.is_equip;
 }
 
-void UAZWeaponItem::SetEquipState(bool state)
+void UAZWeaponItem::EquipStateChange(bool state)
 {
 	info_.is_equip = state;
 }

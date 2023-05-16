@@ -24,5 +24,5 @@ public:
 	EWeaponType GetWeaponType();
 	FWeaponInfo GetWeaponInfo();
 	bool GetEquipState();
-	void SetEquipState(bool state);
+	void EquipStateChange(bool state);
 };

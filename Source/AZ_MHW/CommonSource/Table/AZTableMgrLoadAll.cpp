@@ -1,6 +1,7 @@
 #include "AZ_MHW/Manager/AZTableMgr.h"
 
 #include "AZ_MHW/Util/AZUtility.h"
+#include "AZ_MHW/CommonSource/Table/ArmorData.h"
 #include "AZ_MHW/CommonSource/Table/BossData.h"
 #include "AZ_MHW/CommonSource/Table/BottleData.h"
 #include "AZ_MHW/CommonSource/Table/CommandData.h"
@@ -22,6 +23,10 @@
 
 void UAZTableMgr::LoadAll()
 {
+	if (!_Load<UArmorData>("ArmorData.csv"))
+	{
+		UAZUtility::ShippingLog(FString::Printf(TEXT("[UArmorData] Load Fail!")));
+	}
 	if (!_Load<UBossData>("BossData.csv"))
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UBossData] Load Fail!")));

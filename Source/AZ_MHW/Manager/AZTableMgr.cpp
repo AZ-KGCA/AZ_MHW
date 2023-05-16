@@ -21,6 +21,8 @@ void UAZTableMgr::LoadComplete()
 	LoadPotionTable();
 	LoadBuffTable();
 	LoadBottleTable();
+	LoadWeaponTable();
+	LoadArmorTable();
 }
 
 void UAZTableMgr::LoadTotalItemTable()
@@ -72,6 +74,14 @@ void UAZTableMgr::LoadWeaponTable()
 	});
 
 	range_weapon_array_ = GetData<URangeWeaponData>([](const URangeWeaponData* r_weapon)
+	{
+		return true;
+	});
+}
+
+void UAZTableMgr::LoadArmorTable()
+{
+	armor_array_ = GetData<UArmorData>([](const UArmorData* armor)
 	{
 		return true;
 	});

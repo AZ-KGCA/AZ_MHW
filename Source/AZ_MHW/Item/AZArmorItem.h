@@ -22,4 +22,5 @@ public:
 	FArmorInfo GetItemInfo();
 	EArmorType GetArmorType();
 	bool	GetEquipState();
+	void	EquipStateChange(bool equip); 
 };

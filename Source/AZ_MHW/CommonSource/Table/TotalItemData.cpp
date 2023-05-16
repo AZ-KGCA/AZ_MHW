@@ -13,11 +13,6 @@ void UTotalItemData::Load(TMap<FString, FString>& data)
 	{
 		name = **value_ptr;
 	}
-	value_ptr = data.Find("count");
-	if (value_ptr != nullptr)
-	{
-		count = FCString::Atoi(**value_ptr);
-	}
 	value_ptr = data.Find("value");
 	if (value_ptr != nullptr)
 	{
@@ -32,11 +27,6 @@ void UTotalItemData::Load(TMap<FString, FString>& data)
 	if (value_ptr != nullptr)
 	{
 		pocket_max = FCString::Atoi(**value_ptr);
-	}
-	value_ptr = data.Find("init_count");
-	if (value_ptr != nullptr)
-	{
-		init_count = FCString::Atoi(**value_ptr);
 	}
 	value_ptr = data.Find("type");
 	if (value_ptr != nullptr)
