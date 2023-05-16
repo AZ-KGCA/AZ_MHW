@@ -338,3 +338,12 @@ void UAZWidget::ForceHide()
         GetRootWidget()->SetVisibility(ESlateVisibility::Collapsed);
     }
 }
+
+int32 UAZWidget::GetSearchTouchMaskContentIndex(UWidget* widget, ETouchMaskSearchType search_type, int32 index)
+{
+    if (search_type == ETouchMaskSearchType::SlotIndex)
+    {
+        return index - 1;
+    }
+    return INDEX_NONE;
+}

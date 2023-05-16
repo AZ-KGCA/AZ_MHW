@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "AZ_MHW/HUD/AZHUDDefine.h"
+#include "AZ_MHW/Widget/AZWidgetData.h"
 //#include "AZ_MHW/Widget/System/WidgetAction/AZWidgetAction.h"
 #include <Animation/WidgetAnimation.h>
 #include <Components/SlateWrapperTypes.h>
@@ -94,6 +95,14 @@ public:
 	// AZHUD 에서 OpenScene으로 위젯을 열때, Scene 스택에서 복원할 경우 자동 호출, 나머지는 수동 호출
 	virtual void Update() {}
 	virtual void Reset() {}
+
+	virtual void EditorOnly_Refresh() {}
+	virtual bool DifferenceBackButton() { return false; }
+
+	// touch screen and widget check (empty space check)
+	virtual void OnTouchEmptySpace() {};
+
+	virtual int32 GetSearchTouchMaskContentIndex(UWidget* widget, ETouchMaskSearchType search_type, int32 index);
 
 	template<class T>
 	T* GetOwnWidget(const FString& widget_name)
