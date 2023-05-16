@@ -300,9 +300,10 @@ void AAZGameMode::OnGameMsg(FAZGameMsg* new_msg)
 void AAZGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//FIXME 발표 임시코드
-	AZGameInstance->GetPlayerController()->SetShowMouseCursor(false);
+	if (AZGameInstance->GetPlayerController() != nullptr)
+	{
+		AZGameInstance->GetPlayerController()->SetShowMouseCursor(false);
+	}
 	//PlatformSetting();
 
 	//PostLightLoaded();
