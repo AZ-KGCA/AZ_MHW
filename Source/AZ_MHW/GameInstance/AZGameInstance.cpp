@@ -210,6 +210,10 @@ AAZPlayerController* UAZGameInstance::GetPlayerController()
 	}
 
 	auto controller = Cast<AAZPlayerController>(GetFirstLocalPlayerController(GetWorld()));
+	if (controller == nullptr)
+	{
+		return nullptr;
+	}
 	return controller;
 }
 
