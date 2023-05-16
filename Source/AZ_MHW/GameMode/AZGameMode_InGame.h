@@ -31,7 +31,7 @@ public:
 	virtual void OnGameMsg(struct FAZGameMsg* msg) override;
 
 	virtual void RestartPlayerAtPlayerStart(AController* new_player, AActor* start_spot) override;
-
+	
 	virtual void OnMapEnter() override;
 	void OnMapExit();
 
