@@ -235,7 +235,8 @@ private:
 		//CompletionKey를 받을 포인터 변수
 		ClientInfo* P_client_info = nullptr;
 		//함수 호출 성공 여부
-		BOOL bSuccess = TRUE;
+		// FIXME 임시
+		BOOL bSuccess = 1;
 		//Overlapped I/O작업에서 전송된 데이터 크기
 		DWORD dwIoSize = 0;
 		//I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터
@@ -250,7 +251,7 @@ private:
 				INFINITE);					// 대기할 시간
 
 			//사용자 쓰레드 종료 메세지 처리..
-			if (TRUE == bSuccess && 0 == dwIoSize && NULL == lpOverlapped)
+			if (1 == bSuccess && 0 == dwIoSize && NULL == lpOverlapped)
 			{
 				is_worker_run_ = false;
 				continue;
@@ -264,7 +265,7 @@ private:
 			auto P_overlapped_ex = (stOverlappedEx*)lpOverlapped;
 
 			//client가 접속을 끊었을때..			
-			if (FALSE == bSuccess || (0 == dwIoSize && IOOperation::ACCEPT != P_overlapped_ex->E_operation_))
+			if (0 == bSuccess || (0 == dwIoSize && IOOperation::ACCEPT != P_overlapped_ex->E_operation_))
 			{
 				//printf("socket(%d) 접속 끊김\n", (int)pClientInfo->_socketClient);
 				CloseSocket(P_client_info);

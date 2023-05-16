@@ -1,6 +1,8 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
+#include "Windows/AllowWindowsPlatformTypes.h"
 #include <Windows.h>
+#include "Windows/HideWindowsPlatformTypes.h"
 #include "Odbc.h"
 
 struct RawPacketData

@@ -12,18 +12,29 @@
 
 AAZGameMode_Login::AAZGameMode_Login()
 {
-	//static ConstructorHelpers::FClassFinder<AController> PlayerControllerPClass(TEXT("/Game/AZ/Widget/BP_DefaultController"));
+	static ConstructorHelpers::FObjectFinder<USoundWave> login_bgm(TEXT("/Game/AZ/Audio/A_MainMenuTheme"));
 
+	if (login_bgm.Succeeded())
+	{
+		bgm_sound_wave_ = login_bgm.Object;
+	}
 	game_mode_flag_ = EGameModeFlag::Login;
-
 	DefaultPawnClass = nullptr;
-	//PlayerControllerClass = PlayerControllerPClass.Class;
 	HUDClass = AAZHUD_Login::StaticClass();
 }
 
 void AAZGameMode_Login::InitGame(const FString& map_name, const FString& options, FString& error_message)
 {
 	Super::InitGame(map_name, options, error_message);
-
+	
 	AZGameInstance->game_option->InitGameOption();
+}
+
+void AAZGameMode_Login::BeginPlay()
+{
+	Super::BeginPlay();
+	if (AZGameInstance->GetPlayerController() != nullptr)
+	{
+		AZGameInstance->GetPlayerController()->SetShowMouseCursor(true);
+	}
 }

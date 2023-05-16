@@ -39,4 +39,9 @@ public:
 	/**현재 액션의 가능한 비트마스크*/
 	UFUNCTION(BlueprintPure)
 	int32 GetInputActionBitMask() const;//PlayerAction비트플래그로 변경
+	UFUNCTION(BlueprintPure)
+	bool GetResultBitMask(const int32 input, const int32 bitmask) const;
+
+	UFUNCTION()
+	void AnimNotify_OnUseItem();
 };

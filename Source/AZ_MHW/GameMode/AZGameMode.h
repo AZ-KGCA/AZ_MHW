@@ -58,6 +58,7 @@ public:
 	virtual void OnGameMsg(struct FAZGameMsg* new_msg) override;
 	virtual void BeginPlay() override;
 
+	virtual class USoundWave* GetBaseBGM();
 	virtual void OnMapEnter() {}
 
 public:
@@ -115,4 +116,10 @@ protected:
 	UPROPERTY() TArray<FName> sync_load_level_name_list_;
 	EAZGameModeLoadState game_mode_load_state_;
 	int32 async_load_package_count_;
+
+protected:
+	UPROPERTY() class UAudioComponent* audio_component_;
+
+	UPROPERTY()
+	class USoundWave* bgm_sound_wave_;
 };

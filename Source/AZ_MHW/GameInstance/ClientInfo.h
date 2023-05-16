@@ -101,7 +101,8 @@ public:
 
 		// AcceptEx : 비동기 accept
 		// https://snowfleur.tistory.com/116
-		if (FALSE == AcceptEx(
+		int temp = 0;
+		if (temp == AcceptEx(
 			listen_socket, // 서버 애플리케이션이 이 소켓에서 연결을 시도 할때까지 기다림
 			socket_, // 들어오는 연결을 수락할 소켓
 			accept_buf_,  // 새 연결에서 보낸 첫 번째 데이터 블록, 서버의 로컬 주소 및 클라이언트의 원격 주소를 수신하는 버퍼에 대한 포인터

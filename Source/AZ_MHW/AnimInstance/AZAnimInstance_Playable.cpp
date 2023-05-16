@@ -4,6 +4,7 @@
 #include "AZAnimInstance_Playable.h"
 #include "AZ_MHW/Character/Player/AZPlayer.h"
 #include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "Character/Player/AZPlayer_Playable.h"
 
 UAZAnimInstance_Playable::UAZAnimInstance_Playable()
 {
@@ -62,11 +63,27 @@ int32 UAZAnimInstance_Playable::GetInputActionBitMask() const
 	if(player_state_cache_->action_state_.bit_unique_action) result |=(1<<8);//LeftCtrl
 	
 	if(player_state_cache_->action_state_.bit_use_item) result |=(1<<9);//E
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//V
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//F
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//R
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//C
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<9);//M
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<10);//V
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<11);//F
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<12);//R
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<13);//C
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<14);//M
 	
 	return result;
+}
+
+bool UAZAnimInstance_Playable::GetResultBitMask(const int32 input, const int32 bitmask) const
+{
+	return ((input & bitmask) > 0);
+}
+
+void UAZAnimInstance_Playable::AnimNotify_OnUseItem()
+{
+	if(player_cache_)
+	{
+		if(auto player = Cast<AAZPlayer_Playable>(player_cache_))
+		{
+			player->AnimNotify_OnUseItem();
+		}
+	}
 }

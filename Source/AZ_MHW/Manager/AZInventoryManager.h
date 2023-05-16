@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AZ_MHW/Item/AZPotionItem.h"
-#include  "AZ_MHW/Item/AZAmmoItem.h"
-#include "Item/AZWeaponItem.h"
+#include "AZ_MHW/Item/AZAmmoItem.h"
+#include "AZ_MHW/Item/AZWeaponItem.h"
+#include "AZ_MHW/Item/AZArmorItem.h"
 #include "UObject/NoExportTypes.h"
 #include "AZInventoryManager.generated.h"
 
@@ -30,23 +31,25 @@ public:
 	UPROPERTY() TMap<int32, UAZAmmoItem*> bottle_pocket_;
 	UPROPERTY() TMap<int32, UAZAmmoItem*> bottle_warehouse_;
 	UPROPERTY() TMap<int32, UAZWeaponItem*> weapon_warehouse_;
+	UPROPERTY() TMap<int32, UAZArmorItem*> armor_warehouse_;
 	UPROPERTY() class UAZGameSingleton* instance_;
 
 	//UI 
 	UPROPERTY() TArray<UAZPotionItem*> potion_slot_;
 	UPROPERTY() TArray<UAZAmmoItem*> bottle_slot_;
 	
-	void				Init();
-	void				ResetMgr();
-	void				SetMaxCount();
-	void				GetTableData();
-	int32				GetInventoryCurrCount(EItemType item_type, EStorageType type);
-	bool				IsWarehouseFull(EItemType type);
-	bool				IsPocketFull(EItemType type);
-	void				SortWarehouse();
-	void				SortPocket();
-	void				CreateStartItem();
-	void				RemoveItem(int32 item_key, EItemType item_type,EStorageType type);
+	
+	void					Init();
+	void					ResetMgr();
+	void					SetMaxCount();
+	void					GetTableData();
+	int32					GetInventoryCurrCount(EItemType item_type, EStorageType type);
+	bool					IsWarehouseFull(EItemType type);
+	bool					IsPocketFull(EItemType type);
+	void					SortWarehouse();
+	void					SortPocket();
+	void					CreateStartItem();
+	void					RemoveItem(int32 item_key, EItemType item_type,EStorageType type);
 	TArray<UAZPotionItem*>	GetPotionSlot();
 	TArray<UAZAmmoItem*>	GetBottleSlot();
 	
@@ -69,6 +72,7 @@ public:
 	//weapon
 	UAZWeaponItem*		CreateWeapon(FWeaponInfo& info);
 	bool				AddWarehouseWeapon(FWeaponInfo& info);
+	void				EquipWeapon(int32 item_key);
 	
 	//UAZPotionItem*	GetPotionItem(FPotionInfo& info);
 	/*
