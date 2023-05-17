@@ -14,13 +14,13 @@ struct Login_Send_Packet : public BasePacket
 	char user_pw[33];
 };
 
-struct SetMoveInfo
+struct SetMoveInfo : public BasePacket
 {
 	FVector fvector_;
 	FRotator frotator_;
 };
 
-struct header_check_packet
+struct header_check_packet : public BasePacket
 {
 	char user_id[33];
 	char user_pw[33];
