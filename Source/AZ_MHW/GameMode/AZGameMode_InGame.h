@@ -18,10 +18,9 @@ class AZ_MHW_API AAZGameMode_InGame : public AAZGameMode
 	
 public:
 	AAZGameMode_InGame();
-	~AAZGameMode_InGame();
 
 	virtual void Tick(float delta_seconds) override;
-
+	
 	virtual void InitGame(const FString& map_name, const FString& options, FString& error_message) override;
 	virtual void PreStartPlay() override;
 	virtual void PostStartPlay() override;
@@ -31,6 +30,8 @@ public:
 	virtual void OnGameMsg(struct FAZGameMsg* msg) override;
 
 	virtual void RestartPlayerAtPlayerStart(AController* new_player, AActor* start_spot) override;
+
+	virtual void PostLogin(APlayerController* new_player) override;
 	
 	virtual void OnMapEnter() override;
 	void OnMapExit();
@@ -79,5 +80,5 @@ protected:
 
 private:
 	UPROPERTY() class UAZWorldMap* world_map_handler_;
-	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
 };
