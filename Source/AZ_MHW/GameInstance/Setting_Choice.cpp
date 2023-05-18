@@ -19,6 +19,7 @@ void USetting_Choice::ServerStart()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Iocp_Odbc_Start\n"), );
 
+	//if()
 	az_game_instance->iocp_net_server_->ServerStart();
 }
 
