@@ -23,7 +23,7 @@ UAZLoginMgr::UAZLoginMgr()
 void UAZLoginMgr::Init()
 {
 	login_page_start_sequence_ = ESequence::None;
-	SetServerIpPort(ESocketHolderType::Login, AZGameInstance->game_config->GetDefaultServerIP(), AZGameInstance->game_config->GetDefaultServerPort());
+	SetServerIpPort(ESocketHolderType::Game, AZGameInstance->game_config->GetDefaultServerIP(), AZGameInstance->game_config->GetDefaultServerPort());
 }
 
 void UAZLoginMgr::Tick(float delta_time)
@@ -93,8 +93,13 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 	}
 }
 
-void UAZLoginMgr::SetServerIpPort(ESocketHolderType holderType, const FString serverIP, int32 serverPort)
+void UAZLoginMgr::SetServerIpPort(ESocketHolderType holder_type, const FString server_ip, int32 server_port)
 {
+	if (holder_type == ESocketHolderType::Max)
+	{
+		server_ip_[(int32)holder_type] = server_ip;
+		server_port_[(int32)holder_type] = server_port;
+	}
 }
 
 void UAZLoginMgr::OnForceKicked(EForceKick forcekick)

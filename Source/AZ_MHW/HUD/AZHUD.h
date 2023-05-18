@@ -160,9 +160,9 @@ public:
 
 		widget_type* widget = nullptr;
 
-		if ((widget_name_enum == EUIName::AZWidget_Waiting) && waiting_widget)
+		if ((widget_name_enum == EUIName::AZWidget_Waiting) && waiting_widget_)
 		{
-			widget = (widget_type*)waiting_widget;
+			widget = (widget_type*)waiting_widget_;
 		}
 		else
 		{
@@ -192,6 +192,8 @@ public:
 	FAZWidgetData* GetWidgetData(EUIName widget_name_enum) const;
 	FAZWidgetData* GetSubWidgetData(ESubUIName widget_name_enum);
 	EUIName GetTopWidgetName();
+
+	bool IsInViewportWaitingWidget();
 
 	UFUNCTION(BlueprintCallable, Category = "AAZHUD") void CloseScene(bool isBackButton = false);
 	void CloseScene(EUIName widget_name_enum, bool is_stack_delete = false, bool is_back_button = false);
@@ -229,7 +231,7 @@ protected:
 	TMap<EUIName, AZSceneData> scene_datas;
 	EUIName cur_scene_name_enum;
 	TArray<EUIName> scenes_stack;
-	UPROPERTY() class UAZWidget_Waiting* waiting_widget;
+	UPROPERTY() class UAZWidget_Waiting* waiting_widget_;
 	UPROPERTY() int32 hide_ui_flag = 0;
 
 	FVector2D handled_touch_position_;

@@ -228,7 +228,7 @@ void AAZHUD::_OpenUI(UAZWidget* widget, FAZWidgetData* widget_data, bool is_imme
 
 	if (widget_data->widget_id == (uint16)EUIName::AZWidget_Waiting)
 	{
-		waiting_widget = Cast<UAZWidget_Waiting>(widget);
+		waiting_widget_ = Cast<UAZWidget_Waiting>(widget);
 	}
 
 	UpdateWorldRender();
@@ -350,6 +350,11 @@ EUIName AAZHUD::GetTopWidgetName()
 	}
 
 	return cur_scene_data->child_widget_names.Last();
+}
+
+bool AAZHUD::IsInViewportWaitingWidget()
+{
+	return waiting_widget_ ? waiting_widget_->IsInViewport() : false;
 }
 
 void AAZHUD::CloseScene(bool isBackButton)

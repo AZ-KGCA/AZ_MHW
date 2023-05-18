@@ -5,15 +5,18 @@
 
 UClient_To_Server::UClient_To_Server()
 {
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2, 2), &wsa);
+}
 
+UClient_To_Server::~UClient_To_Server()
+{
+    WSACleanup();
 }
 
 void UClient_To_Server::Server_Connect()
 {
     client_check = true;
-
-    WSADATA wsa;
-    WSAStartup(MAKEWORD(2, 2), &wsa);
 
     /*----------------------
     SOCKET 생성
@@ -45,24 +48,54 @@ void UClient_To_Server::Server_Connect()
     rece_queue_move_info_thread = std::thread(&UClient_To_Server::receive_ingame_moveinfo_data_read_thread, this);
 }
 
+bool UClient_To_Server::Connect(const FString& ip, int32 port)
+{
+    if (client_check == true)
+    {
+        return false;
+    }
+
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    sa.sin_family = AF_INET;
+    sa.sin_addr.s_addr = inet_addr(TCHAR_TO_ANSI(*ip));
+    sa.sin_port = htons(static_cast<u_short>(port));
+
+    int ret = connect(sock, (sockaddr*)&sa, sizeof(sa));
+
+    if (ret > 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[connect_failed : %d]"), ret);
+        closesocket(sock);
+        return false;
+    }
+
+    u_long iMode = 1;
+    ioctlsocket(sock, FIONBIO, &iMode);
+    rece_thread = std::thread(&UClient_To_Server::receive_thread, this);
+    rece_queue_thread = std::thread(&UClient_To_Server::receive_data_read_thread, this);
+    rece_queue_move_info_thread = std::thread(&UClient_To_Server::receive_ingame_moveinfo_data_read_thread, this);
+    return true;
+}
+
 void UClient_To_Server::Client_Shutdown()
 {
     UE_LOG(LogTemp, Warning, TEXT("[Client_Shutdown]\n"));
     recevie_connected = false;
+    client_check = false;
 
     rece_thread.join();
     rece_queue_thread.join();
     rece_queue_move_info_thread.join();
 
     closesocket(sock);
-    WSACleanup();
+    sock = NULL;
 }
 
-void UClient_To_Server::Server_Packet_Send(const char* packet, int packet_size)
+int UClient_To_Server::Server_Packet_Send(const char* packet, int packet_size)
 {
     UE_LOG(LogTemp, Warning, TEXT("[Server_Packet_Send] sendData : %s size : %d\n"), packet, packet_size);
 
-    send(sock, packet, packet_size, 0);
+    return send(sock, packet, packet_size, 0);
 }
 
 void UClient_To_Server::Signin()
@@ -111,6 +144,24 @@ void UClient_To_Server::receive_thread()
 
                 // 받은 데이터 큐에 밀어 넣기
                 receive_ingame_moveinfo_data_queue.push(&in_game_move_data_);
+            }
+        }
+        else if (result == 0)
+        {
+            recevie_connected = false;
+        }
+        else
+        {
+            int error = errno;
+            switch (error)
+            {
+            case EAGAIN:
+            case EWOULDBLOCK:
+            case EINTR:
+                break;
+            default:
+                recevie_connected = false;
+                break;
             }
         }
     }

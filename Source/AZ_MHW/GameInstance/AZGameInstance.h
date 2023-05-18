@@ -57,8 +57,12 @@ public:
 
 	void CreateSocketHolder();
 	void DestroySocketHolder();
+	void InitSocketOnMapLoad();
 	
-	UAZSocketHolder* GetSocketHolder(ESocketHolderType socket_type);
+	class UAZSocketHolder* GetSocketHolder(ESocketHolderType socket_type);
+	bool IsWaitingProtocolEmpty();
+	TArray<FString> GetWaitingPorotocolNames() const;
+
 
 	UFUNCTION(BlueprintCallable, Category = "AZ") 
 	class AAZHUD* GetHUD();

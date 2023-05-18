@@ -118,6 +118,7 @@ void UAZGameInstance::Shutdown()
 	map_mgr = nullptr;
 	hud_data_mgr = nullptr;
 	input_mgr_ = nullptr;
+	DestroySocketHolder();
 }
 
 void UAZGameInstance::RestMgr()
@@ -169,6 +170,17 @@ void UAZGameInstance::DestroySocketHolder()
 	}
 }
 
+void UAZGameInstance::InitSocketOnMapLoad()
+{
+	/*for (ULHSocketHolder* pSocketHolder : ArraySocketHolder)
+	{
+		if (pSocketHolder)
+		{
+			pSocketHolder->ArrangeProtocolExchangeEvents();
+		}
+	}*/
+}
+
 UAZSocketHolder* UAZGameInstance::GetSocketHolder(ESocketHolderType socket_type)
 {
 	if (array_socket_holder_.Num() != (int32)ESocketHolderType::Max)
@@ -186,6 +198,35 @@ UAZSocketHolder* UAZGameInstance::GetSocketHolder(ESocketHolderType socket_type)
 		return nullptr;
 	}
 	return array_socket_holder_[(int32)socket_type];
+}
+
+bool UAZGameInstance::IsWaitingProtocolEmpty()
+{
+	bool is_empty = true;
+	for (auto socket_holder : array_socket_holder_)
+	{
+		if (socket_holder == nullptr)
+		{
+			continue;
+		}
+
+		if (socket_holder->IsWaitingProtocolEmpty() == false)
+		{
+			is_empty = false;
+		}
+	}
+	return is_empty;
+}
+
+TArray<FString> UAZGameInstance::GetWaitingPorotocolNames() const
+{
+	TArray<FString> result_array;
+	for (auto socket_holder : array_socket_holder_)
+	{
+		result_array.Append(socket_holder->GetWaitingProtocolNames());
+	}
+
+	return result_array;
 }
 
 AAZHUD* UAZGameInstance::GetHUD()
