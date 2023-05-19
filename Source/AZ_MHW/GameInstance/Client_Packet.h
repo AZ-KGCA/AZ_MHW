@@ -1,27 +1,31 @@
 #pragma once
 #include "Define.h"
 
-struct BasePacket
+struct Login_Send_Packet
 {
 	unsigned short packet_length;
 	unsigned short packet_id;
-};
-
-struct Login_Send_Packet : public BasePacket
-{
+	unsigned short clinet_id;
 	//bool packet_type;
 	char user_id[33];
 	char user_pw[33];
 };
 
-struct SetMoveInfo : public BasePacket
+struct SetMoveInfo
 {
+	unsigned short packet_length;
+	unsigned short packet_id;
+	unsigned short clinet_id;
 	FVector fvector_;
 	FRotator frotator_;
 };
 
-struct header_check_packet : public BasePacket
+struct header_check_packet
 {
+	unsigned short packet_length;
+	unsigned short packet_id;
+	unsigned short clinet_id;
+
 	char user_id[33];
 	char user_pw[33];
 };
@@ -56,6 +60,11 @@ enum class CLIENT_PACKET_ID : UINT16
 	IN_GAME_REQUEST = 401,
 	IN_GAME_SUCCESS = 402,
 	IN_GAME_FAIL = 403,
+
+	IN_GAME_MOVE_START = 501,
+	IN_GAME_MOVE_END = 502,
+	//IN_GAME_SUCCESS = 402,
+	//IN_GAME_FAIL = 403,
 
 	PACKET_CHATNAME_REQ = 1001,
 };

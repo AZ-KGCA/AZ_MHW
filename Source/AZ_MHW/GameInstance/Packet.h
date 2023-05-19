@@ -1,8 +1,6 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
-#include "Windows/AllowWindowsPlatformTypes.h"
 #include <Windows.h>
-#include "Windows/HideWindowsPlatformTypes.h"
 #include "Odbc.h"
 
 struct RawPacketData
@@ -74,6 +72,9 @@ enum class PACKET_ID : UINT16
 	IN_GAME_SUCCESS = 402,
 	IN_GAME_FAIL = 403,
 
+	IN_GAME_MOVE_START = 501,
+	IN_GAME_MOVE_END = 502,
+
 	//ROOM_ENTER_REQUEST = 206,
 	//ROOM_ENTER_RESPONSE = 207,
 
@@ -92,6 +93,7 @@ struct PACKET_HEADER
 {
 	UINT16 packet_length_;
 	UINT16 packet_id_;
+	UINT16 client_index_;
 	//UINT8 type_; //압축여부 암호화여부 등 속성을 알아내는 값
 };
 

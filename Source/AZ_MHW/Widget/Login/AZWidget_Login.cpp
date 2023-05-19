@@ -9,7 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/Button.h"
 #include "AZ_MHW/GameInstance/Client_To_Server.h"
-#include "AZ_MHW/GameInstance/AppServer.h"
+#include "AZ_MHW/GameInstance/App_Server.h"
 
 //#include "AZ_MHW/CommonSource/Define/"
 

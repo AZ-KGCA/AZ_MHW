@@ -76,15 +76,15 @@ public:
 		P_packet_manager_->BroadCastSendPacketFunc = boradcast_send_packet_func;
 
 		// 클라이언트 수 만큼 user 생성 index, packet_data_buffer 초기화
-		P_packet_manager_->Init(max_client);
+		//P_packet_manager_->Init(max_client);
 
-		// 패킷쓰레드 생성
-		P_packet_manager_->Run();
+		//// 패킷쓰레드 생성
+		//P_packet_manager_->Run();
 
-		// DB 접속
-		P_packet_manager_->DbRun();
+		//// DB 접속
+		//P_packet_manager_->DbRun();
 
-		StartServer(max_client);
+		//StartServer(max_client);
 	}
 
 	void End()
