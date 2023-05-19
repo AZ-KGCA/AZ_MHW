@@ -109,11 +109,11 @@ bool UAZMonsterMgr::ConvertBossTable()
 		boss_info.weakness_stats					= FBossWeaknessStats(boss_data->weakness_head, boss_data->weakness_neck,
 														boss_data->weakness_body, boss_data->weakness_tail,
 														boss_data->weakness_wing,boss_data->weakness_leg);
-		boss_info.head_state						= FBossBodyPartDebuffInfo(boss_data->damage_head);
-		boss_info.body_state						= FBossBodyPartDebuffInfo(boss_data->damage_body);
-		boss_info.wing_state						= FBossBodyPartDebuffInfo(boss_data->damage_wing);
-		boss_info.tail_state						= FBossBodyPartDebuffInfo(boss_data->damage_tail);
-		boss_info.leg_state							= FBossBodyPartDebuffInfo(boss_data->damage_leg);
+		boss_info.head_state						= FBossBodyPartState(boss_data->damage_head);
+		boss_info.body_state						= FBossBodyPartState(boss_data->damage_body);
+		boss_info.wing_state						= FBossBodyPartState(boss_data->damage_wing);
+		boss_info.tail_state						= FBossBodyPartState(boss_data->damage_tail);
+		boss_info.leg_state							= FBossBodyPartState(boss_data->damage_leg);
 		boss_info.stunnable_parts					= UAZUtility::StringArrToEnumArr<EMonsterBodyPart>(boss_data->stunnable_parts);
 		boss_info.rage_stats						= FBossRageStats(boss_data->rage_required_damage, boss_data->rage_duration,
 														boss_data->rage_outgoing_damage_multiplier,	boss_data->rage_incoming_damage_multiplier);

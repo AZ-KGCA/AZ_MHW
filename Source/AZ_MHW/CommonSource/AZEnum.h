@@ -230,6 +230,14 @@ enum class EMonsterBodyPart : uint8
 };
 
 UENUM()
+enum class EMonsterBodyPartChangeType : uint8
+{
+	Wound,
+	Break,
+	Sever,
+};
+
+UENUM()
 enum class EMoveRequestResult : uint8
 {
 	Failed,

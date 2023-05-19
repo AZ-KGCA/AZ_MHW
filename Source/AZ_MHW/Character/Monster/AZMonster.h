@@ -77,8 +77,8 @@ public:
 protected:
 	// Damage Agent Overrides
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info) override;
+	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info) override;
 
 	// Delegates
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundedSignature, EMonsterBodyPart)
@@ -89,9 +89,11 @@ protected:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterCombatSignature);
 	
 public:
-	virtual float ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage) override;
+	virtual float ProcessDamage(const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info, float applied_damage) override;
 	
 public:
+	UPROPERTY(VisibleAnywhere) int32 object_serial_;
+	
 	// Delegates
 	FOnWoundedSignature OnBodyPartWounded;
 	FOnBrokenSigature OnBodyPartBroken;
@@ -127,7 +129,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | Properties") EMonsterBehaviorType behavior_type_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") int32 boss_id_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") bool has_combat_transition_anim_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") FBossRageStats rage_stats_;
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") FBossRageStats rage_stats_; // yet to be implemented
 
 protected:
 	// Properties: Defined runtime

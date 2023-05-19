@@ -143,7 +143,6 @@ void AAZMonster::InitializeRuntimeValues()
 	action_state_info_.Reset();
 	//TODO aggro_component_->Reset();
 	health_component_->InitializeRuntimeValues();
-	mesh_component_->InitializeRuntimeValues();
 }
 
 void AAZMonster::BeginPlay()
@@ -155,11 +154,12 @@ void AAZMonster::BeginPlay()
 
 void AAZMonster::EnterCombat()
 {
-	OnEnterCombat.Broadcast();
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
 	else
 		SetActionMode(EMonsterActionMode::Combat);
+	
+	OnEnterCombat.Broadcast();
 	Cast<AAZAIController>(GetController())->OnEnterCombat();
 }
 
@@ -341,19 +341,20 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 	TArray<AActor*> overlapped_actors;
 	ignore_actors.Add(this);
 
-	// Get the location to start trace at
+	// Get the location to trace at
 	FVector trace_start_loc = GetMesh()->GetSocketLocation(socket_name);
 	if (socket_name.IsEqual(FName("LeftFootSocket")) || socket_name.IsEqual(FName("RightFootSocket")))
 	{
 		trace_start_loc.Z -= 100.0f;
 	}
 
-	// Do Sphere trace
+	// Do Sphere overlap
 	if (duration_type == EEffectDurationType::Instant)
 	{
 		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), trace_start_loc, radius, hit_object_types_, AAZCharacter::StaticClass(), ignore_actors, overlapped_actors);
 		for (auto actor : overlapped_actors)
 		{
+			UE_LOG(AZMonster, Log, TEXT("[AAZMonster] Sphere trace hit %s"), *actor->GetName());
 			AAZPlayer* overlapped_player = Cast<AAZPlayer>(actor);
 			if (overlapped_player->GetClass()->ImplementsInterface(UAZDamageAgentInterface::StaticClass()))
 			{
@@ -371,12 +372,12 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 }
 
 // Damage functions are handled in the health component
-float AAZMonster::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info)
+float AAZMonster::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info)
 {
 	return health_component_->ApplyDamage(damaged_actor, hit_result, instigator, attack_info);
 }
 
-float AAZMonster::ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage)
+float AAZMonster::ProcessDamage(const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info, float applied_damage)
 {
 	return health_component_->ProcessDamage(hit_result, instigator, attack_info, applied_damage);
 }

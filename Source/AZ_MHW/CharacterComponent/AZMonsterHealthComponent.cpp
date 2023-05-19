@@ -81,25 +81,45 @@ float UAZMonsterHealthComponent::GetStaminaRatio() const
 	return current_stamina_ / base_stamina_;
 }
 
+bool UAZMonsterHealthComponent::IsWounded(EMonsterBodyPart body_part)
+{
+	auto state = body_part_states_.Find(body_part);
+	if (!state)
+		return false;
+	else
+		return state->is_wounded;
+}
+
 bool UAZMonsterHealthComponent::IsPendingKill() const
 {
 	return current_hp_ <= 0;
 }
 
-float UAZMonsterHealthComponent::ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info)
+float UAZMonsterHealthComponent::ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info)
 {
+	float damage_to_deal = attack_info.base_damage;
+	
+	// Validity checks
 	if (IsPendingKill())
 	{
 		return 0.f;
 	}
 	if (owner_->IsInRageMode())
 	{
-		return attack_info.base_damage * owner_->rage_stats_.outgoing_damage_multiplier;
+		damage_to_deal *= owner_->rage_stats_.outgoing_damage_multiplier;
 	}
-	return attack_info.base_damage;
+	IAZDamageAgentInterface* damaged_agent = Cast<IAZDamageAgentInterface>(damaged_actor);
+	if (!damaged_agent)
+	{
+		return 0.f;
+	}
+
+	// Do damage
+	damaged_agent->ProcessDamage(hit_result, event_instigator, attack_info, damage_to_deal);
+	return damage_to_deal;
 }
 
-float UAZMonsterHealthComponent::ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage)
+float UAZMonsterHealthComponent::ProcessDamage(const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info, float applied_damage)
 {
 	if (IsPendingKill()) return 0.f;
 
@@ -110,8 +130,6 @@ float UAZMonsterHealthComponent::ProcessDamage(const FHitResult& hit_result, ACo
 	const EDamageType damage_type = attack_info.damage_type;
 	if (!IsReceivedAttackValid(damage_type, damaged_body_part)) return 0.f;
 
-	applied_damage = temp_damage_;
-	
 	// Apply weakness
 	int32 weakness = weakness_stats_.weakness_array[UAZUtility::EnumToByte(damaged_body_part)][UAZUtility::EnumToByte(damage_type)];
 	float processed_damage = applied_damage * (weakness / 10);
@@ -128,7 +146,7 @@ float UAZMonsterHealthComponent::ProcessDamage(const FHitResult& hit_result, ACo
 	return processed_damage;
 }
 
-void UAZMonsterHealthComponent::PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* damage_instigator)
+void UAZMonsterHealthComponent::PostProcessDamage(float total_damage, FAttackInfo attack_info, AController* damage_instigator)
 {
 	if (IsPendingKill()) return;
 }
@@ -171,7 +189,7 @@ void UAZMonsterHealthComponent::ApplyDamageToBodyPart(EDamageType damage_type, E
 void UAZMonsterHealthComponent::CheckBeWounded(EMonsterBodyPart damaged_part, float damage_amount)
 {
 	auto body_part_info = body_part_states_.Find(damaged_part);
-	if (!body_part_info->is_woundable) return;
+	if (!body_part_info->is_woundable || body_part_info->is_wounded) return;
 
 	body_part_info->wound_accumulated_damage += damage_amount;
 	if (body_part_info->wound_required_damage <= body_part_info->wound_accumulated_damage)
@@ -183,15 +201,16 @@ void UAZMonsterHealthComponent::CheckBeWounded(EMonsterBodyPart damaged_part, fl
 void UAZMonsterHealthComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
 {
 	//TODO timer
+	UE_LOG(AZMonster, Log, TEXT("[UAZMonsterHealthComponent] [#%d] %s wounded)"), owner_->GetMonsterID(), *UAZUtility::EnumToString(body_part));
 	auto body_part_info = body_part_states_.Find(body_part);
-	body_part_info->is_woundable = false;
+	body_part_info->is_wounded = true;
 	body_part_info->wound_accumulated_damage = 0;
 }
 
 void UAZMonsterHealthComponent::CheckBeBroken(EMonsterBodyPart damaged_part, float damage_amount)
 {
 	auto body_part_info = body_part_states_.Find(damaged_part);
-	if (!body_part_info->is_breakable) return;
+	if (!body_part_info->is_breakable || body_part_info->is_broken) return;
 
 	body_part_info->break_accumulated_damage += damage_amount;
 	if (body_part_info->break_required_damage <= body_part_info->break_accumulated_damage)
@@ -202,15 +221,16 @@ void UAZMonsterHealthComponent::CheckBeBroken(EMonsterBodyPart damaged_part, flo
 
 void UAZMonsterHealthComponent::OnBodyPartBroken(EMonsterBodyPart body_part)
 {
+	UE_LOG(AZMonster, Log, TEXT("[UAZMonsterHealthComponent] [#%d] %s broken)"), owner_->GetMonsterID(), *UAZUtility::EnumToString(body_part));
 	auto body_part_info = body_part_states_.Find(body_part);
-	body_part_info->is_breakable = false;
+	body_part_info->is_broken = true;
 	body_part_info->break_accumulated_damage = 0;
 }
 
 void UAZMonsterHealthComponent::CheckBeSevered(EMonsterBodyPart damaged_part, float damage_amount)
 {
 	auto body_part_info = body_part_states_.Find(damaged_part);
-	if (!body_part_info->is_severable) return;
+	if (!body_part_info->is_severable || body_part_info->is_severed) return;
 
 	body_part_info->sever_accumulated_damage += damage_amount;
 	if (body_part_info->sever_required_damage <= body_part_info->sever_accumulated_damage)
@@ -221,8 +241,9 @@ void UAZMonsterHealthComponent::CheckBeSevered(EMonsterBodyPart damaged_part, fl
 
 void UAZMonsterHealthComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 {
+	UE_LOG(AZMonster, Log, TEXT("[UAZMonsterHealthComponent] [#%d] %s severed)"), owner_->GetMonsterID(), *UAZUtility::EnumToString(body_part));
 	auto body_part_info = body_part_states_.Find(body_part);
-	body_part_info->is_severable = false;
+	body_part_info->is_severed = true;
 	body_part_info->sever_accumulated_damage = 0;
 }
 
@@ -230,7 +251,7 @@ void UAZMonsterHealthComponent::ReduceHealth(float amount)
 {
 	if (IsPendingKill()) return;
 	
-	current_hp_ -= amount;
+	current_hp_ = FMath::Clamp(current_hp_ -= amount, 0, base_hp_);
 	if (current_hp_ <= 0)
 	{
 		owner_->SetDead();
@@ -244,5 +265,5 @@ void UAZMonsterHealthComponent::OnDeath()
 	UE_LOG(AZMonster, Warning, TEXT("[UAZMonsterHealthComponent] Kill Called"));
 
 	// Damage Interface
-	owner_->OnTakeDamage.RemoveDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
+	//owner_->OnTakeDamage.RemoveDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
 }

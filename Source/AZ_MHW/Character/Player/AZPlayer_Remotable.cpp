@@ -8,7 +8,7 @@ AAZPlayer_Remotable::AAZPlayer_Remotable()
 }
 
 float AAZPlayer_Remotable::ApplyDamage_Implementation(AActor* damaged_actor,
-	const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info)
+	const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info)
 {
 	// Do nothing in remote player
 	return 0.f;

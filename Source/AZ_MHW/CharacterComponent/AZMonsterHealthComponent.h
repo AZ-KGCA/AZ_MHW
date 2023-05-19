@@ -20,15 +20,16 @@ public:
 	// Property Getters
 	float GetHealthRatio() const;
 	float GetStaminaRatio() const;
+	bool IsWounded(EMonsterBodyPart body_part);
 	bool IsPendingKill() const;
 
 	// Escape Functionalities
 	//TODO bool CanEscape() const;
 
 	// Damage Agent Overrides
-	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
-	float ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage);
-	UFUNCTION() void PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* damage_instigator);
+	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info);
+	float ProcessDamage(const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info, float applied_damage);
+	UFUNCTION() void PostProcessDamage(float total_damage, FAttackInfo attack_info, AController* damage_instigator);
 
 protected:
 	// Damage functions
@@ -57,14 +58,13 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") int32 tired_duration_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Health") FBossEscapeStats escape_stats_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") FBossWeaknessStats weakness_stats_;
-	UPROPERTY(EditDefaultsOnly, Category = "AZ | Damage") TMap<EMonsterBodyPart, FBossBodyPartDebuffInfo> body_part_states_;
+	UPROPERTY(EditAnywhere, Category = "AZ | Damage") TMap<EMonsterBodyPart, FBossBodyPartState> body_part_states_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Damage") float tenderised_damage_multiplier_;
 	
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Current State") int32 current_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_stamina_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_num_escapes_;
-	UPROPERTY(EditAnywhere, Category = "AZ | Current State") float temp_damage_;
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Current State") FBossBodyCondition body_condition_; // currently not in use

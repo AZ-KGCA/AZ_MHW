@@ -256,7 +256,7 @@ void AAZPlayer::ChangeSocketSlot(FName socket_actor_name, FName in_socket_name)
 	}
 }
 
-float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info)
+float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info)
 {
 	// TEMP
 	float base_damage = attack_info.base_damage;
@@ -267,7 +267,7 @@ float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitRes
 	return monster->ProcessDamage(hit_result, instigator, attack_info, applied_damage);
 }
 
-float AAZPlayer::ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage)
+float AAZPlayer::ProcessDamage(const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info, float applied_damage)
 {
 	float final_damage = applied_damage;
 	// TODO 여기서 받은 데미지 값에서 캐릭터의 장비, 능력치 등 고려하셔서 최종 데미지 인자값으로 넘기시면 됩니다
@@ -276,7 +276,7 @@ float AAZPlayer::ProcessDamage(const FHitResult& hit_result, AController* instig
 	return Super::ProcessDamage(hit_result, instigator, attack_info, final_damage);
 }
 
-void AAZPlayer::PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* instigator)
+void AAZPlayer::PostProcessDamage(float total_damage, FAttackInfo attack_info, AController* instigator)
 {
 	AAZMonster* instigator_monster = Cast<AAZMonster>(instigator->GetPawn());
 	if (!instigator_monster)

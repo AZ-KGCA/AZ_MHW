@@ -20,5 +20,5 @@ public:
 
 protected:
 	// Damage Processing
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info) override;
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info) override;
 };

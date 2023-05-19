@@ -5,7 +5,7 @@
 #include "AZ_MHW/Util/AZUtility.h"
 
 float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
-                                                          AController* event_instigator, const FAttackInfo& attack_info)
+                                                          AController* event_instigator, FAttackInfo attack_info)
 {
 	// Validity Checks
 	if (!damaged_actor)
@@ -37,10 +37,11 @@ float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor,
 		*instigator_character->GetName(), *damaged_character->GetName(), *UAZUtility::EnumToString(attack_info.damage_type), attack_info.base_damage);
 
 	// Process Damage on damaged actor
-	return damaged_agent->ProcessDamage(hit_result, event_instigator, attack_info, attack_info.base_damage);
+	damaged_agent->ProcessDamage(hit_result, event_instigator, attack_info, attack_info.base_damage);
+	return attack_info.base_damage;
 }
 
-float IAZDamageAgentInterface::ProcessDamage(const FHitResult& hit_result, AController* instigator,	const FAttackInfo& attack_info, float applied_damage)
+float IAZDamageAgentInterface::ProcessDamage(const FHitResult& hit_result, AController* instigator,	FAttackInfo attack_info, float applied_damage)
 {
 	// Broadcast Post Damage delegate bound functions
 	if (OnTakeDamage.IsBound())
@@ -58,7 +59,7 @@ float IAZDamageAgentInterface::ProcessDamage(const FHitResult& hit_result, ACont
 	}
 	else
 	{
-		UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ProcessDamage called by %s to %s (type: %s, base damage: %f)"),
+		UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ProcessDamage called from attack by %s to %s (type: %s, base damage: %f)"),
 		*instigator_character->GetName(), *damaged_character->GetName(), *UAZUtility::EnumToString(attack_info.damage_type), applied_damage);
 	}
 	
