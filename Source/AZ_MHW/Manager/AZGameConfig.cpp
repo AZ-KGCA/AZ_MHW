@@ -15,7 +15,7 @@ void UAZGameConfig::Load()
     FConfigCacheIni::LoadExternalIniFile(config_file_, file_name, TEXT(""), TEXT(""), false);
     if (config_file_.Num() == 0)
     {
-        // ������ �������� ī���س��� ini ������ ���ٸ� �⺻ ��θ� �д´�.
+        // 유저가 수동으로 카피해놓은 ini 파일이 없다며 ㄴ기본 경로를 읽는다.
         FConfigCacheIni::LoadLocalIniFile(config_file_, file_name, false);
     }
 

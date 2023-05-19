@@ -7,6 +7,11 @@
 #include "AZ_MHW/Widget/AZWidget.h"
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
 #include "AZ_MHW/Widget/Common/AZWidget_Fade.h"
+#include "AZ_MHW/Widget/MsgBox/AZWidget_MsgBoxBase.h"
+#include "AZ_MHW/Widget/MsgBox/AZWidget_MsgBoxBasic.h"
+#include "AZ_MHW/Manager/AZResourceMgr.h"
+#include "AZ_MHW/Manager/AZMapMgr.h"
+#include "AZ_MHW/CommonSource/AZLog.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 
 const FVector2D invalid_touch_position(-1.0f, -1.0f);
@@ -40,10 +45,37 @@ void AAZHUD::EndPlay(const EEndPlayReason::Type end_play_reason)
 void AAZHUD::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
+	ResetHandledTouchPosition();
+
+	if (0 < msg_box_infos_.Num())
+	{
+		for (auto& msg_box_info : msg_box_infos_)
+		{
+			OpenMsgBox(msg_box_info.msg_box_type
+				, msg_box_info.desc
+				, msg_box_info.btn_type
+				, msg_box_info.owner
+				, msg_box_info.left_tap_function_name
+				, msg_box_info.right_tap_function_name
+				, msg_box_info.exit_function_name
+				, msg_box_info.left_btn_text
+				, msg_box_info.right_btn_text
+				, msg_box_info.is_add_wait_msg_box_stack
+				, msg_box_info.is_disable_back_btn_exit);
+		}
+		msg_box_infos_.Empty();
+	}
 }
 
 void AAZHUD::OnTouchEmptySpace()
 {
+	if (IsCurScene(cur_scene_name_enum))
+	{
+		if (UAZWidget* ui = GetUI<UAZWidget>(cur_scene_name_enum))
+		{
+			ui->OnTouchEmptySpace();
+		}
+	}
 }
 
 void AAZHUD::InitHUD()
@@ -83,6 +115,11 @@ void AAZHUD::OnFadeInOut(const float in_time, const float out_time)
 	}
 }
 
+void AAZHUD::ResetHandledTouchPosition()
+{
+	handled_touch_position_ = invalid_touch_position;
+}
+
 void AAZHUD::OnSceneOpened()
 {
 	// FIXME Input change on scene change
@@ -119,6 +156,257 @@ void AAZHUD::SetHandledTouchPosition(const FPointerEvent& pointer)
 	if (pointer.IsTouchEvent())
 	{
 		handled_touch_position_ = UWidgetLayoutLibrary::GetViewportWidgetGeometry(this).AbsoluteToLocal(pointer.GetScreenSpacePosition());
+	}
+}
+
+void AAZHUD::CloseAllMsgBox()
+{
+	for (int32 i = msg_box_stack_.Num() - 1; i >= 0; --i)
+	{
+		UAZWidget_MsgBoxBase* msg_box = msg_box_stack_.Top();
+		if (msg_box)
+		{
+			CloseMsgBox(msg_box->GetName());
+		}
+	}
+
+	msg_box_stack_.Empty();
+}
+
+void AAZHUD::CloseAllMsgBoxExceptOvertop()
+{
+	for (int32 i = msg_box_stack_.Num() - 1; i >= 0; --i)
+	{
+		UAZWidget_MsgBoxBase* msg_box = msg_box_stack_.Top();
+		if (msg_box && msg_box->GetMsgBoxType() != EUIMsgBoxType::OvertopBasic)
+		{
+			CloseMsgBox(msg_box->GetName());
+		}
+	}
+}
+
+UAZWidget_MsgBoxBasic* AAZHUD::OpenMoveToCashShopMsgBox()
+{
+	UAZWidget_MsgBoxBase* msg_box = AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic,
+		"Move",
+		EUIMsgBoxBtnType::OkOrCancel, nullptr, TEXT(""), TEXT(""), TEXT(""),
+		"Cancle");
+
+	UAZWidget_MsgBoxBasic* msg_box_basic = Cast<UAZWidget_MsgBoxBasic>(msg_box);
+
+	if (msg_box_basic)
+	{
+		msg_box_basic->SetTitle("상점 구매");
+		msg_box_basic->AddHandler(EMsgEventButtonType::Left, this, FName(TEXT("MoveToCashShop")));
+	}
+
+	return msg_box_basic;
+}
+
+void AAZHUD::MoveToCashShop()
+{
+	//FIXME 상점 구매 구현
+}
+
+UAZWidget_MsgBoxBase* AAZHUD::OpenMsgBox(EUIMsgBoxType msgBoxType, const FString& desc, EUIMsgBoxBtnType btnType, UObject* owner, const FName& leftTapFunctionName, const FName& rightTapFunctionName, const FName& exitFunctionName, const FString& leftBtnText, const FString& rightBtnText, bool isAddWaitMsgBoxStack, bool isDisableBackBtnExit)
+{
+	EUIName ui_name = EUIName::None;
+	switch (msgBoxType)
+	{
+	case EUIMsgBoxType::Basic:
+		ui_name = EUIName::AZWidget_MessageBoxBasic;
+		break;
+	}
+
+	// 로딩중
+	if (AZGameInstance->map_mgr->IsOnLoading())
+	{
+		AZ_LOG("Message : %s", *desc);
+	}
+
+	auto widget_data = GetWidgetData(ui_name);
+	if (!widget_data)
+	{
+		AZ_PRINT_LOG_IF_FALSE(widget_data, nullptr);
+		// 유아이가  Data가 없다. 파일과 경로 확인 
+		return nullptr;
+	}
+
+	// 메시지 박스는 여러개 만들 수 있도록 새로 생성
+	UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(widget_data->widget_full_path);
+	AZ_PRINT_LOG_IF_FALSE(load_class, nullptr);
+	UAZWidget_MsgBoxBase* msg_box = CreateWidget<UAZWidget_MsgBoxBase, UAZGameInstance*>(AZGameInstance.GetReference(), load_class);
+
+	if (!msg_box)
+	{
+		AZ_PRINT_LOG_IF_FALSE(msg_box, nullptr);
+
+		// 생성 실패
+		return nullptr;
+	}
+
+	msg_box->SetWidgetNameEnum(ui_name);
+	msg_box->Init();
+	msg_box->AddToViewport((int32)widget_data->layer);
+	msg_box->OnOpen();
+	msg_box->SetMsgBoxType(msgBoxType);
+	msg_box->SetDesc(desc);
+	msg_box->SetIsDisableBackBtnExit(isDisableBackBtnExit);
+
+	auto MsgBoxBasic = Cast<UAZWidget_MsgBoxBasic>(msg_box);
+	if (MsgBoxBasic)
+	{
+		MsgBoxBasic->SetButtonType(btnType);
+		//if (!leftTapFunctionName.IsNone() && owner->FindFunction(leftTapFunctionName))
+		if (!leftTapFunctionName.IsNone())
+			MsgBoxBasic->AddHandler(EMsgEventButtonType::Left, owner, leftTapFunctionName);
+		if (!rightTapFunctionName.IsNone())
+			MsgBoxBasic->AddHandler(EMsgEventButtonType::Right, owner, rightTapFunctionName);
+		if (!exitFunctionName.IsNone())
+		{
+			MsgBoxBasic->AddHandler(EMsgEventButtonType::Cancle, owner, exitFunctionName);
+			MsgBoxBasic->AddHandler(EMsgEventButtonType::Close, owner, exitFunctionName);
+		}
+		if (!leftBtnText.IsEmpty())
+			MsgBoxBasic->SetButtonText(EMsgEventButtonType::Left, leftBtnText);
+		if (!rightBtnText.IsEmpty())
+			MsgBoxBasic->SetButtonText(EMsgEventButtonType::Right, rightBtnText);
+	}
+
+	msg_box_stack_.Add(msg_box);
+
+	return msg_box;
+}
+
+void AAZHUD::OpenMsgBox_SafeThread(EUIMsgBoxType msgBoxType, const FString& desc, EUIMsgBoxBtnType btnType, UObject* owner, const FName& leftTapFunctionName, const FName& rightTapFunctionName, const FName& exitFunctionName, const FString& leftBtnText, const FString& rightBtnText, bool isAddWaitMsgBoxStack, bool IsDisableBackBtnExit)
+{
+	FMsgBoxInfo MsgBoxInfo;
+	MsgBoxInfo.msg_box_type = msgBoxType;
+	MsgBoxInfo.desc = desc;
+	MsgBoxInfo.btn_type = btnType;
+	MsgBoxInfo.owner = owner;
+	MsgBoxInfo.left_tap_function_name = leftTapFunctionName;
+	MsgBoxInfo.right_tap_function_name = rightTapFunctionName;
+	MsgBoxInfo.exit_function_name = exitFunctionName;
+	MsgBoxInfo.left_btn_text = leftBtnText;
+	MsgBoxInfo.right_btn_text = rightBtnText;
+	MsgBoxInfo.is_add_wait_msg_box_stack = isAddWaitMsgBoxStack;
+	MsgBoxInfo.is_disable_back_btn_exit = true;
+	msg_box_infos_.Emplace(MsgBoxInfo);
+}
+
+void AAZHUD::OpenMsgBox(FString Title, FString Desc)
+{
+	if (UAZWidget_MsgBoxBase* msg_box = OpenMsgBox(EUIMsgBoxType::Basic, Desc, EUIMsgBoxBtnType::Confirm))
+	{
+		msg_box->SetTitle(Title);
+	}
+}
+
+void AAZHUD::OpenMsgBox(FString Desc)
+{
+	OpenMsgBox(EUIMsgBoxType::Basic, Desc, EUIMsgBoxBtnType::Confirm);
+}
+
+void AAZHUD::OpenContentsMsgBox(FString Desc)
+{
+	OpenMsgBox(EUIMsgBoxType::ContentsBasic, Desc, EUIMsgBoxBtnType::Confirm);
+}
+
+void AAZHUD::OpenMsgBox_Confirm(const FString& title, const FString& desc, UObject* owner, const FName& leftTapFunctionName)
+{
+	if (UAZWidget_MsgBoxBase* msg_box = OpenMsgBox(EUIMsgBoxType::Basic, desc, EUIMsgBoxBtnType::Confirm))
+	{
+		msg_box->SetTitle(title);
+		if (UAZWidget_MsgBoxBasic* msgBoxBasic = Cast<UAZWidget_MsgBoxBasic>(msg_box))
+		{
+			msgBoxBasic->AddHandler(EMsgEventButtonType::Left, owner, leftTapFunctionName);
+		}
+	}
+}
+
+void AAZHUD::CloseMsgBox(EUIMsgBoxType uiMsgBoxType)
+{
+	if (msg_box_stack_.Num() == 0)
+		return;
+
+	for (int32 i = msg_box_stack_.Num() - 1; 0 <= i; --i)
+	{
+		if (msg_box_stack_[i]->GetMsgBoxType() == uiMsgBoxType)
+		{
+			msg_box_stack_[i]->OnClose();
+			msg_box_stack_.RemoveAt(i);
+			break;
+		}
+	}
+
+	if (msg_box_stack_.Num() == 0)
+	{
+		if (AZSceneData* cur_scene_data = GetSceneData(cur_scene_name_enum))
+		{
+			if (0 < cur_scene_data->child_widget_names.Num())
+			{
+				EUIName lastUIName = cur_scene_data->child_widget_names.Last();
+				if (UAZWidget* lastWidget = GetUI<UAZWidget>(lastUIName))
+				{
+					if (lastWidget->bIsFocusable)
+					{
+						lastWidget->SetFocus();
+					}
+				}
+			}
+		}
+	}
+}
+
+void AAZHUD::CloseMsgBox(FString Name)
+{
+	if (msg_box_stack_.Num() == 0)
+	{
+		return;
+	}
+
+	for (int32 i = msg_box_stack_.Num() - 1; 0 <= i; --i)
+	{
+		if (msg_box_stack_[i]->GetName() == Name)
+		{
+			msg_box_stack_[i]->OnClose();
+			msg_box_stack_.RemoveAt(i);
+			break;
+		}
+	}
+
+	if (msg_box_stack_.Num() == 0)
+	{
+		if (AZSceneData* CurSceneData = GetSceneData(cur_scene_name_enum))
+		{
+			if (0 < CurSceneData->child_widget_names.Num())
+			{
+				EUIName last_ui_name = CurSceneData->child_widget_names.Last();
+				if (UAZWidget* last_widget = GetUI<UAZWidget>(last_ui_name))
+				{
+					if (last_widget->bIsFocusable)
+					{
+						last_widget->SetFocus();
+					}
+				}
+			}
+		}
+	}
+}
+
+void AAZHUD::CloseMsgBox_Top()
+{
+	if (msg_box_stack_.Num() > 0) {
+		UAZWidget_MsgBoxBase* msg_box = msg_box_stack_.Top();
+
+		if (nullptr == msg_box)
+			return;
+
+		if (true == msg_box->GetIsDisableBackBtnExit())
+			return;
+
+		CloseMsgBox(msg_box->GetName());
 	}
 }
 
@@ -355,6 +643,11 @@ EUIName AAZHUD::GetTopWidgetName()
 bool AAZHUD::IsInViewportWaitingWidget()
 {
 	return waiting_widget_ ? waiting_widget_->IsInViewport() : false;
+}
+
+bool AAZHUD::IsCurScene(EUIName ui_name)
+{
+	return cur_scene_name_enum == ui_name ? true: false;
 }
 
 void AAZHUD::CloseScene(bool isBackButton)

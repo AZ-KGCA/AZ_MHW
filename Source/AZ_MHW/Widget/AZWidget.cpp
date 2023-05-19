@@ -135,8 +135,11 @@ void UAZWidget::OnOpen(bool immediately)
         }
         else
         {
-            open_alpha_value_ = -0.2f;
-            OpenAlphaTimeCallBack();
+            if (immediately == false)
+            {
+                open_alpha_value_ = -0.2f;
+                OpenAlphaTimeCallBack();
+            }
         }
     }
 
@@ -273,12 +276,12 @@ bool UAZWidget::OnWidgetOpenAction(bool is_visibility)
                 {
                     widget_open_action_->SetTargetWidgetWithCallFunc(find_target_widget, this, &UAZWidget::OnExecuteOpen, &UAZWidget::OnExecuteClose);
                 }
+            }
 
-                if (widget_open_action_ != nullptr)
-                {
-                    is_widget_action = true;
-                    widget_open_action_->BeginExecuteAction();
-                }
+            if (widget_open_action_ != nullptr)
+            {
+                is_widget_action = true;
+                widget_open_action_->BeginExecuteAction();
             }
         }
     }

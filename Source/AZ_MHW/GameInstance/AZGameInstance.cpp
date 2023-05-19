@@ -105,6 +105,7 @@ void UAZGameInstance::Shutdown()
 		client_connect->Client_Shutdown();
 	}
 
+	DestroySocketHolder();
 	//SendLogoutCmd();
 
 	mgrs.Reset();
@@ -118,7 +119,7 @@ void UAZGameInstance::Shutdown()
 	map_mgr = nullptr;
 	hud_data_mgr = nullptr;
 	input_mgr_ = nullptr;
-	DestroySocketHolder();
+	
 }
 
 void UAZGameInstance::RestMgr()

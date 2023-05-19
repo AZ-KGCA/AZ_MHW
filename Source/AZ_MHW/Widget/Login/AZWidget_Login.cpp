@@ -10,6 +10,9 @@
 #include "Components/Button.h"
 #include "AZ_MHW/GameInstance/Client_To_Server.h"
 #include "AZ_MHW/GameInstance/AppServer.h"
+#include "AZ_MHW/Widget/AZWidget_Waiting.h"
+#include "AZ_MHW/SocketHolder/AZSocketHolder.h"
+#include "AZ_MHW/HUD/AZHUD.h"
 
 //#include "AZ_MHW/CommonSource/Define/"
 
@@ -75,29 +78,15 @@ void UAZWidget_Login::SetLoginMode(ELogInMode login_mode)
 	}
 }
 
-void UAZWidget_Login::Connect()
-{
-	if (AZGameInstance->login_mgr->GetSequence() > UAZLoginMgr::ESequence::ConnectLoginServer)
-	{
-		return;
-	}
-
-
-}
-
 void UAZWidget_Login::OnTouchAnyPress()
 {
 	UE_LOG(LogTemp, Warning, TEXT("client open\n"));
-	// client to server connect
-	/*AZGameInstance->client_connect->Server_Connect();
-
- 	c_btn_any_press_->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	c_btn_any_press_->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	UAZLoginMgr* login_mgr = AZGameInstance->login_mgr;
 	if (login_mgr != nullptr)
 	{
-		// FIXME 로그인 준비 로직(2차 병합시 확인하기)
-		login_mgr->ChangeSequence(UAZLoginMgr::ESequence::ConnectLoginServerReady);
-	}*/
+		login_mgr->ChangeSequence(UAZLoginMgr::ESequence::ConnectGameServer);
+	}
 }
 
 void UAZWidget_Login::OnClicked_Login()
@@ -114,7 +103,7 @@ void UAZWidget_Login::OnClicked_Login()
 	login_send_packet.packet_length = sizeof(login_send_packet);
 	AZGameInstance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);*/
 
-	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::ConnectLoginServer);
+	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::AuthGameServer);
 }
 
 void UAZWidget_Login::OnClicked_Close()

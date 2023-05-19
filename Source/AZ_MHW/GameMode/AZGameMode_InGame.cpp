@@ -17,10 +17,10 @@ AAZGameMode_InGame::AAZGameMode_InGame()
 	game_mode_flag_ = EGameModeFlag::InGame;
 	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBP(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayer_Playable.BP_AZPlayer_Playable_C"));
 	
-	static ConstructorHelpers::FClassFinder<AController> PlayerControllerBP(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayerController_InGame.BP_AZPlayerController_InGame_C"));
-	
+	//static ConstructorHelpers::FClassFinder<AController> PlayerControllerBP(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayerController_InGame.BP_AZPlayerController_InGame_C"));
+
 	DefaultPawnClass = AAZPlayer_Playable::StaticClass();//PlayerPawnBP.Class;//AAZPlayer_Playable::StaticClass();//
-	PlayerControllerClass = PlayerControllerBP.Class;//AAZPlayerController_InGame::StaticClass();
+	PlayerControllerClass = AAZPlayerController_InGame::StaticClass();
 	PlayerStateClass = AAZPlayerState::StaticClass();
 	//HUDClass =
 	

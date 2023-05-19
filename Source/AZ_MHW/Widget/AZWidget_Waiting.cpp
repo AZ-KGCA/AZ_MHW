@@ -26,7 +26,7 @@ void UAZWidget_Waiting::OnOpen(bool immediately)
 
 	image_waiting_->SetVisibility(ESlateVisibility::Collapsed);
 
-	GetWorld()->GetTimerManager().SetTimer(show_waiting_timer_handler_, this, &UAZWidget_Waiting::ShowWaitingImage, 2.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(show_waiting_timer_handler_, this, &UAZWidget_Waiting::ShowWaitingImage, 0.0f, false);
 }
 
 void UAZWidget_Waiting::OnClose(bool immediately)

@@ -23,10 +23,9 @@ public:
 		Splash,						// 시작로고
 		LoginPageStart,				// LoginPageStart
 		WaitingForTouch,			// 사용자 입력을 기다린다.
-		ConnectLoginServerReady,	// 사용자 입력(ID, Password, Touch)를 기다림
-		ConnectLoginServer,			// 로그인 서버 접속
-		AuthLoginServer,			// 로그인 서버 접속 및 인증
-		AuthGameServer,				// 게임 서버 접속 및 인증
+		ConnectGameServerReady,		// 사용자 입력(ID, Password, Touch)를 기다림
+		ConnectGameServer,			// 로그인 서버 접속
+		AuthGameServer,				// 로그인 서버 접속 및 인증
 		PlayerSelectEnter,			// 캐릭터 선택창.(생성된 플레이어 리스트 요청)
 		PlayerSelect,				// 플레이어 선택(생성, 삭제도 할 수 있음)
 		GameMapLoading,				// 게임맵 로딩.
@@ -60,6 +59,9 @@ public:
 	ESequence GetSequence() { return sequence_; }
 	ESequence GetLoginPageStartSequence() { return login_page_start_sequence_; }
 	int32 GetGameAuthSerial() { return game_auth_serial_; }
+
+	FString GetServerIp(ESocketHolderType holder_type);
+	int32 GetServerPort(ESocketHolderType holder_type);
 
 	void OnForceKicked(EForceKick forcekick);
 };

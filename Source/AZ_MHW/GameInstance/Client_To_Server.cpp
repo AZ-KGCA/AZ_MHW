@@ -5,17 +5,18 @@
 
 UClient_To_Server::UClient_To_Server()
 {
-    WSADATA wsa;
-    WSAStartup(MAKEWORD(2, 2), &wsa);
+
 }
 
 UClient_To_Server::~UClient_To_Server()
 {
-    WSACleanup();
+    
 }
 
 void UClient_To_Server::Server_Connect()
 {
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2, 2), &wsa);
     client_check = true;
 
     /*----------------------
@@ -54,6 +55,8 @@ bool UClient_To_Server::Connect(const FString& ip, int32 port)
     {
         return false;
     }
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2, 2), &wsa);
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     sa.sin_family = AF_INET;
@@ -62,7 +65,7 @@ bool UClient_To_Server::Connect(const FString& ip, int32 port)
 
     int ret = connect(sock, (sockaddr*)&sa, sizeof(sa));
 
-    if (ret > 0)
+    if (ret != 0)
     {
         UE_LOG(LogTemp, Warning, TEXT("[connect_failed : %d]"), ret);
         closesocket(sock);
@@ -74,6 +77,7 @@ bool UClient_To_Server::Connect(const FString& ip, int32 port)
     rece_thread = std::thread(&UClient_To_Server::receive_thread, this);
     rece_queue_thread = std::thread(&UClient_To_Server::receive_data_read_thread, this);
     rece_queue_move_info_thread = std::thread(&UClient_To_Server::receive_ingame_moveinfo_data_read_thread, this);
+    client_check = true;
     return true;
 }
 
@@ -89,6 +93,7 @@ void UClient_To_Server::Client_Shutdown()
 
     closesocket(sock);
     sock = NULL;
+    WSACleanup();
 }
 
 int UClient_To_Server::Server_Packet_Send(const char* packet, int packet_size)

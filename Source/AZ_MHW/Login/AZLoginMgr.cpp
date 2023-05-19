@@ -9,6 +9,8 @@
 #include "AZ_MHW/Widget/Login/AZWidget_Login.h"
 #include "AZ_MHW/Widget/StartMenu/AZWidget_Menu.h"
 #include "AZ_MHW/HUD/AZHUD.h"
+#include "AZ_MHW/SocketHolder/AZSocketHolder.h"
+#include "AZ_MHW/Widget/AZWidget_Waiting.h"
 #include "Kismet/GameplayStatics.h"
 #include "GenericPlatform/GenericPlatformMisc.h"
 #include "ShaderPipelineCache.h"
@@ -61,25 +63,59 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 		UAZWidget_Login* login_page = AZGameInstance->GetHUD()->GetUI<UAZWidget_Login>(EUIName::AZWidget_Login);
 		login_page->SetLoginMode(UAZWidget_Login::ELogInMode::TouchConnect);
 	}break;
-	case ESequence::ConnectLoginServerReady:
+	case ESequence::ConnectGameServerReady:
 	{
 		UAZWidget_Login* login_page = AZGameInstance->GetHUD()->GetUI<UAZWidget_Login>(EUIName::AZWidget_Login);
 		login_page->SetLoginMode(UAZWidget_Login::ELogInMode::IDPassword);
 	}break;
-	case ESequence::ConnectLoginServer:
-	//{
-		// FIXME Server
-		// 커넥트 진행(서버// 비동기로 진행)
-	//}break;
-	case ESequence::AuthLoginServer:
+	case ESequence::ConnectGameServer:
+	{
+		if (AZGameInstance->GetHUD())
+		{
+			if (auto waiting_widget = AZGameInstance->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true))
+			{
+				waiting_widget->OnForceWaiting();
+			}
+		}
+		UAZSocketHolder* socket_holder = AZGameInstance->GetSocketHolder(ESocketHolderType::Game);
+		if (socket_holder == nullptr)
+		{
+			UAZUtility::ShippingLog(FString::Printf(TEXT("[UAZLoginMgr socketHolder null]")));
+			UAZWidget_Waiting::ClearForceWaiting();
+			AZGameInstance->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+			AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::OvertopBasic, TEXT("111"), EUIMsgBoxBtnType::OkOrCancel,
+				this, TEXT("RetryReconnectRequired"), TEXT("OnServerDisconnected"), TEXT("OnServerDisconnected"), TEXT("종료"));
+			return;
+		}
+
+		FString server_ip = GetServerIp(ESocketHolderType::Game);
+		int32 server_port = GetServerPort(ESocketHolderType::Game);
+
+		UAZUtility::ShippingLog(FString::Printf(TEXT("[UAZLoginMgr::ChangeSequence] login_server connect(ip=%s, port=%d)"), *server_ip, server_port));
+
+		socket_holder->Connect(server_ip, server_port, [&](ESocketResult socket_result)
+			{
+				UAZWidget_Waiting::ClearForceWaiting();
+				AZGameInstance->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+				if (socket_result == ESocketResult::Success)
+				{
+					ChangeSequence(ESequence::ConnectGameServerReady);
+				}
+				else
+				{
+					//팝업 띄우기
+					AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("111"), EUIMsgBoxBtnType::Confirm,
+						this, TEXT("RetryReconnectRequired"));
+					ChangeSequence(ESequence::WaitingForTouch);
+				}
+			});
+	}break;
+	case ESequence::AuthGameServer:
 	{
 		// FIXME Sever
 		// 패킷 보내기(인증 되었다고 생각하고 넘기기)
 		AZGameInstance->GetHUD()->CloseAllUI();
 		AZGameInstance->GetHUD()->OpenScene<UAZWidget_Menu>(EUIName::AZWidget_Menu);
-	}break;
-	case ESequence::AuthGameServer:
-	{
 	}break;
 	case ESequence::PlayerSelectEnter:
 	{
@@ -95,11 +131,29 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 
 void UAZLoginMgr::SetServerIpPort(ESocketHolderType holder_type, const FString server_ip, int32 server_port)
 {
-	if (holder_type == ESocketHolderType::Max)
+	if (holder_type < ESocketHolderType::Max)
 	{
 		server_ip_[(int32)holder_type] = server_ip;
 		server_port_[(int32)holder_type] = server_port;
 	}
+}
+
+FString UAZLoginMgr::GetServerIp(ESocketHolderType holder_type)
+{
+	if (holder_type < ESocketHolderType::Max)
+	{
+		return server_ip_[(int32)holder_type];
+	}
+	return TEXT("");
+}
+
+int32 UAZLoginMgr::GetServerPort(ESocketHolderType holder_type)
+{
+	if (holder_type < ESocketHolderType::Max)
+	{
+		return server_port_[(int32)holder_type];
+	}
+	return 0;
 }
 
 void UAZLoginMgr::OnForceKicked(EForceKick forcekick)
