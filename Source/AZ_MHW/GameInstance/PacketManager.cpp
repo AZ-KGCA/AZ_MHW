@@ -8,7 +8,9 @@
 #include "Windows/HideWindowsPlatformTypes.h"
 #include <sqltypes.h>
 
+#include "AZGameInstance.h"
 #include "Client_Packet.h"
+#include "PlayerController/AZPlayerController_Server.h"
 
 void PacketManager::Init(const UINT32 max_client)
 {
@@ -22,7 +24,8 @@ void PacketManager::Init(const UINT32 max_client)
 	recv_funtion_dictionary_[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
 	recv_funtion_dictionary_[(int)PACKET_ID::SIGNIN_REQUEST] = &PacketManager::ProcessSignup;
 	recv_funtion_dictionary_[(int)PACKET_ID::CHAT_SEND_REQUEST] = &PacketManager::ProcessChatting;
-	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_REQUEST] = &PacketManager::ProocessInGame;
+	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_REQUEST] = &PacketManager::ProcessInGame;
+	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_INPUT_REQUEST] = &PacketManager::ProcessInput;
 
 	CreateCompent(max_client);
 }
@@ -305,19 +308,26 @@ void PacketManager::ProcessChatting(UINT32 client_index, UINT16 packet_size, cha
 	//SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 }
 
-void PacketManager::ProocessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet)
+void PacketManager::ProcessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
 	SetMoveInfo login_res_packet;
 	login_res_packet.packet_id = (int)PACKET_ID::IN_GAME_SUCCESS;
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	login_res_packet.fvector_ = FVector(100.0f, 0.0f, 0.0f);
 	login_res_packet.frotator_ = FRotator(0.0f, 0.0f, 500.0f);
-
+	
+	/*캐릭터정보를 DB로 부터 받아온다.*/
+	//AAZPlayerState
+	
+	/*캐릭터 생성을 한다.*/
+	Cast<AAZPlayerController_Server>(AZGameInstance->GetPlayerController())->CreateClonePlayer(client_index);
 	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame] fvector_ : %s / frotator_ : %s\n"), *login_res_packet.fvector_.ToString(), *login_res_packet.frotator_.ToString());
 
-	BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
+	//BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 	//SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 }
+
+
 
 void PacketManager::ClearConnectionInfo(INT32 client_index)
 {
@@ -327,4 +337,15 @@ void PacketManager::ClearConnectionInfo(INT32 client_index)
 	{
 		user_manager_->DeleteUserInfo(P_req_user);
 	}
+}
+
+
+void PacketManager::ProcessInput(UINT32 client_index, UINT16 packet_size, char* P_packet)
+{
+	auto  p_login_req_packet = reinterpret_cast<Input_Packet*>(P_packet);
+	//Input_Packet input_packet;
+	//input_packet.input_position = P_login_req_packet->input_position;
+	//input_packet.input_direction = P_login_req_packet->input_direction;
+	//input_packet.input_data = P_login_req_packet->input_data;
+	Cast<AAZPlayerController_Server>(AZGameInstance->GetPlayerController())->ReceivePlayerInput(client_index, p_login_req_packet);
 }

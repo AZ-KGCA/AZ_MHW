@@ -192,7 +192,6 @@ void Odbc::ConnetMssql(std::wstring dbName)
 	TCHAR  dir[MAX_PATH] = { 0, };
 	GetCurrentDirectory(MAX_PATH, dir);
 
-	//TCHAR dsn[] = L"Driver={SQL Server};Server=shader.kr;Address=127.0.01,1433;Network=dbmssocn;Database=test_DB;Uid=sa;Pwd=dpsjwl2012;";
 	TCHAR dsn[] = L"Driver={SQL Server};Server=shader.kr;Address=192.168.0.157,1433;Network=dbmssocn;Database=test_DB;Uid=sa;Pwd=dpsjwl2012;";
 	SQLSMALLINT  cbOutCon;
 	SQLRETURN hr = SQLDriverConnect(g_hDbc, NULL, dsn, _countof(dsn),

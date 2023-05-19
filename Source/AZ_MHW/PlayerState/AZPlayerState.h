@@ -15,7 +15,7 @@ USTRUCT(BlueprintType)
 struct FAZPlayerActionState
 {
 	GENERATED_USTRUCT_BODY()
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector input_direction;//캐릭터의 입력방향(플레이어의 시선방향(월드방향)기준 + 입력벡터)
 	
@@ -75,8 +75,10 @@ struct FAZPlayerCharacterState
 {
 	GENERATED_USTRUCT_BODY()
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FVector character_position;//현재 캐릭터의 위치;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator character_direction;//현재 캐릭터의 시야방향
+	FRotator character_direction;//현재 캐릭터의 전방방향
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 max_health_point;//체력
@@ -89,7 +91,7 @@ struct FAZPlayerCharacterState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 max_sharpness;//예리도//무기에 따른 변화
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 current_sharpness;//예리도
+	int32 current_sharpness;//현재 예리도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 speed_rate;//스피드 10000배 (Cast<float>)
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -136,6 +138,7 @@ struct FAZPlayerCharacterState
 	
 	FAZPlayerCharacterState()
 	{
+		character_position = FVector::ZeroVector;
 		character_direction = FRotator::ZeroRotator;
 
 		max_health_point = 100;
@@ -146,7 +149,7 @@ struct FAZPlayerCharacterState
 		current_sharpness = 50;
 
 		critical_rate = 0;//10000배
-		speed_rate = 15000;//10000배
+		speed_rate = 20000;//10000배
 
 		bit_ground = true;
 		bit_hit = false;
@@ -236,7 +239,7 @@ struct FAZPlayerEquipmentState
  * 클라이언트유저 소유정의 = PlayerController + PlayerPawn + PlayerState
  * 실질적인 소유는 없다. 서버에서 전부 만들어서 전달
  * 모든 유저데이터와 현재유저의 상태(어떤 조작, 어떤 메뉴 등)인지 담아두는 객체
- * 맵을 넘겨도 사라지지 않는다.
+ * 맵을 넘겨도 사라지지 않는다.(그렇기에 유저의 정보 담아두기)
  */
 UCLASS()
 class AZ_MHW_API AAZPlayerState : public APlayerState
@@ -257,7 +260,6 @@ public:
 	/** 이 PlayerState 고유 ID */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	int32 guid_;
-	
 	//플레이어 입력상태(애니메이션)
 	//원격PC는 입력상태값을 받아서 움직인다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

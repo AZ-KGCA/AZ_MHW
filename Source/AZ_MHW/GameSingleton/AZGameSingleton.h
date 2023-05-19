@@ -24,7 +24,7 @@ private:
 public:
 	UPROPERTY() class UAZTableMgr* table_mgr;
 	UPROPERTY() class UAZResourceMgr* resource_mgr;
-	UPROPERTY() class UAZPlayerAssetMgr* player_asset_mgr_;
+	UPROPERTY() class UAZPlayerMgr* player_mgr_;
 	UPROPERTY() class UAZMonsterMgr* monster_mgr_;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Classes)

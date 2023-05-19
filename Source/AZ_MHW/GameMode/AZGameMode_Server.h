@@ -17,12 +17,17 @@ class AZ_MHW_API AAZGameMode_Server : public AAZGameMode
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AAZGameMode_Server();
 
+#pragma region Inherited function
 protected:
-	// Called when the game starts or when spawned
+	/** */
 	virtual void BeginPlay() override;
-
-
+	/** */
+	virtual void Tick(float delta_seconds) override;
+#pragma endregion
+	
+	//TQueue<> login_queue_;?
+	//TQueue<> input_queue_;? 이런식으로 하는게 맞나...
+	//client_index와 input값을 큐에 저장
 };

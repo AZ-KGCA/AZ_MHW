@@ -7,28 +7,43 @@
 #include "AZPlayerController_Server.generated.h"
 
 
+struct Input_Packet;
+struct FAZPlayerActionState;
+class AAZPlayer_Origin;
 
+/**
+ * 서버용 클래스
+ * 클라이언트의 입력값을 서버 인게임 시뮬레이션의 캐릭터로 전달하는 역할입니다.
+ */
 UCLASS()
 class AZ_MHW_API AAZPlayerController_Server : public AAZPlayerController
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AAZPlayerController_Server();
-
+#pragma region Inherited function
 protected:
-	// Called when the game starts or when spawned
+	/** */
 	virtual void BeginPlay() override;
-	
+	/** */
 	virtual void SetupInputComponent() override;
-
+	/** */
 	virtual void OnPossess(APawn* pawn) override;
-
+#pragma endregion
 public:
-	UPROPERTY()
-	TMap<int32, class AAZPlayer_Playable*> logined_player_list_;
+	/** int32 = guid 개념 */
+	UPROPERTY() TMap<int32, AAZPlayer_Origin*> logined_player_characters_;
+	
+	/** 인게임 입장->클라로 초기화 + 원격생성명령*/
+	void CreateClonePlayer(int32 client_index);
+	/** 인게임 퇴장->클라로 맵변경 + 원격제거 명령*/
+	void RemoveClonePlayer(int32 client_index);
+	/** 입력값 받기*/
+	void ReceivePlayerInput(int32 client_index, Input_Packet* input);
 
-	//UFUNCTION() void CreateClonePlayer(int32 guid, AAZPlayerState player_state);
-	//서버용 로직과 데이터 받아서 넘겨주기
+	/** */
+	
+	/** 결과값 보내기*/
+	void SendPlayerSimulationResult(int32 client_index );
 };

@@ -76,8 +76,6 @@ public:
 
 protected:
 	// Damage Agent Overrides
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info) override;
 
 	// Delegates

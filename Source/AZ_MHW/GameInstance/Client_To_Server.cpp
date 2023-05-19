@@ -25,8 +25,7 @@ void UClient_To_Server::Server_Connect()
     short fData = 0x1027;
 
     sa.sin_family = AF_INET;
-    //sa.sin_addr.s_addr = inet_addr("127.0.0.1");
-    sa.sin_addr.s_addr = inet_addr("192.168.0.157");
+    sa.sin_addr.s_addr = inet_addr("127.0.0.1");//"192.168.0.157"
     sa.sin_port = htons(10000);
 
     /*----------------------
@@ -135,7 +134,7 @@ void UClient_To_Server::receive_data_read_thread()
                 ::MessageBox(NULL, L"Signin_Success", L"SignIn", 0);
                 UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 201] packet id : %d\n"), received_data->packet_id);
                 // 캐릭터 선택창 델리게이트 달어야하지만 인게임 진입으로 일단 변경
-                if (Fuc_in_game_connect.IsBound() == true) Fuc_in_game_connect.Execute();
+                if(Fuc_in_game_connect.IsBound() == true) Fuc_in_game_connect.Execute();
                 break;
             case (UINT32)CLIENT_PACKET_ID::LOGIN_RESPONSE_FAIL:
                 ::MessageBox(NULL, L"Signin_Fail", L"SignIn", 0);

@@ -1,31 +1,27 @@
 #pragma once
 #include "Define.h"
 
-struct Login_Send_Packet
+struct BasePacket
 {
 	unsigned short packet_length;
 	unsigned short packet_id;
-	unsigned short clinet_id;
+};
+
+struct Login_Send_Packet : public BasePacket
+{
 	//bool packet_type;
 	char user_id[33];
 	char user_pw[33];
 };
 
-struct SetMoveInfo
+struct SetMoveInfo : public BasePacket
 {
-	unsigned short packet_length;
-	unsigned short packet_id;
-	unsigned short clinet_id;
 	FVector fvector_;
 	FRotator frotator_;
 };
 
-struct header_check_packet
+struct header_check_packet : public BasePacket
 {
-	unsigned short packet_length;
-	unsigned short packet_id;
-	unsigned short clinet_id;
-
 	char user_id[33];
 	char user_pw[33];
 };
@@ -61,14 +57,31 @@ enum class CLIENT_PACKET_ID : UINT16
 	IN_GAME_SUCCESS = 402,
 	IN_GAME_FAIL = 403,
 
-	IN_GAME_MOVE_START = 501,
-	IN_GAME_MOVE_END = 502,
-	//IN_GAME_SUCCESS = 402,
-	//IN_GAME_FAIL = 403,
-
+	IN_GAME_INPUT_REQUEST = 501,
+	
 	PACKET_CHATNAME_REQ = 1001,
+	
 };
 
 class Client_Packet
 {
+};
+
+struct Input_Packet
+{
+	unsigned short packet_length;
+	unsigned short packet_id;
+	
+	FVector current_position;
+	FRotator current_direction;
+	
+	FRotator input_direction;
+	int32 input_data;
+
+	Input_Packet()
+	{
+		packet_id = static_cast<int>(CLIENT_PACKET_ID::IN_GAME_INPUT_REQUEST);
+		packet_length = sizeof(Input_Packet);
+		input_data = 0;
+	}
 };

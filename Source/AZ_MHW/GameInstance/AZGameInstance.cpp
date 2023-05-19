@@ -19,7 +19,7 @@
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
 #include "AZ_MHW/Manager/AZInputMgr.h"
-#include "..\Manager\AZPlayerAssetMgr.h"
+#include "..\Manager\AZPlayerMgr.h"
 //FIXME merged need del
 #include <GameFramework/Character.h>
 
@@ -29,6 +29,7 @@
 #include "Odbc.h"
 #include "TimerManager.h"
 #include "UserManager.h"
+#include "PlayerController/AZPlayerController_Server.h"
 
 UGameInstanceProxy AZGameInstance;
 
@@ -325,7 +326,7 @@ void UAZGameInstance::PacketInit(const UINT32 max_client)
 	recv_funtion_dictionary_[(int)PACKET_ID::SIGNIN_REQUEST] = &UAZGameInstance::ProcessSignup;
 	recv_funtion_dictionary_[(int)PACKET_ID::CHAT_SEND_REQUEST] = &UAZGameInstance::ProcessChatting;
 	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_REQUEST] = &UAZGameInstance::ProocessInGame;
-	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_MOVE_START] = &UAZGameInstance::ProocessInPlayerMove;
+	//recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_MOVE_START] = &UAZGameInstance::ProocessInPlayerMove;
 
 	CreateCompent(max_client);
 }
@@ -485,7 +486,7 @@ void UAZGameInstance::ProcessLogin(UINT32 client_index, UINT16 packet_size, char
 		Login_Send_Packet login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::LOGIN_RESPONSE_SUCCESS;
 		login_res_packet.packet_length = sizeof(login_res_packet);
-		login_res_packet.clinet_id = client_index;
+		//login_res_packet.clinet_id = client_index;
 
 		SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 	}
@@ -526,7 +527,7 @@ void UAZGameInstance::ProcessSignup(UINT32 client_index, UINT16 packet_size, cha
 		Login_Send_Packet login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::SIGNIN_RESPONSE_SUCCESS;
 		login_res_packet.packet_length = sizeof(login_res_packet);
-		login_res_packet.clinet_id = client_index;
+		//login_res_packet.clinet_id = client_index;
 
 		SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 	}
@@ -537,7 +538,7 @@ void UAZGameInstance::ProcessSignup(UINT32 client_index, UINT16 packet_size, cha
 		Login_Send_Packet login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::SIGNIN_RESPONSE_FAIL;
 		login_res_packet.packet_length = sizeof(login_res_packet);
-		login_res_packet.clinet_id = client_index;
+		//login_res_packet.clinet_id = client_index;
 
 		SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 	}
@@ -551,7 +552,7 @@ void UAZGameInstance::ProcessChatting(UINT32 client_index, UINT16 packet_size, c
 	Login_Send_Packet login_res_packet;
 	login_res_packet.packet_id = (int)PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS;
 	login_res_packet.packet_length = sizeof(login_res_packet);
-	login_res_packet.clinet_id = client_index;
+	//login_res_packet.clinet_id = client_index;
 	strcpy_s(login_res_packet.user_id, sizeof(login_res_packet.user_id), P_login_req_packet->user_id);
 
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessChatting Send_GameInstance] packet_id : %d, packet_length : %d packet_data %s\n"),
@@ -565,10 +566,11 @@ void UAZGameInstance::ProocessInGame(UINT32 client_index, UINT16 packet_size, ch
 	SetMoveInfo move_info_packet;
 	move_info_packet.packet_id = (int)PACKET_ID::IN_GAME_SUCCESS;
 	move_info_packet.packet_length = sizeof(move_info_packet);
-	move_info_packet.clinet_id = client_index;
+	//move_info_packet.clinet_id = client_index;
 	move_info_packet.fvector_ = FVector(100.0f, 0.0f, 0.0f);
 	move_info_packet.frotator_ = FRotator(0.0f, 0.0f, 500.0f);
 
+	Cast<AAZPlayerController_Server>(GetPlayerController())->CreateClonePlayer(client_index);
 	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame_GameInstance] fvector_ : %s / frotator_ : %s\n"), *move_info_packet.fvector_.ToString(), *move_info_packet.frotator_.ToString());
 
 	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);
@@ -578,9 +580,9 @@ void UAZGameInstance::ProocessInPlayerMove(UINT32 client_index, UINT16 packet_si
 {
 	auto  P_move_info_packet = reinterpret_cast<SetMoveInfo*>(P_packet);
 	SetMoveInfo move_info_packet;
-	move_info_packet.packet_id = (int)PACKET_ID::IN_GAME_MOVE_END;
+	//move_info_packet.packet_id = (int)PACKET_ID::IN_GAME_MOVE_END;
 	move_info_packet.packet_length = sizeof(move_info_packet);
-	move_info_packet.clinet_id = client_index;
+	//move_info_packet.clinet_id = client_index;
 	move_info_packet.fvector_ = P_move_info_packet->fvector_;
 	move_info_packet.frotator_ = P_move_info_packet->frotator_;
 

@@ -47,36 +47,6 @@ void UAZAnimInstance_Playable::NativeUpdateAnimation(float delta_seconds)
 	Super::NativeUpdateAnimation(delta_seconds);
 }
 
-int32 UAZAnimInstance_Playable::GetInputActionBitMask() const
-{
-	int32 result = 0;//None
-	
-	if(player_state_cache_->action_state_.bit_move_forward) result |=(1<<0);//W
-	if(player_state_cache_->action_state_.bit_move_left) result |=(1<<1);//A
-	if(player_state_cache_->action_state_.bit_move_back) result |=(1<<2);//S
-	if(player_state_cache_->action_state_.bit_move_right) result |=(1<<3);//D
-	
-	if(player_state_cache_->action_state_.bit_normal_action) result |=(1<<4);//MLB
-	if(player_state_cache_->action_state_.bit_special_action) result |=(1<<5);//MRB
-	if(player_state_cache_->action_state_.bit_evade_action) result |=(1<<6);//Space
-	if(player_state_cache_->action_state_.bit_dash_action) result |=(1<<7);//LeftShift
-	if(player_state_cache_->action_state_.bit_unique_action) result |=(1<<8);//LeftCtrl
-	
-	if(player_state_cache_->action_state_.bit_use_item) result |=(1<<9);//E
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<10);//V
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<11);//F
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<12);//R
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<13);//C
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<14);//M
-	
-	return result;
-}
-
-bool UAZAnimInstance_Playable::GetResultBitMask(const int32 input, const int32 bitmask) const
-{
-	return ((input & bitmask) > 0);
-}
-
 void UAZAnimInstance_Playable::AnimNotify_OnUseItem()
 {
 	if(player_cache_)
@@ -86,4 +56,9 @@ void UAZAnimInstance_Playable::AnimNotify_OnUseItem()
 			player->AnimNotify_OnUseItem();
 		}
 	}
+}
+
+void UAZAnimInstance_Playable::AnimNotify_OnGetItem()
+{
+	//이펙트 ?
 }
