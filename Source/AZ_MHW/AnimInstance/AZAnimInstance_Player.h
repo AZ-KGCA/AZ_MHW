@@ -20,7 +20,6 @@ class AAZPlayerState;
  * Data를 해석해 해당 틱에 실행할 AnimGraph를 실행
  * 이 클래스는 순수하게 자기정보로만 돌아가야 한다.
  */
-
 UCLASS(Abstract)
 class AZ_MHW_API UAZAnimInstance_Player : public UAZAnimInstance
 {
@@ -66,6 +65,11 @@ public:
 	bool is_rotation_;//현재 애니메이션이 강제 회전보간(목표 방향으로)인지
 	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
 	bool can_input_control_;//현재 애니메이션을 입력으로 조종이 가능한지
+
+	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
+	int32 anim_state_bitmask_;//애니메이션 상태 비트마스크
+	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
+	int32 anim_command_bitmask_;//애니메이션 커맨드 비트마스크
 	
 	/** 매 업데이트마다 애니메이션 종료여부를 반환하는 델리게이트를 검사합니다.*/
 	FTriggerEndAnimation handle_animation_transition_trigger_;//애니메이션 전환 트리거 함수지정
@@ -99,37 +103,37 @@ public:
 	FName next_section_name_;//다음 섹션 이름
 
 	//즉시 지정 애니메이션으로
-	UFUNCTION(BlueprintCallable, Category="AZAnimSystem")
+	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void SetDirectAnimSequence(FName sequence_name = NAME_None);
 	//즉시 지정 몽타주로
-	UFUNCTION(BlueprintCallable, Category="AZAnimSystem")
+	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void SetDirectAnimMontage(FName montage_name = NAME_None);
 	//즉시 지정 섹션으로
-	UFUNCTION(BlueprintCallable, Category="AZAnimSystem")
+	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void SetDirectSection(FName section_name = TEXT("Default"));
 	
-	//지연(애니메이션 시퀀스 종료) 다음 시퀀스로 //사용안함. 폐기
+	/** 지연(애니메이션 시퀀스 종료) 다음 시퀀스로 //사용안함. 폐기*/
 	//UFUNCTION(BlueprintCallable,Category="AZAnimSystem")
 	//void SetNextAnimSequence(FName sequence_name = NAME_None);
-	//지연(애니메이션 시퀀스 종료) 다음 몽타주로
-	UFUNCTION(BlueprintCallable, Category="AZAnimSystem")
+	/** 지연(애니메이션 시퀀스 종료) 다음 몽타주로*/
+	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void SetNextAnimMontage(FName montage_name = NAME_None);
-	//지연(애니메이션 시퀀스 종료) 다음 섹션으로
-	UFUNCTION(BlueprintCallable, Category="AZAnimSystem")
+	/** 지연(애니메이션 시퀀스 종료) 다음 섹션으로*/
+	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void SetNextSection(FName section_name = TEXT("Default"));
 
 	/** 애니메이션을 일시정지합니다.*/
-	UFUNCTION(BlueprintCallable, Category="AZAnimSystem")
+	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void PauseAnimation();
 	/** 애니메이션을 재개합니다.*/
-	UFUNCTION(BlueprintCallable, Category="AZAnimSystem")
+	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void ResumeAnimation();
 
 	/** 애니메이션 실행 속도를 조정합니다. 캐릭터 스피드를 표현합니다.*/
-	UFUNCTION(BlueprintCallable, Category="AZAnimSystem")
+	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void SetAnimPlayRate(int32 play_rate = 20000);
 	
 	/** 테이블에서 지정한 액션키 값에 해당하는 플레이어 애니메이션값으로 수행합니다.*/
 	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
-	void SetActionFromTable(int32 anim_hash_code);
+	void SetAnimationFromTable(int32 anim_hash_code);
 };

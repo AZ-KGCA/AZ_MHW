@@ -57,9 +57,31 @@ enum class CLIENT_PACKET_ID : UINT16
 	IN_GAME_SUCCESS = 402,
 	IN_GAME_FAIL = 403,
 
+	IN_GAME_INPUT_REQUEST = 501,
+	
 	PACKET_CHATNAME_REQ = 1001,
+	
 };
 
 class Client_Packet
 {
+};
+
+struct Input_Packet
+{
+	unsigned short packet_length;
+	unsigned short packet_id;
+	
+	FVector current_position;
+	FRotator current_direction;
+	
+	FRotator input_direction;
+	int32 input_data;
+
+	Input_Packet()
+	{
+		packet_id = static_cast<int>(CLIENT_PACKET_ID::IN_GAME_INPUT_REQUEST);
+		packet_length = sizeof(Input_Packet);
+		input_data = 0;
+	}
 };

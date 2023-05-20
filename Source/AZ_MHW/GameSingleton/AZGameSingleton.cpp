@@ -5,7 +5,7 @@
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Manager/AZTableMgr.h"
 #include "AZ_MHW/Manager/AZResourceMgr.h"
-#include "Manager/AZPlayerAssetMgr.h"
+#include "Manager/AZPlayerMgr.h"
 
 UAZGameSingleton* UAZGameSingleton::instance_ = nullptr;
 
@@ -35,7 +35,8 @@ void UAZGameSingleton::Init()
 	table_mgr->LoadAll();
 	table_mgr->LoadComplete();
 
-	player_asset_mgr_ = NewObject<UAZPlayerAssetMgr>();
+	player_mgr_ = NewObject<UAZPlayerMgr>();
+	player_mgr_->Init();
 	monster_mgr_ = NewObject<UAZMonsterMgr>();
 	monster_mgr_->Init();
 }
@@ -44,7 +45,7 @@ void UAZGameSingleton::InitResourceMgr()
 {
 	if (resource_mgr == nullptr)
 	{
-		UClass* object_class = FSoftClassPath(TEXT("/Game/Blueprint/Resource/BP_ResourceMgr.BP_ResourceMgr_C")).TryLoadClass<UAZResourceMgr>();
+		UClass* object_class = nullptr;//= FSoftClassPath(TEXT("/Game/Blueprint/Resource/BP_ResourceMgr.BP_ResourceMgr_C")).TryLoadClass<UAZResourceMgr>();
 
 		if (object_class)
 		{

@@ -3,7 +3,7 @@
 
 #include "AZ_MHW/AnimInstance/AZAnimInstance_Player.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
-#include "AZ_MHW/Manager/AZPlayerAssetMgr.h"
+#include "AZ_MHW/Manager/AZPlayerMgr.h"
 #include "Character/AZCharacter.h"
 #include "PlayerState/AZPlayerState.h"
 
@@ -23,7 +23,7 @@ void UAZAnimInstance_Player::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 	//플레이어 에셋매니저에서 Base 몽타주를 가져와서 할당
-	if(const auto& anim_montage_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetMontage(TEXT("Base")))
+	if(const auto& anim_montage_asset = UAZGameSingleton::instance()->player_mgr_->GetMontage(TEXT("Base")))
 	{
 		current_anim_montage_ = anim_montage_asset;
 		Montage_Play(current_anim_montage_, current_anim_play_rate_);
@@ -95,7 +95,7 @@ void UAZAnimInstance_Player::OnAnimationTransitionTrigger()
 		{
 			if(current_montage_name_ != next_montage_name_)//동일 몽타주일시 무시
 			{
-				if(const auto& next_montage_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetMontage(next_montage_name_))
+				if(const auto& next_montage_asset = UAZGameSingleton::instance()->player_mgr_->GetMontage(next_montage_name_))
 				{
 					Montage_Stop(0.5f, current_anim_montage_);
 					Montage_Play(next_montage_asset, current_anim_play_rate_);
@@ -139,7 +139,7 @@ void UAZAnimInstance_Player::OnAnimationTransitionTrigger()
 	{
 		if(next_sequence_name_ != NAME_None)//시퀀스 체크
 		{
-			if(const auto& next_sequence_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSequence(next_sequence_name_))
+			if(const auto& next_sequence_asset = UAZGameSingleton::instance()->player_mgr_->GetSequence(next_sequence_name_))
 			{
 				current_anim_sequence_ = next_sequence_asset;
 				current_sequence_name_ = next_sequence_name_;
@@ -230,8 +230,14 @@ void UAZAnimInstance_Player::SetAnimPlayRate(int32 play_rate)
 {
 	float play_rate_permyriad;
 	
-	if(play_rate == 0) play_rate_permyriad = 0; 
-	else play_rate_permyriad = play_rate/10000.f;
+	if(play_rate == 0)
+	{
+		play_rate_permyriad = 0;
+	}
+	else
+	{
+		play_rate_permyriad = play_rate/10000.f;
+	}
 	
 	current_anim_play_rate_ = play_rate_permyriad;
 	if(Montage_IsPlaying(current_anim_montage_))
@@ -241,6 +247,10 @@ void UAZAnimInstance_Player::SetAnimPlayRate(int32 play_rate)
 	//SequencePlayer의 AnimPlayRate는 AnimGraph에서 바인딩되어서 실행
 }
 
-void UAZAnimInstance_Player::SetActionFromTable(int32 anim_hash_code)
+void UAZAnimInstance_Player::SetAnimationFromTable(int32 anim_hash_code)
 {
+	//UAZGameSingleton::instance()->player_asset_mgr_->command_bit_mask_map_
+
+	//Rotate
+	//InputAction
 }

@@ -15,7 +15,6 @@ enum class EAutoMove : uint8
 UENUM(BlueprintType)
 enum class ESocketHolderType : uint8
 {
-	Login,
 	Game,
 	Max
 };

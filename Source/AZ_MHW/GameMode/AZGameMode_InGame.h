@@ -34,6 +34,7 @@ public:
 	virtual void PostLogin(APlayerController* new_player) override;
 	
 	virtual void OnMapEnter() override;
+	
 	void OnMapExit();
 
 	virtual EGameModeType GetGameModeType() { return EGameModeType::InGame; }

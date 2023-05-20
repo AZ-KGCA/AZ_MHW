@@ -10,6 +10,9 @@
 #include "Components/Button.h"
 #include "AZ_MHW/GameInstance/Client_To_Server.h"
 #include "AZ_MHW/GameInstance/AppServer.h"
+#include "AZ_MHW/Widget/AZWidget_Waiting.h"
+#include "AZ_MHW/SocketHolder/AZSocketHolder.h"
+#include "AZ_MHW/HUD/AZHUD.h"
 
 //#include "AZ_MHW/CommonSource/Define/"
 
@@ -28,6 +31,10 @@ void UAZWidget_Login::Init()
 	AZ_PRINT_LOG_IF_FALSE(c_btn_close_);
 	c_btn_close_->OnClicked.RemoveDynamic(this, &UAZWidget_Login::OnClicked_Close);
 	c_btn_close_->OnClicked.AddDynamic(this, &UAZWidget_Login::OnClicked_Close);
+
+	AZ_PRINT_LOG_IF_FALSE(c_btn_sign_up_);
+	c_btn_sign_up_->OnClicked.RemoveDynamic(this, &UAZWidget_Login::OnClicked_SignUp);
+	c_btn_sign_up_->OnClicked.AddDynamic(this, &UAZWidget_Login::OnClicked_SignUp);
 
 	panel_state_[(int32)EPanelState::TouchScreen] = GetOwnWidget<UWidget>(FString(TEXT("panel_state_touch")));
 	panel_state_[(int32)EPanelState::IDPasswordLogin] = GetOwnWidget<UWidget>(FString(TEXT("panel_state_id")));
@@ -71,28 +78,14 @@ void UAZWidget_Login::SetLoginMode(ELogInMode login_mode)
 	}
 }
 
-void UAZWidget_Login::Connect()
-{
-	if (AZGameInstance->login_mgr->GetSequence() > UAZLoginMgr::ESequence::ConnectLoginServer)
-	{
-		return;
-	}
-
-
-}
-
 void UAZWidget_Login::OnTouchAnyPress()
 {
 	UE_LOG(LogTemp, Warning, TEXT("client open\n"));
-	// client to server connect
-	AZGameInstance->client_connect->Server_Connect();
-
- 	c_btn_any_press_->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	c_btn_any_press_->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	UAZLoginMgr* login_mgr = AZGameInstance->login_mgr;
 	if (login_mgr != nullptr)
 	{
-		// FIXME 로그인 준비 로직(2차 병합시 확인하기)
-		login_mgr->ChangeSequence(UAZLoginMgr::ESequence::ConnectLoginServerReady);
+		login_mgr->ChangeSequence(UAZLoginMgr::ESequence::ConnectGameServer);
 	}
 }
 
@@ -103,17 +96,24 @@ void UAZWidget_Login::OnClicked_Login()
 
 	UE_LOG(LogTemp, Warning, TEXT("로그인 체크 id : %s / pw :%s\n"), *c_id_->GetText().ToString(), *c_pass_->GetText().ToString());
 	
-	Login_Send_Packet login_send_packet;
+	/*Login_Send_Packet login_send_packet;
 	login_send_packet.packet_id = (int)CLIENT_PACKET_ID::LOGIN_REQUEST;
 	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), TCHAR_TO_ANSI(*id));
 	strcpy_s(login_send_packet.user_pw, sizeof(login_send_packet.user_pw), TCHAR_TO_ANSI(*password));
 	login_send_packet.packet_length = sizeof(login_send_packet);
-	AZGameInstance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
+	AZGameInstance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);*/
 
-	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::ConnectLoginServer);
+	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::AuthGameServer);
 }
 
 void UAZWidget_Login::OnClicked_Close()
 {
 	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::GameExit);
+}
+
+void UAZWidget_Login::OnClicked_SignUp()
+{
+	FString id = c_id_->GetText().ToString();
+	FString password = c_pass_->GetText().ToString();
+
 }

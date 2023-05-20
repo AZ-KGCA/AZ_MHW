@@ -7,6 +7,8 @@
 #include "AZ_MHW/PlayerController/AZPlayerController.h"//상속
 #include "AZPlayerController_InGame.generated.h"
 
+struct FAZPlayerEquipmentState;
+struct FAZPlayerCharacterState;
 class UInputAction;
 class UInputMappingContext;
 
@@ -23,11 +25,8 @@ class AAZPlayer_Remotable;
  * 입력과 플레이어캐릭터 관리
  * 
  * 이 컨트롤러는 매칭이 완료된 게임에 들어간 플레이어의 컨트롤러이다.
- * 게임모드는 이 컨트롤러에게 플레이어의 캐릭터와 멀티유저의 원격 캐릭터를 준다.
+ * 게임모드는 이 컨트롤러에게 플레이어의 캐릭터와 멀티유저의 원격 캐릭터를 생성해준다.
  * 
- * Input_Event->PlayerState_Edit->
- * AnimUpdate_Event->AnimCondition_Check->
- * AnimInstance_Event->Condition_Edit
  */
 UCLASS()
 class AZ_MHW_API AAZPlayerController_InGame : public AAZPlayerController
@@ -45,39 +44,46 @@ protected:
 
 	virtual void OnPossess(APawn* pawn) override;
 	
-	//virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float delta_time) override;
 
 	//virtual void BeginDestroy() override;
 	
 #pragma endregion 
 public:
+	/** 장비변경에 의한 근거리, 원거리 조작 매핑 변경*/
+	void SetupWeaponInputMappingContext(int32 weapon_type);
+	
 	/** 소유 플레이어 캐릭터*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	AAZPlayer_Playable* playable_player_;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	UAZAnimInstance_Playable* playable_anim_instance_;
 	/** 소유 플레이어 정보*/
 	UPROPERTY(EditAnywhere)
 	AAZPlayerState* playable_player_state_;
+
+	/** 서버로 부터 받은 정보를 토대로 캐릭터클래스 초기화*/
+	void InitializePlayer(FAZPlayerCharacterState character_state, FAZPlayerEquipmentState equipment_state);
+	/** 강제 보간적용*/
+	void ForceInterpolation(FVector position, FRotator direction);
+	/** */
+	UFUNCTION(BlueprintCallable)
+	int32 GetCommandBitMask();
+
+	void ChangeEquipment(int32 itemID);
+
+#pragma region Remotable 
 	/** 원격 플레이어 캐릭터 맵*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	TMap<int32, AAZPlayer_Remotable*> remotable_player_map_;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	TMap<int32, UAZAnimInstance_Remotable*> remotable_anim_instance_map_;
-	/** 원격으로 전송받을 값 */
+	/** 액터의 제거를 쉽게 하기 위해서 소유 */
 	UPROPERTY(EditAnywhere)
 	TMap<int32, AAZPlayerState*> remotable_player_state_map_;
-
-
-	/** */
-	void ChangeInputMappingContext(int32 weapon_type);
+	/** 서버에서 호출하여 클라에 원격 캐릭터 생성 제거 및 명령 */
+	void AddRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state, FAZPlayerEquipmentState equipment_state);
+	void RemoveRemotablePlayer(int32 guid);
+	void ControlRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state, FRotator result_direction, int32 command_bitmask);
+#pragma endregion 
 	
-	/** 서버에서 호출, 원격 캐릭터생성 */
-	UFUNCTION() void AddRemotePlayer(int32 guid, AAZPlayerState* other_player_state);
-	
-#pragma region//Input Event function
+#pragma region Input Event function
 public:
 	//ToDo:CameraManager만들고 Player_Playable에서 여기로 옮기기?
 	//void ActionLook(const FInputActionValue& Value);//카메라 조종
@@ -102,8 +108,6 @@ public:
 	void ActionDodge_Start();		//Space (Crouch)
 	void ActionDodge_End();			//Space (Crouch)
 	
-	void ActionDashOnce_Start();	//B		(+SheatheWeapon)//이거 게임에서 안되던데..
-	void ActionDashOnce_End();		//B		(+SheatheWeapon)
 	void ActionDashHold_Start();	//Shift (+SheatheWeapon)
 	void ActionDashHold_End();		//Shift (+SheatheWeapon)
 	void ActionUseItem_Start();		//E		(+SheatheWeapon)
@@ -168,7 +172,6 @@ public:
 	//활 R3 모드변경후 L2 동글
 #pragma endregion
 #pragma endregion 
-	
 };
 
 

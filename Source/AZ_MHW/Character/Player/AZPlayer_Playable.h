@@ -8,14 +8,12 @@
 #include "AZ_MHW/Character/Player/AZPlayer.h"
 #include "AZPlayer_Playable.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnUseItemDelegate);
-
 class USpringArmComponent;
 class UCameraComponent;
-struct FInputActionValue;
-
 class AAZPlayerController_InGame;
 class AAZPlayerState;
+
+struct FInputActionValue;
 
 /**
  * 
@@ -31,32 +29,34 @@ public:
 #pragma region Inherited function
 protected:
 	/** */
+	virtual void BeginPlay() override;
+	/** */
+	virtual void Tick(float delta_seconds) override;
+	/** */
+	virtual void BeginDestroy() override;
+	
+	/** */
 	virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
 	/** */
 	virtual void PossessedBy(AController* new_controller) override;
-	/** */
-	virtual void Tick(float delta_seconds) override;
 #pragma endregion
 public:
-	UPROPERTY() AAZPlayerController_InGame* playable_player_controller_;
 	UPROPERTY() AAZPlayerState* playable_player_state_;
 
-	//TODO: 카레마 매니저 만들기
+	//TODO: 카메라 매니저 만들기?
 	UPROPERTY(VisibleDefaultsOnly, Category=Camera)
 	USpringArmComponent* spring_arm_comp_;//CameraControll
 	UPROPERTY(VisibleDefaultsOnly, Category = Camera)
 	UCameraComponent* temp_camera_comp_;//Camera
 
 	
-	UFUNCTION()
-	void AnimNotify_OnUseItem();
+	UFUNCTION() void AnimNotify_OnUseItem();
 
-public:
-	FOnUseItemDelegate on_use_item_;
-
+	/** */
 	void ActionLook(const FInputActionValue& value);
+	/** */
 	void ActionZoom(const FInputActionValue& value);
-
+ 
 	//환경 감지하기?
 	//피격당함
 	//지면없음

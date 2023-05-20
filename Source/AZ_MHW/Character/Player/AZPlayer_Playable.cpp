@@ -6,6 +6,8 @@
 #include "AZ_MHW/Manager/AZInputMgr.h"
 #include "AZ_MHW/PlayerController/AZPlayerController_InGame.h"
 #include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "AZ_MHW/Manager/AZInventoryManager.h"
+#include "AZ_MHW/Item/AZItemData.h"
 
 #include <Camera/CameraComponent.h>
 #include <GameFramework/SpringArmComponent.h>
@@ -13,8 +15,7 @@
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 
-#include "AZ_MHW/Manager/AZInventoryManager.h"
-#include "AZ_MHW/Item/AZItemData.h"
+
 
 
 AAZPlayer_Playable::AAZPlayer_Playable()
@@ -36,8 +37,39 @@ AAZPlayer_Playable::AAZPlayer_Playable()
 	temp_camera_comp_->bUsePawnControlRotation = false;
 }
 
+void AAZPlayer_Playable::BeginPlay()
+{
+	Super::BeginPlay();
+}
 
-//TODO: CameraManager 만들어서 플레이어 캐릭터와 입력처리 완전히 분리
+void AAZPlayer_Playable::Tick(float delta_seconds)
+{
+	Super::Tick(delta_seconds);
+	//유니티처럼 콜리전용 게임오브젝트를 하나 더만들어서 액터에 붙히고, 통신하게끔하는게 
+	////시야각감지(플레이어 시선방향 45도 앞 상호작용 객체 쿼리)
+	////거리감지(객체에 마다의 거리체크후 쿼리)
+	//역할별 콜리전 액터를 다 만든다?
+
+	//지면감지(체공)
+	//경사면감지(볼팅, 슬라이드)
+	//절벽감지(벽타기)
+
+	//물감지
+
+	//벽감지(벽타기)
+	//덩굴감지(덩굴타기)
+	//인터렉션감지(채집등)
+
+	//캐릭터 방향위치값 갱신
+}
+
+void AAZPlayer_Playable::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+
+
+//TODO: CameraManager 만들어서 플레이어 캐릭터와 입력처리 완전히 분리하기?
 void AAZPlayer_Playable::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
 	Super::SetupPlayerInputComponent(player_input_component);
@@ -57,44 +89,18 @@ void AAZPlayer_Playable::PossessedBy(AController* new_controller)
 	Super::PossessedBy(new_controller);
 
 	playable_player_state_ = Cast<AAZPlayerState>(GetPlayerState());
-	playable_player_controller_ = Cast<AAZPlayerController_InGame>(new_controller);
-}
-
-void AAZPlayer_Playable::Tick(float delta_seconds)
-{
-	Super::Tick(delta_seconds);
-
-	//유니티처럼 콜리전용 게임오브젝트를 하나 더만들어서 액터에 붙히고, 통신하게끔하는게 
-	////시야각감지(플레이어 시선방향 45도 앞 상호작용 객체 쿼리)
-	////거리감지(객체에 마다의 거리체크후 쿼리)
-	//역할별 콜리전 액터를 다 만든다?
-
-	//지면감지(체공)
-	//경사면감지(볼팅, 슬라이드)
-	//절벽감지(벽타기)
-
-	//물감지
-
-	//벽감지(벽타기)
-	//덩굴감지(덩굴타기)
-	//인터렉션감지(채집등)
-
-	//캐릭터 방향
-	playable_player_state_->character_state_.character_direction = GetRootComponent()->GetComponentRotation();
 }
 
 
 void AAZPlayer_Playable::ActionLook(const FInputActionValue& value)
 {
-	FVector2D look_axis_vector = value.Get<FVector2D>();
-
+	const FVector2D look_axis_vector = value.Get<FVector2D>();
 	if (Controller != nullptr)
 	{
 		AddControllerYawInput(look_axis_vector.X);
 		AddControllerPitchInput(look_axis_vector.Y);
 	}
 }
-
 void AAZPlayer_Playable::ActionZoom(const FInputActionValue& value)
 {
 	float zoom_axis_float = value.Get<float>();
@@ -104,51 +110,50 @@ void AAZPlayer_Playable::ActionZoom(const FInputActionValue& value)
 	{
 		return;
 	}
-	
 	if (spring_arm_comp_->TargetArmLength > 400 && zoom_axis_float > 0)
 	{
 		return;
 	}
-	
 	spring_arm_comp_->TargetArmLength += zoom_axis_float;
 }
 
+
+
+
+//서버처리
 void AAZPlayer_Playable::AnimNotify_OnUseItem()
 {
 	//on_use_item_.Broadcast();
-	//const auto& item_index;// uimanager한테서 가져오기
+	//const auto& item_index;// ui manager한테서 가져오기
 	const auto& buff = AZGameInstance->inventory_mgr->UsePotion(0);
 
 	switch (buff.target)
 	{
 	case EItemTarget::health:
-		if(auto player_state = GetPlayerState())
+		if(auto player_state = GetPlayerState<AAZPlayerState>())
 		{
-			if(auto az_player_state = Cast<AAZPlayerState>(player_state))
-			{
 				int32 result_health_point = 0;
 				switch (buff.calc)
 				{
 				case ECalculation::plus:
-					result_health_point = az_player_state->character_state_.current_health_point + (int)buff.effect;
-					if(az_player_state->character_state_.max_health_point < result_health_point)
+					result_health_point = player_state->character_state_.current_health_point + (int)buff.effect;
+					if(player_state->character_state_.max_health_point < result_health_point)
 					{
-						az_player_state->character_state_.current_health_point = az_player_state->character_state_.max_health_point;
+						player_state->character_state_.current_health_point = player_state->character_state_.max_health_point;
 					}
 					else
 					{
-						az_player_state->character_state_.current_health_point = result_health_point;
+						player_state->character_state_.current_health_point = result_health_point;
 					}
-					UE_LOG(AZ_TEST,Warning,TEXT("%d"),az_player_state->character_state_.current_health_point);
+					UE_LOG(AZ_TEST,Warning,TEXT("%d"),player_state->character_state_.current_health_point);
 					break;
 				case ECalculation::multi:
 					break;
 				}
-			}
 		}
 		break;
 	case EItemTarget::damage:
-		if(auto player_state = GetPlayerState())
+		if(auto player_state = GetPlayerState<AAZPlayerState>())
 		{
 			if(auto az_player_state = Cast<AAZPlayerState>(player_state))
 			{

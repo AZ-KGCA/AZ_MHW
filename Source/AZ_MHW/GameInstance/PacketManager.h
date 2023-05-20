@@ -63,8 +63,10 @@ private:
 
 	void ProcessChatting(UINT32 client_index, UINT16 packet_size, char* P_packet);
 
-	void ProocessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet);
+	void ProcessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet);
 
+	void ProcessInput(UINT32 client_index, UINT16 packet_size, char* P_packet);
+	
 	typedef void (PacketManager::* PROCESS_RECV_PACKET_FUNCTION)(UINT32, UINT16, char*);
 
 	std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION> recv_funtion_dictionary_;
