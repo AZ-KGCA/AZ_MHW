@@ -10,6 +10,7 @@
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Util/AZUtility.h"
+#include "Character/Player/AZPlayer.h"
 
 AAZAIController::AAZAIController()
 {
@@ -64,6 +65,8 @@ void AAZAIController::OnPossess(APawn* const pawn)
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[AZAIController] Behavior tree is null"));
 	}
+
+	owner_->OnEnterCombat.AddDynamic(this, &AAZAIController::OnEnterCombat);
 }
 
 void AAZAIController::BeginPlay()
@@ -182,6 +185,8 @@ void AAZAIController::SetUpBehaviorTree()
 	// Initialise blackboard
 	UBlackboardComponent* blackboard_component = Blackboard;
 	UseBlackboard(behavior_tree_->BlackboardAsset, blackboard_component);
+	SetBlackboardValueAsEnum(AZBlackboardKey::action_mode, UAZUtility::EnumToByte(EMonsterActionMode::Normal));
+	SetBlackboardValueAsBool(AZBlackboardKey::is_triggered_by_sight, false);
 }
 
 FAIRequestID AAZAIController::GetNewMoveRequestID()
@@ -193,11 +198,9 @@ FAIRequestID AAZAIController::GetNewMoveRequestID()
 void AAZAIController::OnPlayerDetected(AActor* actor, FAIStimulus const stimulus) 
 {
 	if (owner_->IsInCombat()) return;
-	if (stimulus.WasSuccessfullySensed())
+	if (Cast<AAZPlayer>(actor) && stimulus.WasSuccessfullySensed())
 	{
-		SetBlackboardValueAsBool(AZBlackboardKey::is_triggered_by_sight, true);
-		owner_->aggro_component_->SetBestTarget(Cast<AAZCharacter>(actor));
-		owner_->EnterCombat();
+		owner_->EnterCombat(actor, true);
 	}
 }
 

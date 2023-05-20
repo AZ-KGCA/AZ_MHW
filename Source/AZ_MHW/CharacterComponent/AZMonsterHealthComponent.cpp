@@ -8,6 +8,7 @@
 #include <PhysicalMaterials/PhysicalMaterial.h>
 
 #include "CommonSource/Define/GameDefine.h"
+#include "Controller/AZAIController.h"
 
 UAZMonsterHealthComponent::UAZMonsterHealthComponent()
 {
@@ -58,6 +59,7 @@ void UAZMonsterHealthComponent::BeginPlay()
 	// Damage Interface
 	owner_->OnTakeDamage.AddDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
 	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWounded);
+	owner_->OnBodyPartWoundHealed.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWoundHealed);
 	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartBroken);
 	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartSevered);
 	owner_->OnDeath.AddDynamic(this, &UAZMonsterHealthComponent::OnDeath);
@@ -68,7 +70,7 @@ void UAZMonsterHealthComponent::InitializeRuntimeValues()
 	current_hp_ = base_hp_;
 	current_stamina_ = base_stamina_;
 	current_num_escapes_ = 0;
-	body_condition_.Reset();
+	wound_duration_ = 20.0f;
 }
 
 float UAZMonsterHealthComponent::GetHealthRatio() const
@@ -95,18 +97,19 @@ bool UAZMonsterHealthComponent::IsPendingKill() const
 	return current_hp_ <= 0;
 }
 
-float UAZMonsterHealthComponent::ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info)
+float UAZMonsterHealthComponent::ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
-	float damage_to_deal = attack_info.base_damage;
-	
 	// Validity checks
 	if (IsPendingKill())
 	{
 		return 0.f;
 	}
-	if (owner_->IsInRageMode())
+	if (owner_->IsEnraged())
 	{
-		damage_to_deal *= owner_->rage_stats_.outgoing_damage_multiplier;
+		for (auto& damage_info : attack_info.damage_array)
+		{
+			damage_info.amount *= owner_->rage_stats_.outgoing_damage_multiplier;
+		}
 	}
 	IAZDamageAgentInterface* damaged_agent = Cast<IAZDamageAgentInterface>(damaged_actor);
 	if (!damaged_agent)
@@ -115,38 +118,59 @@ float UAZMonsterHealthComponent::ApplyDamage(AActor* damaged_actor, const FHitRe
 	}
 
 	// Do damage
-	damaged_agent->ProcessDamage(hit_result, event_instigator, attack_info, damage_to_deal);
-	return damage_to_deal;
+	damaged_agent->ProcessDamage(Cast<AActor>(owner_), hit_result, attack_info);
+	return attack_info.GetDamageTotal();
 }
 
-float UAZMonsterHealthComponent::ProcessDamage(const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info, float applied_damage)
+float UAZMonsterHealthComponent::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
 	if (IsPendingKill()) return 0.f;
 
+	// check if this attack is a transition trigger
+	if (!owner_->IsInCombat())
+	{
+		owner_->EnterCombat(damage_instigator, false);
+	}
+	
 	// TODO status effects
-
+	EAttackEffectType attack_effect = attack_info.attack_effect;
+	
 	// Check if damage is valid
+	// Single damage type exists for each hunter's attack
 	const EMonsterBodyPart damaged_body_part = static_cast<EMonsterBodyPart>(hit_result.PhysMaterial.Get()->SurfaceType.GetValue());
-	const EDamageType damage_type = attack_info.damage_type;
+	const EDamageType damage_type = attack_info.damage_array[0].type;
 	if (!IsReceivedAttackValid(damage_type, damaged_body_part)) return 0.f;
 
 	// Apply weakness
 	int32 weakness = weakness_stats_.weakness_array[UAZUtility::EnumToByte(damaged_body_part)][UAZUtility::EnumToByte(damage_type)];
-	float processed_damage = applied_damage * (weakness / 10);
+	float processed_damage =  attack_info.damage_array[0].amount * (weakness / 10);
 
 	// Apply rage mode multiplier
-	if (owner_->IsInRageMode()) processed_damage *= owner_->rage_stats_.incoming_damage_multiplier;
+	if (owner_->IsEnraged())
+	{
+	    processed_damage *= owner_->rage_stats_.incoming_damage_multiplier;
+	    UE_LOG(AZMonster, Log, TEXT("[UAZMonsterHealthComponent] Damage dealt when monster is enraged! Damage is multiplied by %f"),
+			owner_->rage_stats_.incoming_damage_multiplier);
+	}
+	
+	// Apply tenderised multiplier
+    if (IsWounded(damaged_body_part))
+    {
+        processed_damage *= tenderised_damage_multiplier_;
+        UE_LOG(AZMonster, Log, TEXT("[UAZMonsterHealthComponent] Damage dealt to wounded part [%s]! Damage is multiplied by %f"),
+            *UAZUtility::EnumToString(damaged_body_part), tenderised_damage_multiplier_);
+    }
 	
 	// Body part specific damage processing
 	ApplyDamageToBodyPart(damage_type, damaged_body_part, processed_damage);
 
 	// General processing
 	ReduceHealth(processed_damage);
-
+	
 	return processed_damage;
 }
 
-void UAZMonsterHealthComponent::PostProcessDamage(float total_damage, FAttackInfo attack_info, AController* damage_instigator)
+void UAZMonsterHealthComponent::PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
 	if (IsPendingKill()) return;
 }
@@ -171,19 +195,17 @@ bool UAZMonsterHealthComponent::IsReceivedAttackValid(EDamageType damage_type, E
 
 void UAZMonsterHealthComponent::ApplyDamageToBodyPart(EDamageType damage_type, EMonsterBodyPart damaged_part, float damage_amount)
 {
+    // Group nearby body parts
 	EMonsterBodyPart damaged_part_group = damaged_part;
 	if (damaged_part == EMonsterBodyPart::Neck) damaged_part_group = EMonsterBodyPart::Head;
 	else if (damaged_part == EMonsterBodyPart::Body) damaged_part_group = EMonsterBodyPart::Back;
-			
-	auto body_part_info = body_part_states_.Find(damaged_part_group);
 
+    // Check and apply body part state changes
 	CheckBeWounded(damaged_part_group, damage_amount);
 	CheckBeBroken(damaged_part_group, damage_amount);
 	if (damage_type == EDamageType::Cut) CheckBeSevered(damaged_part_group, damage_amount);
 
 	//TODO do something by damage type
-
-	
 }
 
 void UAZMonsterHealthComponent::CheckBeWounded(EMonsterBodyPart damaged_part, float damage_amount)
@@ -200,10 +222,23 @@ void UAZMonsterHealthComponent::CheckBeWounded(EMonsterBodyPart damaged_part, fl
 
 void UAZMonsterHealthComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
 {
-	//TODO timer
-	UE_LOG(AZMonster, Log, TEXT("[UAZMonsterHealthComponent] [#%d] %s wounded)"), owner_->GetMonsterID(), *UAZUtility::EnumToString(body_part));
+    UE_LOG(AZMonster, Log, TEXT("[UAZMonsterHealthComponent] [#%d] %s wounded)"), owner_->GetMonsterID(), *UAZUtility::EnumToString(body_part));
+    
+    // Set wound timer
+    FTimerHandle wound_timer;
+    GetWorld()->GetTimerManager().SetTimer(wound_timer, FTimerDelegate::CreateLambda([this, body_part]() {
+        owner_->OnBodyPartWoundHealed.Broadcast(body_part);}), wound_duration_, false);
+	
 	auto body_part_info = body_part_states_.Find(body_part);
 	body_part_info->is_wounded = true;
+	body_part_info->wound_accumulated_damage = 0;
+}
+
+void UAZMonsterHealthComponent::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
+{
+	UE_LOG(AZMonster, Log, TEXT("[UAZMonsterHealthComponent] [#%d] %s wound healed)"), owner_->GetMonsterID(), *UAZUtility::EnumToString(body_part));
+	auto body_part_info = body_part_states_.Find(body_part);
+	body_part_info->is_wounded = false;
 	body_part_info->wound_accumulated_damage = 0;
 }
 

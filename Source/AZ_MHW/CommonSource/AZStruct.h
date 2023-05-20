@@ -8,16 +8,17 @@
 //============================================
 // Character Common
 
+// for blueprint usages
 USTRUCT(BlueprintType)
-struct FStatusEffectInfo
+struct FDamageInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) EStatusEffectType type;
-	UPROPERTY(EditAnywhere) float duration;
+	UPROPERTY(EditAnywhere) EDamageType type;
+	UPROPERTY(EditAnywhere) int32 amount;
 
-	FStatusEffectInfo() : type(EStatusEffectType::None), duration(0) {};
-	FStatusEffectInfo(EStatusEffectType type, float duration) : type(type), duration(duration) {};
+	FDamageInfo() : type(EDamageType::None), amount(0) {};
+	FDamageInfo(EDamageType type, int32 amount) : type(type), amount(amount) {};
 };
 
 USTRUCT(BlueprintType)
@@ -25,14 +26,28 @@ struct FAttackInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) int32 base_damage;
-	UPROPERTY(EditAnywhere) EDamageType damage_type;
-	UPROPERTY(EditAnywhere) TArray<FStatusEffectInfo> status_effects;
+	UPROPERTY(EditAnywhere) TArray<FDamageInfo> damage_array;
+	UPROPERTY(EditAnywhere) EAttackEffectType attack_effect;
 
-	FAttackInfo() : base_damage(0), damage_type(EDamageType::None) {};
-	FAttackInfo(int32 base_damage, EDamageType damage_type) : base_damage(base_damage), damage_type(damage_type) {};
-	FAttackInfo(int32 base_damage, EDamageType damage_type, TArray<FStatusEffectInfo> status_effects) :
-		base_damage(base_damage), damage_type(damage_type), status_effects(status_effects) {};
+	FAttackInfo() : attack_effect(EAttackEffectType::None) {};
+	int32 GetDamageTotal()
+	{
+		int32 total_damage = 0;
+		for (const auto damage_info : damage_array)
+		{
+			total_damage += damage_info.amount;
+		}
+		return total_damage;
+	}
+	FString GetDebugString()
+	{
+		FString debug_str;
+		for (auto damage_info : damage_array)
+		{
+			debug_str += FString::Printf(TEXT("[%s] %d "), *UAZUtility::EnumToString(damage_info.type), damage_info.amount);
+		}
+		return debug_str;
+	}
 };
 
 // End of Character Common
@@ -127,6 +142,28 @@ struct FBossEscapeStats
 		}
 	}
 };
+
+// Used for packet only
+USTRUCT(BlueprintType)
+struct FBossBodyPartDebuffState
+{
+	GENERATED_BODY()
+	
+	bool is_wounded;
+	bool is_broken;
+	bool is_severed;
+
+	FBossBodyPartDebuffState()
+	{
+		is_wounded = is_broken = is_severed = false;
+	}
+};
+//
+// USTRUCT(BlueprintType)
+// struct FBossBodyPartState
+// {
+// 	
+// };
 
 USTRUCT(BlueprintType)
 struct FBossBodyPartState
@@ -306,17 +343,18 @@ struct FMonsterCombatActionInfo
 	
 	UPROPERTY(VisibleAnywhere) int32 action_id;
 	UPROPERTY(VisibleAnywhere) int32 monster_id;
+
+	// Animation info
 	UPROPERTY(VisibleAnywhere) FName animation_name;
 	UPROPERTY(VisibleAnywhere) FName montage_section_name;
-	UPROPERTY(VisibleAnywhere) EAttackEffect attack_effect;
-	UPROPERTY(VisibleAnywhere) int32 damage_base;
-	UPROPERTY(VisibleAnywhere) int32 damage_poison;
+
+	// Triggers and conditions
 	UPROPERTY(VisibleAnywhere) EMonsterActionTriggerType triggers;
 	UPROPERTY(VisibleAnywhere) EMonsterActionConditionType conditions;
 	UPROPERTY(VisibleAnywhere) int32 condition_min_distance_from_target;
 	UPROPERTY(VisibleAnywhere) int32 condition_max_distance_from_target;
-	UPROPERTY(VisibleAnywhere) float cooltime;
-	UPROPERTY(VisibleAnywhere) float cooltime_timer;
+	
+	UPROPERTY(VisibleAnywhere) float attack_delay;
 
 	FMonsterCombatActionInfo() {}
 };

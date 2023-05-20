@@ -53,7 +53,7 @@ enum class EGameModeFlag : uint8
 // Character Common
 
 UENUM(BlueprintType)
-enum class EStatusEffectType : uint8
+enum class EAttackEffectType : uint8
 {
 	None,
 	KnockBack,
@@ -71,6 +71,7 @@ enum class EDamageType : uint8
 	Ammo,
 
 	// Monster
+	Base,
 	Fire,
 	Poison,
 
@@ -151,15 +152,6 @@ enum class EMonsterActionPriority : uint8
 	Debuff,
 	Death,
 	Cinematic,
-};
-
-UENUM(BlueprintType)
-enum class EAttackEffect : uint8
-{
-	None,
-	KnockBack,
-	RoarStagger,
-	Stun,
 };
 
 UENUM(BlueprintType)

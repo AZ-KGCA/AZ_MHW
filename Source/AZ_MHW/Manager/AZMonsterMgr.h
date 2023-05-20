@@ -28,6 +28,7 @@ public:
 	FBossInfo* GetBossInfo(const int32 monster_id, const EBossRank rank);
 	TMap<int32, FMonsterNonCombatActionInfo>* GetMonsterNonCombatActionInfo(const int32 monster_id);
 	TMap<int32, FMonsterCombatActionInfo>* GetMonsterCombatActionInfo(const int32 monster_id);
+	FAttackInfo* GetAttackInfo(const int32 action_id);
 
 	// Behavior tree assets getter functions
 	class UBehaviorTree* GetBehaviorTree(FName filename);
@@ -38,6 +39,7 @@ private:
 	TMap<TTuple<int32, EBossRank>, FBossInfo> boss_info_map_; 
 	TMap<int32, TMap<int32, FMonsterNonCombatActionInfo>> monster_noncombat_action_info_map_; 
 	TMap<int32, TMap<int32, FMonsterCombatActionInfo>> monster_combat_action_info_map_;
+	TMap<int32, FAttackInfo> monster_attack_info_map_;
 
 	// Behavior tree asset map
 	UPROPERTY() TMap<FName, UBehaviorTree*> behavior_tree_map_;

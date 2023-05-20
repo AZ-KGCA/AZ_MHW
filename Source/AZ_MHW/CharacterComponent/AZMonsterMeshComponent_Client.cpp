@@ -1,24 +1,22 @@
-// Copyright Team AZ. All Rights Reserved.
+﻿// Copyright Team AZ. All Rights Reserved.
 
-#include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent.h"
-
-#include "AZMonsterHealthComponent.h"
-#include "AZ_MHW/Character/Monster/AZMonster.h"
+#include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent_Client.h"
+#include "AZ_MHW/Character/Monster/AZMonster_Client.h"
 #include "AZ_MHW/Util/AZUtility.h"
 
 // Sets default values for this component's properties
-UAZMonsterMeshComponent::UAZMonsterMeshComponent()
+UAZMonsterMeshComponent_Client::UAZMonsterMeshComponent_Client()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	bWantsInitializeComponent = true;
 }
 
-void UAZMonsterMeshComponent::InitializeComponent()
+void UAZMonsterMeshComponent_Client::InitializeComponent()
 {
 	Super::InitializeComponent();
 	
-	// Set owner as monster
-	owner_ = Cast<AAZMonster>(GetOwner());
+	// Set owner as monster_client
+	owner_ = Cast<AAZMonster_Client>(GetOwner());
 	if (!owner_.IsValid())
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] Invalid owner actor!"));
@@ -35,7 +33,7 @@ void UAZMonsterMeshComponent::InitializeComponent()
 	}
 }
 
-void UAZMonsterMeshComponent::BeginPlay()
+void UAZMonsterMeshComponent_Client::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -47,22 +45,22 @@ void UAZMonsterMeshComponent::BeginPlay()
 	}
 
 	// Bind events and delegates
-	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterMeshComponent::OnBodyPartWounded);
-	owner_->OnBodyPartWoundHealed.AddUObject(this, &UAZMonsterMeshComponent::OnBodyPartWoundHealed);
-	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterMeshComponent::OnBodyPartBroken);
-	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterMeshComponent::OnBodyPartSevered);
-	owner_->OnDeath.AddDynamic(this, &UAZMonsterMeshComponent::OnDeath);
+	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterMeshComponent_Client::OnBodyPartWounded);
+	owner_->OnBodyPartWoundHealed.AddUObject(this, &UAZMonsterMeshComponent_Client::OnBodyPartWoundHealed);
+	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterMeshComponent_Client::OnBodyPartBroken);
+	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterMeshComponent_Client::OnBodyPartSevered);
+	owner_->OnDeath.AddUObject(this, &UAZMonsterMeshComponent_Client::OnDeath);
 
 	// Eye blink settings
 	// Set up timer handle and delegate
 	if (mesh_->GetMaterialIndex("Eyelid_Default"))
 	{
-		FTimerDelegate blink_eye_timer_delegate = FTimerDelegate::CreateUObject(this, &UAZMonsterMeshComponent::BlinkEyes);
+		FTimerDelegate blink_eye_timer_delegate = FTimerDelegate::CreateUObject(this, &UAZMonsterMeshComponent_Client::BlinkEyes);
 		GetWorld()->GetTimerManager().SetTimer(blink_eye_timer_handle_, blink_eye_timer_delegate, 4, true);
 	}
 }
 
-void UAZMonsterMeshComponent::SetUpBodyPartMaterialMaps()
+void UAZMonsterMeshComponent_Client::SetUpBodyPartMaterialMaps()
 {
 	mesh_ = owner_->GetMesh();
 
@@ -101,7 +99,7 @@ void UAZMonsterMeshComponent::SetUpBodyPartMaterialMaps()
 	}
 }
 
-void UAZMonsterMeshComponent::InitializeMeshVisibilities()
+void UAZMonsterMeshComponent_Client::InitializeMeshVisibilities()
 {
 	if (!owner_.IsValid()) return;
 	
@@ -122,7 +120,17 @@ void UAZMonsterMeshComponent::InitializeMeshVisibilities()
 	CloseEyes(false);
 }
 
-void UAZMonsterMeshComponent::SetUpDynamicMaterials()
+void UAZMonsterMeshComponent_Client::On_FCG_MONSTER_BODY_STATE_CMD(TMap<EMonsterBodyPart, FBossBodyPartDebuffState> body_states)
+{
+	for (auto& body_state : body_states)
+	{
+		if (body_state.Value.is_wounded) OnBodyPartWounded(body_state.Key);
+		if (body_state.Value.is_broken) OnBodyPartBroken(body_state.Key);
+		if (body_state.Value.is_severed) OnBodyPartSevered(body_state.Key);
+	}
+}
+
+void UAZMonsterMeshComponent_Client::SetUpDynamicMaterials()
 {
 	for (int material_idx = 0; material_idx < mesh_->GetNumMaterials(); material_idx++)
 	{
@@ -134,7 +142,7 @@ void UAZMonsterMeshComponent::SetUpDynamicMaterials()
 }
 
 /* Creates a dynamic material instance and set its opacity value */
-void UAZMonsterMeshComponent::SetMaterialVisibility(uint8 material_idx, bool is_visible)
+void UAZMonsterMeshComponent_Client::SetMaterialVisibility(uint8 material_idx, bool is_visible)
 {
 	UMaterialInterface* original_material = mesh_->GetMaterial(material_idx);
 	if (!original_material) return;
@@ -143,12 +151,12 @@ void UAZMonsterMeshComponent::SetMaterialVisibility(uint8 material_idx, bool is_
 	dynamic_material->SetScalarParameterValue(FName("Opacity"), is_visible == 1 ? 1.0f : 0.0f);
 }
 
-void UAZMonsterMeshComponent::SetMaterialVisibility(FName slot_name, bool is_visible)
+void UAZMonsterMeshComponent_Client::SetMaterialVisibility(FName slot_name, bool is_visible)
 {
 	SetMaterialVisibility(mesh_->GetMaterialIndex(slot_name), is_visible);
 }
 
-void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
+void UAZMonsterMeshComponent_Client::OnBodyPartWounded(EMonsterBodyPart body_part)
 {
 	if (!owner_.IsValid()) return;
 	
@@ -157,7 +165,7 @@ void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
 	//TODO Add animation
 }
 
-void UAZMonsterMeshComponent::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
+void UAZMonsterMeshComponent_Client::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
 {
 	if (!owner_.IsValid()) return;
 	
@@ -165,21 +173,25 @@ void UAZMonsterMeshComponent::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), true);
 }
 
-void UAZMonsterMeshComponent::OnBodyPartBroken(EMonsterBodyPart body_part)
+void UAZMonsterMeshComponent_Client::OnBodyPartBroken(EMonsterBodyPart body_part)
 {
 	if (!owner_.IsValid()) return;
 	//TEMP
 	if (body_part == EMonsterBodyPart::Back) return;
 
 	SetMaterialVisibility(*mesh_material_indices_default_.Find(body_part), false);
-	if (!owner_->health_component_->IsWounded(body_part))
+	float visibility;
+	auto wounded_mat = mesh_->GetMaterial(*mesh_material_indices_wounded_.Find(body_part));
+	wounded_mat->GetScalarParameterValue(FName("Opacity"), visibility);
+	if (visibility == 1)
 	{
 		SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), false);
 	}
+	
 	//TODO Add animation
 }
 
-void UAZMonsterMeshComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
+void UAZMonsterMeshComponent_Client::OnBodyPartSevered(EMonsterBodyPart body_part)
 {
 	SetMaterialVisibility(*mesh_material_indices_default_.Find(body_part), false);
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), true);
@@ -188,25 +200,25 @@ void UAZMonsterMeshComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 	//TODO Drop tail mesh
 }
 
-void UAZMonsterMeshComponent::OnDeath()
+void UAZMonsterMeshComponent_Client::OnDeath()
 {
 	GetWorld()->GetTimerManager().ClearTimer(blink_eye_timer_handle_);
 }
 
-void UAZMonsterMeshComponent::CloseEyes(bool should_close)
+void UAZMonsterMeshComponent_Client::CloseEyes(bool should_close)
 {
 	eyes_closed_ = should_close;
 	SetMaterialVisibility(FName("Eyelid_Default"), should_close);
 }
 
 // Close eyes, wait for 0.2 seconds, the open 
-void UAZMonsterMeshComponent::BlinkEyes()
+void UAZMonsterMeshComponent_Client::BlinkEyes()
 {
 	// do not blink if blinded
 	if (eyes_closed_) return;
 	
 	CloseEyes(true);
 	FTimerHandle open_eyes_timer_handle;
-	FTimerDelegate open_eyes_timer_delegate = FTimerDelegate::CreateUObject(this, &UAZMonsterMeshComponent::CloseEyes, false);
+	FTimerDelegate open_eyes_timer_delegate = FTimerDelegate::CreateUObject(this, &UAZMonsterMeshComponent_Client::CloseEyes, false);
 	GetWorld()->GetTimerManager().SetTimer(open_eyes_timer_handle, open_eyes_timer_delegate, 0.17, false);
 }

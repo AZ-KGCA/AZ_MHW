@@ -13,6 +13,7 @@ class UAZAnimInstance_Monster;
 class UAZMonsterAggroComponent;
 class UAZMonsterHealthComponent;
 class UAZMonsterMeshComponent;
+class AAZAIController;
 
 // Forward declaration of enum classes
 enum class EMoveState : uint8;
@@ -35,6 +36,8 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 	virtual void GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const override;
+	//temp TODO
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginDestroy() override;
 	
 	// Property Initialisers
@@ -45,10 +48,10 @@ public:
 	void InitializeRuntimeValues();
 	
 	// State Setters
-	void EnterCombat();
+	void EnterCombat(AActor* combat_instigator, bool is_triggered_by_sight);
 	void SetActionMode(EMonsterActionMode action_mode);
 	UFUNCTION(BlueprintCallable) void SetMoveState(EMoveState move_state);
-	UFUNCTION(BlueprintCallable) void SetTargetAngle(float angle);
+	void SetTargetAngle(float angle);
 	void SetActionState(int32 action_id);
 	void ResetTargetAngle();
 	UFUNCTION() void SetDead();
@@ -57,12 +60,13 @@ public:
 	int32 GetMonsterID() const;
 	EBossRank GetBossRank() const;
 	EMonsterBehaviorType GetBehaviorType() const;
+	AAZAIController* GetController();
 
 	// State Checkers
 	bool IsInCombat() const;
 	bool IsFlying() const;
 	bool IsMoving() const;
-	bool IsInRageMode() const;
+	bool IsEnraged() const;
 	
 	// AnimNotifyHandlers
 	virtual void AnimNotify_EndOfAction() override;
@@ -75,27 +79,29 @@ public:
 	bool IsAValidMonster() const;
 
 protected:
-	// Damage Agent Overrides
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info);
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info) override;
+	// Damage
+	void DoDamage(AActor* damaged_actor, const FHitResult hit_result);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 
 	// Delegates
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundedSignature, EMonsterBodyPart)
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundHealedSignature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
 	// TEMP Dynamic for debug
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature /*, int32 HighestContributionPlayerSerial */); //TODO Change to event
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterCombatSignature);
 	
 public:
-	virtual float ProcessDamage(const FHitResult& hit_result, AController* instigator, FAttackInfo attack_info, float applied_damage) override;
+	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
 	
 public:
 	UPROPERTY(VisibleAnywhere) int32 object_serial_;
 	
 	// Delegates
 	FOnWoundedSignature OnBodyPartWounded;
+	FOnWoundHealedSignature OnBodyPartWoundHealed;
 	FOnBrokenSigature OnBodyPartBroken;
 	FOnSeveredSigature OnBodyPartSevered;
 	UPROPERTY(BlueprintAssignable) FOnDeathSignature OnDeath;
@@ -134,15 +140,12 @@ public:
 protected:
 	// Properties: Defined runtime
 	UPROPERTY(EditAnywhere, Category = "AZ | Monster | States") bool is_flying_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | States") bool is_in_ragemode_;
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | States") bool is_enraged_;
 	bool is_dead_;
 	
 	// Other properties
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation") UAZAnimInstance_Monster* anim_instance_;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ") FName active_combat_action_name_;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ") TMap<FName, FAttackInfo> attack_info_map_;
-	
-	//DECLARE_EVENT(AAZMonster, FEnterRageModeEvent) FEnterRageModeEvent OnEnterRageModeEvent;
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster") int32 active_action_id_;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Others")
 	TArray<TEnumAsByte<EObjectTypeQuery>> hit_object_types_;

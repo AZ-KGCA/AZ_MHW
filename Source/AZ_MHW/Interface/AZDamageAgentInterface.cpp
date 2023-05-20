@@ -4,8 +4,7 @@
 #include "AZ_MHW/Character/AZCharacter.h"
 #include "AZ_MHW/Util/AZUtility.h"
 
-float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
-                                                          AController* event_instigator, FAttackInfo attack_info)
+float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
 	// Validity Checks
 	if (!damaged_actor)
@@ -25,43 +24,45 @@ float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor,
 		UE_LOG(AZMonster, Error, TEXT("[IAZDamageAgentInterface] Damaged actor is not AAZCharacter"));
 		return 0.f;
 	}
-	AAZCharacter* instigator_character = Cast<AAZCharacter>(event_instigator->GetPawn());
+	AAZCharacter* instigator_character = Cast<AAZCharacter>(damaged_actor);
 	if (!instigator_character)
 	{
-		UE_LOG(AZMonster, Error, TEXT("[IAZDamageAgentInterface] Instigator is not AAZCharacter"));
+		UE_LOG(AZMonster, Error, TEXT("[IAZDamageAgentInterface] damage_instigator is not AAZCharacter"));
 		return 0.f;
 	}
 
 	// Debug log
-	UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ApplyDamage called by %s to %s (type: %s, base damage: %d)"),
-		*instigator_character->GetName(), *damaged_character->GetName(), *UAZUtility::EnumToString(attack_info.damage_type), attack_info.base_damage);
+	UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ApplyDamage called. %s"), *attack_info.GetDebugString());
 
 	// Process Damage on damaged actor
-	damaged_agent->ProcessDamage(hit_result, event_instigator, attack_info, attack_info.base_damage);
-	return attack_info.base_damage;
+	return damaged_agent->ProcessDamage(Cast<AActor>(this), hit_result, attack_info);
 }
 
-float IAZDamageAgentInterface::ProcessDamage(const FHitResult& hit_result, AController* instigator,	FAttackInfo attack_info, float applied_damage)
+float IAZDamageAgentInterface::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
-	// Broadcast Post Damage delegate bound functions
-	if (OnTakeDamage.IsBound())
+	// Validity checks
+	if (!damage_instigator)
 	{
-		OnTakeDamage.Broadcast(applied_damage, attack_info, instigator);
+		UE_LOG(AZMonster, Error, TEXT("[IAZDamageAgentInterface] Damage instigator is null!"));
+		return 0.f;
 	}
-	
-	// Debug log
-	const AAZCharacter* instigator_character = Cast<AAZCharacter>(instigator->GetPawn());
+	const AAZCharacter* instigator_character = Cast<AAZCharacter>(damage_instigator);
 	const AAZCharacter* damaged_character = Cast<AAZCharacter>(this);
 	if (!instigator_character || !damaged_character)
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[IAZDamageAgentInterface] Incorrect character is inheriting DamageAgentInterface!"));
 		return 0.f;
 	}
-	else
+	
+	// Broadcast Post Damage delegate bound functions
+	if (OnTakeDamage.IsBound())
 	{
-		UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ProcessDamage called from attack by %s to %s (type: %s, base damage: %f)"),
-		*instigator_character->GetName(), *damaged_character->GetName(), *UAZUtility::EnumToString(attack_info.damage_type), applied_damage);
+		OnTakeDamage.Broadcast(damage_instigator, hit_result, attack_info);
 	}
 	
-	return applied_damage;
+	// Debug log
+	UE_LOG(AZMonster, Log, TEXT("[IAZDamageAgentInterface] ProcessDamage called from attack by %s to %s (%s)"),
+	*instigator_character->GetName(), *damaged_character->GetName(), *attack_info.GetDebugString());
+	
+	return attack_info.GetDamageTotal();
 }

@@ -127,8 +127,7 @@ EBTNodeResult::Type UBTTask_Move::MoveBegin(UBehaviorTreeComponent& owner_comp)
 	}
 
 	// Request movement
-	AAZAIController* controller = Cast<AAZAIController>(owner_->GetController());
-	FPathFollowingRequestResult move_req_result = controller->MoveToLocation(path_points_[path_index_]);
+	FPathFollowingRequestResult move_req_result = owner_->GetController()->MoveToLocation(path_points_[path_index_]);
 	UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Requested move to pathpoint#%d"), *(move_req_result.MoveId.ToString()), path_index_);
 
 	// Check request result

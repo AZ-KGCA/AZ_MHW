@@ -83,9 +83,8 @@ public:
 
 protected:
 	// Damage Processing
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info);
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info) override;
-	virtual float ProcessDamage(const FHitResult& hit_result, AController* event_instigator, FAttackInfo attack_info, float applied_damage) override;
-	UFUNCTION() void PostProcessDamage(float total_damage, FAttackInfo attack_info, AController* damage_instigator);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
+	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
+	UFUNCTION() void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
 };

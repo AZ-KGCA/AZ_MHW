@@ -154,19 +154,33 @@ bool UAZMonsterMgr::ConvertMonsterCombatActionTable()
 	
 	for (const auto combat_action_data : monster_combat_table)
 	{
+		// Add to action info map
 		FMonsterCombatActionInfo combat_action_info;
 		combat_action_info.action_id							= combat_action_data->action_id;
 		combat_action_info.monster_id							= combat_action_data->monster_id;
 		combat_action_info.animation_name						= FName(combat_action_data->animation_name);
 		combat_action_info.montage_section_name					= FName(combat_action_data->montage_section_name);
-		combat_action_info.attack_effect						= UAZUtility::StringToEnum<EAttackEffect>(combat_action_data->attack_effect);
 		combat_action_info.triggers								= UAZUtility::StringArrToBitMaskEnum<EMonsterActionTriggerType>(combat_action_data->triggers);
 		combat_action_info.conditions							= UAZUtility::StringArrToBitMaskEnum<EMonsterActionConditionType>(combat_action_data->conditions);
 		combat_action_info.condition_min_distance_from_target	= combat_action_data->condition_min_distance_from_target;
 		combat_action_info.condition_max_distance_from_target	= combat_action_data->condition_max_distance_from_target;
-
+		combat_action_info.attack_delay							= UAZUtility::MillisecondsToSeconds(combat_action_data->attack_delay);
+		
 		monster_combat_action_info_map_.FindOrAdd(combat_action_info.monster_id).Add(
 			combat_action_info.action_id, combat_action_info);
+
+		// Add to attack info map
+		FAttackInfo attack_info;
+		attack_info.attack_effect = UAZUtility::StringToEnum<EAttackEffectType>(combat_action_data->effect);
+		for (int i = 0; i < combat_action_data->damage_types.Num(); i++)
+		{
+			EDamageType damage_type = UAZUtility::StringToEnum<EDamageType>(combat_action_data->damage_types[i]);
+			int32 damage_amount = combat_action_data->damage_amounts[i];
+
+			if (damage_type == EDamageType::None) continue;
+			attack_info.damage_array.Add(FDamageInfo(damage_type, damage_amount));
+		}
+		monster_attack_info_map_.Add(combat_action_info.action_id, attack_info);
 	}
 	return true;
 }
@@ -189,6 +203,11 @@ TMap<int32, FMonsterNonCombatActionInfo>* UAZMonsterMgr::GetMonsterNonCombatActi
 TMap<int32, FMonsterCombatActionInfo>* UAZMonsterMgr::GetMonsterCombatActionInfo(const int32 monster_id)
 {
 	return monster_combat_action_info_map_.Find(monster_id);
+}
+
+FAttackInfo* UAZMonsterMgr::GetAttackInfo(const int32 action_id)
+{
+	return monster_attack_info_map_.Find(action_id);
 }
 
 UBehaviorTree* UAZMonsterMgr::GetBehaviorTree(FName filename)
