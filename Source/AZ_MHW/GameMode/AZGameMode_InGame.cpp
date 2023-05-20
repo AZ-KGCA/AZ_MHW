@@ -15,23 +15,15 @@
 AAZGameMode_InGame::AAZGameMode_InGame()
 {
 	game_mode_flag_ = EGameModeFlag::InGame;
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayer_Playable"));
-	static ConstructorHelpers::FClassFinder<AController> PlayerControllerPClass(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayerController_InGame"));
+	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBP(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayer_Playable.BP_AZPlayer_Playable_C"));
 	
+	static ConstructorHelpers::FClassFinder<AController> PlayerControllerBP(TEXT("/Game/AZ/Character/BluePrint/BP_AZPlayerController_InGame.BP_AZPlayerController_InGame_C"));
 	
-
-	DefaultPawnClass = PlayerPawnBPClass.Class;//AAZPlayer_Playable::StaticClass();//
-	PlayerControllerClass = PlayerControllerPClass.Class;//AAZPlayerController_InGame::StaticClass();
+	DefaultPawnClass = AAZPlayer_Playable::StaticClass();//PlayerPawnBP.Class;//AAZPlayer_Playable::StaticClass();//
+	PlayerControllerClass = PlayerControllerBP.Class;//AAZPlayerController_InGame::StaticClass();
 	PlayerStateClass = AAZPlayerState::StaticClass();
-
-	// FIXME
-	//DefaultPawnClass = ALHPlayer_Playable::StaticClass();
-	//PlayerControllerClass = ALHPlayerController_InGame::StaticClass();
-	//HUDClass = ALHHUD_InGame::StaticClass();
-}
-
-AAZGameMode_InGame::~AAZGameMode_InGame()
-{
+	//HUDClass =
+	
 }
 
 void AAZGameMode_InGame::Tick(float delta_seconds)
@@ -73,6 +65,12 @@ void AAZGameMode_InGame::OnGameMsg(FAZGameMsg* msg)
 void AAZGameMode_InGame::RestartPlayerAtPlayerStart(AController* new_player, AActor* start_spot)
 {
 	Super::RestartPlayerAtPlayerStart(new_player, start_spot);
+}
+
+void AAZGameMode_InGame::PostLogin(APlayerController* new_player)
+{
+	//Server
+	Super::PostLogin(new_player);
 }
 
 void AAZGameMode_InGame::OnMapEnter()
@@ -405,8 +403,3 @@ void AAZGameMode_InGame::ForEachBossMonsters(OnForEachCharacterDelegate func)
 	}*/
 }
 
-void AAZGameMode_InGame::PostLogin(APlayerController* NewPlayer)
-{
-	//Server
-	Super::PostLogin(NewPlayer);
-}

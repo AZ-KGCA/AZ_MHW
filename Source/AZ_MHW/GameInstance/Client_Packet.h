@@ -1,28 +1,27 @@
 #pragma once
 #include "Define.h"
 
-struct Login_Send_Packet
+struct BasePacket
 {
 	unsigned short packet_length;
 	unsigned short packet_id;
+};
+
+struct Login_Send_Packet : public BasePacket
+{
 	//bool packet_type;
 	char user_id[33];
 	char user_pw[33];
 };
 
-struct SetMoveInfo
+struct SetMoveInfo : public BasePacket
 {
-	unsigned short packet_length;
-	unsigned short packet_id;
 	FVector fvector_;
 	FRotator frotator_;
 };
 
-struct header_check_packet
+struct header_check_packet : public BasePacket
 {
-	unsigned short packet_length;
-	unsigned short packet_id;
-
 	char user_id[33];
 	char user_pw[33];
 };
