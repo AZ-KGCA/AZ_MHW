@@ -33,17 +33,17 @@ public:
 	void SetLoginMode(ELogInMode login_mode);
 
 private:
-	UFUNCTION(BlueprintCallable, Category = "Login Page")
-	void Connect();
 	UFUNCTION() void OnTouchAnyPress();
 	UFUNCTION() void OnClicked_Login();
 	UFUNCTION() void OnClicked_Close();
+	UFUNCTION() void OnClicked_SignUp();
 
 public:
-	UWidget* panel_state_[(int32)EPanelState::Max];
+	UPROPERTY() UWidget* panel_state_[(int32)EPanelState::Max];
 	UPROPERTY(meta = (BindWidget)) class UButton* c_btn_login_;
 	UPROPERTY(meta = (BindWidget)) class UButton* c_btn_any_press_;
 	UPROPERTY(meta = (BindWidget)) class UButton* c_btn_close_;
+	UPROPERTY(meta = (BindWidget)) class UButton* c_btn_sign_up_;
 	UPROPERTY(meta = (BindWidget)) class UEditableTextBox* c_id_;
 	UPROPERTY(meta = (BindWidget)) class UEditableTextBox* c_pass_;
 };

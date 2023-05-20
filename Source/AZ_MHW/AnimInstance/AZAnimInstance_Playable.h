@@ -10,7 +10,7 @@
 //DECLARE_DELEGATE_TwoParams(FOn)
 
 /**
- * 
+ * 플레이어블 애니메이션 노티파이 재생
  */
 UCLASS()
 class AZ_MHW_API UAZAnimInstance_Playable : public UAZAnimInstance_Player
@@ -34,14 +34,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	AAZPlayerState* player_state_cache_;
 
-	UPROPERTY(BlueprintReadWrite)
-	int32 command_bit_mask_;
-	/**현재 액션의 가능한 비트마스크*/
-	UFUNCTION(BlueprintPure)
-	int32 GetInputActionBitMask() const;//PlayerAction비트플래그로 변경
-	UFUNCTION(BlueprintPure)
-	bool GetResultBitMask(const int32 input, const int32 bitmask) const;
-
-	UFUNCTION()
-	void AnimNotify_OnUseItem();
+	//데이터의 처리가없는데 굳이 플레이어블에서?
+	UFUNCTION() void AnimNotify_OnUseItem();
+	UFUNCTION() void AnimNotify_OnGetItem();
 };

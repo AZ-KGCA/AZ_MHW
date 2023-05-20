@@ -11,8 +11,8 @@ struct FSetMoveInfo
 {
 	GENERATED_BODY()
 
-		//UPROPERTY(BlueprintReadWrite)
-		uint16 packet_length;
+	//UPROPERTY(BlueprintReadWrite)
+	uint16 packet_length;
 
 	//UPROPERTY(BlueprintReadWrite)
 	uint16 packet_id;

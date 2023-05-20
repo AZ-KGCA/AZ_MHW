@@ -30,7 +30,7 @@ public:
 	void ShowWaitingImage();
 
 private:
-	UPROPERTY() UImage* image_waiting_;
+	UPROPERTY(meta = (BindWidget)) UImage* image_waiting_;
 	UWidgetAnimation* waiting_ani_;
 	static bool is_force_waiting_;
 	FTimerHandle show_waiting_timer_handler_;

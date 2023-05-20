@@ -1,7 +1,7 @@
 ﻿// Copyright Team AZ. All Rights Reserved.
 
 
-#include "AZPlayerAssetMgr.h"
+#include "AZPlayerMgr.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZTableMgr.h"
 #include <AssetRegistry/AssetRegistryModule.h>
@@ -38,7 +38,7 @@
  *BI = 블루프린트 인터페이스
 */
 
-UAZPlayerAssetMgr::UAZPlayerAssetMgr()
+UAZPlayerMgr::UAZPlayerMgr()
 {
 	//Mesh는 ID 고정경로이기 때문에 테이블로 안해도 될 것같다.
 	//(물론 회사에서 리소스도 관리를 자주한다면 테이블에서 찾아서 등록하긴 할 듯하다.
@@ -46,18 +46,28 @@ UAZPlayerAssetMgr::UAZPlayerAssetMgr()
 	//{
 	//	UAZGameSingleton::instance_->table_mgr->GetData<class Table*>();
 	//}
+	
 }
 
-void UAZPlayerAssetMgr::BeginDestroy()
+void UAZPlayerMgr::Init()
 {
-	Super::BeginDestroy();
+	GetSkeletalMesh(10500);
+	GetSkeletalMesh(11000);
+	GetSkeletalMesh(11500);
+	GetSkeletalMesh(12000);
+	GetSkeletalMesh(12500);
+}
+
+void UAZPlayerMgr::Shutdown()
+{
 	anim_montage_map_.Empty();
 	anim_sequence_map_.Empty();
 	player_character_part_map_.Empty();
 	command_bit_mask_map_.Empty();
 }
 
-UAnimSequence* UAZPlayerAssetMgr::GetSequence(FName name)
+
+UAnimSequence* UAZPlayerMgr::GetSequence(FName name)
 {
 	//Find
 	if (const auto& anim_sequence_asset = anim_sequence_map_.Find(name))
@@ -79,7 +89,7 @@ UAnimSequence* UAZPlayerAssetMgr::GetSequence(FName name)
 	//Failed
 	return nullptr;
 }
-bool UAZPlayerAssetMgr::UnloadSequence(FName name)
+bool UAZPlayerMgr::UnloadSequence(FName name)
 {
 	if (anim_sequence_map_.Find(name))
 	{
@@ -89,7 +99,7 @@ bool UAZPlayerAssetMgr::UnloadSequence(FName name)
 	return false;
 }
 
-UAnimMontage* UAZPlayerAssetMgr::GetMontage(FName name)
+UAnimMontage* UAZPlayerMgr::GetMontage(FName name)
 {
 	//Find
 	if (const auto& anim_montage_asset = anim_montage_map_.Find(name))
@@ -112,7 +122,7 @@ UAnimMontage* UAZPlayerAssetMgr::GetMontage(FName name)
 	//Failed
 	return nullptr;
 }
-bool UAZPlayerAssetMgr::UnloadMontage(FName name)
+bool UAZPlayerMgr::UnloadMontage(FName name)
 {
 	if (anim_montage_map_.Find(name))
 	{
@@ -122,7 +132,7 @@ bool UAZPlayerAssetMgr::UnloadMontage(FName name)
 	return false;
 }
 
-USkeletalMesh* UAZPlayerAssetMgr::GetSkeletalMesh(int32 item_id)
+USkeletalMesh* UAZPlayerMgr::GetSkeletalMesh(int32 item_id)
 {
 	//isn't Mesh ID
 	if (item_id < 1001)
@@ -267,7 +277,7 @@ USkeletalMesh* UAZPlayerAssetMgr::GetSkeletalMesh(int32 item_id)
 
 	return nullptr;
 }
-bool UAZPlayerAssetMgr::UnloadSkeletalMesh(int32 item_id)
+bool UAZPlayerMgr::UnloadSkeletalMesh(int32 item_id)
 {
 	if (player_character_part_map_.Find(item_id))
 	{
@@ -280,9 +290,21 @@ bool UAZPlayerAssetMgr::UnloadSkeletalMesh(int32 item_id)
 
 
 
-void UAZPlayerAssetMgr::SetCommandBitMaskMap(int32 weapon_type)
+void UAZPlayerMgr::SetCommandBitMaskMap(int32 weapon_type)
 {
 	command_bit_mask_map_.Empty();
+
+	FString input_command_data_path = TEXT("/Game/AZ/DataAsset/Command/DT_InputCommandData.DT_InputCommandData");
+	static ConstructorHelpers::FObjectFinder<UDataTable> input_command_table(*input_command_data_path);
+	check(input_command_table.Succeeded());
+	command_bitmask_table_ = input_command_table.Object;
+	check(command_bitmask_table_->GetRowMap().Num() > 0);
+
+	
+	//MyCustomTableData* GetData(T key)
+	//{
+	// return command_bitmask_talbe->FindRow<FInputCommandData>(*FString::FromInt(key),TEXT(""))
+	//}
 	//Load
 	//for(LoadCount)
 	{
@@ -290,15 +312,11 @@ void UAZPlayerAssetMgr::SetCommandBitMaskMap(int32 weapon_type)
 	}
 }
 
-uint32 UAZPlayerAssetMgr::GetCommandBitMask(FName name)
+uint32 UAZPlayerMgr::GetCommandBitMask(FName name)
 {
 	if (const auto& BitMask = command_bit_mask_map_.Find(name))
 	{
 		return *BitMask;
 	}
 	return 0;
-}
-
-void UAZPlayerAssetMgr::Init()
-{
 }

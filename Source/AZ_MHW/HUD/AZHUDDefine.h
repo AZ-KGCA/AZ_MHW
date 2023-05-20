@@ -6,7 +6,9 @@ UENUM(BlueprintType)
 enum class EUIMsgBoxType : uint8
 {
 	None = 0,
-	Basic
+	Basic,
+	OvertopBasic,
+	ContentsBasic
 };
 
 UENUM(BlueprintType)
@@ -71,6 +73,8 @@ enum class EUILayer : uint8
 	World,
 	Scene,
 	Popup,
+	WaitingWidget,
+	MessageBox,
 	Top,
 	Max
 };
@@ -93,5 +97,8 @@ enum class EUIName : uint16
 	AZWidget_Waiting,
 	AZWidget_InGame,
 	AZWidget_Scene_Launcher,
-	AZWidget_Fade
+	AZWidget_Fade,
+
+	// 메시지 박스 추가
+	AZWidget_MessageBoxBasic
 };

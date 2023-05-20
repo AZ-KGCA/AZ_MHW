@@ -6,7 +6,7 @@
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/PlayerState/AZPlayerState.h"
 #include "AZ_MHW/Actor/AZSocketActor.h"
-#include "AZ_MHW/Manager/AZPlayerAssetMgr.h"
+#include "AZ_MHW/Manager/AZPlayerMgr.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include <Components/SkeletalMeshComponent.h>
 
@@ -32,28 +32,18 @@ AAZPlayer::AAZPlayer()
 
 	//Animation 설정
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> skeletal_mesh_asset(TEXT("/Game/AZ/Character/Mesh/FBone/SK_FBone"));
-	GetMesh()->SetSkeletalMesh(skeletal_mesh_asset.Object);
+	
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> bone_skeletal_mesh_asset(TEXT("/Game/AZ/Character/Mesh/FBone/SK_FBone"));
+	GetMesh()->SetSkeletalMesh(bone_skeletal_mesh_asset.Object);
 
-	//Base Female Face
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> face_skeletal_mesh_asset(TEXT("/Game/AZ/Character/Mesh/FFace/SK_FFace"));
 	face_mesh_ = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Face"));
 	face_mesh_->SetupAttachment(GetMesh());
-	face_mesh_->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, TEXT("/Game/AZ/Character/Mesh/FFace/SK_FFace"), nullptr, LOAD_None, nullptr));
+	face_mesh_->SetSkeletalMeshAsset(face_skeletal_mesh_asset.Object);
 	if(face_mesh_) face_mesh_->SetLeaderPoseComponent(GetMesh(),true);
 	
-	if(Cast<AAZPlayer_Playable>(this))
-	{
-		static ConstructorHelpers::FClassFinder<UAnimInstance> anim_instance(TEXT("/Game/AZ/Character/Animation/AnimInstance/ABP_PlayerPlayable"));
-		GetMesh()->SetAnimInstanceClass(anim_instance.Class);
-		//BodyAnimInstanceClass = Cast<UAZAnimInstance_Player>(ABPAnimInstance.Class);
-	}
-	else
-	{
-		static ConstructorHelpers::FClassFinder<UAnimInstance> anim_instance(TEXT("/Game/AZ/Character/Animation/AnimInstance/ABP_PlayerRemotable"));
-		GetMesh()->SetAnimInstanceClass(anim_instance.Class);
-		//BodyAnimInstanceClass = Cast<UAZAnimInstance_Player>(ABPAnimInstance.Class);
-	}
-	
+	static ConstructorHelpers::FClassFinder<UAnimInstance> animinstance_blueprint(TEXT("/Game/AZ/Character/Animation/AnimInstance/ABP_Player"));
+	GetMesh()->SetAnimInstanceClass(animinstance_blueprint.Class);
 
 	head_mesh_ = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Head"));
 	head_mesh_->SetupAttachment(GetMesh());
@@ -69,17 +59,11 @@ AAZPlayer::AAZPlayer()
 	leg_mesh_->SetupAttachment(GetMesh());
 }
 
-void AAZPlayer::PostInitProperties()
-{
-	Super::PostInitProperties();
-	
-}
-
 void AAZPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//투명 머테리얼
+	
+	//투명 머테리얼으로 원본 가리기
 	if(auto material_asset =LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/AZ/Character/Mesh/FBone/M_Transparent")))
 	{
 		GetMesh()->SetMaterial(0, material_asset);
@@ -88,18 +72,26 @@ void AAZPlayer::BeginPlay()
 	//소켓 액터생성
 	this->CreateSocketActor(TEXT("MainHand"),TEXT("Socket_Back"));
 	this->CreateSocketActor(TEXT("SubHand"),TEXT("Socket_Back"));
-	
+
+	//플레이어 스테이트 값에 있는 메쉬와 소켓적용하기
 	SetSKMeshParts();
 	SetSKMeshSocket();
-
+	
 	// Damage Interface
 	OnTakeDamage.AddDynamic(this, &AAZPlayer::PostProcessDamage);
 }
 
-void AAZPlayer::PossessedBy(AController* new_controller)
+
+void AAZPlayer::Tick(float delta_seconds)
 {
-	Super::PossessedBy(new_controller);
-	
+	Super::Tick(delta_seconds);
+
+	//현재 플레이어 캐릭터의 월드 위치와 월드 방향
+	if(auto player_state = GetPlayerState<AAZPlayerState>())
+	{
+		player_state->character_state_.character_direction = RootComponent->GetComponentRotation();
+		player_state->character_state_.character_position = RootComponent->GetComponentLocation();
+	}
 }
 
 void AAZPlayer::BeginDestroy()
@@ -126,31 +118,31 @@ void AAZPlayer::SetSKMeshParts()
 	{
 		if(player_state->equipment_state_.head_item_id == 12500)
 		{
-			if(auto SK = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(player_state->equipment_state_.hair_item_id))
+			if(auto SK = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.hair_item_id))
 			{
 				hair_mesh_->SetSkeletalMeshAsset(SK);
 			}
 		}
 		else
 		{
-			if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(player_state->equipment_state_.head_item_id))
+			if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.head_item_id))
 			{
 				head_mesh_->SetSkeletalMeshAsset(skeletal_mesh_asset);
 			}
 		}
-		if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(player_state->equipment_state_.body_item_id))
+		if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.body_item_id))
 		{
 			body_mesh_->SetSkeletalMeshAsset(skeletal_mesh_asset);
 		}
-		if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(player_state->equipment_state_.arm_item_id))
+		if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.arm_item_id))
 		{
 			arm_mesh_->SetSkeletalMeshAsset(skeletal_mesh_asset);
 		}
-		if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(player_state->equipment_state_.leg_item_id))
+		if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.leg_item_id))
 		{
 			leg_mesh_->SetSkeletalMeshAsset(skeletal_mesh_asset);
 		}
-		if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(player_state->equipment_state_.waist_item_id))
+		if(auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.waist_item_id))
 		{
 			waist_mesh_->SetSkeletalMeshAsset(skeletal_mesh_asset);
 		}
@@ -163,7 +155,7 @@ void AAZPlayer::SetSKMeshSocket()
 {
 	if(const auto player_state = Cast<AAZPlayerState>(GetPlayerState()))
 	{
-		if(const auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(player_state->equipment_state_.first_weapon_item_id))
+		if(const auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.first_weapon_item_id))
 		{
 			(*character_sockets_map_.Find(TEXT("MainHand")))->socket_mesh_asset_->SetSkeletalMeshAsset(skeletal_mesh_asset);
 		}
@@ -174,7 +166,7 @@ void AAZPlayer::SetSKMeshSocket()
 		///
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		///
-		if(const auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(player_state->equipment_state_.second_weapon_item_id))
+		if(const auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.second_weapon_item_id))
 		{
 			(*character_sockets_map_.Find(TEXT("SubHand")))->socket_mesh_asset_->SetSkeletalMeshAsset(skeletal_mesh_asset);
 		}
@@ -185,12 +177,11 @@ void AAZPlayer::SetSKMeshSocket()
 	}
 }
 
-
 void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 {
 	if(10000 < item_id && item_id < 12600)
 	{
-		if(auto skeletal_mesh = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(item_id))
+		if(auto skeletal_mesh = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(item_id))
 		{
 			if(item_id <= 10500)
 			{
@@ -247,7 +238,7 @@ void AAZPlayer::ChangeSocketMesh(FName socket_actor_name, int32 item_id)
 {
 	if(auto socket_actor = character_sockets_map_.Find(socket_actor_name))
 	{
-		if(auto item_mesh = UAZGameSingleton::instance()->player_asset_mgr_->GetSkeletalMesh(item_id))
+		if(auto item_mesh = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(item_id))
 		{
 			(*socket_actor)->socket_mesh_asset_->SetSkeletalMesh(item_mesh);
 		}
@@ -278,6 +269,8 @@ float AAZPlayer::ProcessDamage(AActor* damage_instigator, const FHitResult hit_r
 
 void AAZPlayer::PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
+//Origin과 Playable
+	
 	AAZMonster* instigator_monster = Cast<AAZMonster>(damage_instigator);
 	if (!instigator_monster)
 	{

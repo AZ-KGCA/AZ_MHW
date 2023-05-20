@@ -6,3 +6,19 @@
 AAZPlayer_Remotable::AAZPlayer_Remotable()
 {
 }
+
+void AAZPlayer_Remotable::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void AAZPlayer_Remotable::Tick(float delta_seconds)
+{
+	Super::Tick(delta_seconds);
+}
+
+void AAZPlayer_Remotable::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+
