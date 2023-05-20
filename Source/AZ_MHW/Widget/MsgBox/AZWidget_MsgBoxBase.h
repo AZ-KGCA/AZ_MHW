@@ -25,5 +25,5 @@ public:
 protected:
 	EUIMsgBoxType msg_box_type_;
 	UPROPERTY(meta = (BindWidget)) class UTextBlock* c_text_title_;
-	UPROPERTY(meta = (BindWidget)) class URichTextBlock* c_text_message_;
+	UPROPERTY(meta = (BindWidget)) class UTextBlock* c_text_message_;
 };

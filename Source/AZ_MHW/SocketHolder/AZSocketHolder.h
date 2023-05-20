@@ -97,7 +97,6 @@ private:
 	UPROPERTY() class UClient_To_Server* client_connect_;
 public:
 	UAZSocketHolder();
-	~UAZSocketHolder();
 
 	void Init(ESocketHolderType socketType);
 	void Disconnect();

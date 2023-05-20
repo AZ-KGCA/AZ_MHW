@@ -64,4 +64,6 @@ public:
 	int32 GetServerPort(ESocketHolderType holder_type);
 
 	void OnForceKicked(EForceKick forcekick);
+
+	UFUNCTION() void RetryReconnectRequired();
 };

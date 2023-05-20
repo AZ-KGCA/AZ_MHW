@@ -6,6 +6,7 @@
 #include "AZ_MHW/Widget/System/WidgetAction/AZWidgetAction.h"
 #include "MovieScene.h"
 #include "AZ_MHW/GameMode/AZGameMode.h"
+#include "AZ_MHW/HUD/AZHUD.h"
 
 //UAZWidget::UAZWidget(const FObjectInitializer& object_initializer)
 //    :Super(object_initializer)
@@ -65,13 +66,13 @@ AAZHUD* UAZWidget::GetHUD()
         return nullptr;
     }
 
-    AHUD* hud = player_controller->GetHUD();
+    AAZHUD* hud = Cast<AAZHUD>(player_controller->GetHUD());
     if (hud == nullptr)
     {
         return nullptr;
     }
 
-    return nullptr;
+    return hud;
 }
 
 APlayerController* UAZWidget::GetPlayerController()

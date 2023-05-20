@@ -69,7 +69,7 @@ protected:
 	UPROPERTY() TArray<UButton*> button_;
 	UPROPERTY() TArray<UTextBlock*> button_text_;
 
-	UPROPERTY() class UHorizontalBox* c_full_screen_box_;
+	UPROPERTY(meta = (BindWidget)) class UHorizontalBox* c_full_screen_box_;
 
 	void CloseMsgBox();
 

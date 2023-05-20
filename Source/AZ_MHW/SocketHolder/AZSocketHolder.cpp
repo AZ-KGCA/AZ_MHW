@@ -16,11 +16,6 @@ UAZSocketHolder::UAZSocketHolder()
 	last_send_tag_number_ = 0;
 }
 
-UAZSocketHolder::~UAZSocketHolder()
-{
-	Disconnect();
-}
-
 void UAZSocketHolder::Init(ESocketHolderType holder_type)
 {
 	socket_holder_type_ = holder_type;

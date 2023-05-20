@@ -21,6 +21,6 @@ void UAZWidget_MsgBoxBase::SetDesc(const FString& msg)
 {
 	if (c_text_message_)
 	{
-		c_text_title_->SetText(FText::FromString(msg));
+		c_text_message_->SetText(FText::FromString(msg));
 	}
 }

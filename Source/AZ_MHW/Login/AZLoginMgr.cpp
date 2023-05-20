@@ -104,9 +104,8 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 				else
 				{
 					//팝업 띄우기
-					AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("111"), EUIMsgBoxBtnType::Confirm,
-						this, TEXT("RetryReconnectRequired"));
-					ChangeSequence(ESequence::WaitingForTouch);
+					AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("게임서버 접속을 실패하였습니다."), EUIMsgBoxBtnType::Confirm,
+						this, TEXT("RetryReconnectRequired"), L"", L"", L"확인");
 				}
 			});
 	}break;
@@ -168,4 +167,9 @@ void UAZLoginMgr::OnForceKicked(EForceKick forcekick)
 	}(forcekick);
 	// FIXME 병합시 확인하기
 	//AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::OvertopBasic, kick_str, EUIMsgBoxBtnType::Confirm, this, "OnServerDisconnected");
+}
+
+void UAZLoginMgr::RetryReconnectRequired()
+{
+	ChangeSequence(ESequence::WaitingForTouch);
 }
