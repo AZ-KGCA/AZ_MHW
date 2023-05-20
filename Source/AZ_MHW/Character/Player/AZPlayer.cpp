@@ -4,7 +4,7 @@
 #include "AZPlayer.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/Actor/AZSocketActor.h"
 #include "AZ_MHW/Manager/AZPlayerMgr.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
@@ -13,6 +13,7 @@
 #include "CommonSource/Define/GameDefine.h"
 #include "Components/CapsuleComponent.h"
 #include "AnimInstance/AZAnimInstance_Player.h"
+#include "Components/CapsuleComponent.h"
 #include "GameInstance/AZGameInstance.h"
 
 //#include "AZ_MHW/Manager/AZTableMgr.h"
@@ -30,7 +31,8 @@ AAZPlayer::AAZPlayer()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	//캡슐 크기조정
 	//GetCapsuleComponent()->InitCapsuleSize();
-	//(GetMesh()-> 위치 Z-90.f)//root의 바닥에 붙히기
+	const float capsule_half_height = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	GetMesh()->AddLocalOffset(FVector(0.0f,0.0f,capsule_half_height));
 
 	//Animation 설정
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
@@ -72,8 +74,8 @@ void AAZPlayer::BeginPlay()
 	}
 
 	//소켓 액터생성
-	this->CreateSocketActor(TEXT("MainHand"),TEXT("Socket_Back"));
-	this->CreateSocketActor(TEXT("SubHand"),TEXT("Socket_Back"));
+	CreateSocketActor(TEXT("MainHand"),TEXT("Socket_Back"));
+	CreateSocketActor(TEXT("SubHand"),TEXT("Socket_Back"));
 
 	//플레이어 스테이트 값에 있는 메쉬와 소켓적용하기
 	SetSKMeshParts();
@@ -89,7 +91,7 @@ void AAZPlayer::Tick(float delta_seconds)
 	Super::Tick(delta_seconds);
 
 	//현재 플레이어 캐릭터의 월드 위치와 월드 방향
-	if(auto player_state = GetPlayerState<AAZPlayerState>())
+	if(auto player_state = APawn::GetPlayerState<AAZPlayerState_Client>())
 	{
 		player_state->character_state_.character_direction = RootComponent->GetComponentRotation();
 		player_state->character_state_.character_position = RootComponent->GetComponentLocation();
@@ -116,7 +118,7 @@ void AAZPlayer::CombineSKMeshParts(bool is_force_update)
 
 void AAZPlayer::SetSKMeshParts()
 {
-	if(auto player_state = Cast<AAZPlayerState>(GetPlayerState()))
+	if(auto player_state = Cast<AAZPlayerState_Client>(GetPlayerState()))
 	{
 		if(player_state->equipment_state_.head_item_id == 12500)
 		{
@@ -152,10 +154,9 @@ void AAZPlayer::SetSKMeshParts()
 		CombineSKMeshParts(true);
 	}
 }
-
 void AAZPlayer::SetSKMeshSocket()
 {
-	if(const auto player_state = Cast<AAZPlayerState>(GetPlayerState()))
+	if(const auto player_state = Cast<AAZPlayerState_Client>(GetPlayerState()))
 	{
 		if(const auto skeletal_mesh_asset = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(player_state->equipment_state_.first_weapon_item_id))
 		{
@@ -221,14 +222,13 @@ void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 
 void AAZPlayer::CreateSocketActor(FName new_socket_actor_name, FName in_socket_name)
 {
-	if(auto exist_socket_actor = character_sockets_map_.Find(new_socket_actor_name))
+	if(const auto exist_socket_actor = character_sockets_map_.Find(new_socket_actor_name))
 	{
 		(*exist_socket_actor)->SetSocketComponent(in_socket_name);
 	}
 	else
 	{
-		AAZSocketActor* socket_actor = GetWorld()->SpawnActor<AAZSocketActor>(FVector::ZeroVector, FRotator::ZeroRotator);
-		if(socket_actor != nullptr)
+		if(const auto socket_actor = GetWorld()->SpawnActor<AAZSocketActor>(FVector::ZeroVector, FRotator::ZeroRotator))
 		{
 			socket_actor->SetSocketComponent(in_socket_name,GetMesh());
 			character_sockets_map_.Add(new_socket_actor_name, socket_actor);
@@ -238,9 +238,9 @@ void AAZPlayer::CreateSocketActor(FName new_socket_actor_name, FName in_socket_n
 
 void AAZPlayer::ChangeSocketMesh(FName socket_actor_name, int32 item_id)
 {
-	if(auto socket_actor = character_sockets_map_.Find(socket_actor_name))
+	if(const auto socket_actor = character_sockets_map_.Find(socket_actor_name))
 	{
-		if(auto item_mesh = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(item_id))
+		if(const auto item_mesh = UAZGameSingleton::instance()->player_mgr_->GetSkeletalMesh(item_id))
 		{
 			(*socket_actor)->socket_mesh_asset_->SetSkeletalMesh(item_mesh);
 		}
@@ -249,7 +249,7 @@ void AAZPlayer::ChangeSocketMesh(FName socket_actor_name, int32 item_id)
 
 void AAZPlayer::ChangeSocketSlot(FName socket_actor_name, FName in_socket_name)
 {
-	if(auto socket_actor = character_sockets_map_.Find(socket_actor_name))
+	if(const auto socket_actor = character_sockets_map_.Find(socket_actor_name))
 	{
 		(*socket_actor)->SetSocketComponent(in_socket_name);
 	}
@@ -271,8 +271,8 @@ float AAZPlayer::ProcessDamage(AActor* damage_instigator, const FHitResult hit_r
 
 void AAZPlayer::PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
+	//Origin과 Playable
 	AAZMonster* instigator_monster = Cast<AAZMonster>(damage_instigator);
-
 	if (!instigator_monster)
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[AAZPlayer] Damage dealt by non-AZMonster actor %s"), *instigator_monster->GetName());
@@ -295,6 +295,7 @@ void AAZPlayer::PostProcessDamage(AActor* damage_instigator, const FHitResult hi
 	}
 	//피해 타입(약(살짝경직),중(날라가지만 자세),강(날라가서구르기))에 따라 강제회전타입(앞뒤 넉백 에어본)도 넣기
 
+	
 	//Default Back
 	if(theta >=-45.f && theta < 45.f)
 	{
@@ -314,7 +315,7 @@ void AAZPlayer::PostProcessDamage(AActor* damage_instigator, const FHitResult hi
 	}
 	
 	
-	if(const auto player_state = GetPlayerState<AAZPlayerState>())
+	if(const auto player_state = GetPlayerState<AAZPlayerState_Client>())
 	{
 	    // TODO 공격타입별로 데미지 계산, attack_info.damage_array에 TTuple<EDamageType, int32> 꼴로 있습니다
 		player_state->character_state_.current_health_point -= attack_info.GetDamageTotal();

@@ -32,7 +32,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	AAZPlayer* player_cache_;
 	UPROPERTY(BlueprintReadWrite)
-	AAZPlayerState* player_state_cache_;
+	AAZPlayerState_Client* player_state_cache_;
 
 	//데이터의 처리가없는데 굳이 플레이어블에서?
 	UFUNCTION() void AnimNotify_OnUseItem();

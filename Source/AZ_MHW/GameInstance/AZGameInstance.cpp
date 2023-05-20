@@ -16,11 +16,12 @@
 #include "AZ_MHW/GameMode/AZGameMode_InGame.h"
 #include "AZ_MHW/HUD/AZHUD_InGame.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
-#include "..\Manager\AZInventoryManager.h"
+#include "AZ_MHW/Manager\AZInventoryManager.h"
+
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
 #include "AZ_MHW/Manager/AZInputMgr.h"
-#include "..\Manager\AZPlayerMgr.h"
+#include "AZ_MHW/Manager\AZPlayerMgr.h"
 //FIXME merged need del
 #include <GameFramework/Character.h>
 
@@ -92,7 +93,7 @@ void UAZGameInstance::Init()
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Start Client!"));
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UAZGameInstance::TimerProcessPacket, 0.1f, true);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UAZGameInstance::TimerProcessPacket, 0.01f, true);
 }
 
 void UAZGameInstance::Shutdown()
@@ -415,7 +416,7 @@ void UAZGameInstance::PacketEnd()
 void UAZGameInstance::DbRun()
 {
 	odbc->Init();
-	odbc->ConnetMssql(L"odbc_test.dsn");
+	odbc->ConnectMssql(L"odbc_test.dsn");
 	odbc->Load();
 }
 
@@ -641,7 +642,9 @@ void UAZGameInstance::ProocessInGame(UINT32 client_index, UINT16 packet_size, ch
 	move_info_packet.fvector_ = FVector(100.0f, 0.0f, 0.0f);
 	move_info_packet.frotator_ = FRotator(0.0f, 0.0f, 500.0f);
 
-	Cast<AAZPlayerController_Server>(GetPlayerController())->CreateClonePlayer(client_index);
+	Cast<AAZPlayerController_Server>(GetPlayerController())->AddPlayer_Origin(client_index);
+	//이미 서버에 있는 유저들에게도 Remotable_AddPlayer
+	
 	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame_GameInstance] fvector_ : %s / frotator_ : %s\n"), *move_info_packet.fvector_.ToString(), *move_info_packet.frotator_.ToString());
 
 	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);

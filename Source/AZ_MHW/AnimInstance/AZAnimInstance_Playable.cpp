@@ -3,7 +3,7 @@
 
 #include "AZAnimInstance_Playable.h"
 #include "AZ_MHW/Character/Player/AZPlayer.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "Character/Player/AZPlayer_Playable.h"
 
 UAZAnimInstance_Playable::UAZAnimInstance_Playable()
@@ -23,7 +23,7 @@ void UAZAnimInstance_Playable::NativeUpdateAnimation(float delta_seconds)
 	{
 		player_cache_ = player;
 		
-		if(AAZPlayerState* player_state =  Cast<AAZPlayerState>(player->GetPlayerState()))
+		if(AAZPlayerState_Client* player_state =  Cast<AAZPlayerState_Client>(player->GetPlayerState()))
 		{
 			player_state_cache_ = player_state;
 

@@ -138,7 +138,7 @@ void PacketManager::PushSystemPacket(PacketInfo packet)
 void PacketManager::DbRun()
 {
 	odbc.Init();
-	odbc.ConnetMssql(L"odbc_test.dsn");
+	odbc.ConnectMssql(L"odbc_test.dsn");
 	odbc.Load();
 }
 
@@ -320,7 +320,7 @@ void PacketManager::ProcessInGame(UINT32 client_index, UINT16 packet_size, char*
 	//AAZPlayerState
 	
 	/*캐릭터 생성을 한다.*/
-	Cast<AAZPlayerController_Server>(AZGameInstance->GetPlayerController())->CreateClonePlayer(client_index);
+	Cast<AAZPlayerController_Server>(AZGameInstance->GetPlayerController())->AddPlayer_Origin(client_index);
 	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame] fvector_ : %s / frotator_ : %s\n"), *login_res_packet.fvector_.ToString(), *login_res_packet.frotator_.ToString());
 
 	//BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
@@ -342,10 +342,10 @@ void PacketManager::ClearConnectionInfo(INT32 client_index)
 
 void PacketManager::ProcessInput(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
-	auto  p_login_req_packet = reinterpret_cast<Input_Packet*>(P_packet);
+	auto  p_login_req_packet = reinterpret_cast<InputPacket*>(P_packet);
 	//Input_Packet input_packet;
 	//input_packet.input_position = P_login_req_packet->input_position;
 	//input_packet.input_direction = P_login_req_packet->input_direction;
 	//input_packet.input_data = P_login_req_packet->input_data;
-	Cast<AAZPlayerController_Server>(AZGameInstance->GetPlayerController())->ReceivePlayerInput(client_index, p_login_req_packet);
+	Cast<AAZPlayerController_Server>(AZGameInstance->GetPlayerController())->Cloneable_RPlayer(client_index, p_login_req_packet);
 }

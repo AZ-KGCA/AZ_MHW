@@ -5,7 +5,7 @@
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
 #include "AZ_MHW/PlayerController/AZPlayerController_InGame.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/Manager/AZInventoryManager.h"
 #include "AZ_MHW/Item/AZItemData.h"
 
@@ -88,7 +88,7 @@ void AAZPlayer_Playable::PossessedBy(AController* new_controller)
 {
 	Super::PossessedBy(new_controller);
 
-	playable_player_state_ = Cast<AAZPlayerState>(GetPlayerState());
+	playable_player_state_ = Cast<AAZPlayerState_Client>(GetPlayerState());
 }
 
 
@@ -130,7 +130,7 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 	switch (buff.target)
 	{
 	case EItemTarget::health:
-		if(auto player_state = GetPlayerState<AAZPlayerState>())
+		if(auto player_state = GetPlayerState<AAZPlayerState_Client>())
 		{
 				int32 result_health_point = 0;
 				switch (buff.calc)
@@ -153,9 +153,9 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 		}
 		break;
 	case EItemTarget::damage:
-		if(auto player_state = GetPlayerState<AAZPlayerState>())
+		if(auto player_state = GetPlayerState<AAZPlayerState_Client>())
 		{
-			if(auto az_player_state = Cast<AAZPlayerState>(player_state))
+			if(auto az_player_state = Cast<AAZPlayerState_Client>(player_state))
 			{
 				switch (buff.calc)
 				{

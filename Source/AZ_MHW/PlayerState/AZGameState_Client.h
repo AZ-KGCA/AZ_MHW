@@ -4,21 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
-#include "AZGameState_Server.generated.h"
+#include "AZGameState_Client.generated.h"
 
-/**
- * 서버 설정용
- */
 UCLASS()
-class AZ_MHW_API AAZGameState_Server : public AGameStateBase
+class AZ_MHW_API AAZGameState_Client : public AGameStateBase
 {
 	GENERATED_BODY()
 
 public:
-	AAZGameState_Server();
+	AAZGameState_Client();
 
 protected:
 	virtual void BeginPlay() override;
-
 	virtual void BeginDestroy() override;
+
+public:
 };

@@ -4,56 +4,115 @@
 #include "AZPlayerController_InGame.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Remotable.h"
+//FIXME
+#include "GameInstance/Client_To_Server.h"
 
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 
-#include "GameInstance/Client_To_Server.h"
+
 
 //#include <Components/SkinnedMeshComponent.h>
 
 AAZPlayerController_InGame::AAZPlayerController_InGame()
 {
-	//PrimaryActorTick.bStartWithTickEnabled = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 	//InternalConstructor
+}
+
+void AAZPlayerController_InGame::BeginPlay()
+{
+	Super::BeginPlay();
+	playable_player_state_ = GetPlayerState<AAZPlayerState_Client>();
 }
 
 void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
 	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
-	playable_player_state_ = GetPlayerState<AAZPlayerState>();
 
-	header_check_packet input_packet;
-	// //strcpy_s(input_packet.input_position, sizeof(FVector),FV );
-	// //strcpy_s(input_packet.input_direction, sizeof(FRotator), );
-	input_packet.packet_id = 401;
-	input_packet.packet_length = sizeof(header_check_packet);
+	//원본 푸쉬 요청 패킷
+	BasePacket request_push_origin_packet;
+	request_push_origin_packet.packet_id = 401;
+	request_push_origin_packet.packet_length = sizeof(BasePacket);
 	
 	//
-	AZGameInstance->client_connect->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+	AZGameInstance->client_connect->Server_Packet_Send((char*)&request_push_origin_packet, request_push_origin_packet.packet_length);
 }
 
 void AAZPlayerController_InGame::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 	
-	//Input_Packet input_packet;
+	InputPacket request_input_packet;
 	
 	//strcpy_s(input_packet.current_position, sizeof(FVector),FV );
 	//strcpy_s(input_packet.current_direction, sizeof(FVector), FR );
-
 	//strcpy_s(input_packet.input_direction, sizeof(FRotator), FR);
-	//input_packet.input_data = GetCommandBitMask();
-	//AZGameInstance->client_connect->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+
+	request_input_packet.current_direction;
+	request_input_packet.current_position;
+	//request_input_packet.input_direction = playable_player_state_->action_state_.input_direction;
+	request_input_packet.input_data = GetCommandBitMask();
+	AZGameInstance->client_connect->Server_Packet_Send((char*)&request_input_packet, request_input_packet.packet_length);
+}
+
+void AAZPlayerController_InGame::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+
+int32 AAZPlayerController_InGame::GetAnimationMask()
+{
+	int32 result = 0;
+	
+	if(false) result |=(1<<0);
+	if(false) result |=(1<<1);
+	if(false) result |=(1<<2);
+	if(false) result |=(1<<3);
+	if(false) result |=(1<<4);
+	if(false) result |=(1<<5);
+	if(false) result |=(1<<6);
+	if(false) result |=(1<<7);
+	if(false) result |=(1<<8);
+	if(false) result |=(1<<9);
+	if(false) result |=(1<<10);
+	if(false) result |=(1<<11);
+	if(false) result |=(1<<12);
+	if(false) result |=(1<<13);
+	if(false) result |=(1<<14);
+	if(false) result |=(1<<15);
+	if(false) result |=(1<<16);
+	if(false) result |=(1<<17);
+	if(false) result |=(1<<18);
+	if(false) result |=(1<<19);
+	if(false) result |=(1<<20);
+	if(false) result |=(1<<21);
+	if(false) result |=(1<<22);
+	if(false) result |=(1<<23);
+	if(false) result |=(1<<24);
+	if(false) result |=(1<<25);
+	if(false) result |=(1<<26);
+	if(false) result |=(1<<27);
+	if(false) result |=(1<<28);
+	if(false) result |=(1<<29);
+	if(false) result |=(1<<30);
+	if(false) result |=(1<<31);
+	//if(false) result |=(1<<32); //int32이기 때문에... 왜 int32로 햇지?
+	
+	return result;
 }
 
 void AAZPlayerController_InGame::InitializePlayer(FAZPlayerCharacterState character_state,
-	FAZPlayerEquipmentState equipment_state)
+                                                  FAZPlayerEquipmentState equipment_state)
 {
+	//playable_player_state_->character_state_
+	
+	//playable_player_state_->equipment_state_
+
 }
 
 void AAZPlayerController_InGame::SetupWeaponInputMappingContext(int32 weapon_type)
@@ -101,7 +160,7 @@ int32 AAZPlayerController_InGame::GetCommandBitMask()
 	return result;
 }
 
-void AAZPlayerController_InGame::ChangeEquipment(int32 itemID)
+void AAZPlayerController_InGame::RequestChangeEquipment(int32 itemID)
 {
 	//State에서 현재 장착아이템 아이디가져왓
 	//DB에서 아이템 정보가져와서
@@ -116,29 +175,34 @@ void AAZPlayerController_InGame::ChangeEquipment(int32 itemID)
 	//서버에 전송(바꿀께요)
 }
 
-
-void AAZPlayerController_InGame::AddRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state,
-                                                    FAZPlayerEquipmentState equipment_state)
+void AAZPlayerController_InGame::RequestBuyItem(int32 itemID)
 {
-	//GetWorld()->SpawnActor<AAZPlayer_Remotable>();
-	//remotable_player_map_.Add(guid,)
 	
-	//GetWorld()->SpawnActor<AAZPlayerState>();
-	//remotable_player_state_map_.Add(guid,)
-
-	//Initialize position, rotation
 }
 
-void AAZPlayerController_InGame::ControlRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state,
-	FRotator result_direction, int32 command_bitmask)
-{
-	if(auto player_clone = remotable_player_map_.Find(guid))
-	{
-		//(*player_clone)->
-	}
-}
 
-void AAZPlayerController_InGame::RemoveRemotablePlayer(int32 guid)
+// void AAZPlayerController_InGame::Remotable_AddPlayer(int32 guid, FAZPlayerCharacterState character_state,
+//                                                      FAZPlayerEquipmentState equipment_state)
+// {
+// 	//GetWorld()->SpawnActor<AAZPlayer_Remotable>();
+// 	//remotable_player_map_.Add(guid,)
+// 	
+// 	//GetWorld()->SpawnActor<AAZPlayerState>();
+// 	//remotable_player_state_map_.Add(guid,)
+//
+// 	//Initialize position, rotation
+// }
+//
+// void AAZPlayerController_InGame::Remotable_ControlPlayer(int32 guid, FAZPlayerCharacterState character_state,
+// 	FRotator result_direction, int32 command_bitmask)
+// {
+// 	if(auto player_clone = remotable_player_map_.Find(guid))
+// 	{
+// 		//(*player_clone)->
+// 	}
+// }
+
+void AAZPlayerController_InGame::Remotable_RemovePlayer(int32 guid)
 {
 	remotable_player_state_map_.Remove(guid);
 	remotable_player_map_.Remove(guid);
@@ -159,7 +223,7 @@ void AAZPlayerController_InGame::SetupInputComponent()
 
 	//Camera Rotate Action + Base Move Action
 	AZGameInstance->input_mgr_->AddInputMappingContext(TEXT("InGame"));
-	SetupWeaponInputMappingContext(GetPlayerState<AAZPlayerState>()->equipment_state_.weapon_type);
+	SetupWeaponInputMappingContext(GetPlayerState<AAZPlayerState_Client>()->equipment_state_.weapon_type);
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
 		UAZInputMgr* input_mgr = AZGameInstance->input_mgr_;
@@ -204,18 +268,18 @@ void AAZPlayerController_InGame::SetupInputComponent()
 void AAZPlayerController_InGame::ActionInputDirection()
 {
 	//키입력방향
-	int movement_x = (static_cast<int>(playable_player_state_->action_state_.bit_move_right) - static_cast<int>(playable_player_state_->action_state_.bit_move_left));
-	int movement_y = (static_cast<int>(playable_player_state_->action_state_.bit_move_back) - static_cast<int>(playable_player_state_->action_state_.bit_move_forward));
-	FVector2D movement_vector(movement_x, movement_y);
+	const int movement_x = (static_cast<int>(playable_player_state_->action_state_.bit_move_right) - static_cast<int>(playable_player_state_->action_state_.bit_move_left));
+	const int movement_y = (static_cast<int>(playable_player_state_->action_state_.bit_move_back) - static_cast<int>(playable_player_state_->action_state_.bit_move_forward));
+	const FVector2D movement_vector(movement_x, movement_y);
 
 	//현재 카메라방향
-	FRotator control_rotation = GetControlRotation();
-	FRotator yaw_rotation(0, control_rotation.Yaw, 0);
-	FVector forward_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::X);
-	FVector right_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::Y);
+	const FRotator control_rotation = GetControlRotation();
+	const FRotator yaw_rotation(0, control_rotation.Yaw, 0);
+	const FVector forward_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::X);
+	const FVector right_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::Y);
 	
 	//카메라 방향에 대한 입력방향(플레이어가 인지하는 방향)
-	FVector movement_direction = (right_direction * movement_vector.Y + forward_direction * movement_vector.X).GetSafeNormal();
+	const FVector movement_direction = (right_direction * movement_vector.Y + forward_direction * movement_vector.X).GetSafeNormal();
 	playable_player_state_->action_state_.input_direction = movement_direction;
 }
 void AAZPlayerController_InGame::ActionMoveForward_Start()

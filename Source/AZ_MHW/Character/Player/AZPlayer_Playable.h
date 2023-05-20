@@ -11,7 +11,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class AAZPlayerController_InGame;
-class AAZPlayerState;
+class AAZPlayerState_Client;
 
 struct FInputActionValue;
 
@@ -41,7 +41,7 @@ protected:
 	virtual void PossessedBy(AController* new_controller) override;
 #pragma endregion
 public:
-	UPROPERTY() AAZPlayerState* playable_player_state_;
+	UPROPERTY() AAZPlayerState_Client* playable_player_state_;
 
 	//TODO: 카메라 매니저 만들기?
 	UPROPERTY(VisibleDefaultsOnly, Category=Camera)

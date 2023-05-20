@@ -184,7 +184,7 @@ void Odbc::Connect(std::wstring dbName)
 	CreatePrepare();
 } // End Connect
 
-void Odbc::ConnetMssql(std::wstring dbName)
+void Odbc::ConnectMssql(std::wstring dbName)
 {
 	UE_LOG(LogTemp, Warning, TEXT("odbc connect"));
 	TCHAR  inConnect[255] = { 0, };

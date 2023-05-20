@@ -5,7 +5,7 @@
 
 #include "Character/Player/AZPlayer_Origin.h"
 #include "Character/Player/AZPlayer_Playable.h"
-#include "PlayerState/AZPlayerState.h"
+#include "PlayerState/AZPlayerState_Client.h"
 
 
 // Sets default values
@@ -34,7 +34,7 @@ void AAZPlayerController_Server::OnPossess(APawn* pawn)
 	
 }
 
-void AAZPlayerController_Server::CreateClonePlayer(int32 client_index)
+void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
 {
 	GetWorld()->SpawnActor<AAZPlayer_Origin>();
 	// UWorld* world = GetWorld();
@@ -61,7 +61,7 @@ void AAZPlayerController_Server::CreateClonePlayer(int32 client_index)
 	// }
 }
 
-void AAZPlayerController_Server::RemoveClonePlayer(int32 client_index)
+void AAZPlayerController_Server::RemovePlayer_Origin(int32 client_index)
 {
 	if(const auto player_clone = logined_player_characters_.Find(client_index))
 	{
@@ -72,7 +72,7 @@ void AAZPlayerController_Server::RemoveClonePlayer(int32 client_index)
 	}
 }
 
-void AAZPlayerController_Server::ReceivePlayerInput(int32 client_index, Input_Packet* input)
+void AAZPlayerController_Server::Cloneable_RPlayer(int32 client_index, InputPacket* input)
 {
 	if(const auto player_clone = logined_player_characters_.Find(client_index))
 	{
@@ -93,7 +93,7 @@ void AAZPlayerController_Server::SendPlayerSimulationResult(int32 client_index)
 	//해당 인덱스의 플레이어의 상태보내기?
 	if(const auto player_clone = logined_player_characters_.Find(client_index))
 	{
-		if(auto player_state = (*player_clone)->GetPlayerState<AAZPlayerState>())
+		if(auto player_state = (*player_clone)->GetPlayerState<AAZPlayerState_Client>())
 		{
 			
 			//클라는 해당정보를 받고 보간적용?
