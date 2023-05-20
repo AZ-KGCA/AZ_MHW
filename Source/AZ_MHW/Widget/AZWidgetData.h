@@ -3,6 +3,26 @@
 #include "AZWidgetData.generated.h"
 
 UENUM(BlueprintType)
+enum class ETouchMaskSearchType : uint8
+{
+	None,
+
+	SlotIndex,
+
+	ItemIndex,
+	ItemMakeCategoryIndex,
+	ItemMakeGroupIndex,
+	CollectionIndex,
+	NpcIndex,
+	NpcShopItemIndex,
+	SkillIndex,
+
+	ClassBranch,
+	ClassBranch_ItemIndex,
+	ClassBranch_SkillIndex
+};
+
+UENUM(BlueprintType)
 enum class ELHButtonLockOption : uint8
 {
 	Dimmed		UMETA(DisplayName = "Lock with Dimmed"),

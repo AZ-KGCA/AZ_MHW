@@ -160,9 +160,9 @@ public:
 
 		widget_type* widget = nullptr;
 
-		if ((widget_name_enum == EUIName::AZWidget_Waiting) && waiting_widget)
+		if ((widget_name_enum == EUIName::AZWidget_Waiting) && waiting_widget_)
 		{
-			widget = (widget_type*)waiting_widget;
+			widget = (widget_type*)waiting_widget_;
 		}
 		else
 		{
@@ -193,6 +193,9 @@ public:
 	FAZWidgetData* GetSubWidgetData(ESubUIName widget_name_enum);
 	EUIName GetTopWidgetName();
 
+	bool IsInViewportWaitingWidget();
+	bool IsCurScene(EUIName ui_name);
+
 	UFUNCTION(BlueprintCallable, Category = "AAZHUD") void CloseScene(bool isBackButton = false);
 	void CloseScene(EUIName widget_name_enum, bool is_stack_delete = false, bool is_back_button = false);
 	void CloseAllUI();
@@ -214,6 +217,7 @@ public:
 
 public:
 	void OnFadeInOut(const float in_time, const float out_time);
+	void ResetHandledTouchPosition();
 
 protected:
 	virtual void CheckOpenScene() {}
@@ -225,13 +229,38 @@ public:
 	bool GetHandledTouchPosition(FVector2D& position, bool try_get_touch_state = true) const;
 	void SetHandledTouchPosition(const struct FPointerEvent& pointer);
 
+public:
+	void CloseAllMsgBox();
+	void CloseAllMsgBoxExceptOvertop();
+
+	class UAZWidget_MsgBoxBasic* OpenMoveToCashShopMsgBox();
+	UFUNCTION() void MoveToCashShop();
+
+	class UAZWidget_MsgBoxBase* OpenMsgBox(EUIMsgBoxType msgBoxType, const FString& desc, EUIMsgBoxBtnType btnType = EUIMsgBoxBtnType::Confirm,
+		UObject* owner = nullptr, const FName& leftTapFunctionName = TEXT(""), const FName& rightTapFunctionName = TEXT(""), const FName& exitFunctionName = TEXT(""),
+		const FString& leftBtnText = TEXT(""), const FString& rightBtnText = TEXT(""), bool isAddWaitMsgBoxStack = true, bool IsDisableBackBtnExit = false);
+
+	void OpenMsgBox_SafeThread(EUIMsgBoxType msgBoxType, const FString& desc, EUIMsgBoxBtnType btnType = EUIMsgBoxBtnType::Confirm,
+		UObject* owner = nullptr, const FName& leftTapFunctionName = TEXT(""), const FName& rightTapFunctionName = TEXT(""), const FName& exitFunctionName = TEXT(""),
+		const FString& leftBtnText = TEXT(""), const FString& rightBtnText = TEXT(""), bool isAddWaitMsgBoxStack = true, bool IsDisableBackBtnExit = false);
+
+	void OpenMsgBox(FString Title, FString Desc);
+	void OpenMsgBox(FString Desc);
+	void OpenContentsMsgBox(FString Desc);
+	void OpenMsgBox_Confirm(const FString& title, const FString& desc, UObject* owner, const FName& leftTapFunctionName);
+	void CloseMsgBox(EUIMsgBoxType uiMsgBoxType);
+	void CloseMsgBox(FString Name);
+	void CloseMsgBox_Top();
+
 protected:
 	TMap<EUIName, AZSceneData> scene_datas;
 	EUIName cur_scene_name_enum;
 	TArray<EUIName> scenes_stack;
-	UPROPERTY() class UAZWidget_Waiting* waiting_widget;
+	UPROPERTY() class UAZWidget_Waiting* waiting_widget_;
 	UPROPERTY() int32 hide_ui_flag = 0;
 
 	FVector2D handled_touch_position_;
 
+	UPROPERTY() TArray<class UAZWidget_MsgBoxBase*> msg_box_stack_;
+	TArray<FMsgBoxInfo> msg_box_infos_;
 };

@@ -15,6 +15,7 @@
 #include "AZ_MHW/Login/AZLoginMgr.h"
 #include "AZ_MHW/GameMode/AZGameMode_InGame.h"
 #include "AZ_MHW/HUD/AZHUD_InGame.h"
+#include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "..\Manager\AZInventoryManager.h"
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
@@ -74,6 +75,8 @@ void UAZGameInstance::Init()
 
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));
 	msg_handler->OnRegister(map_mgr);
+
+	CreateSocketHolder();
 	
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UAZGameInstance::BeginLoadingScreen);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UAZGameInstance::EndLoadingScreen);
@@ -110,6 +113,7 @@ void UAZGameInstance::Shutdown()
 		client_connect->Client_Shutdown();
 	}
 
+	DestroySocketHolder();
 	//SendLogoutCmd();
 
 	mgrs.Reset();
@@ -123,6 +127,7 @@ void UAZGameInstance::Shutdown()
 	map_mgr = nullptr;
 	hud_data_mgr = nullptr;
 	input_mgr_ = nullptr;
+	
 }
 
 void UAZGameInstance::RestMgr()
@@ -154,17 +159,83 @@ void UAZGameInstance::PlayerSelectAck()
 
 void UAZGameInstance::CreateSocketHolder()
 {
-	// FIXME merged socket create
+	for (uint8 socket_type = 0; socket_type < (int32)ESocketHolderType::Max; ++socket_type)
+	{
+		UAZSocketHolder* socket_hodler = NewObject<UAZSocketHolder>();
+		socket_hodler->Init((ESocketHolderType)socket_type);
+		array_socket_holder_.Add(socket_hodler);
+	}
 }
 
 void UAZGameInstance::DestroySocketHolder()
 {
-	// FIXME merged socket del
+	for (UAZSocketHolder* socket_holder : array_socket_holder_)
+	{
+		if (socket_holder != nullptr)
+		{
+			socket_holder->Disconnect();
+			socket_holder = nullptr;
+		}
+	}
 }
 
 void UAZGameInstance::InitSocketOnMapLoad()
 {
-	// FIXME merged socket init
+	/*for (ULHSocketHolder* pSocketHolder : ArraySocketHolder)
+	{
+		if (pSocketHolder)
+		{
+			pSocketHolder->ArrangeProtocolExchangeEvents();
+		}
+	}*/
+}
+
+UAZSocketHolder* UAZGameInstance::GetSocketHolder(ESocketHolderType socket_type)
+{
+	if (array_socket_holder_.Num() != (int32)ESocketHolderType::Max)
+	{
+		return nullptr;
+	}
+
+	if (socket_type >= ESocketHolderType::Max)
+	{
+		return nullptr;
+	}
+
+	if (GetGameMode() == nullptr)
+	{
+		return nullptr;
+	}
+	return array_socket_holder_[(int32)socket_type];
+}
+
+bool UAZGameInstance::IsWaitingProtocolEmpty()
+{
+	bool is_empty = true;
+	for (auto socket_holder : array_socket_holder_)
+	{
+		if (socket_holder == nullptr)
+		{
+			continue;
+		}
+
+		if (socket_holder->IsWaitingProtocolEmpty() == false)
+		{
+			is_empty = false;
+		}
+	}
+	return is_empty;
+}
+
+TArray<FString> UAZGameInstance::GetWaitingPorotocolNames() const
+{
+	TArray<FString> result_array;
+	for (auto socket_holder : array_socket_holder_)
+	{
+		result_array.Append(socket_holder->GetWaitingProtocolNames());
+	}
+
+	return result_array;
 }
 
 AAZHUD* UAZGameInstance::GetHUD()

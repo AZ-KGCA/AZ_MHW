@@ -44,12 +44,14 @@ public:	// Delegate
 
 public:
 	UClient_To_Server();
+	~UClient_To_Server();
 
 	void Server_Connect();
+	bool Connect(const FString& ip, int32 port);
 
 	void Client_Shutdown();
 
-	void Server_Packet_Send(const char* packet, int packet_size);
+	int Server_Packet_Send(const char* packet, int packet_size);
 
 	void Signin();
 

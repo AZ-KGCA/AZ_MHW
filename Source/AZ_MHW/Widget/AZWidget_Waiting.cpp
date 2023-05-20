@@ -10,7 +10,7 @@ bool UAZWidget_Waiting::is_force_waiting_ = false;
 
 UAZWidget_Waiting::UAZWidget_Waiting()
 {
-	//SetIsDisableBackBtnExit(true);
+	SetIsDisableBackBtnExit(true);
 }
 
 void UAZWidget_Waiting::Init()
@@ -26,7 +26,7 @@ void UAZWidget_Waiting::OnOpen(bool immediately)
 
 	image_waiting_->SetVisibility(ESlateVisibility::Collapsed);
 
-	GetWorld()->GetTimerManager().SetTimer(show_waiting_timer_handler_, this, &UAZWidget_Waiting::ShowWaitingImage, 2.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(show_waiting_timer_handler_, this, &UAZWidget_Waiting::ShowWaitingImage, 0.0f, false);
 }
 
 void UAZWidget_Waiting::OnClose(bool immediately)
@@ -45,13 +45,4 @@ void UAZWidget_Waiting::ShowWaitingImage()
 	{
 		PlayAnimation(waiting_ani_, 0.0f, 0);
 	}
-
-	//FIXME ��ٸ��� ��Ŷ ��� �ֱ�
-	/*
-	for (FString& waiting_protocol_name : AZGameInstance->GetWaitingProtocolNames())
-	{
-		AZ_LOG("ShowWaitingImage - SendedPacketName : %s", *waiting_protocol_name;)
-	}
-	*/ 
-
 }
