@@ -10,7 +10,7 @@ UPacketFunction::UPacketFunction()
 {
 }
 
-void UPacketFunction::LoginResponse(Login_Send_Packet* packet, bool is_successed)
+void UPacketFunction::LoginResponse(LOGIN_RESPONSE_PACKET* packet, bool is_successed)
 {
 	if (is_successed == false)
 	{
@@ -24,7 +24,7 @@ void UPacketFunction::LoginResponse(Login_Send_Packet* packet, bool is_successed
 	}
 }
 
-void UPacketFunction::SigninResponse(Login_Send_Packet* packet, bool is_successed)
+void UPacketFunction::SigninResponse(LOGIN_RESPONSE_PACKET* packet, bool is_successed)
 {
 	if (is_successed == false)
 	{

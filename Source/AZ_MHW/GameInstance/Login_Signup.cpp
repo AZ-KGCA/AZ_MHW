@@ -29,7 +29,7 @@ bool ULogin_Signup::Login_Signup(FString id, FString pw, FString pw2)
 			UE_LOG(LogTemp, Warning, TEXT("Password Success"));
 			// TODO1 DB조회 대신 id,pw Send로 변경 
 			//az_game_instance->SignupRecord(signup_id, signup_pw);
-			Signup_Packet_Send(signup_id, signup_pw, CLIENT_PACKET_ID::SIGNIN_REQUEST);
+			Signup_Packet_Send(signup_id, signup_pw, PACKET_ID::SIGNIN_REQUEST);
 
 			return true;
 		}
@@ -44,9 +44,9 @@ bool ULogin_Signup::Login_Signup(FString id, FString pw, FString pw2)
 	//return true;
 }
 
-void ULogin_Signup::Signup_Packet_Send(FString id, FString pw, CLIENT_PACKET_ID packet_id)
+void ULogin_Signup::Signup_Packet_Send(FString id, FString pw, PACKET_ID packet_id)
 {
-	Login_Send_Packet login_send_packet;
+	LOGIN_REQUEST_PACKET login_send_packet;
 	login_send_packet.packet_id = (int)packet_id;
 	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), TCHAR_TO_ANSI(*id));
 	strcpy_s(login_send_packet.user_pw, sizeof(login_send_packet.user_pw), TCHAR_TO_ANSI(*pw));

@@ -109,17 +109,17 @@ public:
 
 		auto P_header = (PACKET_HEADER*)&packet_data_buffer_[packet_data_buffer_r_pos_];
 
-		if (P_header->packet_length_ > re_main_byte)
+		if (P_header->packet_length > re_main_byte)
 		{
 			return PacketInfo();
 		}
 
 		PacketInfo packet_info;
-		packet_info.packet_id_ = P_header->packet_id_;
-		packet_info.data_size_ = P_header->packet_length_;
+		packet_info.packet_id_ = P_header->packet_id;
+		packet_info.data_size_ = P_header->packet_length;
 		packet_info.P_data_ptr_ = &packet_data_buffer_[packet_data_buffer_r_pos_];
 
-		packet_data_buffer_r_pos_ += P_header->packet_length_;
+		packet_data_buffer_r_pos_ += P_header->packet_length;
 
 		return packet_info;
 	}

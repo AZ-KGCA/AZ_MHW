@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "AZ_MHW/GameInstance/Client_Packet.h"
+#include "AZ_MHW/GameInstance/CommonPacket.h"
 #include "PacketFunction.generated.h"
 
 
@@ -13,6 +13,6 @@ class AZ_MHW_API UPacketFunction : public UObject
 
 public:
 	UPacketFunction();
-	static void LoginResponse(Login_Send_Packet* packet, bool is_successed);
-	static void SigninResponse(Login_Send_Packet* packet, bool is_successed);
+	static void LoginResponse(LOGIN_RESPONSE_PACKET* packet, bool is_successed);
+	static void SigninResponse(LOGIN_RESPONSE_PACKET* packet, bool is_successed);
 };

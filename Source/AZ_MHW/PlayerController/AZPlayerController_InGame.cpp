@@ -27,11 +27,11 @@ void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
 	playable_player_state_ = GetPlayerState<AAZPlayerState>();
 
-	header_check_packet input_packet;
+	PACKET_HEADER input_packet;
 	// //strcpy_s(input_packet.input_position, sizeof(FVector),FV );
 	// //strcpy_s(input_packet.input_direction, sizeof(FRotator), );
 	input_packet.packet_id = 401;
-	input_packet.packet_length = sizeof(header_check_packet);
+	input_packet.packet_length = sizeof(PACKET_HEADER);
 	
 	//
 	AZGameInstance->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);

@@ -533,8 +533,8 @@ void UAZGameInstance::ProcessLogin(UINT32 client_index, UINT16 packet_size, char
 {
 	auto  P_login_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
 
-	auto P_user_id = ConvertCharToSqlTCHAR(P_login_req_packet->user_id_);
-	auto P_user_pw = ConvertCharToSqlTCHAR(P_login_req_packet->user_pw_);
+	auto P_user_id = ConvertCharToSqlTCHAR(P_login_req_packet->user_id);
+	auto P_user_pw = ConvertCharToSqlTCHAR(P_login_req_packet->user_pw);
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
 	if (odbc->LoginCheckSQL(P_user_id, P_user_pw))
@@ -542,7 +542,7 @@ void UAZGameInstance::ProcessLogin(UINT32 client_index, UINT16 packet_size, char
 
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-		Login_Send_Packet login_res_packet;
+		LOGIN_RESPONSE_PACKET login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::LOGIN_RESPONSE_SUCCESS;
 		login_res_packet.packet_length = sizeof(login_res_packet);
 		//login_res_packet.clinet_id = client_index;
@@ -553,7 +553,7 @@ void UAZGameInstance::ProcessLogin(UINT32 client_index, UINT16 packet_size, char
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-		Login_Send_Packet login_res_packet;
+		LOGIN_RESPONSE_PACKET login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::LOGIN_RESPONSE_FAIL;
 		login_res_packet.packet_length = sizeof(login_res_packet);
 
@@ -567,8 +567,8 @@ void UAZGameInstance::ProcessSignup(UINT32 client_index, UINT16 packet_size, cha
 
 	auto  P_signup_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
 
-	auto P_user_id = ConvertCharToSqlTCHAR(P_signup_req_packet->user_id_); ;
-	auto P_user_pw = ConvertCharToSqlTCHAR(P_signup_req_packet->user_pw_); ;
+	auto P_user_id = ConvertCharToSqlTCHAR(P_signup_req_packet->user_id); ;
+	auto P_user_pw = ConvertCharToSqlTCHAR(P_signup_req_packet->user_pw); ;
 
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
@@ -583,7 +583,7 @@ void UAZGameInstance::ProcessSignup(UINT32 client_index, UINT16 packet_size, cha
 
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-		Login_Send_Packet login_res_packet;
+		LOGIN_RESPONSE_PACKET login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::SIGNIN_RESPONSE_SUCCESS;
 		login_res_packet.packet_length = sizeof(login_res_packet);
 		//login_res_packet.clinet_id = client_index;
@@ -594,7 +594,7 @@ void UAZGameInstance::ProcessSignup(UINT32 client_index, UINT16 packet_size, cha
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-		Login_Send_Packet login_res_packet;
+		LOGIN_RESPONSE_PACKET login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::SIGNIN_RESPONSE_FAIL;
 		login_res_packet.packet_length = sizeof(login_res_packet);
 		//login_res_packet.clinet_id = client_index;
@@ -606,9 +606,9 @@ void UAZGameInstance::ProcessSignup(UINT32 client_index, UINT16 packet_size, cha
 void UAZGameInstance::ProcessChatting(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
 	//Defind defind;
-	auto  P_login_req_packet = reinterpret_cast<Login_Send_Packet*>(P_packet);
+	auto  P_login_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
 
-	Login_Send_Packet login_res_packet;
+	LOGIN_REQUEST_PACKET login_res_packet;
 	login_res_packet.packet_id = (int)PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS;
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	//login_res_packet.clinet_id = client_index;
@@ -622,7 +622,7 @@ void UAZGameInstance::ProcessChatting(UINT32 client_index, UINT16 packet_size, c
 
 void UAZGameInstance::ProocessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
-	SetMoveInfo move_info_packet;
+	/*SetMoveInfo move_info_packet;
 	move_info_packet.packet_id = (int)PACKET_ID::IN_GAME_SUCCESS;
 	move_info_packet.packet_length = sizeof(move_info_packet);
 	//move_info_packet.clinet_id = client_index;
@@ -632,12 +632,12 @@ void UAZGameInstance::ProocessInGame(UINT32 client_index, UINT16 packet_size, ch
 	Cast<AAZPlayerController_Server>(GetPlayerController())->CreateClonePlayer(client_index);
 	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame_GameInstance] fvector_ : %s / frotator_ : %s\n"), *move_info_packet.fvector_.ToString(), *move_info_packet.frotator_.ToString());
 
-	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);
+	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);*/
 }
 
 void UAZGameInstance::ProocessInPlayerMove(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
-	auto  P_move_info_packet = reinterpret_cast<SetMoveInfo*>(P_packet);
+	/*auto  P_move_info_packet = reinterpret_cast<SetMoveInfo*>(P_packet);
 	SetMoveInfo move_info_packet;
 	//move_info_packet.packet_id = (int)PACKET_ID::IN_GAME_MOVE_END;
 	move_info_packet.packet_length = sizeof(move_info_packet);
@@ -647,7 +647,7 @@ void UAZGameInstance::ProocessInPlayerMove(UINT32 client_index, UINT16 packet_si
 
 	UE_LOG(LogTemp, Warning, TEXT("[move_info_2_GameInstance] client : %d / fvector_ : %s / frotator_ : %s\n"), client_index, *move_info_packet.fvector_.ToString(), *move_info_packet.frotator_.ToString());
 
-	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);
+	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);*/
 }
 
 
@@ -746,11 +746,6 @@ int UAZGameInstance::Server_Packet_Send(const char* packet, int packet_size)
 	return len;
 }
 
-void UAZGameInstance::Signin()
-{
-	send(sock, (char*)&signin_packet, sizeof(signin_packet), 0);
-}
-
 void UAZGameInstance::receive_thread()
 {
 	char buffer[20000];
@@ -770,7 +765,7 @@ void UAZGameInstance::receive_thread()
 			ZeroMemory(recv_buffer, sizeof(char) * 10000);
 			CopyMemory(recv_buffer, buffer, result);
 
-			BasePacket* base_packet = (BasePacket*)recv_buffer;
+			PACKET_HEADER* base_packet = (PACKET_HEADER*)recv_buffer;
 
 			std::lock_guard<std::mutex> lock(received_data_mutex);
 
@@ -858,7 +853,7 @@ void UAZGameInstance::ClientTimerProcessPacket()
 	// 큐에 받은 데이터가 있는지 확인
 	if (!receive_data_queue_.empty()) {
 		// 대기열에서 처음 받은 데이터 가져오기
-		BasePacket* base_packet = receive_data_queue_.front();
+		PACKET_HEADER* base_packet = receive_data_queue_.front();
 		if (call_recv_packet_.IsBound())
 		{
 			bool retval = call_recv_packet_.Execute(base_packet);
@@ -901,8 +896,8 @@ void UAZGameInstance::InGameAccept()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[InGameAccept]\n"));
 
-	Login_Send_Packet login_send_packet;
-	login_send_packet.packet_id = (int)CLIENT_PACKET_ID::IN_GAME_REQUEST;
+	LOGIN_REQUEST_PACKET login_send_packet;
+	login_send_packet.packet_id = (int)PACKET_ID::IN_GAME_REQUEST;
 	login_send_packet.packet_length = sizeof(login_send_packet);
 
 	Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);

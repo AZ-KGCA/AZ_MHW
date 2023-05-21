@@ -5,10 +5,10 @@
 
 #include "AZ_MHW/GameInstance/Client_To_Server.h"
 #include "AZ_MHW/CommonSource/AZLog.h"
-#include "AZ_MHW/GameInstance/Client_Packet.h"
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/GameInstance/CommonPacket.h"
 #include "AZ_MHW/HUD/AZHUD.h"
 
 UAZSocketHolder::UAZSocketHolder()
@@ -77,7 +77,7 @@ bool UAZSocketHolder::_IsHostDisconnected()
 	return false;
 }
 
-bool UAZSocketHolder::SendPacket(BasePacket* send_msg, int packet_size)
+bool UAZSocketHolder::SendPacket(PACKET_HEADER* send_msg, int packet_size)
 {
 	if (game_instance_->client_check == false)
 	{
@@ -94,7 +94,7 @@ bool UAZSocketHolder::SendPacket(BasePacket* send_msg, int packet_size)
 
 	if (IsShowWaitWidget(send_msg) == true)
 	{
-		FString packet_name = UAZUtility::EnumToString<CLIENT_PACKET_ID>((CLIENT_PACKET_ID)send_msg->packet_id);
+		FString packet_name = UAZUtility::EnumToString<PACKET_ID>((PACKET_ID)send_msg->packet_id);
 		//auto hash_code = std::hash<unsigned short>((unsigned short)send_msg->packet_id);
 		auto hash_code = GetTypeHash(send_msg->packet_id);
 		AddWaitProtocolData(packet_name, (uint8*)send_msg, packet_size, hash_code, WriteDetailLog(send_msg), FAZWaitProtocol::WaitAck);
@@ -102,7 +102,7 @@ bool UAZSocketHolder::SendPacket(BasePacket* send_msg, int packet_size)
 
 	if (!WriteDetailLog(send_msg))
 	{
-		FString packet_name = UAZUtility::EnumToString<CLIENT_PACKET_ID>((CLIENT_PACKET_ID)send_msg->packet_id);
+		FString packet_name = UAZUtility::EnumToString<PACKET_ID>((PACKET_ID)send_msg->packet_id);
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UAZSocketHolder::Send] %s byteSent"), *packet_name, len));
 	}
 
@@ -113,7 +113,7 @@ void UAZSocketHolder::InitIsShowWaitWidgetException()
 {
 	is_show_wait_widget_exception_protocols_.Empty();
 	// 로딩창 막는 패킷
-	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)CLIENT_PACKET_ID::IN_GAME_INPUT_REQUEST);
+	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)PACKET_ID::IN_GAME_INPUT_REQUEST);
 }
 
 void UAZSocketHolder::InitSendLoger()
@@ -141,7 +141,7 @@ void UAZSocketHolder::ShowWaitingWidget(bool is_forced)
 	}
 }
 
-bool UAZSocketHolder::IsShowWaitWidget(BasePacket* send_msg)
+bool UAZSocketHolder::IsShowWaitWidget(PACKET_HEADER* send_msg)
 {
 	AZ_PRINT_LOG_IF_FALSE(send_msg, false);
 	auto hash_code = GetTypeHash(send_msg->packet_id);
@@ -230,7 +230,7 @@ bool UAZSocketHolder::IsAlReadySendPacket(FString name)
 	return false;
 }
 
-void UAZSocketHolder::OutRequestProtocol(CLIENT_PACKET_ID packet_id, FString& out_request_protocol)
+void UAZSocketHolder::OutRequestProtocol(PACKET_ID packet_id, FString& out_request_protocol)
 {
 	out_request_protocol = UAZUtility::EnumToString(packet_id);
 }
@@ -293,7 +293,7 @@ FString UAZSocketHolder::GetWaitProtocol(TArray<FString> protocol_name_tag)
 	return TEXT("");
 }
 
-bool UAZSocketHolder::WriteDetailLog(BasePacket* send_msg)
+bool UAZSocketHolder::WriteDetailLog(PACKET_HEADER* send_msg)
 {
 	if (send_msg)
 	{

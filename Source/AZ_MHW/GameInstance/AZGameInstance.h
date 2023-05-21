@@ -18,7 +18,6 @@
 #include <thread>
 #include <queue>
 #pragma comment(lib, "ws2_32.lib")
-#include "Client_Packet.h"
 #include "InGamePacket.h"
 // client end
 
@@ -45,7 +44,7 @@ DECLARE_DELEGATE_OneParam(FDle_MoveInfo, const FSetMoveInfo&); // 캐릭터 오�
 DECLARE_DELEGATE_OneParam(FChat_Broadcast_Success, const FString&); // 채팅 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_Dynamic_OneParam, FString, SomeParameter);
 
-DECLARE_DELEGATE_RetVal_OneParam(bool, CLIENT_RECV_PACKET, BasePacket*);
+DECLARE_DELEGATE_RetVal_OneParam(bool, CLIENT_RECV_PACKET, PACKET_HEADER*);
 
 class UserManager;
 class Odbc;
@@ -189,14 +188,14 @@ public:
 public:
 	SOCKET sock;
 	SOCKADDR_IN sa; // 목적지+포트
-	Login_Send_Packet signin_packet;
+	LOGIN_REQUEST_PACKET signin_packet;
 
 	std::thread recv_thread_;
 
 	bool recevie_connected = true;
 
 	// Define a queue to store the received data
-	std::queue<BasePacket*> receive_data_queue_;
+	std::queue<PACKET_HEADER*> receive_data_queue_;
 
 	// Define a mutex to ensure thread-safe access to the queue
 	std::mutex received_data_mutex;
