@@ -112,8 +112,8 @@ bool UAZSocketHolder::SendPacket(BasePacket* send_msg, int packet_size)
 void UAZSocketHolder::InitIsShowWaitWidgetException()
 {
 	is_show_wait_widget_exception_protocols_.Empty();
-	// 추가하기
-	//IsShowWaitWidgetExceptionProtocols.Emplace(MHash::Str("FCG_ATTACK_SKILL_CASTING_SYN"));
+	// 로딩창 막는 패킷
+	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)CLIENT_PACKET_ID::IN_GAME_INPUT_REQUEST);
 }
 
 void UAZSocketHolder::InitSendLoger()
