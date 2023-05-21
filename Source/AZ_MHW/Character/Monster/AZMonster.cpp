@@ -109,7 +109,7 @@ void AAZMonster::SetMonsterInfo()
 	patrol_range_				= monster_info->patrol_range;
 	patrol_delay_				= monster_info->patrol_delay;
 	percept_radius_				= monster_info->percept_radius;
-	behavior_tree_filename_		= monster_info->behavior_tree_filename;
+	name_						= monster_info->name;
 }
 
 void AAZMonster::SetBossInfo()

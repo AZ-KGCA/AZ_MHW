@@ -179,7 +179,7 @@ void AAZAIController::SetUpProperties()
 void AAZAIController::SetUpBehaviorTree()
 {
 	// Get assets
-	behavior_tree_ = UAZGameSingleton::instance()->monster_mgr_->GetBehaviorTree(owner_->behavior_tree_filename_);
+	behavior_tree_ = UAZGameSingleton::instance()->monster_mgr_->GetBehaviorTree(owner_->name_);
 	if (!IsValid(behavior_tree_)) return;
 	
 	// Initialise blackboard

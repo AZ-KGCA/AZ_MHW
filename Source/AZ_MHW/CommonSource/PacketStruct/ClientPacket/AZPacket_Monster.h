@@ -11,7 +11,21 @@ struct FMonsterBasePacket : BasePacket
 	FMonsterBasePacket(int32 serial) : monster_serial(serial) {};
 };
 
+// S->C Packet to spawn a monster at a location
+struct FCG_MONSTER_SPAWN_CMD : FMonsterBasePacket
+{
+	int32 monster_id;
+	FVector location;
+	FRotator rotation;
+
+	FCG_MONSTER_SPAWN_CMD() :
+		monster_id(-1), location(FVector::ZeroVector), rotation(FRotator::ZeroRotator) {};
+	FCG_MONSTER_SPAWN_CMD(int32 serial) :
+		monster_id(-1), location(FVector::ZeroVector), rotation(FRotator::ZeroRotator) {};
+};
+
 // S->C Packet to adjust the basic transform of a monster
+// is_forced: true when used for initialisation
 struct FCG_MONSTER_TRANSFORM_CMD : FMonsterBasePacket
 {
 	FVector location;

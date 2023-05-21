@@ -55,7 +55,7 @@ bool UAZMonsterMgr::LoadBehaviorTreeAssets()
 
 		if (auto bt_asset = Cast<UBehaviorTree>(asset_data.GetAsset()))
 		{
-			behavior_tree_map_.Add(FName(filename_part), bt_asset);
+			behavior_tree_map_.Add(FName(filename_part.Mid(3)), bt_asset);
 		}
 	}
 
@@ -85,7 +85,7 @@ bool UAZMonsterMgr::ConvertMonsterTable()
 		monster_info.patrol_range				= monster_data->patrol_range;
 		monster_info.patrol_delay				= UAZUtility::MillisecondsToSeconds(monster_data->patrol_delay);
 		monster_info.percept_radius				= monster_data->percept_radius;
-		monster_info.behavior_tree_filename		= FName(TEXT("BT_") + monster_data->behavior_tree_filename);
+		monster_info.name						= FName(monster_data->name);
 
 		monster_info_map_.Add(monster_info.monster_id, monster_info);
 	}
@@ -217,4 +217,17 @@ UBehaviorTree* UAZMonsterMgr::GetBehaviorTree(FName filename)
 		return *behavior_tree;
 	}
 	else return nullptr;
+}
+
+FName UAZMonsterMgr::GetMonsterName(int32 monster_id)
+{
+	if (const auto monster_info = monster_info_map_.Find(monster_id))
+	{
+		return monster_info->name;
+	}
+	else
+	{
+		UE_LOG(AZMonster, Error, TEXT("[UAZMonsterMgr][#%d] Monster is not found. Name cannot be retrieved."), monster_id);
+		return NAME_None;
+	}
 }

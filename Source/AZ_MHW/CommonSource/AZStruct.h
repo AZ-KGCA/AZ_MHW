@@ -121,7 +121,7 @@ struct MonsterActionStateInfo
 		state_info.priority_score = priority_score;
 		state_info.move_state = move_state;
 		state_info.animation_name = UAZUtility::CharArrToFName(animation_name);
-		state_info.animation_name = UAZUtility::CharArrToFName(montage_section_name);
+		state_info.montage_section_name = UAZUtility::CharArrToFName(montage_section_name);
 		state_info.target_angle = target_angle;
 
 		return state_info;
@@ -176,7 +176,7 @@ struct FBossEscapeStats
 		this->num_allowed_escapes = num_allowed_escapes;
 		this->escape_health_ratios = escape_health_ratios;
 	}
-	FBossEscapeStats(const int32 num_total_escapes, const TArray<int32>& escape_health_ratios)
+	FBossEscapeStats(const int32 num_allowed_escapes, const TArray<int32>& escape_health_ratios)
 	{
 		this->num_allowed_escapes = num_allowed_escapes;
 		for (const int32 escape_health_ratio : escape_health_ratios)
@@ -344,18 +344,18 @@ struct FMonsterInfo
 	int32 patrol_range;
 	float patrol_delay;
 	int32 percept_radius;
-	FName behavior_tree_filename;
+	FName name;
 
 	FMonsterInfo()
 	{
 		monster_id = -1;
+		name = NAME_None;
 		behavior_type = EMonsterBehaviorType::Neutral;
 		base_hp = 1000;
 		sight_configs = FMonsterSightConfigs();
 		patrol_range = 1000;
 		patrol_delay = 5.0f;
 		percept_radius = 1500;
-		behavior_tree_filename = NAME_None;
 	}
 };
 

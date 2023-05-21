@@ -14,9 +14,9 @@
 #include "AZ_MHW/CommonSource/Table/TotalItemData.h"
 #include "AZ_MHW/CommonSource/Table/BossData.h"
 #include "AZ_MHW/CommonSource/Table/BottleData.h"
-#include "AZ_MHW/CommonSource/Table/MonsterData.h"
 #include "AZ_MHW/CommonSource/Table/PotionData.h"
 #include "AZ_MHW/CommonSource/Table/MonsterCombatActionData.h"
+#include "AZ_MHW/CommonSource/Table/MonsterData.h"
 
 void UAZTableMgr::LoadAll()
 {
@@ -72,10 +72,6 @@ void UAZTableMgr::LoadAll()
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UBottleData] Load Fail!")));
 	}
-	if (!_Load<UMonsterData>("MonsterData.csv"))
-	{
-		UAZUtility::ShippingLog(FString::Printf(TEXT("[UMonsterData] Load Fail!")));
-	}
 	if (!_Load<UPotionData>("PotionData.csv"))
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UPotionData] Load Fail!")));
@@ -83,5 +79,9 @@ void UAZTableMgr::LoadAll()
 	if (!_Load<UMonsterCombatActionData>("MonsterCombatActionData.csv"))
 	{
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UMonsterCombatActionData] Load Fail!")));
+	}
+	if (!_Load<UMonsterData>("MonsterData.csv"))
+	{
+		UAZUtility::ShippingLog(FString::Printf(TEXT("[UMonsterData] Load Fail!")));
 	}
 }

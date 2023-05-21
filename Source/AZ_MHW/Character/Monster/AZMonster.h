@@ -120,7 +120,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") int32 patrol_range_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") float patrol_delay_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") int32 percept_radius_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") FName behavior_tree_filename_;
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") FName name_;
 	UPROPERTY(EditAnywhere, Category = "AZ | Monster | AIController") float acceptance_radius_;
 
 	// Animation: Defined from table

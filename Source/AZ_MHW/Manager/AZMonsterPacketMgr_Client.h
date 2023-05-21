@@ -17,7 +17,10 @@ private:
 	AAZMonster_Client* GetMonster(int32 monster_serial);
 	
 public:
+	void AddMonster(int32 monster_serial, AAZMonster_Client* monster);
+	
 	// Server to Client
+	void Receive_FCG_MONSTER_SPAWN_CMD(const struct FCG_MONSTER_SPAWN_CMD& recv_msg);
 	void Receive_FCG_MONSTER_TRANSFORM_CMD(const struct FCG_MONSTER_TRANSFORM_CMD& recv_msg);
 	void Receive_FCG_MONSTER_BODY_STATE_CMD(const struct FCG_MONSTER_BODY_STATE_CMD& recv_msg);
 	void Receive_FCG_MONSTER_ENTER_COMBAT_CMD(const struct FCG_MONSTER_ENTER_COMBAT_CMD& recv_msg);
@@ -26,5 +29,5 @@ public:
 	void Receive_FCG_PLAYER_ATTACK_HIT_CMD(const struct FCG_PLAYER_ATTACK_HIT_CMD& recv_msg);
 
 private:
-	TMap<int32, AAZMonster_Client*> monster_map_;	
+	UPROPERTY() TMap<int32, AAZMonster_Client*> monster_map_;
 };

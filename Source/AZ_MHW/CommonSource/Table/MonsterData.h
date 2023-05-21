@@ -12,6 +12,7 @@ class AZ_MHW_API UMonsterData : public UTableBase
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 monster_id;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString name;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString behavior_type;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 base_hp;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 sight_radius;
@@ -22,7 +23,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 patrol_range;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 patrol_delay;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 percept_radius;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString behavior_tree_filename;
 
 public:
 	virtual void Load(TMap<FString, FString>& data) final;

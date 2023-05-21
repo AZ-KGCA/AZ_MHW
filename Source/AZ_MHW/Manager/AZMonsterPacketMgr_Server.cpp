@@ -5,6 +5,7 @@
 #include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/CommonSource/PacketStruct/ServerPacket/AZPacket_Monster.h"
+#include "Kismet/GameplayStatics.h"
 
 AAZMonster* UAZMonsterPacketMgr_Server::GetMonster(int32 monster_serial)
 {
@@ -12,24 +13,57 @@ AAZMonster* UAZMonsterPacketMgr_Server::GetMonster(int32 monster_serial)
 	{
 		return *monster;
 	}
-	else return nullptr;
+	else
+	{
+		UE_LOG(AZMonster_Network, Error, TEXT("[UAZMonsterPacketMgr_Server][#%d] Monster not found!"), monster_serial);
+		return nullptr;
+	}
 }
 
-void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_TRANSFORM_CMD(bool is_forced)
+void UAZMonsterPacketMgr_Server::AddMonster(AAZMonster* monster)
 {
-	FCG_MONSTER_TRANSFORM_CMD packet(owner_->object_serial_);
-	packet.location = owner_->GetActorLocation();
-	packet.rotation = owner_->GetActorRotation();
+	monster->object_serial_ = next_monster_serial_;
+	monster_map_.Add(next_monster_serial_, monster);
+	next_monster_serial_++;
+}
+
+void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_SPAWN_CMD(int32 monster_serial)
+{
+	// must be called after AddMonster()
+	AAZMonster* target = GetMonster(monster_serial);
+	if (!target) return;
+
+	FCG_MONSTER_SPAWN_CMD packet(target->object_serial_);
+	packet.monster_id = target->monster_id_;
+	packet.location = target->GetActorLocation();
+	packet.rotation = target->GetActorRotation();
+
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketMgr_Server][#%d][Send_FCG_MONSTER_SPAWN_CMD] ID: %d, Location: %s, Rotation %s"),
+		target->object_serial_, packet.monster_id, *packet.location.ToString(), *packet.rotation.ToString());
+}
+
+void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_TRANSFORM_CMD(int32 monster_serial, bool is_forced)
+{
+	AAZMonster* target = GetMonster(monster_serial);
+	if (!target) return;
+	
+	FCG_MONSTER_TRANSFORM_CMD packet(target->object_serial_);
+	packet.location = target->GetActorLocation();
+	packet.rotation = target->GetActorRotation();
+	packet.is_forced = is_forced;
 
 	//TODO SEND
-	UE_LOG(AZMonster, Log, TEXT("[#%d][Send_FCG_MONSTER_TRANSFORM_CMD] %s, Location: %s, Rotation %s"),
-		owner_->object_serial_, is_forced ? TEXT("FORCED") : TEXT("NOT FORCED"), *packet.location.ToString(), *packet.rotation.ToString());
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketMgr_Server][#%d][Send_FCG_MONSTER_TRANSFORM_CMD] %s, Location: %s, Rotation %s"),
+		target->object_serial_, is_forced ? TEXT("FORCED") : TEXT("NOT FORCED"), *packet.location.ToString(), *packet.rotation.ToString());
 }
 
-void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_BODY_STATE_CMD()
+void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_BODY_STATE_CMD(int32 monster_serial)
 {
+	AAZMonster* target = GetMonster(monster_serial);
+	if (!target) return;
+	
 	FCG_MONSTER_BODY_STATE_CMD packet;
-	TMap<EMonsterBodyPart, FBossBodyPartState>* states = owner_->health_component_->GetBodyPartStates();
+	TMap<EMonsterBodyPart, FBossBodyPartState>* states = target->health_component_->GetBodyPartStates();
 	
 	packet.head_state = FBossBodyPartDebuffState(states->Find(EMonsterBodyPart::Head));
 	packet.back_state = FBossBodyPartDebuffState(states->Find(EMonsterBodyPart::Back));
@@ -38,44 +72,58 @@ void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_BODY_STATE_CMD()
 	packet.tail_state = FBossBodyPartDebuffState(states->Find(EMonsterBodyPart::Tail));
 
 	//TODO SEND
-	UE_LOG(AZMonster, Log, TEXT("[#%d][Send_FCG_MONSTER_BODY_STATE_CMD]"), owner_->object_serial_);
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketMgr_Server][#%d][Send_FCG_MONSTER_BODY_STATE_CMD]"), target->object_serial_);
 }
 
-void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_ENTER_COMBAT_CMD()
+void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_ENTER_COMBAT_CMD(int32 monster_serial)
 {
-	FCG_MONSTER_ENTER_COMBAT_CMD packet(owner_->object_serial_);
+	AAZMonster* target = GetMonster(monster_serial);
+	if (!target) return;
+	FCG_MONSTER_ENTER_COMBAT_CMD packet(monster_serial);
 
 	//TODO SEND
-	UE_LOG(AZMonster, Log, TEXT("[#%d][Receive_FCG_MONSTER_ENTER_COMBAT_CMD]"), owner_->object_serial_);
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketMgr_Server][#%d][Receive_FCG_MONSTER_ENTER_COMBAT_CMD]"), monster_serial);
 }
 
-void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_ACTION_START_CMD(float start_position)
+void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_ACTION_START_CMD(int32 monster_serial, float start_position)
 {
-	FCG_MONSTER_ACTION_START_CMD packet(owner_->object_serial_);
-	packet.state_info = MonsterActionStateInfo(owner_->action_state_info_);
+	AAZMonster* target = GetMonster(monster_serial);
+	if (!target) return;
+	
+	FCG_MONSTER_ACTION_START_CMD packet(target->object_serial_);
+	packet.state_info = MonsterActionStateInfo(target->action_state_info_);
 
-	UE_LOG(AZMonster, Log, TEXT("[#%d][Send_FCG_MONSTER_ACTION_START_CMD] Action name: %s, Montage section: %s, Start from: %f"),
-		owner_->object_serial_, *owner_->action_state_info_.animation_name.ToString(),
-		*owner_->action_state_info_.montage_section_name.ToString(), start_position);
+	//TODO SEND
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketMgr_Server][#%d][Send_FCG_MONSTER_ACTION_START_CMD] Action name: %s, Montage section: %s, Start from: %f"),
+		target->object_serial_, *target->action_state_info_.animation_name.ToString(),
+		*target->action_state_info_.montage_section_name.ToString(), start_position);
 }
 
-void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_PART_CHANGE_CMD(EMonsterBodyPart body_part, EMonsterBodyPartChangeType change_type)
+void UAZMonsterPacketMgr_Server::Send_FCG_MONSTER_PART_CHANGE_CMD(int32 monster_serial, EMonsterBodyPart body_part, EMonsterBodyPartChangeType change_type)
 {
-	FCG_MONSTER_PART_CHANGE_CMD packet(owner_->object_serial_);
+	AAZMonster* target = GetMonster(monster_serial);
+	if (!target) return;
+	
+	FCG_MONSTER_PART_CHANGE_CMD packet(target->object_serial_);
 	packet.body_part = body_part;
 	packet.change_type = change_type;
 
-	UE_LOG(AZMonster, Log, TEXT("[#%d][Receive_FCG_MONSTER_PART_CHANGE_CMD], %s %s"),
-		owner_->object_serial_, *UAZUtility::EnumToString(body_part), *UAZUtility::EnumToString(change_type));
+	//TODO SEND
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketMgr_Server][#%d][Receive_FCG_MONSTER_PART_CHANGE_CMD], %s %s"),
+		target->object_serial_, *UAZUtility::EnumToString(body_part), *UAZUtility::EnumToString(change_type));
 }
 
-void UAZMonsterPacketMgr_Server::Send_FCG_PLAYER_ATTACK_HIT_CMD(int32 attacker_serial, FVector hit_pos, int32 damage_amount)
+void UAZMonsterPacketMgr_Server::Send_FCG_PLAYER_ATTACK_HIT_CMD(int32 monster_serial, int32 attacker_serial, FVector hit_pos, int32 damage_amount)
 {
-	FCG_PLAYER_ATTACK_HIT_CMD packet(owner_->object_serial_);
+	AAZMonster* target = GetMonster(monster_serial);
+	if (!target) return;
+	
+	FCG_PLAYER_ATTACK_HIT_CMD packet(target->object_serial_);
 	packet.player_serial = attacker_serial;
 	packet.hit_position = hit_pos;
 	packet.damage_amount = damage_amount;
 
-	UE_LOG(AZMonster, Log, TEXT("[#%d][Receive_FCG_PLAYER_ATTACK_HIT_CMD], From: %d, Damage dealt: %d, Position: %s"),
-		owner_->object_serial_, attacker_serial, damage_amount, *hit_pos.ToString());
+	//TODO SEND
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketMgr_Server][#%d][Receive_FCG_PLAYER_ATTACK_HIT_CMD], From: %d, Damage dealt: %d, Position: %s"),
+		target->object_serial_, attacker_serial, damage_amount, *hit_pos.ToString());
 }

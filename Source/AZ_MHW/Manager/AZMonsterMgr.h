@@ -34,7 +34,7 @@ public:
 	class UBehaviorTree* GetBehaviorTree(FName filename);
 
 	// Utility functions
-	void AddToActionNameMaps(FName animation_name, FName montage_section_name);
+	FName GetMonsterName(int32 monster_id);
 	
 private:
 	// Table maps

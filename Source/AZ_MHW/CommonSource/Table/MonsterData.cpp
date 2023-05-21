@@ -8,6 +8,11 @@ void UMonsterData::Load(TMap<FString, FString>& data)
 	{
 		monster_id = FCString::Atoi(**value_ptr);
 	}
+	value_ptr = data.Find("name");
+	if (value_ptr != nullptr)
+	{
+		name = **value_ptr;
+	}
 	value_ptr = data.Find("behavior_type");
 	if (value_ptr != nullptr)
 	{
@@ -57,10 +62,5 @@ void UMonsterData::Load(TMap<FString, FString>& data)
 	if (value_ptr != nullptr)
 	{
 		percept_radius = FCString::Atoi(**value_ptr);
-	}
-	value_ptr = data.Find("behavior_tree_filename");
-	if (value_ptr != nullptr)
-	{
-		behavior_tree_filename = **value_ptr;
 	}
 }
