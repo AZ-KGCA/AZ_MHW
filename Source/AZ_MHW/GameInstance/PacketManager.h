@@ -41,43 +41,17 @@ public:
 private:
 	void CreateCompent(const UINT32 max_client);
 
-	void ClearConnectionInfo(INT32 client_index);
-
 	void EnqueuePacketData(const UINT32 client_index);
 
 	PacketInfo DequePacketData();
 
 	PacketInfo DequeSystemPacketData();
 
-	void ProcessPacket();
-
-	void ProcessRecvPacket(const UINT32 client_index, const UINT16 packet_id, const UINT16 packet_size, char* P_packet);
-
-	void ProcessuserConnect(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProcessUserDisConnect(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProcessLogin(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProcessSignup(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProcessChatting(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProcessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProcessInput(UINT32 client_index, UINT16 packet_size, char* P_packet);
-	
-	typedef void (PacketManager::* PROCESS_RECV_PACKET_FUNCTION)(UINT32, UINT16, char*);
-
-	std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION> recv_funtion_dictionary_;
-
 	UserManager* user_manager_;
 
 	std::function<void(int, char*)> send_mq_data_func_;
 
 	bool is_run_process_thread_ = false;
-
-	std::thread process_thread_;
 
 	std::mutex lock_;
 

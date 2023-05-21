@@ -21,7 +21,6 @@ void UAZSocketHolder::Init(ESocketHolderType holder_type)
 	socket_holder_type_ = holder_type;
 
 	game_instance_ = Cast<UAZGameInstance>(GetOuter());
-	game_instance_->call_recv_packet_.BindUObject(this, &UAZSocketHolder::ProcessPacket);
 	InitIsShowWaitWidgetException();
 	InitSendLoger();
 }

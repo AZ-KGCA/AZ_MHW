@@ -16,6 +16,7 @@
 #include "AZ_MHW/GameMode/AZGameMode_InGame.h"
 #include "AZ_MHW/HUD/AZHUD_InGame.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
+#include "AZ_MHW/SocketHolder/PacketFunction.h"
 #include "..\Manager\AZInventoryManager.h"
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
@@ -48,6 +49,10 @@ void UAZGameInstance::Init()
 	Super::Init();
 
 	UAZGameSingleton::instance();
+
+	packet_function_ = NewObject<UPacketFunction>(this);
+	packet_function_->Init();
+	call_recv_packet_.BindUObject(packet_function_ ,&UPacketFunction::ProcessPacket);
 
 	msg_handler = NewObject<UAZMsgHandler>(this);
 
@@ -332,7 +337,7 @@ void UAZGameInstance::TimerProcessPacket()
 	{
 		//is_idle = false;
 		// 요청이 있는 경우 처리
-		ProcessRecvPacket(packet_data.client_index_, packet_data.packet_id_, packet_data.data_size_, packet_data.P_data_ptr_);
+		ProcessSystemPacket(packet_data.client_index_, packet_data.packet_id_, packet_data.data_size_, packet_data.P_data_ptr_);
 	}
 
 	if (timer_destroy_sw)
@@ -342,51 +347,8 @@ void UAZGameInstance::TimerProcessPacket()
 	}
 }
 
-void UAZGameInstance::ProcessPacket()
-{
-	UE_LOG(LogTemp, Warning, TEXT("ProcessPacket"));
-
-	while (is_run_process_thread_)
-	{
-		bool is_idle = true;
-
-		// 이미 연결이 된 유저가 보낸 요청이 있는 경우
-		if (auto packet_data = DequePacketData(); packet_data.packet_id_ > (UINT16)PACKET_ID::SYS_END)
-		{
-			is_idle = false;
-			// 요청이 있는 경우 처리
-			ProcessRecvPacket(packet_data.client_index_, packet_data.packet_id_, packet_data.data_size_, packet_data.P_data_ptr_);
-		}
-
-		// 시스템 패킷 (연결 & 연결 종료가 발생한 경우)
-		if (auto packet_data = DequeSystemPacketData(); packet_data.packet_id_ != 0)
-		{
-			is_idle = false;
-			// 요청이 있는 경우 처리
-			ProcessRecvPacket(packet_data.client_index_, packet_data.packet_id_, packet_data.data_size_, packet_data.P_data_ptr_);
-		}
-
-		if (is_idle)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
-	}
-}
-
 void UAZGameInstance::PacketInit(const UINT32 max_client)
 {
-	// unordered_map
-	recv_funtion_dictionary_ = std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION>();
-
-	// (PACKET_ID 설정) Key, Value 설정
-	recv_funtion_dictionary_[(int)PACKET_ID::SYS_USER_CONNECT] = &UAZGameInstance::ProcessuserConnect;
-	recv_funtion_dictionary_[(int)PACKET_ID::SYS_USER_DISCONNECT] = &UAZGameInstance::ProcessUserDisConnect;
-	recv_funtion_dictionary_[(int)PACKET_ID::LOGIN_REQUEST] = &UAZGameInstance::ProcessLogin;
-	recv_funtion_dictionary_[(int)PACKET_ID::SIGNIN_REQUEST] = &UAZGameInstance::ProcessSignup;
-	recv_funtion_dictionary_[(int)PACKET_ID::CHAT_SEND_REQUEST] = &UAZGameInstance::ProcessChatting;
-	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_REQUEST] = &UAZGameInstance::ProocessInGame;
-	//recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_MOVE_START] = &UAZGameInstance::ProocessInPlayerMove;
-
 	CreateCompent(max_client);
 }
 
@@ -501,14 +463,29 @@ PacketInfo UAZGameInstance::DequeSystemPacketData()
 	return packet_data;
 }
 
+void UAZGameInstance::ProcessSystemPacket(const UINT32 client_index, const UINT16 packet_id, const UINT16 packet_size, char* P_packet)
+{
+	switch ((PACKET_ID)packet_id)
+	{
+	case PACKET_ID::SYS_USER_CONNECT:
+	{
+		ProcessuserConnect(client_index, packet_size, P_packet);
+	}
+	break;
+	case PACKET_ID::SYS_USER_DISCONNECT:
+	{
+		ProcessuserConnect(client_index, packet_size, P_packet);
+	}
+	break;
+	}
+}
+
 void UAZGameInstance::ProcessRecvPacket(const UINT32 client_index, const UINT16 packet_id, const UINT16 packet_size, char* P_packet)
 {
-	// 요청한 패킷 id로 클라이언트 객체 찾음
-	auto iter = recv_funtion_dictionary_.find(packet_id);
-	if (iter != recv_funtion_dictionary_.end())
+	if (call_recv_packet_.IsBound())
 	{
-		// 찾은 객체로 처리
-		(this->*(iter->second))(client_index, packet_size, P_packet);
+		PACKET_HEADER* recv_packet = (PACKET_HEADER*)P_packet;
+		call_recv_packet_.Execute(client_index, recv_packet);
 	}
 }
 
@@ -528,128 +505,6 @@ void UAZGameInstance::ProcessUserDisConnect(UINT32 client_index, UINT16 packet_s
 	// 연결이 끊어진 경우 user 반환
 	ClearConnectionInfo(client_index);
 }
-
-void UAZGameInstance::ProcessLogin(UINT32 client_index, UINT16 packet_size, char* P_packet)
-{
-	auto  P_login_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
-
-	auto P_user_id = ConvertCharToSqlTCHAR(P_login_req_packet->user_id);
-	auto P_user_pw = ConvertCharToSqlTCHAR(P_login_req_packet->user_pw);
-	UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
-
-	if (odbc->LoginCheckSQL(P_user_id, P_user_pw))
-	{
-
-		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
-
-		LOGIN_RESPONSE_PACKET login_res_packet;
-		login_res_packet.packet_id = (int)PACKET_ID::LOGIN_RESPONSE_SUCCESS;
-		login_res_packet.packet_length = sizeof(login_res_packet);
-		//login_res_packet.clinet_id = client_index;
-
-		SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
-
-		LOGIN_RESPONSE_PACKET login_res_packet;
-		login_res_packet.packet_id = (int)PACKET_ID::LOGIN_RESPONSE_FAIL;
-		login_res_packet.packet_length = sizeof(login_res_packet);
-
-		SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
-	}
-}
-
-void UAZGameInstance::ProcessSignup(UINT32 client_index, UINT16 packet_size, char* P_packet)
-{
-	dbitem record;
-
-	auto  P_signup_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
-
-	auto P_user_id = ConvertCharToSqlTCHAR(P_signup_req_packet->user_id); ;
-	auto P_user_pw = ConvertCharToSqlTCHAR(P_signup_req_packet->user_pw); ;
-
-	UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
-
-	record.name = P_user_id;
-	record.pass = P_user_pw;
-
-	if (Fclient_connect_.IsBound() == true)	Fclient_connect_.Execute();
-
-	if (odbc->AddSQL(record))
-	{
-		//odbc.Load();
-
-		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
-
-		LOGIN_RESPONSE_PACKET login_res_packet;
-		login_res_packet.packet_id = (int)PACKET_ID::SIGNIN_RESPONSE_SUCCESS;
-		login_res_packet.packet_length = sizeof(login_res_packet);
-		//login_res_packet.clinet_id = client_index;
-
-		SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
-
-		LOGIN_RESPONSE_PACKET login_res_packet;
-		login_res_packet.packet_id = (int)PACKET_ID::SIGNIN_RESPONSE_FAIL;
-		login_res_packet.packet_length = sizeof(login_res_packet);
-		//login_res_packet.clinet_id = client_index;
-
-		SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
-	}
-}
-
-void UAZGameInstance::ProcessChatting(UINT32 client_index, UINT16 packet_size, char* P_packet)
-{
-	//Defind defind;
-	auto  P_login_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
-
-	LOGIN_REQUEST_PACKET login_res_packet;
-	login_res_packet.packet_id = (int)PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS;
-	login_res_packet.packet_length = sizeof(login_res_packet);
-	//login_res_packet.clinet_id = client_index;
-	strcpy_s(login_res_packet.user_id, sizeof(login_res_packet.user_id), P_login_req_packet->user_id);
-
-	UE_LOG(LogTemp, Warning, TEXT("[ProcessChatting Send_GameInstance] packet_id : %d, packet_length : %d packet_data %s\n"),
-		login_res_packet.packet_id, login_res_packet.packet_length, *defind.CharArrayToFString(login_res_packet.user_id));
-
-	BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
-}
-
-void UAZGameInstance::ProocessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet)
-{
-	/*SetMoveInfo move_info_packet;
-	move_info_packet.packet_id = (int)PACKET_ID::IN_GAME_SUCCESS;
-	move_info_packet.packet_length = sizeof(move_info_packet);
-	//move_info_packet.clinet_id = client_index;
-	move_info_packet.fvector_ = FVector(100.0f, 0.0f, 0.0f);
-	move_info_packet.frotator_ = FRotator(0.0f, 0.0f, 500.0f);
-
-	Cast<AAZPlayerController_Server>(GetPlayerController())->CreateClonePlayer(client_index);
-	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame_GameInstance] fvector_ : %s / frotator_ : %s\n"), *move_info_packet.fvector_.ToString(), *move_info_packet.frotator_.ToString());
-
-	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);*/
-}
-
-void UAZGameInstance::ProocessInPlayerMove(UINT32 client_index, UINT16 packet_size, char* P_packet)
-{
-	/*auto  P_move_info_packet = reinterpret_cast<SetMoveInfo*>(P_packet);
-	SetMoveInfo move_info_packet;
-	//move_info_packet.packet_id = (int)PACKET_ID::IN_GAME_MOVE_END;
-	move_info_packet.packet_length = sizeof(move_info_packet);
-	//move_info_packet.clinet_id = client_index;
-	move_info_packet.fvector_ = P_move_info_packet->fvector_;
-	move_info_packet.frotator_ = P_move_info_packet->frotator_;
-
-	UE_LOG(LogTemp, Warning, TEXT("[move_info_2_GameInstance] client : %d / fvector_ : %s / frotator_ : %s\n"), client_index, *move_info_packet.fvector_.ToString(), *move_info_packet.frotator_.ToString());
-
-	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);*/
-}
-
 
 // client
 bool UAZGameInstance::Server_Connect(const FString& ip, int32 port)
@@ -856,7 +711,7 @@ void UAZGameInstance::ClientTimerProcessPacket()
 		PACKET_HEADER* base_packet = receive_data_queue_.front();
 		if (call_recv_packet_.IsBound())
 		{
-			bool retval = call_recv_packet_.Execute(base_packet);
+			bool retval = call_recv_packet_.Execute(0, base_packet);
 			if (retval == false)
 			{
 				AZ_LOG("[client Packet process failed]:[id:%d]", base_packet->packet_id);

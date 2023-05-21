@@ -44,7 +44,8 @@ DECLARE_DELEGATE_OneParam(FDle_MoveInfo, const FSetMoveInfo&); // 캐릭터 오�
 DECLARE_DELEGATE_OneParam(FChat_Broadcast_Success, const FString&); // 채팅 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_Dynamic_OneParam, FString, SomeParameter);
 
-DECLARE_DELEGATE_RetVal_OneParam(bool, CLIENT_RECV_PACKET, PACKET_HEADER*);
+DECLARE_DELEGATE_RetVal_TwoParams(bool, RECV_PACKET, UINT32, PACKET_HEADER*);
+
 
 class UserManager;
 class Odbc;
@@ -77,8 +78,6 @@ public:
 
 	void TimerProcessPacket();
 
-	void ProcessPacket();
-
 	bool is_run_process_thread_ = false;
 
 public:
@@ -100,6 +99,7 @@ public:
 	std::function<void(UINT32, UINT32, char*)> BroadCastSendPacketFunc;
 
 	SQLTCHAR* ConvertCharToSqlTCHAR(const char* charArray);
+	Odbc* odbc;
 
 private:
 	void CreateCompent(const UINT32 max_client);
@@ -112,29 +112,15 @@ private:
 
 	PacketInfo DequeSystemPacketData();
 
+	void ProcessSystemPacket(const UINT32 client_index, const UINT16 packet_id, const UINT16 packet_size, char* P_packet);
+
 	void ProcessRecvPacket(const UINT32 client_index, const UINT16 packet_id, const UINT16 packet_size, char* P_packet);
 
 	void ProcessuserConnect(UINT32 client_index, UINT16 packet_size, char* P_packet);
 
 	void ProcessUserDisConnect(UINT32 client_index, UINT16 packet_size, char* P_packet);
 
-	void ProcessLogin(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProcessSignup(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProcessChatting(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProocessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	void ProocessInPlayerMove(UINT32 client_index, UINT16 packet_size, char* P_packet);
-
-	typedef void (UAZGameInstance::* PROCESS_RECV_PACKET_FUNCTION)(UINT32, UINT16, char*);
-
-	std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION> recv_funtion_dictionary_;
-
 	UserManager* user_manager_;
-
-	Odbc* odbc;
 
 	std::function<void(int, char*)> send_mq_data_func_;
 
@@ -162,7 +148,7 @@ public:	// Delegate
 
 	//bool in_game_ = false;
 	int32 client_index_;
-	CLIENT_RECV_PACKET call_recv_packet_;
+	RECV_PACKET call_recv_packet_;
 
 public:
 	bool Server_Connect(const FString& ip, int32 port);
@@ -219,6 +205,7 @@ public:
 	UPROPERTY() class UAZGameOption* game_option;
 	UPROPERTY() class UAZInventoryManager* inventory_mgr;
 	UPROPERTY() class UAZInputMgr* input_mgr_;
+	UPROPERTY() class UPacketFunction* packet_function_;
 	UPROPERTY() FMapChannelInfo map_channel_info;
 
 private:

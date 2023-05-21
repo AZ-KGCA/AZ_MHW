@@ -153,7 +153,7 @@ public:
 
 	TArray<FString> GetWaitingProtocolNames() const;
 
-protected:
+public:
 	template<typename MsgType>
 	void _RegistLoger()
 	{
