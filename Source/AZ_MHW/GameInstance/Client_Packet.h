@@ -66,6 +66,10 @@ enum class CLIENT_PACKET_ID : UINT16
 	//IN_GAME_SUCCESS = 402,
 	//IN_GAME_FAIL = 403,
 
+	MONSTER_REQUEST = 601, // 몬스터 생성 요청 (클라 -> 서버로 전달)
+	MONSTER_RESPONSE = 602, // 몬스터 생성 응답 (서버 -> 클라로 전달) // 클라에서는 응답 할 일이 없기 때문에 필요없지만 일단 넣어둠 ..
+
+
 	PACKET_CHATNAME_REQ = 1001,
 };
 

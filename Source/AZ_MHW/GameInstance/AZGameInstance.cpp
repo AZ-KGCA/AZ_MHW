@@ -325,6 +325,7 @@ void UAZGameInstance::PacketInit(const UINT32 max_client)
 	recv_funtion_dictionary_[(int)PACKET_ID::CHAT_SEND_REQUEST] = &UAZGameInstance::ProcessChatting;
 	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_REQUEST] = &UAZGameInstance::ProocessInGame;
 	recv_funtion_dictionary_[(int)PACKET_ID::IN_GAME_MOVE_START] = &UAZGameInstance::ProocessInPlayerMove;
+	recv_funtion_dictionary_[(int)PACKET_ID::MONSTER_RESPONSE] = &UAZGameInstance::ProocessInPlayerMove;
 
 	CreateCompent(max_client);
 }
@@ -588,6 +589,21 @@ void UAZGameInstance::ProocessInPlayerMove(UINT32 client_index, UINT16 packet_si
 	BroadCastSendPacketFunc(client_index, sizeof(move_info_packet), (char*)&move_info_packet);
 }
 
+// add code
+void UAZGameInstance::ProocessMonsterCreate(UINT32 client_index, UINT16 packet_size, char* P_packet)
+{
+	// 클라에서 받은 패킷 풀기
+	auto client_monster_packet_ = reinterpret_cast<SetMoveInfo*>(P_packet);
+
+	SetMoveInfo monster_response_packet; // 서버에서 클라로 보낼 패킷 생성
+	monster_response_packet.packet_id = (int)PACKET_ID::MONSTER_RESPONSE; // 서버 -> 클라 (602 packet header 지정)
+	monster_response_packet.packet_length = sizeof(monster_response_packet); // 보낼 패킷 사이즈
+	monster_response_packet.fvector_ = client_monster_packet_->fvector_ + FVector(100.0f, 0.0f, 0.0f); // 클라에서 x 100을 받은거에서 100을 더해서 포장
+	monster_response_packet.frotator_ = client_monster_packet_->frotator_; // 클라에서 받은 Rotator 값 그대로 전송
+
+	BroadCastSendPacketFunc(client_index, sizeof(monster_response_packet), (char*)&monster_response_packet); // 현재 서버에 접속한 클라이언트들에게만 전송
+}
+
 
 // client 
 void UAZGameInstance::Server_Connect()
@@ -776,6 +792,11 @@ void UAZGameInstance::ClientTimerProcessPacket()
 			// 델리게이트 달아서 매니저로 보내자 일단
 			if (Fun_move_info_.IsBound() == true) Fun_move_info_.Execute(*received_ingmae_data_);
 			break;
+		case (UINT32)CLIENT_PACKET_ID::MONSTER_RESPONSE: // add code
+			UE_LOG(LogTemp, Warning, TEXT("[MONSTER_RESPONSE] packet id : %d vector : %s rotator : %s\n"),
+				received_ingmae_data_->packet_id, *received_ingmae_data_->fvector_.ToString(), *received_ingmae_data_->frotator_.ToString());
+			// 클라에서 해야할일 불라불라
+			break;
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch default] packet id : %d\n"), received_ingmae_data_->packet_id);
 			break;
@@ -799,6 +820,28 @@ void UAZGameInstance::InGameAccept()
 	login_send_packet.packet_length = sizeof(login_send_packet);
 
 	Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
+}
+
+void UAZGameInstance::Monster_Sample_Hello_World() // add code
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Monster_Sample_Hello]\n"));
+
+	// 서버로 보내고자 하는 패킷 정리
+	SetMoveInfo monster_default_spawn; // 몬스터 스폰 초기 위치 값
+	// 공통 사항 시작//
+	monster_default_spawn.packet_id = (int)CLIENT_PACKET_ID::MONSTER_REQUEST; // 몬스터 생성 요청 packet id
+	monster_default_spawn.packet_length = sizeof(monster_default_spawn); // 몬스터 생성 요청 패킷 총 크기
+	// 공통 사항 끝//
+
+	// 서버에 전달 하고자 하는 패킷 내용 
+	monster_default_spawn.fvector_ = FVector(100.0f, 0.0f, 0.0f); // 몬스터 초기 위치값 x : 100 y : 0 z : 0
+	monster_default_spawn.frotator_ = FRotator(0.0f, 0.0f, 0.0f); // 몬스터 초기 회전값 x : 0 y : 0 z : 0
+
+	// 보내고자 한 내용을 패킷에 포장했기 때문에 서버로 전송하기
+	Server_Packet_Send((char*)&monster_default_spawn, monster_default_spawn.packet_length); // Server_Packet_Send((char*)&보내고자하는패킷 , 보내고자하는 패킷 사이즈)
+
+	// 정리
+	// 서버로 601 요청과 함께 FVector와 FRotator를 함께 보냈다
 }
 
 // client end

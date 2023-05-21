@@ -75,6 +75,9 @@ enum class PACKET_ID : UINT16
 	IN_GAME_MOVE_START = 501,
 	IN_GAME_MOVE_END = 502,
 
+	MONSTER_REQUEST = 601, // 몬스터 생성 요청 (클라 -> 서버로 전달)
+	MONSTER_RESPONSE = 602, // 몬스터 생성 응답 (서버 -> 클라로 전달) // 클라에서는 응답 할 일이 없기 때문에 필요없지만 일단 넣어둠 ..
+
 	//ROOM_ENTER_REQUEST = 206,
 	//ROOM_ENTER_RESPONSE = 207,
 

@@ -129,6 +129,8 @@ private:
 
 	void ProocessInPlayerMove(UINT32 client_index, UINT16 packet_size, char* P_packet);
 
+	void ProocessMonsterCreate(UINT32 client_index, UINT16 packet_size, char* P_packet); // add code 몬스터 생성 응답 함수
+
 	typedef void (UAZGameInstance::* PROCESS_RECV_PACKET_FUNCTION)(UINT32, UINT16, char*);
 
 	std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION> recv_funtion_dictionary_;
@@ -184,6 +186,11 @@ public:
 public:
 	UFUNCTION(BlueprintCallable, Category = Login)
 	void InGameAccept();
+
+	// add code
+	public:
+	UFUNCTION(BlueprintCallable, Category = Monster)
+	void Monster_Sample_Hello_World();
 
 public:
 	SOCKET sock;
