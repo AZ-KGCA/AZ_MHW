@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "AZ_MHW/GameInstance/Client_Packet.h"
