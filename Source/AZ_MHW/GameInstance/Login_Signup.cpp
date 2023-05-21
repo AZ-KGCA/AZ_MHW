@@ -5,7 +5,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "AZGameInstance.h"
-#include "Client_To_Server.h"
+//#include "Client_To_Server.h"
 
 void ULogin_Signup::NativeConstruct()
 {
@@ -54,5 +54,5 @@ void ULogin_Signup::Signup_Packet_Send(FString id, FString pw, CLIENT_PACKET_ID 
 
 	UE_LOG(LogTemp, Warning, TEXT("[Signup_Packet_Send] pakcet_id : %d, pakcet_userid : %s\n"), login_send_packet.packet_id, login_send_packet.user_id);
 
-	az_game_instance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
+	az_game_instance->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
 }

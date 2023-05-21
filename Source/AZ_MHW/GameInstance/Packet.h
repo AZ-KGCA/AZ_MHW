@@ -96,6 +96,8 @@ struct PACKET_HEADER
 	UINT16 packet_length_;
 	UINT16 packet_id_;
 	//UINT8 type_; //압축여부 암호화여부 등 속성을 알아내는 값
+
+	PACKET_HEADER() : packet_length_(0), packet_id_(0) {};
 };
 
 

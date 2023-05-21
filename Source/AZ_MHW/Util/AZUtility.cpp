@@ -31,3 +31,17 @@ float UAZUtility::PerTenThousandToPerOne(const int32 per_ten_thousand)
 {
 	return per_ten_thousand / 10000.0f;
 }
+
+char* UAZUtility::FNameToCharArr(FName name)
+{
+	std::string std_str(TCHAR_TO_UTF8(*name.ToString()));
+	char* char_arr = new char[std_str.length() + 1];
+	strcpy_s(char_arr, sizeof(char_arr), std_str.c_str());
+	return char_arr;
+}
+
+FName UAZUtility::CharArrToFName(const char* CharArray)
+{
+	std::string std_str = CharArray;
+	return FName(std_str.c_str());
+}

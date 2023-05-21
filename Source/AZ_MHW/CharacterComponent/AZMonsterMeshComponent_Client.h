@@ -18,8 +18,8 @@ public:
 	UAZMonsterMeshComponent_Client();
 	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
-	void On_FCG_MONSTER_BODY_STATE_CMD(TMap<EMonsterBodyPart, FBossBodyPartDebuffState> body_states);
-	
+	void SetBodyState(EMonsterBodyPart body_part, FBossBodyPartDebuffState state);
+
 protected:
 	// Property Initialisers
 	void SetUpDynamicMaterials();

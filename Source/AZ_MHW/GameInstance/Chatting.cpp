@@ -6,7 +6,7 @@
 #include "Components/TextBlock.h"
 #include "Components/ScrollBox.h"
 #include "Kismet/GameplayStatics.h"
-#include "Client_To_Server.h"
+//#include "Client_To_Server.h"
 #include "AZGameInstance.h"
 
 
@@ -21,10 +21,10 @@ void UChatting::NativeConstruct()
 
 	az_game_instance = Cast<UAZGameInstance>(GetGameInstance());
 
-	if (az_game_instance->client_connect != nullptr)
+	if (az_game_instance != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[UChatting if]\n"));
-		az_game_instance->client_connect->Fuc_boradcast_success.BindUFunction(this, FName("ChatHistory_Msg"));
+		az_game_instance->Fuc_boradcast_success.BindUFunction(this, FName("ChatHistory_Msg"));
 	}
 }
 
@@ -43,7 +43,7 @@ void UChatting::ChatMsgSend(FString msg)
 
 	UE_LOG(LogTemp, Warning, TEXT("[ChatMsgSend.cpp] pakcet_id : %d, pakcet_userid : %s \n"), login_send_packet.packet_id, *CharArrayToFString(login_send_packet.user_id));
 
-	az_game_instance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
+	az_game_instance->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
 }
 
 

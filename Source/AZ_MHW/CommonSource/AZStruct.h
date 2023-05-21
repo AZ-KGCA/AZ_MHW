@@ -54,6 +54,8 @@ struct FAttackInfo
 //============================================
 // Monster
 
+struct MonsterActionStateInfo;
+
 USTRUCT(BlueprintType)
 struct FMonsterActionStateInfo
 {
@@ -82,6 +84,47 @@ struct FMonsterActionStateInfo
 		animation_name = NAME_None;
 		montage_section_name = NAME_None;
 		target_angle = 0.0f;
+	}
+};
+
+// for server-client transmission
+struct MonsterActionStateInfo
+{
+	EMonsterActionMode action_mode;
+	EMonsterActionPriority priority_score;
+	EMoveState move_state;
+	char animation_name[33];
+	char montage_section_name[33];
+	float target_angle;
+
+	MonsterActionStateInfo()
+	{
+		action_mode = EMonsterActionMode::Normal;
+		priority_score = EMonsterActionPriority::None;
+		move_state = EMoveState::None;
+		animation_name[0] = montage_section_name[0] = '\0';
+		target_angle = 0.0f;
+	}
+	MonsterActionStateInfo(FMonsterActionStateInfo state_info)
+	{
+		action_mode = EMonsterActionMode::Normal;
+		priority_score = EMonsterActionPriority::None;
+		move_state = EMoveState::None;
+		target_angle = 0.0f;
+		strcpy_s(animation_name, sizeof(animation_name), UAZUtility::FNameToCharArr(state_info.animation_name));
+		strcpy_s(montage_section_name, sizeof(montage_section_name), UAZUtility::FNameToCharArr(state_info.montage_section_name));
+	}
+	FMonsterActionStateInfo Convert()
+	{
+		FMonsterActionStateInfo state_info;
+		state_info.action_mode = action_mode;
+		state_info.priority_score = priority_score;
+		state_info.move_state = move_state;
+		state_info.animation_name = UAZUtility::CharArrToFName(animation_name);
+		state_info.animation_name = UAZUtility::CharArrToFName(montage_section_name);
+		state_info.target_angle = target_angle;
+
+		return state_info;
 	}
 };
 
@@ -143,28 +186,6 @@ struct FBossEscapeStats
 	}
 };
 
-// Used for packet only
-USTRUCT(BlueprintType)
-struct FBossBodyPartDebuffState
-{
-	GENERATED_BODY()
-	
-	bool is_wounded;
-	bool is_broken;
-	bool is_severed;
-
-	FBossBodyPartDebuffState()
-	{
-		is_wounded = is_broken = is_severed = false;
-	}
-};
-//
-// USTRUCT(BlueprintType)
-// struct FBossBodyPartState
-// {
-// 	
-// };
-
 USTRUCT(BlueprintType)
 struct FBossBodyPartState
 {
@@ -218,6 +239,28 @@ struct FBossBodyPartState
 			is_severable = true;
 			sever_required_damage = damage_info[1];
 		}
+	}
+};
+
+// Used for packet only
+USTRUCT(BlueprintType)
+struct FBossBodyPartDebuffState
+{
+	GENERATED_BODY()
+	
+	bool is_wounded;
+	bool is_broken;
+	bool is_severed;
+
+	FBossBodyPartDebuffState()
+	{
+		is_wounded = is_broken = is_severed = false;
+	}
+	FBossBodyPartDebuffState(FBossBodyPartState* state)
+	{
+		this->is_wounded = state->is_wounded;
+		this->is_broken = state->is_broken;
+		this->is_severed = state->is_severed;
 	}
 };
 

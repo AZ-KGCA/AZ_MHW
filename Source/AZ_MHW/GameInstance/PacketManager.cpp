@@ -315,7 +315,8 @@ void PacketManager::ProcessInGame(UINT32 client_index, UINT16 packet_size, char*
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	login_res_packet.fvector_ = FVector(100.0f, 0.0f, 0.0f);
 	login_res_packet.frotator_ = FRotator(0.0f, 0.0f, 500.0f);
-	
+
+	// 몬스터 정보
 	/*캐릭터정보를 DB로 부터 받아온다.*/
 	//AAZPlayerState
 	
@@ -324,7 +325,7 @@ void PacketManager::ProcessInGame(UINT32 client_index, UINT16 packet_size, char*
 	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame] fvector_ : %s / frotator_ : %s\n"), *login_res_packet.fvector_.ToString(), *login_res_packet.frotator_.ToString());
 
 	//BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
-	//SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
+	SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 }
 
 

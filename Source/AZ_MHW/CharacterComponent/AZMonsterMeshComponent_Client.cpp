@@ -60,6 +60,13 @@ void UAZMonsterMeshComponent_Client::BeginPlay()
 	}
 }
 
+void UAZMonsterMeshComponent_Client::SetBodyState(EMonsterBodyPart body_part, FBossBodyPartDebuffState state)
+{
+	if (state.is_wounded) OnBodyPartWounded(body_part);
+	if (state.is_broken) OnBodyPartBroken(body_part);
+	if (state.is_severed) OnBodyPartSevered(body_part);
+}
+
 void UAZMonsterMeshComponent_Client::SetUpBodyPartMaterialMaps()
 {
 	mesh_ = owner_->GetMesh();
@@ -118,16 +125,6 @@ void UAZMonsterMeshComponent_Client::InitializeMeshVisibilities()
 	
 	// Hide eyelid mesh by default
 	CloseEyes(false);
-}
-
-void UAZMonsterMeshComponent_Client::On_FCG_MONSTER_BODY_STATE_CMD(TMap<EMonsterBodyPart, FBossBodyPartDebuffState> body_states)
-{
-	for (auto& body_state : body_states)
-	{
-		if (body_state.Value.is_wounded) OnBodyPartWounded(body_state.Key);
-		if (body_state.Value.is_broken) OnBodyPartBroken(body_state.Key);
-		if (body_state.Value.is_severed) OnBodyPartSevered(body_state.Key);
-	}
 }
 
 void UAZMonsterMeshComponent_Client::SetUpDynamicMaterials()

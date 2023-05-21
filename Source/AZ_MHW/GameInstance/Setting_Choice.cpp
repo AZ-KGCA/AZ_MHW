@@ -6,7 +6,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "AZGameInstance.h"
 #include "App_Server.h"
-#include "Client_To_Server.h"
+//#include "Client_To_Server.h"
 
 void USetting_Choice::NativeConstruct()
 {
@@ -33,5 +33,5 @@ void USetting_Choice::ClientStart()
 	az_game_instance->server_client_check = false;
 	az_game_instance->timer_destroy_sw = true;
 
-	az_game_instance->client_connect->Server_Connect();
+	az_game_instance->Server_Connect();
 }

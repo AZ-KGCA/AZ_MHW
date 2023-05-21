@@ -32,6 +32,9 @@ public:
 
 	// Behavior tree assets getter functions
 	class UBehaviorTree* GetBehaviorTree(FName filename);
+
+	// Utility functions
+	void AddToActionNameMaps(FName animation_name, FName montage_section_name);
 	
 private:
 	// Table maps

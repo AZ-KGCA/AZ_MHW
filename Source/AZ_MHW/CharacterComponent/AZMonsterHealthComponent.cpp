@@ -97,6 +97,11 @@ bool UAZMonsterHealthComponent::IsPendingKill() const
 	return current_hp_ <= 0;
 }
 
+TMap<EMonsterBodyPart, FBossBodyPartState>* UAZMonsterHealthComponent::GetBodyPartStates()
+{
+	return &body_part_states_;
+}
+
 float UAZMonsterHealthComponent::ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
 	// Validity checks

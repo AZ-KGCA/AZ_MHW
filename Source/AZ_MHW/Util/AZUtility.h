@@ -77,4 +77,8 @@ public:
 	
 	static float MillisecondsToSeconds(const int32 milliseconds);
 	static float PerTenThousandToPerOne(const int32 per_ten_thousand);
+
+	// for server-client transmission
+	static char* FNameToCharArr(FName name);
+	static FName CharArrToFName(const char* char_array);
 };

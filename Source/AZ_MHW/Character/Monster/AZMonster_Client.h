@@ -21,16 +21,9 @@ public:
 	virtual void PreInitializeComponents() override;
 	virtual void BeginPlay() override;
 
-	// Property getters
+	// Others
 	bool IsABoss() const;
-	
-	// Packer Handlers
-	void Receive_FCG_MONSTER_TRANSFORM_CMD(const struct FCG_MONSTER_TRANSFORM_CMD& recv_msg);
-	void Receive_FCG_MONSTER_BODY_STATE_CMD(const struct FCG_MONSTER_BODY_STATE_CMD& recv_msg);
-	void Receive_FCG_MONSTER_ENTER_COMBAT_CMD(const struct FCG_MONSTER_ENTER_COMBAT_CMD& recv_msg);
-	void Receive_FCG_MONSTER_ACTION_START_CMD(const struct FCG_MONSTER_ACTION_START_CMD& recv_msg);
-	void Receive_FCG_MONSTER_PART_CHANGE_CMD(const struct FCG_MONSTER_PART_CHANGE_CMD& recv_msg);
-	void Receive_FCG_PLAYER_ATTACK_HIT_CMD(const struct FCG_PLAYER_ATTACK_HIT_CMD& recv_msg);
+	void SetActionStateInfo(FMonsterActionStateInfo action_state_info);
 	
 	// Delegates
 	DECLARE_MULTICAST_DELEGATE(FOnEnterCombatSignature);
@@ -39,10 +32,16 @@ public:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
+
+public:
+	UPROPERTY(VisibleAnywhere, Category = "AZ") int32 object_serial_;
+	
+	// Components
+	TObjectPtr<UAZMonsterMeshComponent_Client> mesh_component_;
+	UPROPERTY(VisibleAnywhere, Category = "AZ") TObjectPtr<UAZAnimInstance_Monster> anim_instance_;
 	
 protected:
 	// Properties
-	UPROPERTY(VisibleAnywhere, Category = "AZ") int32 object_serial_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ") int32 monster_id_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ") int32 boss_id_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ") EBossRank rank_;
@@ -50,10 +49,6 @@ protected:
 	// States
 	UPROPERTY(VisibleAnywhere) FMonsterActionStateInfo action_state_info_;
 	UPROPERTY(VisibleAnywhere) bool is_dead_;
-
-	// Components
-	TObjectPtr<UAZMonsterMeshComponent_Client> mesh_component_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ") TObjectPtr<UAZAnimInstance_Monster> anim_instance_;
 
 public:
 	// Delegates
