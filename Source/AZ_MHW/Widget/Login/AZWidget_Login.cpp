@@ -8,7 +8,7 @@
 #include "Components/EditableTextBox.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/Button.h"
-#include "AZ_MHW/GameInstance/Client_To_Server.h"
+//#include "AZ_MHW/GameInstance/Client_To_Server.h"
 #include "AZ_MHW/GameInstance/App_Server.h"
 
 //#include "AZ_MHW/CommonSource/Define/"
@@ -85,7 +85,9 @@ void UAZWidget_Login::OnTouchAnyPress()
 {
 	UE_LOG(LogTemp, Warning, TEXT("client open\n"));
 	// client to server connect
-	AZGameInstance->client_connect->Server_Connect();
+	AZGameInstance->server_client_check = false;
+	AZGameInstance->timer_destroy_sw = true;
+	AZGameInstance->Server_Connect();
 
  	c_btn_any_press_->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	UAZLoginMgr* login_mgr = AZGameInstance->login_mgr;
@@ -108,7 +110,7 @@ void UAZWidget_Login::OnClicked_Login()
 	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), TCHAR_TO_ANSI(*id));
 	strcpy_s(login_send_packet.user_pw, sizeof(login_send_packet.user_pw), TCHAR_TO_ANSI(*password));
 	login_send_packet.packet_length = sizeof(login_send_packet);
-	AZGameInstance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
+	AZGameInstance->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
 
 	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::ConnectLoginServer);
 }
