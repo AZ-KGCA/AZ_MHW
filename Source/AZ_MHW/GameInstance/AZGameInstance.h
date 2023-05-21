@@ -10,6 +10,18 @@
 #include <thread>
 #include <mutex>
 #include <memory>
+
+// client
+#include <iostream>
+#include <winsock2.h>
+#include <windows.h>
+#include <thread>
+#include <queue>
+#pragma comment(lib, "ws2_32.lib")
+#include "Client_Packet.h"
+#include "InGamePacket.h"
+// client end
+
 #include "Engine/GameInstance.h"
 #include "AZ_MHW/GameInstance/AZGameInstanceData.h"
 #include "AZ_MHW/PlayerController/AZPlayerController.h"
@@ -21,6 +33,19 @@
  */
 
 DECLARE_DELEGATE(FClient_Connect); // 접속 델리게이트
+
+// client
+
+DECLARE_DELEGATE_OneParam(FDle_InGameConnect, const uint16&);
+
+DECLARE_DELEGATE_OneParam(FDle_InGameInit, const FSetMoveInfo&);
+DECLARE_DELEGATE_OneParam(FDle_MoveInfo, const FSetMoveInfo&); // 캐릭터 오브젝트 매니저용 델리게이트
+
+//Dynamic
+DECLARE_DELEGATE_OneParam(FChat_Broadcast_Success, const FString&); // 채팅 델리게이트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_Dynamic_OneParam, FString, SomeParameter);
+
+// client end
 
 class UserManager;
 class Odbc;
@@ -39,15 +64,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UClient_To_Server* client_connect;
 
-///////////////////
-// 패킷처리 추가 //
-///////////////////
+////////////
+// Server //
+////////////
+
 public:
 	bool server_client_check = false;
 	bool timer_destroy_sw = false;
 
 public:
-	FTimerHandle TimerHandle;
+	FTimerHandle server_timer_handle_;
+	FTimerHandle client_timer_handle_;
 
 	void TimerProcessPacket();
 
@@ -122,7 +149,68 @@ private:
 	// 네트워크 연결 & 끊어짐을 처리하는 큐
 	std::deque<PacketInfo> system_packet_queue_;
 
-	//MinSuhong End
+	//Server End
+
+// client
+public:	// Delegate
+	FDle_InGameConnect Fuc_in_game_connect;
+
+	FDle_InGameInit Fuc_in_game_init;
+	FDle_MoveInfo Fun_move_info_;
+	FChat_Broadcast_Success Fuc_boradcast_success;
+
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable, Category = "Event")
+	FDele_Dynamic_OneParam Fuc_Dynamic_OneParam;
+
+	bool in_game_ = false;
+	int32 client_index_;
+
+public:
+	void Server_Connect();
+
+	void Client_Shutdown();
+
+	void Server_Packet_Send(const char* packet, int packet_size);
+
+	void Signin();
+
+	void receive_thread();
+	void receive_data_read_thread();
+	void receive_ingame_moveinfo_data_read_thread();
+
+	void ClientTimerProcessPacket();
+
+	// 캐릭터 동기화
+public:
+	UFUNCTION(BlueprintCallable, Category = Login)
+	void InGameAccept();
+
+public:
+	SOCKET sock;
+	SOCKADDR_IN sa; // 목적지+포트
+	Login_Send_Packet signin_packet;
+
+	std::thread rece_thread;
+	std::thread rece_queue_thread;
+	std::thread rece_queue_move_info_thread;
+
+	bool recevie_connected = true;
+
+	// Define a queue to store the received data
+	std::queue<Login_Send_Packet*> receive_header_check_data_queue;
+	std::queue<FSetMoveInfo*> receive_ingame_moveinfo_data_queue;
+
+	// Define a mutex to ensure thread-safe access to the queue
+	std::mutex received_data_mutex;
+
+	Defind defind;
+
+	bool client_check = false;
+
+	// 캐릭터 동기화
+	FSetMoveInfo set_move_info_;
+// client end
+
 public:
 	// test
 	UPROPERTY() class UAZGameConfig* game_config;

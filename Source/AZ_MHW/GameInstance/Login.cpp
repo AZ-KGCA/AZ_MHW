@@ -14,10 +14,10 @@ void ULogin::NativeConstruct()
 
 	az_game_instance = Cast<UAZGameInstance>(GetGameInstance());
 
-	if (az_game_instance->client_connect != nullptr)
+	if (az_game_instance != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ULogin NativeConstruct]\n"));
-		az_game_instance->client_connect->Fuc_in_game_connect.BindUFunction(this, FName("InGameConnect"));
+		az_game_instance->Fuc_in_game_connect.BindUFunction(this, FName("InGameConnect"));
 	}
 }
 
@@ -34,17 +34,16 @@ FString ULogin::SetLoginInfo(FString id, FString pw)
 
 	UE_LOG(LogTemp, Warning, TEXT("[Login.cpp] pakcet_id : %d, pakcet_userid : %s\n"), login_send_packet.packet_id, login_send_packet.user_id);
 
-	az_game_instance->client_connect->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
+	az_game_instance->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
 
 	return login_id;
-
 }
 
 void ULogin::ServerConnect()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ServerConnect\n"), );
 
-	az_game_instance->client_connect->Server_Connect();
+	az_game_instance->Server_Connect();
 }
 
 void ULogin::InGameConnect()
@@ -53,5 +52,5 @@ void ULogin::InGameConnect()
 
 	login_to_ingame = true;
 
-	az_game_instance->client_connect->InGameAccept();
+	az_game_instance->InGameAccept();
 }
