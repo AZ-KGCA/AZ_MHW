@@ -2,14 +2,13 @@
 #include <utility>
 #include <cstring>
 #include "UserManager.h"
-#include "AppServer.h"
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include <Windows.h>
 #include "Windows/HideWindowsPlatformTypes.h"
 #include <sqltypes.h>
 
 #include "AZGameInstance.h"
-#include "Client_Packet.h"
+#include "AZ_MHW/GameInstance/Packet.h"
 #include "PlayerController/AZPlayerController_Server.h"
 
 void PacketManager::Init(const UINT32 max_client)
@@ -201,8 +200,8 @@ void PacketManager::ProcessLogin(UINT32 client_index, UINT16 packet_size, char* 
 {
 	auto  P_login_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
 
-	auto P_user_id = ConvertCharToSqlTCHAR(P_login_req_packet->user_id_);
-	auto P_user_pw = ConvertCharToSqlTCHAR(P_login_req_packet->user_pw_);
+	auto P_user_id = ConvertCharToSqlTCHAR(P_login_req_packet->user_id);
+	auto P_user_pw = ConvertCharToSqlTCHAR(P_login_req_packet->user_pw);
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
 	if (odbc.LoginCheckSQL(P_user_id, P_user_pw))
@@ -210,7 +209,7 @@ void PacketManager::ProcessLogin(UINT32 client_index, UINT16 packet_size, char* 
 
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-		header_check_packet login_res_packet;
+		LOGIN_RESPONSE_PACKET login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::LOGIN_RESPONSE_SUCCESS;
 		login_res_packet.packet_length = sizeof(login_res_packet);
 
@@ -220,7 +219,7 @@ void PacketManager::ProcessLogin(UINT32 client_index, UINT16 packet_size, char* 
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-		header_check_packet login_res_packet;
+		LOGIN_RESPONSE_PACKET login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::LOGIN_RESPONSE_FAIL;
 		login_res_packet.packet_length = sizeof(login_res_packet);
 
@@ -259,8 +258,8 @@ void PacketManager::ProcessSignup(UINT32 client_index, UINT16 packet_size, char*
 
 	auto  P_signup_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
 
-	auto P_user_id = ConvertCharToSqlTCHAR(P_signup_req_packet->user_id_); ;
-	auto P_user_pw = ConvertCharToSqlTCHAR(P_signup_req_packet->user_pw_); ;
+	auto P_user_id = ConvertCharToSqlTCHAR(P_signup_req_packet->user_id); ;
+	auto P_user_pw = ConvertCharToSqlTCHAR(P_signup_req_packet->user_pw); ;
 
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
@@ -273,7 +272,7 @@ void PacketManager::ProcessSignup(UINT32 client_index, UINT16 packet_size, char*
 
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-		header_check_packet login_res_packet;
+		LOGIN_RESPONSE_PACKET login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::SIGNIN_RESPONSE_SUCCESS;
 		login_res_packet.packet_length = sizeof(login_res_packet);
 
@@ -283,7 +282,7 @@ void PacketManager::ProcessSignup(UINT32 client_index, UINT16 packet_size, char*
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-		header_check_packet login_res_packet;
+		LOGIN_RESPONSE_PACKET login_res_packet;
 		login_res_packet.packet_id = (int)PACKET_ID::SIGNIN_RESPONSE_FAIL;
 		login_res_packet.packet_length = sizeof(login_res_packet);
 
@@ -294,9 +293,9 @@ void PacketManager::ProcessSignup(UINT32 client_index, UINT16 packet_size, char*
 void PacketManager::ProcessChatting(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
 	Defind defind;
-	auto  P_login_req_packet = reinterpret_cast<Login_Send_Packet*>(P_packet);
+	auto  P_login_req_packet = reinterpret_cast<LOGIN_REQUEST_PACKET*>(P_packet);
 
-	Login_Send_Packet login_res_packet;
+	LOGIN_REQUEST_PACKET login_res_packet;
 	login_res_packet.packet_id = (int)PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS;
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	strcpy_s(login_res_packet.user_id, sizeof(login_res_packet.user_id), P_login_req_packet->user_id);
@@ -310,7 +309,7 @@ void PacketManager::ProcessChatting(UINT32 client_index, UINT16 packet_size, cha
 
 void PacketManager::ProcessInGame(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
-	SetMoveInfo login_res_packet;
+	/*SetMoveInfo login_res_packet;
 	login_res_packet.packet_id = (int)PACKET_ID::IN_GAME_SUCCESS;
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	login_res_packet.fvector_ = FVector(100.0f, 0.0f, 0.0f);
@@ -321,8 +320,8 @@ void PacketManager::ProcessInGame(UINT32 client_index, UINT16 packet_size, char*
 	//AAZPlayerState
 	
 	/*캐릭터 생성을 한다.*/
-	Cast<AAZPlayerController_Server>(AZGameInstance->GetPlayerController())->CreateClonePlayer(client_index);
-	UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame] fvector_ : %s / frotator_ : %s\n"), *login_res_packet.fvector_.ToString(), *login_res_packet.frotator_.ToString());
+	//Cast<AAZPlayerController_Server>(AZGameInstance->GetPlayerController())->CreateClonePlayer(client_index);
+	//UE_LOG(LogTemp, Warning, TEXT("[ProocessInGame] fvector_ : %s / frotator_ : %s\n"), *login_res_packet.fvector_.ToString(), *login_res_packet.frotator_.ToString());
 
 	//BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 	SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);

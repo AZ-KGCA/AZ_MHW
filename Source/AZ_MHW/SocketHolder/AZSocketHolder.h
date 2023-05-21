@@ -7,6 +7,8 @@
 #include "AZ_MHW/CommonSource/AZEnum.h"
 #include "AZSocketHolder.generated.h"
 
+enum class PACKET_ID : UINT16;
+
 UENUM(BlueprintType)
 enum class ESocketResult : uint8
 {
@@ -28,7 +30,7 @@ public:
 	CAZSendDetailLoger() {}
 	virtual ~CAZSendDetailLoger() {}
 
-	virtual bool WriteLog(struct BasePacket* send_msg) = 0;
+	virtual bool WriteLog(struct PACKET_HEADER* send_msg) = 0;
 };
 
 template<typename msg_type>
@@ -38,7 +40,7 @@ public:
 	TAZSendDetailLoger() {}
 	virtual ~TAZSendDetailLoger() {}
 
-	virtual bool WriteLog(BasePacket* send_msg) override
+	virtual bool WriteLog(PACKET_HEADER* send_msg) override
 	{
 		msg_type* cast_msg = (msg_type*)(send_msg);
 		if (cast_msg)
@@ -94,7 +96,6 @@ private:
 	int32 last_send_tag_number_;
 	int32 last_recv_tag_number_;
 
-	UPROPERTY() class UClient_To_Server* client_connect_;
 public:
 	UAZSocketHolder();
 
@@ -119,8 +120,8 @@ public:
 		lambda_func_connect_result(socket_result);
 	}
 
-	bool SendPacket(BasePacket* pSendMsg, int packet_size);
-	//ESocketRecvResult RecvPacket();
+	bool SendPacket(PACKET_HEADER* pSendMsg, int packet_size);
+	bool ProcessPacket(PACKET_HEADER* recv_packet);
 
 	ESocketHolderType GetHolderType() { return socket_holder_type_; }
 
@@ -128,7 +129,7 @@ public:
 	void InitSendLoger();
 
 	void ShowWaitingWidget(bool is_forced = false);
-	bool IsShowWaitWidget(BasePacket* send_msg);
+	bool IsShowWaitWidget(PACKET_HEADER* send_msg);
 	void AddWaitProtocolData(FString name, const uint8* buffer, int32 size, uint64 hash_code, bool detail_log, FAZWaitProtocol::EWaitType wait_type = FAZWaitProtocol::WaitAck);
 	void EraseWaitProtocol(TArray<FString> protocol);
 	bool CheckContainWaitProtocol(FString check_packet_name);
@@ -136,13 +137,15 @@ public:
 	bool IsWaitingProtocolEmpty();
 	void SafeHideWaitingWidget(bool is_clear);
 	bool IsAlReadySendPacket(FString name);
+	void OutRequestProtocol(PACKET_ID packet_id, FString& out_request_protocol);
+
 
 	UFUNCTION() void GetRecvPacketName(FString recv_packet_name);
 	TArray<FString> GetPacketNameArray(FString packet_name);
 	void RemoveSeparateProtocolTag(TArray<FString>& protocol_name_tag);
 	FString GetWaitProtocol(TArray<FString> ProtocolNameTag);
 
-	bool WriteDetailLog(BasePacket* send_msg);
+	bool WriteDetailLog(PACKET_HEADER* send_msg);
 	void SendPendingMessage();
 	int32 GetLastRecvTagNumber() const;
 
@@ -167,6 +170,8 @@ protected:
 
 	bool SendPendingPacket(const FAZWaitProtocol& send_msg);
 
+	void ScreenWaitProc(FString packet_name);
+
 private:
 	bool _Connect(const FString& ip, int32 port);
 	bool _IsHostDisconnected();
@@ -175,6 +180,8 @@ private:
 	UPROPERTY() TArray<FAZWaitProtocol> waiting_protocol_list_;
 
 	TMap<uint64, CAZSendDetailLoger*> write_log_map_;
+
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };
 
 template <typename msg_type>

@@ -32,7 +32,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Signup)
 	bool Login_Signup(FString id, FString pw, FString pw2);
 
-	void Signup_Packet_Send(FString id, FString pw, CLIENT_PACKET_ID packet_id);
+	void Signup_Packet_Send(FString id, FString pw, PACKET_ID packet_id);
 
 public:
 	class UAZGameInstance* az_game_instance;

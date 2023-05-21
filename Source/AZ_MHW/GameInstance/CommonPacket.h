@@ -1,32 +1,8 @@
 #pragma once
 #include "Define.h"
+#include "AZ_MHW/CommonSource/MagicEnum/magic_enum.hpp"
 
-struct BasePacket
-{
-	unsigned short packet_length;
-	unsigned short packet_id;
-};
-
-struct Login_Send_Packet : public BasePacket
-{
-	//bool packet_type;
-	char user_id[33];
-	char user_pw[33];
-};
-
-struct SetMoveInfo : public BasePacket
-{
-	FVector fvector_;
-	FRotator frotator_;
-};
-
-struct header_check_packet : public BasePacket
-{
-	char user_id[33];
-	char user_pw[33];
-};
-
-enum class CLIENT_PACKET_ID : UINT16
+enum class PACKET_ID : UINT16
 {
 	// TODO 오늘 수정해야함
 
@@ -59,32 +35,46 @@ enum class CLIENT_PACKET_ID : UINT16
 
 	IN_GAME_INPUT_REQUEST = 501,
 
-	// Monster
-
-	
 	PACKET_CHATNAME_REQ = 1001,
-	
 };
 
-class Client_Packet
+template<>
+struct magic_enum::customize::enum_range<PACKET_ID>
 {
+	static constexpr int min = 1;
+	static constexpr int max = 10000;
 };
 
-struct Input_Packet
+#pragma pack(push,1)
+struct PACKET_HEADER
 {
-	unsigned short packet_length;
-	unsigned short packet_id;
-	
+	UINT16 packet_length;
+	UINT16 packet_id;
+};
+struct LOGIN_REQUEST_PACKET : public PACKET_HEADER
+{
+	char user_id[33];
+	char user_pw[33];
+};
+
+struct LOGIN_RESPONSE_PACKET : public PACKET_HEADER
+{
+	UINT16 result;
+};
+
+struct INPUT_PACKET : public PACKET_HEADER
+{
 	FVector current_position;
 	FRotator current_direction;
-	
+
 	FRotator input_direction;
 	int32 input_data;
 
-	Input_Packet()
+	INPUT_PACKET()
 	{
-		packet_id = static_cast<int>(CLIENT_PACKET_ID::IN_GAME_INPUT_REQUEST);
-		packet_length = sizeof(Input_Packet);
+		packet_id = static_cast<int>(PACKET_ID::IN_GAME_INPUT_REQUEST);
+		packet_length = sizeof(INPUT_PACKET);
 		input_data = 0;
 	}
 };
+#pragma pack(pop) //위에 설정된 패킹설정이 사라짐

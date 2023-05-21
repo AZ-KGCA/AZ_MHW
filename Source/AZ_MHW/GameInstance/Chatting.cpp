@@ -24,7 +24,7 @@ void UChatting::NativeConstruct()
 	if (az_game_instance != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[UChatting if]\n"));
-		az_game_instance->Fuc_boradcast_success.BindUFunction(this, FName("ChatHistory_Msg"));
+		//az_game_instance->Fuc_boradcast_success.BindUFunction(this, FName("ChatHistory_Msg"));
 	}
 }
 
@@ -36,8 +36,8 @@ UChatting::UChatting(const FObjectInitializer& ObjectInitializer)
 
 void UChatting::ChatMsgSend(FString msg)
 {
-	Login_Send_Packet login_send_packet;
-	login_send_packet.packet_id = (int)CLIENT_PACKET_ID::CHAT_SEND_REQUEST;
+	LOGIN_REQUEST_PACKET login_send_packet;
+	login_send_packet.packet_id = (int)PACKET_ID::CHAT_SEND_REQUEST;
 	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), FStringToCharArray(*msg));
 	login_send_packet.packet_length = sizeof(login_send_packet);
 

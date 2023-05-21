@@ -2,7 +2,6 @@
 
 
 #include "Login.h"
-#include "Client_Packet.h"
 #include <Kismet/GameplayStatics.h>
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "AZGameInstance.h"
@@ -17,14 +16,14 @@ void ULogin::NativeConstruct()
 	if (az_game_instance != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ULogin NativeConstruct]\n"));
-		az_game_instance->Fuc_in_game_connect.BindUFunction(this, FName("InGameConnect"));
+		//az_game_instance->Fuc_in_game_connect.BindUFunction(this, FName("InGameConnect"));
 	}
 }
 
 FString ULogin::SetLoginInfo(FString id, FString pw)
 {
-	Login_Send_Packet login_send_packet;
-	login_send_packet.packet_id = (int)CLIENT_PACKET_ID::LOGIN_REQUEST;
+	LOGIN_REQUEST_PACKET login_send_packet;
+	login_send_packet.packet_id = (int)PACKET_ID::LOGIN_REQUEST;
 	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), TCHAR_TO_ANSI(*id));
 	strcpy_s(login_send_packet.user_pw, sizeof(login_send_packet.user_pw), TCHAR_TO_ANSI(*pw));
 	login_send_packet.packet_length = sizeof(login_send_packet);

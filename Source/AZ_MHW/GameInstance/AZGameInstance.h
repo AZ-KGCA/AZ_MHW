@@ -18,7 +18,6 @@
 #include <thread>
 #include <queue>
 #pragma comment(lib, "ws2_32.lib")
-#include "Client_Packet.h"
 #include "InGamePacket.h"
 // client end
 
@@ -45,7 +44,7 @@ DECLARE_DELEGATE_OneParam(FDle_MoveInfo, const FSetMoveInfo&); // 캐릭터 오�
 DECLARE_DELEGATE_OneParam(FChat_Broadcast_Success, const FString&); // 채팅 델리게이트
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_Dynamic_OneParam, FString, SomeParameter);
 
-// client end
+DECLARE_DELEGATE_RetVal_OneParam(bool, CLIENT_RECV_PACKET, PACKET_HEADER*);
 
 class UserManager;
 class Odbc;
@@ -153,30 +152,31 @@ private:
 
 // client
 public:	// Delegate
-	FDle_InGameConnect Fuc_in_game_connect;
+	//FDle_InGameConnect Fuc_in_game_connect;
+	//FDle_InGameInit Fuc_in_game_init;
+	//FDle_MoveInfo Fun_move_info_;
+	//FChat_Broadcast_Success Fuc_boradcast_success;
 
-	FDle_InGameInit Fuc_in_game_init;
-	FDle_MoveInfo Fun_move_info_;
-	FChat_Broadcast_Success Fuc_boradcast_success;
+	//UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable, Category = "Event")
+	//FDele_Dynamic_OneParam Fuc_Dynamic_OneParam;
 
-	UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable, Category = "Event")
-	FDele_Dynamic_OneParam Fuc_Dynamic_OneParam;
-
-	bool in_game_ = false;
+	//bool in_game_ = false;
 	int32 client_index_;
+	CLIENT_RECV_PACKET call_recv_packet_;
 
 public:
+	bool Server_Connect(const FString& ip, int32 port);
+
 	void Server_Connect();
 
 	void Client_Shutdown();
 
-	void Server_Packet_Send(const char* packet, int packet_size);
+	int Server_Packet_Send(const char* packet, int packet_size);
 
 	void Signin();
 
 	void receive_thread();
-	void receive_data_read_thread();
-	void receive_ingame_moveinfo_data_read_thread();
+	//void receive_data_read_thread();
 
 	void ClientTimerProcessPacket();
 
@@ -188,17 +188,14 @@ public:
 public:
 	SOCKET sock;
 	SOCKADDR_IN sa; // 목적지+포트
-	Login_Send_Packet signin_packet;
+	LOGIN_REQUEST_PACKET signin_packet;
 
-	std::thread rece_thread;
-	std::thread rece_queue_thread;
-	std::thread rece_queue_move_info_thread;
+	std::thread recv_thread_;
 
 	bool recevie_connected = true;
 
 	// Define a queue to store the received data
-	std::queue<Login_Send_Packet*> receive_header_check_data_queue;
-	std::queue<FSetMoveInfo*> receive_ingame_moveinfo_data_queue;
+	std::queue<PACKET_HEADER*> receive_data_queue_;
 
 	// Define a mutex to ensure thread-safe access to the queue
 	std::mutex received_data_mutex;
