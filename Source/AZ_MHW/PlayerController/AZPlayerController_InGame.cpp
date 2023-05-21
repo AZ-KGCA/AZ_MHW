@@ -34,7 +34,7 @@ void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 	input_packet.packet_length = sizeof(header_check_packet);
 	
 	//
-	AZGameInstance->client_connect->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+	AZGameInstance->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
 }
 
 void AAZPlayerController_InGame::Tick(float delta_time)

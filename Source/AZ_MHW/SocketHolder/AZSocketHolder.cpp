@@ -20,26 +20,23 @@ void UAZSocketHolder::Init(ESocketHolderType holder_type)
 {
 	socket_holder_type_ = holder_type;
 
-	if (client_connect_ == nullptr)
-	{
-		client_connect_ = NewObject<UClient_To_Server>(this, TEXT("client_to_server"));
-	}
-
+	game_instance_ = Cast<UAZGameInstance>(GetOuter());
+	game_instance_->call_recv_packet_.BindUObject(this, &UAZSocketHolder::ProcessPacket);
 	InitIsShowWaitWidgetException();
 	InitSendLoger();
 }
 
 void UAZSocketHolder::Disconnect()
 {
-	if (client_connect_->client_check == true)
+	if (game_instance_->timer_destroy_sw)
 	{
-		client_connect_->Client_Shutdown();
+		game_instance_->Client_Shutdown();
 	}
 }
 
 bool UAZSocketHolder::SendPendingPacket(const FAZWaitProtocol& send_msg)
 {
-	if (client_connect_->client_check == false)
+	if (game_instance_->client_check == false)
 	{
 		return false;
 	}
@@ -47,7 +44,7 @@ bool UAZSocketHolder::SendPendingPacket(const FAZWaitProtocol& send_msg)
 	static uint8 send_msg_buffer[200000];
 	memcpy(send_msg_buffer, send_msg.buffer_.GetData(), send_msg.buffer_.Num());
 
-	int len = client_connect_->Server_Packet_Send((char*)send_msg_buffer, send_msg.buffer_.Num());
+	int len = game_instance_->Server_Packet_Send((char*)send_msg_buffer, send_msg.buffer_.Num());
 
 	bool write_log = true;
 	if (write_log)
@@ -60,14 +57,20 @@ bool UAZSocketHolder::SendPendingPacket(const FAZWaitProtocol& send_msg)
 	return true;
 }
 
+void UAZSocketHolder::ScreenWaitProc(FString packet_name)
+{
+	TArray<FString> protocol_name_tag = GetPacketNameArray(packet_name);
+	EraseWaitProtocol(protocol_name_tag);
+}
+
 bool UAZSocketHolder::_Connect(const FString& ip, int32 port)
 {
-	return client_connect_->Connect(ip, port);
+	return game_instance_->Server_Connect(ip, port);
 }
 
 bool UAZSocketHolder::_IsHostDisconnected()
 {
-	if (client_connect_->recevie_connected == false)
+	if (game_instance_->client_check == false)
 	{
 		return true;
 	}
@@ -76,7 +79,7 @@ bool UAZSocketHolder::_IsHostDisconnected()
 
 bool UAZSocketHolder::SendPacket(BasePacket* send_msg, int packet_size)
 {
-	if (client_connect_->sock == NULL)
+	if (game_instance_->client_check == false)
 	{
 		return false;
 	}
@@ -87,7 +90,7 @@ bool UAZSocketHolder::SendPacket(BasePacket* send_msg, int packet_size)
 	}
 
 	AZ_PRINT_LOG_IF_FALSE(send_msg, false);
-	int len = client_connect_->Server_Packet_Send((char*)send_msg, packet_size);
+	int len = game_instance_->Server_Packet_Send((char*)send_msg, packet_size);
 
 	if (IsShowWaitWidget(send_msg) == true)
 	{
@@ -227,6 +230,11 @@ bool UAZSocketHolder::IsAlReadySendPacket(FString name)
 	return false;
 }
 
+void UAZSocketHolder::OutRequestProtocol(CLIENT_PACKET_ID packet_id, FString& out_request_protocol)
+{
+	out_request_protocol = UAZUtility::EnumToString(packet_id);
+}
+
 void UAZSocketHolder::GetRecvPacketName(FString recv_packet_name)
 {
 	TArray<FString> protocol_name_tag = GetPacketNameArray(recv_packet_name);
@@ -323,7 +331,7 @@ int32 UAZSocketHolder::GetLastRecvTagNumber() const
 
 bool UAZSocketHolder::IsOnConnectingServer()
 {
-	return client_connect_->sock && (client_connect_->recevie_connected == true);
+	return game_instance_->sock && (game_instance_->recevie_connected == true);
 }
 
 TArray<FString> UAZSocketHolder::GetWaitingProtocolNames() const

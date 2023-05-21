@@ -7,14 +7,14 @@
 #include "AZWidget_Login.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class AZ_MHW_API UAZWidget_Login : public UAZWidget
 {
 	GENERATED_BODY()
 
-	enum class EPanelState : uint8
+		enum class EPanelState : uint8
 	{
 		TouchScreen,
 		IDPasswordLogin,

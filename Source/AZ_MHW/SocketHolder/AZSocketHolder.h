@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "AZ_MHW/CommonSource/AZEnum.h"
+#include "AZ_MHW/GameInstance/Client_Packet.h"
 #include "AZSocketHolder.generated.h"
 
 UENUM(BlueprintType)
@@ -94,7 +95,6 @@ private:
 	int32 last_send_tag_number_;
 	int32 last_recv_tag_number_;
 
-	UPROPERTY() class UClient_To_Server* client_connect_;
 public:
 	UAZSocketHolder();
 
@@ -120,7 +120,7 @@ public:
 	}
 
 	bool SendPacket(BasePacket* pSendMsg, int packet_size);
-	//ESocketRecvResult RecvPacket();
+	bool ProcessPacket(BasePacket* recv_packet);
 
 	ESocketHolderType GetHolderType() { return socket_holder_type_; }
 
@@ -136,6 +136,8 @@ public:
 	bool IsWaitingProtocolEmpty();
 	void SafeHideWaitingWidget(bool is_clear);
 	bool IsAlReadySendPacket(FString name);
+	void OutRequestProtocol(CLIENT_PACKET_ID packet_id, FString& out_request_protocol);
+
 
 	UFUNCTION() void GetRecvPacketName(FString recv_packet_name);
 	TArray<FString> GetPacketNameArray(FString packet_name);
@@ -167,6 +169,8 @@ protected:
 
 	bool SendPendingPacket(const FAZWaitProtocol& send_msg);
 
+	void ScreenWaitProc(FString packet_name);
+
 private:
 	bool _Connect(const FString& ip, int32 port);
 	bool _IsHostDisconnected();
@@ -175,6 +179,8 @@ private:
 	UPROPERTY() TArray<FAZWaitProtocol> waiting_protocol_list_;
 
 	TMap<uint64, CAZSendDetailLoger*> write_log_map_;
+
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };
 
 template <typename msg_type>

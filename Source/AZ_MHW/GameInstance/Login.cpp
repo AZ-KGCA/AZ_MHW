@@ -17,7 +17,7 @@ void ULogin::NativeConstruct()
 	if (az_game_instance != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ULogin NativeConstruct]\n"));
-		az_game_instance->Fuc_in_game_connect.BindUFunction(this, FName("InGameConnect"));
+		//az_game_instance->Fuc_in_game_connect.BindUFunction(this, FName("InGameConnect"));
 	}
 }
 

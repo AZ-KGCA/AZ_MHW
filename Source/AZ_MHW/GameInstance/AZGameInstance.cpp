@@ -107,11 +107,6 @@ void UAZGameInstance::Shutdown()
 		iocp_net_server_->End();
 	}
 
-	if (timer_destroy_sw)
-	{
-		Client_Shutdown();
-	}
-
 	DestroySocketHolder();
 	//SendLogoutCmd();
 
@@ -160,7 +155,7 @@ void UAZGameInstance::CreateSocketHolder()
 {
 	for (uint8 socket_type = 0; socket_type < (int32)ESocketHolderType::Max; ++socket_type)
 	{
-		UAZSocketHolder* socket_hodler = NewObject<UAZSocketHolder>();
+		UAZSocketHolder* socket_hodler = NewObject<UAZSocketHolder>(this);
 		socket_hodler->Init((ESocketHolderType)socket_type);
 		array_socket_holder_.Add(socket_hodler);
 	}
@@ -180,13 +175,7 @@ void UAZGameInstance::DestroySocketHolder()
 
 void UAZGameInstance::InitSocketOnMapLoad()
 {
-	/*for (ULHSocketHolder* pSocketHolder : ArraySocketHolder)
-	{
-		if (pSocketHolder)
-		{
-			pSocketHolder->ArrangeProtocolExchangeEvents();
-		}
-	}*/
+
 }
 
 UAZSocketHolder* UAZGameInstance::GetSocketHolder(ESocketHolderType socket_type)
@@ -662,7 +651,43 @@ void UAZGameInstance::ProocessInPlayerMove(UINT32 client_index, UINT16 packet_si
 }
 
 
-// client 
+// client
+bool UAZGameInstance::Server_Connect(const FString& ip, int32 port)
+{
+	if (client_check == true)
+	{
+		return false;
+	}
+
+	WSADATA wsa;
+	WSAStartup(MAKEWORD(2, 2), &wsa);
+
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+
+	sa.sin_family = AF_INET;
+	sa.sin_addr.s_addr = inet_addr(TCHAR_TO_ANSI(*ip));
+	sa.sin_port = htons(port);
+
+	int iRet = connect(sock, (sockaddr*)&sa, sizeof(sa));
+
+	if (iRet != 0)
+	{
+		closesocket(sock);
+		sock = NULL;
+		return false;
+	}
+
+	u_long mode = 1;
+
+	ioctlsocket(sock, FIONBIO, &mode);
+
+	recv_thread_ = std::thread(&UAZGameInstance::receive_thread, this);
+
+	client_check = true;
+
+	return true;
+}
+
 void UAZGameInstance::Server_Connect()
 {
 	WSADATA wsa;
@@ -692,9 +717,7 @@ void UAZGameInstance::Server_Connect()
 	-----------------------*/
 	ioctlsocket(sock, FIONBIO, &iMode);
 
-	rece_thread = std::thread(&UAZGameInstance::receive_thread, this);
-	rece_queue_thread = std::thread(&UAZGameInstance::receive_data_read_thread, this);
-	//rece_queue_move_info_thread = std::thread(&UTeemoGameInstance::receive_ingame_moveinfo_data_read_thread, this);
+	recv_thread_ = std::thread(&UAZGameInstance::receive_thread, this);
 
 	client_check = true;
 }
@@ -704,19 +727,23 @@ void UAZGameInstance::Client_Shutdown()
 	UE_LOG(LogTemp, Warning, TEXT("[Client_Shutdown]\n"));
 	recevie_connected = false;
 
-	rece_thread.join();
-	rece_queue_thread.join();
-	//rece_queue_move_info_thread.join();
+	if (client_check == true)
+	{
+		recv_thread_.join();
+		client_check = false;
+	}
 
 	closesocket(sock);
+	sock = NULL;
 	WSACleanup();
 }
 
-void UAZGameInstance::Server_Packet_Send(const char* packet, int packet_size)
+int UAZGameInstance::Server_Packet_Send(const char* packet, int packet_size)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[Server_Packet_Send] sendData : %s size : %d\n"), packet, packet_size);
 
-	send(sock, packet, packet_size, 0);
+	int len = send(sock, packet, packet_size, 0);
+	return len;
 }
 
 void UAZGameInstance::Signin()
@@ -726,52 +753,51 @@ void UAZGameInstance::Signin()
 
 void UAZGameInstance::receive_thread()
 {
-	char buffer[1024];
+	char buffer[20000];
 	int result;
 
 	while (recevie_connected)
 	{
 		result = recv(sock, buffer, sizeof(buffer), 0);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 		// TODO 이곳에서 데이터 전송 받는거 확인하기
 
 		if (result > 0)
 		{
-			Login_Send_Packet Login_data;
-			ZeroMemory(&Login_data, sizeof(Login_data));
-			CopyMemory(&Login_data, buffer, sizeof(Login_data));
+			char* recv_buffer = new char[10000];
+			ZeroMemory(recv_buffer, sizeof(char) * 10000);
+			CopyMemory(recv_buffer, buffer, result);
 
-			UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_thread] packet id : %d data : %s\n"), Login_data.packet_id, *defind.CharArrayToFString(Login_data.user_id));
+			BasePacket* base_packet = (BasePacket*)recv_buffer;
 
-			// 로그인 채팅 관련 패킷 : 400이하
-			if (Login_data.packet_id <= 400)
+			std::lock_guard<std::mutex> lock(received_data_mutex);
+
+			receive_data_queue_.push(base_packet);
+		}
+		else if (result == 0)
+		{
+			recevie_connected = false;
+			break;
+		}
+		else
+		{
+			int error = WSAGetLastError();
+			switch (error)
 			{
-				std::lock_guard<std::mutex> lock(received_data_mutex);
-
-				// 받은 데이터 큐에 밀어 넣기
-				receive_header_check_data_queue.push(&Login_data);
-			}
-			// 인게임 관련 패킷 400이상
-			else if (Login_data.packet_id > 400 && client_check)
-			{
-				FSetMoveInfo in_game_move_data_;
-				ZeroMemory(&in_game_move_data_, sizeof(in_game_move_data_));
-				CopyMemory(&in_game_move_data_, buffer, sizeof(in_game_move_data_));
-				UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_thread else] packet id : %d size : %d fvector : %s frotator : %s\n"),
-					in_game_move_data_.packet_id, in_game_move_data_.packet_length, *in_game_move_data_.fvector_.ToString(), *in_game_move_data_.frotator_.ToString());
-
-				std::lock_guard<std::mutex> lock(received_data_mutex);
-
-				// 받은 데이터 큐에 밀어 넣기
-				receive_ingame_moveinfo_data_queue.push(&in_game_move_data_);
+			case WSAEWOULDBLOCK:
+			case WSAEINTR:
+				break;
+			default:
+				recevie_connected = false;
+				break;
 			}
 		}
 	}
 }
 
-void UAZGameInstance::receive_data_read_thread()
+/*void UAZGameInstance::receive_data_read_thread()
 {
 	while (recevie_connected)
 	{
@@ -817,25 +843,31 @@ void UAZGameInstance::receive_data_read_thread()
 			receive_header_check_data_queue.pop();
 		}
 	}
-}
-
-void UAZGameInstance::receive_ingame_moveinfo_data_read_thread()
-{
-}
+}*/
 
 void UAZGameInstance::ClientTimerProcessPacket()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ClientTimerProcessPacket!"));
+	if (recevie_connected == false)
+	{
+		GetSocketHolder(ESocketHolderType::Game)->Disconnect();
+	}
 
 	// 대기열에 액세스하기 위한 잠금 획득
 	std::lock_guard<std::mutex> lock(received_data_mutex);
 
 	// 큐에 받은 데이터가 있는지 확인
-	if (!receive_ingame_moveinfo_data_queue.empty()) {
+	if (!receive_data_queue_.empty()) {
 		// 대기열에서 처음 받은 데이터 가져오기
-		FSetMoveInfo* received_ingmae_data_ = receive_ingame_moveinfo_data_queue.front();
-
-		switch (received_ingmae_data_->packet_id)
+		BasePacket* base_packet = receive_data_queue_.front();
+		if (call_recv_packet_.IsBound())
+		{
+			bool retval = call_recv_packet_.Execute(base_packet);
+			if (retval == false)
+			{
+				AZ_LOG("[client Packet process failed]:[id:%d]", base_packet->packet_id);
+			}
+		}
+		/*switch (received_ingmae_data_->packet_id)
 		{
 		case (UINT32)CLIENT_PACKET_ID::IN_GAME_SUCCESS:
 			::MessageBox(NULL, L"IN_GAME_SUCCESS", L"SignIn", 0);
@@ -852,8 +884,10 @@ void UAZGameInstance::ClientTimerProcessPacket()
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch default] packet id : %d\n"), received_ingmae_data_->packet_id);
 			break;
-		}
-		receive_ingame_moveinfo_data_queue.pop();
+		}*/
+
+		receive_data_queue_.pop();
+		delete[] base_packet;
 	}
 
 	if (server_client_check)

@@ -1,5 +1,7 @@
 #pragma once
 #include "Define.h"
+#include <AZ_MHW/CommonSource/MagicEnum/magic_enum.hpp>
+
 
 struct BasePacket
 {
@@ -84,4 +86,11 @@ struct Input_Packet
 		packet_length = sizeof(Input_Packet);
 		input_data = 0;
 	}
+};
+
+template<>
+struct magic_enum::customize::enum_range<CLIENT_PACKET_ID>
+{
+	static constexpr int min = 1;
+	static constexpr int max = 10000;
 };

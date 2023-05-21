@@ -24,7 +24,7 @@ void UChatting::NativeConstruct()
 	if (az_game_instance != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[UChatting if]\n"));
-		az_game_instance->Fuc_boradcast_success.BindUFunction(this, FName("ChatHistory_Msg"));
+		//az_game_instance->Fuc_boradcast_success.BindUFunction(this, FName("ChatHistory_Msg"));
 	}
 }
 
