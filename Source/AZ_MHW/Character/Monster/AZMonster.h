@@ -13,6 +13,7 @@ class UAZAnimInstance_Monster;
 class UAZMonsterAggroComponent;
 class UAZMonsterHealthComponent;
 class UAZMonsterMeshComponent;
+class UAZMonsterPacketHandlerComponent;
 class AAZAIController;
 
 // Forward declaration of enum classes
@@ -97,8 +98,6 @@ public:
 	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
 	
 public:
-	UPROPERTY(VisibleAnywhere) int32 object_serial_;
-	
 	// Delegates
 	FOnWoundedSignature OnBodyPartWounded;
 	FOnWoundHealedSignature OnBodyPartWoundHealed;
@@ -114,6 +113,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterAggroComponent> aggro_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterHealthComponent> health_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterMeshComponent> mesh_component_;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterPacketHandlerComponent> packet_handler_component_;
 
 	// AIController Properties: Defined from table
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") FMonsterSightConfigs sight_configs_;

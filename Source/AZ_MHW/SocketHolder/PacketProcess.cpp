@@ -1,6 +1,5 @@
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
-#include "AZ_MHW/SocketHolder/PacketFunction.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 
@@ -11,8 +10,8 @@ void UPacketFunction::Init()
 
 bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_packet)
 {
-	//server
-	switch ((PACKET_ID)recv_packet->packet_id)
+	// Process packets from client to server
+	switch (static_cast<PACKET_ID>(recv_packet->packet_id))
 	{
 	case PACKET_ID::LOGIN_REQUEST:
 	{
@@ -42,11 +41,13 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		UPacketFunction::RequestPlayerMove(/*todo*/);
 	}
 	break;
+	default:
+		break;
 	}
 //===========================================================================================================================================//
-	//client
+	// Process packets from server to client
 	FString out_request_protocol("");
-	switch ((PACKET_ID)recv_packet->packet_id)
+	switch (static_cast<PACKET_ID>(recv_packet->packet_id))
 	{
 	case PACKET_ID::LOGIN_RESPONSE_SUCCESS:
 	{
@@ -91,6 +92,57 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::IN_GAME_REQUEST, out_request_protocol);
 	}
 	break;
+
+	// Monster related packets
+	case PACKET_ID::SC_MONSTER_SPAWN_CMD:
+	{
+		const SC_MONSTER_SPAWN_CMD* packet = reinterpret_cast<SC_MONSTER_SPAWN_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_SPAWN_CMD(packet);
+	}
+	break;
+	case PACKET_ID::SC_MONSTER_TRANSFORM_CMD:
+	{
+		const SC_MONSTER_TRANSFORM_CMD* packet = reinterpret_cast<SC_MONSTER_TRANSFORM_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_TRANSFORM_CMD(packet);
+	}
+	break;
+	case PACKET_ID::SC_MONSTER_BODY_STATE_CMD:
+	{
+		const SC_MONSTER_BODY_STATE_CMD* packet = reinterpret_cast<SC_MONSTER_BODY_STATE_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_BODY_STATE_CMD(packet);
+	}
+	break;
+	case PACKET_ID::SC_MONSTER_ENTER_COMBAT_CMD:
+	{
+		const SC_MONSTER_ENTER_COMBAT_CMD* packet = reinterpret_cast<SC_MONSTER_ENTER_COMBAT_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_ENTER_COMBAT_CMD(packet);
+	}
+	break;
+	case PACKET_ID::SC_MONSTER_ACTION_START_CMD:
+	{
+		const SC_MONSTER_ACTION_START_CMD* packet = reinterpret_cast<SC_MONSTER_ACTION_START_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_ACTION_START_CMD(packet);
+	}
+	break;
+	case PACKET_ID::SC_MONSTER_PART_CHANGE_CMD:
+	{
+		const SC_MONSTER_PART_CHANGE_CMD* packet = reinterpret_cast<SC_MONSTER_PART_CHANGE_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_PART_CHANGE_CMD(packet);
+	}
+	break;
+	case PACKET_ID::SC_MONSTER_HIT_CMD:
+	{
+		const SC_MONSTER_HIT_CMD* packet = reinterpret_cast<SC_MONSTER_HIT_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_HIT_CMD(packet);
+	}
+	break;
+	case PACKET_ID::SC_MONSTER_DIE_CMD:
+	{
+		const SC_MONSTER_DIE_CMD* packet = reinterpret_cast<SC_MONSTER_DIE_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_DIE_CMD(packet);
+	}
+	break;
+	
 	default:
 	{
 		return false;

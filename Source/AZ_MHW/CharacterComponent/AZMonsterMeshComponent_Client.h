@@ -7,6 +7,7 @@
 #include "AZ_MHW/CommonSource/AZStruct.h"
 #include "AZMonsterMeshComponent_Client.generated.h"
 
+class AAZMonster_Client;
 enum class EMonsterBodyPart : uint8;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -41,7 +42,7 @@ protected:
 	UFUNCTION() void BlinkEyes();
 	
 private:
-	TWeakObjectPtr<class AAZMonster_Client> owner_;
+	TWeakObjectPtr<AAZMonster_Client> owner_;
 	TWeakObjectPtr<USkeletalMeshComponent> mesh_;
 	UPROPERTY(VisibleAnywhere) TMap<EMonsterBodyPart, bool> wound_map_;
 

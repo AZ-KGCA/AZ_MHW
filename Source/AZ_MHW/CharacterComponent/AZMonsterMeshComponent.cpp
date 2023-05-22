@@ -1,8 +1,7 @@
 // Copyright Team AZ. All Rights Reserved.
 
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent.h"
-
-#include "AZMonsterHealthComponent.h"
+#include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/Util/AZUtility.h"
 

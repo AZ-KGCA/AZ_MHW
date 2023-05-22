@@ -5,6 +5,7 @@
 #include "AZ_MHW/CharacterComponent/AZMonsterAggroComponent.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent.h"
+#include "AZ_MHW/CharacterComponent/AZMonsterPacketHandlerComponent.h"
 #include "AZ_MHW/CommonSource/AZStruct.h"
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Util/AZUtility.h"
@@ -26,7 +27,7 @@ AAZMonster::AAZMonster()
 	// Initialise common properties
 	monster_id_ = boss_id_ = -1;
 	active_action_id_ = -1;
-	SetGenericTeamId(uint8(EObjectType::Monster));
+	SetGenericTeamId(static_cast<uint8>(EObjectType::Monster));
 
 	// Set default objects to hit check
 	hit_object_types_.Add(UEngineTypes::ConvertToObjectType(ECC_PLAYER));
@@ -40,6 +41,7 @@ AAZMonster::AAZMonster()
 	aggro_component_ = CreateDefaultSubobject<UAZMonsterAggroComponent>(TEXT("AggroComponent"));
 	health_component_ = CreateDefaultSubobject<UAZMonsterHealthComponent>(TEXT("HealthComponent"));
 	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent>(TEXT("MeshComponent"));
+	packet_handler_component_ = CreateDefaultSubobject<UAZMonsterPacketHandlerComponent>(TEXT("PacketHandlerComponent"));
 }
 
 void AAZMonster::PreInitializeComponents()

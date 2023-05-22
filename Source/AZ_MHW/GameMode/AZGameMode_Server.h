@@ -6,6 +6,7 @@
 #include "AZGameMode.h"
 #include "AZGameMode_Server.generated.h"
 
+class UAZObjectMgr_Server;
 
 /**
  * 서버에서 필요한 방식으로 프로그램을 실행합니다.
@@ -21,11 +22,14 @@ public:
 
 #pragma region Inherited function
 protected:
-	/** */
 	virtual void BeginPlay() override;
-	/** */
+	virtual void InitGame(const FString& map_name, const FString& options, FString& error_message) override;
 	virtual void Tick(float delta_seconds) override;
 #pragma endregion
+
+public:
+	// 위치 여기에 놔도 문제 안생기는지 확인 필요
+	TObjectPtr<UAZObjectMgr_Server> object_mgr_;
 	
 	//TQueue<> login_queue_;?
 	//TQueue<> input_queue_;? 이런식으로 하는게 맞나...

@@ -7,6 +7,7 @@
 #include "AZ_MHW/CommonSource/AZEnum.h"
 #include "AZSocketHolder.generated.h"
 
+class UAZGameInstance;
 enum class PACKET_ID : UINT16;
 
 UENUM(BlueprintType)
@@ -95,6 +96,8 @@ private:
 
 	int32 last_send_tag_number_;
 	int32 last_recv_tag_number_;
+
+	TWeakObjectPtr<UAZGameInstance> game_instance_;
 
 public:
 	UAZSocketHolder();

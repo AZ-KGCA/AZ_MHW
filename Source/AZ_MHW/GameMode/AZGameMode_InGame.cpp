@@ -2,15 +2,14 @@
 
 
 #include "GameMode/AZGameMode_InGame.h"
-
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/Map/AZWorldMap.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
-#include "AZ_MHW/Interface/AZActor_interface.h"
 #include "AZ_MHW/Environment/interaction/AZActor_Interaction.h"
-#include "Character/Player/AZPlayer_Playable.h"
-#include "PlayerController/AZPlayerController_InGame.h"
-#include "PlayerState/AZPlayerState.h"
+#include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
+#include "AZ_MHW/Manager/AZObjectMgr_Client.h"
+#include "AZ_MHW/PlayerController/AZPlayerController_InGame.h"
+#include "AZ_MHW/PlayerState/AZPlayerState.h"
 
 AAZGameMode_InGame::AAZGameMode_InGame()
 {
@@ -28,7 +27,7 @@ void AAZGameMode_InGame::Tick(float delta_seconds)
 void AAZGameMode_InGame::InitGame(const FString& map_name, const FString& options, FString& error_message)
 {
 	Super::InitGame(map_name, options, error_message);
-
+	object_mgr_ = NewObject<UAZObjectMgr_Client>();
 }
 
 void AAZGameMode_InGame::PreStartPlay()

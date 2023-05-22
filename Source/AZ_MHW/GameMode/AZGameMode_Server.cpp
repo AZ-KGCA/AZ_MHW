@@ -7,8 +7,9 @@
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/HUD.h"
 #include "GameFramework/PlayerState.h"
-#include "PlayerState/AZGameState_Server.h"
-#include "PlayerState/AZPlayerState_Server.h"
+#include "AZ_MHW/PlayerState/AZGameState_Server.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Server.h"
+#include "AZ_MHW/Manager/AZObjectMgr_Server.h"
 
 
 AAZGameMode_Server::AAZGameMode_Server()
@@ -41,6 +42,12 @@ void AAZGameMode_Server::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AAZGameMode_Server::InitGame(const FString& map_name, const FString& options, FString& error_message)
+{
+	Super::InitGame(map_name, options, error_message);
+	object_mgr_ = NewObject<UAZObjectMgr_Server>();
 }
 
 void AAZGameMode_Server::Tick(float delta_seconds)

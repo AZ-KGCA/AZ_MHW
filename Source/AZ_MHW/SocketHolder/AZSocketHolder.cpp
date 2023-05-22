@@ -2,7 +2,6 @@
 
 
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
-
 #include "AZ_MHW/CommonSource/AZLog.h"
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
@@ -19,21 +18,22 @@ void UAZSocketHolder::Init(ESocketHolderType holder_type)
 {
 	socket_holder_type_ = holder_type;
 
+	game_instance_ = Cast<UAZGameInstance>(GetOuter());
 	InitIsShowWaitWidgetException();
 	InitSendLoger();
 }
 
 void UAZSocketHolder::Disconnect()
 {
-	if (AZGameInstance->timer_destroy_sw)
+	if (game_instance_->timer_destroy_sw)
 	{
-		AZGameInstance->Client_Shutdown();
+		game_instance_->Client_Shutdown();
 	}
 }
 
 bool UAZSocketHolder::SendPendingPacket(const FAZWaitProtocol& send_msg)
 {
-	if (AZGameInstance->client_check == false)
+	if (game_instance_->client_check == false)
 	{
 		return false;
 	}
@@ -41,7 +41,7 @@ bool UAZSocketHolder::SendPendingPacket(const FAZWaitProtocol& send_msg)
 	static uint8 send_msg_buffer[200000];
 	memcpy(send_msg_buffer, send_msg.buffer_.GetData(), send_msg.buffer_.Num());
 
-	int len = AZGameInstance->Server_Packet_Send((char*)send_msg_buffer, send_msg.buffer_.Num());
+	int len = game_instance_->Server_Packet_Send((char*)send_msg_buffer, send_msg.buffer_.Num());
 
 	bool write_log = true;
 	if (write_log)
@@ -62,12 +62,12 @@ void UAZSocketHolder::ScreenWaitProc(FString packet_name)
 
 bool UAZSocketHolder::_Connect(const FString& ip, int32 port)
 {
-	return AZGameInstance->Server_Connect(ip, port);
+	return game_instance_->Server_Connect(ip, port);
 }
 
 bool UAZSocketHolder::_IsHostDisconnected()
 {
-	if (AZGameInstance->client_check == false)
+	if (game_instance_->client_check == false)
 	{
 		return true;
 	}
@@ -76,7 +76,7 @@ bool UAZSocketHolder::_IsHostDisconnected()
 
 bool UAZSocketHolder::SendPacket(PACKET_HEADER* send_msg, int packet_size)
 {
-	if (AZGameInstance->client_check == false)
+	if (game_instance_->client_check == false)
 	{
 		return false;
 	}
@@ -87,7 +87,7 @@ bool UAZSocketHolder::SendPacket(PACKET_HEADER* send_msg, int packet_size)
 	}
 
 	AZ_PRINT_LOG_IF_FALSE(send_msg, false);
-	int len = AZGameInstance->Server_Packet_Send((char*)send_msg, packet_size);
+	int len = game_instance_->Server_Packet_Send((char*)send_msg, packet_size);
 
 	if (IsShowWaitWidget(send_msg) == true)
 	{
@@ -328,7 +328,7 @@ int32 UAZSocketHolder::GetLastRecvTagNumber() const
 
 bool UAZSocketHolder::IsOnConnectingServer()
 {
-	return AZGameInstance->sock && (AZGameInstance->recevie_connected == true);
+	return game_instance_->sock && (game_instance_->recevie_connected == true);
 }
 
 TArray<FString> UAZSocketHolder::GetWaitingProtocolNames() const

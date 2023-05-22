@@ -35,6 +35,19 @@ enum class PACKET_ID : UINT16
 
 	IN_GAME_INPUT_REQUEST = 501,
 
+	// Monster------------------------
+	// Server -> Client
+	SC_MONSTER_SPAWN_CMD = 7000,
+	SC_MONSTER_TRANSFORM_CMD = 7001,
+	SC_MONSTER_BODY_STATE_CMD = 7002,
+	SC_MONSTER_ACTION_START_CMD = 7100,
+	SC_MONSTER_ENTER_COMBAT_CMD = 7200,
+	SC_MONSTER_PART_CHANGE_CMD = 7201,
+	SC_MONSTER_HIT_CMD = 7202,
+	SC_MONSTER_DIE_CMD = 7203,
+	
+	// End of Monster-----------------
+	
 	PACKET_CHATNAME_REQ = 1001,
 };
 
@@ -78,4 +91,5 @@ struct INPUT_PACKET : public PACKET_HEADER
 		input_data = 0;
 	}
 };
+#include "AZ_MHW/SocketHolder/Monster/MonsterPacket.h"
 #pragma pack(pop) //위에 설정된 패킹설정이 사라짐

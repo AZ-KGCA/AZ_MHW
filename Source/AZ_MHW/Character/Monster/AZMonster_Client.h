@@ -8,6 +8,7 @@
 // Forward declaration of classes
 class UAZAnimInstance_Monster;
 class UAZMonsterMeshComponent_Client;
+class UAZMonsterPacketHandlerComponent_Client;
 
 UCLASS(Blueprintable)
 class AZ_MHW_API AAZMonster_Client : public AAZCharacter
@@ -24,6 +25,7 @@ public:
 	// Others
 	bool IsABoss() const;
 	void SetActionStateInfo(FMonsterActionStateInfo action_state_info);
+	//animnotify_animation
 	
 	// Delegates
 	DECLARE_MULTICAST_DELEGATE(FOnEnterCombatSignature);
@@ -33,12 +35,11 @@ public:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
 
-public:
-	UPROPERTY(VisibleAnywhere, Category = "AZ") int32 object_serial_;
-	
+public:	
 	// Components
 	TObjectPtr<UAZMonsterMeshComponent_Client> mesh_component_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ") TObjectPtr<UAZAnimInstance_Monster> anim_instance_;
+	UPROPERTY(VisibleAnywhere, Category = "AZ") TObjectPtr<UAZMonsterPacketHandlerComponent_Client> packet_handler_component_;
 	
 protected:
 	// Properties

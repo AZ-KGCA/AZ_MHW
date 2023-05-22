@@ -3,6 +3,7 @@
 #include "AZ_MHW/Character/Monster/AZMonster_Client.h"
 #include "AZ_MHW/AnimInstance/AZAnimInstance_Monster.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent_Client.h"
+#include "AZ_MHW/CharacterComponent/AZMonsterPacketHandlerComponent_Client.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 
@@ -17,6 +18,7 @@ AAZMonster_Client::AAZMonster_Client()
 		
 	// Create components
 	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent_Client>(TEXT("MeshComponent"));
+	packet_handler_component_ = CreateDefaultSubobject<UAZMonsterPacketHandlerComponent_Client>(TEXT("PacketHandlerComponent"));
 }
 
 void AAZMonster_Client::PreInitializeComponents()

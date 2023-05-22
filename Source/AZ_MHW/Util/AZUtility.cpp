@@ -13,6 +13,7 @@ DEFINE_LOG_CATEGORY(LogShipping)
 DEFINE_LOG_CATEGORY(AZMonster)
 DEFINE_LOG_CATEGORY(AZMonster_Network)
 DEFINE_LOG_CATEGORY(AZItem)
+DEFINE_LOG_CATEGORY(AZ)
 
 void UAZUtility::ShippingLog(const FString log_msg)
 {
