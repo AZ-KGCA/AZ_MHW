@@ -1,3 +1,5 @@
+#pragma once
+
 struct CS_LOGIN_SIGNIN_REQ : public PACKET_HEADER
 {
 	char user_id[33];

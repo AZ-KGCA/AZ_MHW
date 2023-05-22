@@ -1,3 +1,5 @@
+#pragma once
+
 struct CS_CHAT_MSG_CMD : public PACKET_HEADER
 {
 	char nick_name[33];

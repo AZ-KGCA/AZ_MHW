@@ -1,3 +1,5 @@
+#pragma once
+
 struct CS_ITEM_TOTAL_INFO_REQ : public PACKET_HEADER
 {
 	int32 character_index;
