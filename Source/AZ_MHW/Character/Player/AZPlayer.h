@@ -42,14 +42,13 @@ protected:
 	/** */
 	virtual void BeginPlay() override;
 	/** */
-	virtual void Tick(float delta_seconds) override;
-	/** */
-	virtual  void BeginDestroy() override;
-	/** */
 	//virtual void PossessedBy(AController* new_controller) override;
 	/** */
 	//virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
-	
+	/** */
+	virtual void Tick(float delta_seconds) override;
+	/** */
+	virtual  void BeginDestroy() override;
 #pragma endregion
 public:
 	//각 Player_ Origin, Playable, Remotable에서 초기화 시점이 다르다.
@@ -65,32 +64,32 @@ public:
 	UPROPERTY() USkeletalMeshComponent* leg_mesh_;
 	UPROPERTY() TMap<FName, AAZSocketActor*> character_sockets_map_;
 
-	/** playerState의 CharacterEquipState 변경후 호출하여 갱신*/
+	/** playerState의 CharacterEquipState 변경후 갱신처리시 호출*/
 	void SetSKMeshParts();
-	/** bForceUpdate: 이미 붙어 있는 컴포넌트도 또 호출할 것인가*/
-	void CombineSKMeshParts(bool is_force_update = true);
-	/** playerState의 CharacterEquipState 변경후 호출하여 갱신*/
+	/** playerState의 CharacterEquipState 변경후 갱신처리시 호출*/
 	void SetSKMeshSocket();
 	
-	/** 소켓액터 추가*/
+	/** 소켓액터 추가 */
 	void CreateSocketActor(FName new_socket_actor_name, FName in_socket_name);
-	/** AnimNotify 호출. 소켓위치 변경*/
+	/** AnimNotify 호출. 소켓위치 변경 */
 	void ChangeSocketSlot(FName socket_actor_name, FName in_socket_name);
-	/** 컨트롤러 대리 호출. 소켓장비(메시) 변경*/
+	/** 컨트롤러 대리 호출. 소켓장비(메시) 변경 */
 	void ChangeSocketMesh(FName socket_actor_name, int32 item_id);
-	/** 컨트롤러 대리 호출. 장비타입, 아이템아이디 부위별 변경기능*/
+	/** 컨트롤러 대리 호출. 장비타입, 아이템아이디 부위별 변경기능 */
 	void ChangeEquipmentMesh(int32 item_id);
 
+private:
+	/** bForceUpdate: 이미 붙어 있는 컴포넌트도 또 호출할 것인가*/
+	void CombineSKMeshParts(bool is_force_update = true);
+	
 #pragma region Damage Interface
 protected:
-	// Damage Processing
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
-	UFUNCTION() void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
+	/** 다이나믹 델리게이트에서 처리되기 때문에 UFUNCTION 처리*/
+	UFUNCTION() virtual void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
 #pragma endregion
-
-#pragma region Interface
+#pragma region 추후 추가해야할 Interface?
 
 	//OnUseItem
 	//OnGetItem

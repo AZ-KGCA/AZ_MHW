@@ -37,7 +37,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		UPacketFunction::RequestInGame(/*todo*/);
 	}
 	break;
-	case PACKET_ID::IN_GAME_INPUT_REQUEST:
+	case PACKET_ID::IN_GAME_SUCCESS:
 	{
 		UPacketFunction::RequestPlayerMove(/*todo*/);
 	}

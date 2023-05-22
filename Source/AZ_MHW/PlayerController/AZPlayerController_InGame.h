@@ -51,19 +51,16 @@ protected:
 #pragma endregion 
 public:
 	/** GetAnimationBitMask */
-	UFUNCTION(BlueprintCallable)
-	int32 GetAnimationMask();
+	UFUNCTION(BlueprintCallable) int32 GetAnimationMask();
 	/** GetCommandBitMask */
-	UFUNCTION(BlueprintCallable)
-	int32 GetCommandBitMask();
+	UFUNCTION(BlueprintCallable) int32 GetCommandBitMask();
 	/** UI에서 호출하거나, 버튼 이벤트에 심어주세요 */
-	UFUNCTION(BlueprintCallable)
-	void RequestChangeEquipment(int32 itemID);
-	UFUNCTION(BlueprintCallable)
-	void RequestBuyItem(int32 itemID);
+	UFUNCTION(BlueprintCallable) void RequestChangeEquipment(int32 item_id);
+	
+	UFUNCTION(BlueprintCallable) void RequestBuyItem(int32 item_id);
 
 	
-#pragma region Playable Part
+#pragma region InGame Playable Part
 	/** 소유 플레이어 캐릭터 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	AAZPlayer_Playable* playable_player_;
@@ -75,7 +72,6 @@ public:
 	void InitializePlayer(FAZPlayerCharacterState character_state, FAZPlayerEquipmentState equipment_state);
 	/** 강제 보간적용 */
 	void ForceInterpolation(FVector position, FRotator direction);
-
 	/** 장비변경에 의한 근거리, 원거리 조작 매핑 변경 */
 	void SetupWeaponInputMappingContext(int32 weapon_type);
 #pragma endregion
@@ -87,6 +83,7 @@ public:
 	/** 액터의 제거를 쉽게 하기 위해서 소유 */
 	UPROPERTY(EditAnywhere)
 	TMap<int32, AAZPlayerState_Client*> remotable_player_state_map_;
+	
 	/** 서버에서 호출하여, 클라에 원격 캐릭터 생성 (접속)*/
 	void Remotable_AddPlayer(int32 guid, const FAZPlayerCharacterState& character_state, const FAZPlayerEquipmentState& equipment_state);
 	/** 서버에서 호출하여, 클라에 원격 캐릭터 제거 (접속종료)*/
@@ -98,6 +95,20 @@ public:
 	/** 서버에서 호출하여, 상태 갱신*/
 	void Remotable_UpdatePlayerState(int32 guid, FAZPlayerCharacterState character_state);
 #pragma endregion
+#pragma region Origin Part
+
+	/** */
+	void Origin_AddPlayer();
+	/** */
+	void Origin_RemovePlayer();
+	/** */
+	void Origin_ControlPlayer();
+	/** */
+	void Origin_EquipPlayer();
+	/** */
+	void Origin_UpdatePlayer();
+
+#pragma endregion 
 	
 #pragma region Input Event function
 public:

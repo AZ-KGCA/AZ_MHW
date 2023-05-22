@@ -117,7 +117,11 @@ void AAZPlayer_Playable::ActionZoom(const FInputActionValue& value)
 	spring_arm_comp_->TargetArmLength += zoom_axis_float;
 }
 
-
+float AAZPlayer_Playable::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result,
+	FAttackInfo attack_info)
+{
+	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
+}
 
 
 //서버처리

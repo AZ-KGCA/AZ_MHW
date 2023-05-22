@@ -37,9 +37,20 @@ public:
 	// map
 	void RequestInGame(/*todo*/);
 
+	
+	
+#pragma region PlayerChacterParts
+private:
 public:
 	// server(character)
 	void RequestPlayerMove(/*todo*/);
+
+	void RequestPlayerAction();
+	void RequestPlayerEquipment();
+	void RequestPlayerState();
+	
+	
+#pragma endregion 
 
 private:
 	UPROPERTY() class UAZGameInstance* game_instance_;

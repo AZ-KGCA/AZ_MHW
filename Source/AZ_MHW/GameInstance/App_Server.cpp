@@ -8,10 +8,6 @@ UApp_Server::UApp_Server()
 {
 }
 
-UApp_Server::~UApp_Server()
-{
-}
-
 void UApp_Server::OnConnect(const UINT32 client_index)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[OnConnect_App_Server] Client : Index(%d)\n"), client_index);

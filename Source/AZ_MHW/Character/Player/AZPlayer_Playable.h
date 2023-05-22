@@ -64,4 +64,6 @@ public:
 	//인터렉션가능
 	//벽타기가능 등
 	//박스 이용?(밀기,들기,당기기) 어떻게 해
+	
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 };

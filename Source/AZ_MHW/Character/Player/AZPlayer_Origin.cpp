@@ -26,17 +26,20 @@ void AAZPlayer_Origin::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-float AAZPlayer_Origin::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
-	AController* event_instigator, const FAttackInfo& attack_info)
+float AAZPlayer_Origin::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result,
+	FAttackInfo attack_info)
 {
-	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, event_instigator, attack_info);
+	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
 }
 
-float AAZPlayer_Origin::ProcessDamage(const FHitResult& hit_result, AController* event_instigator,
-	const FAttackInfo& attack_info, float applied_damage)
+float AAZPlayer_Origin::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
-	return Super::ProcessDamage(hit_result, event_instigator, attack_info, applied_damage);
+	return Super::ProcessDamage(damage_instigator, hit_result, attack_info);
 }
+
+
+
+
 
 
 

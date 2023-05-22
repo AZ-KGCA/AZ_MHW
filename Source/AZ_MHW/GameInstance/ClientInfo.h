@@ -1,8 +1,6 @@
 #pragma once
 #include "Define.h"
-#include <stdio.h>
-#include <mutex>
-#include <queue>
+#include "AZWindows.h"
 
 class ClientInfo
 {

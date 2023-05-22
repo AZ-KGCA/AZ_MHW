@@ -20,10 +20,13 @@ class AZ_MHW_API IAZDamageAgentInterface
 
 public:
 	FOnTakeDamageSignature OnTakeDamage;
+
+public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 	
 protected:
 	// Damage functions
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 
 public:

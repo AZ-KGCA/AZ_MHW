@@ -3,13 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IocpNetServer.h"
+#include "AZWindows.h"
 #include "Packet.h"
-#include <vector>
-#include <deque>
-#include <thread>
-#include <mutex>
-#include <memory>
+#include "IocpNetServer.h"
 #include "UObject/NoExportTypes.h"
 #include "App_Server.generated.h"
 
@@ -27,7 +23,7 @@ class AZ_MHW_API UApp_Server : public UObject, public IocpNetServer
 
 public:
 	UApp_Server();
-	virtual~UApp_Server();
+	
 public:
 	virtual void OnConnect(const UINT32 client_index) override;
 

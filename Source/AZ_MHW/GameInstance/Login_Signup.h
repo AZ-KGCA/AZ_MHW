@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "AZGameInstance.h"
 #include "CoreMinimal.h"
+#include "AZGameInstance.h"
 #include "Blueprint/UserWidget.h"
 #include "Login_Signup.generated.h"
 

@@ -34,9 +34,12 @@ void AAZPlayerController_Server::OnPossess(APawn* pawn)
 	
 }
 
-void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
+void AAZPlayerController_Server::Origin_AddPlayer(int32 client_index)
 {
-	GetWorld()->SpawnActor<AAZPlayer_Origin>();
+	auto player_clone = GetWorld()->SpawnActor<AAZPlayer_Origin>();
+	auto player_state_clone = GetWorld()->SpawnActor<AAZPlayerState_Client>();
+	player_state_clone->guid_ = client_index;
+	
 	// UWorld* world = GetWorld();
 	// if(world)
 	// {
@@ -61,7 +64,7 @@ void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
 	// }
 }
 
-void AAZPlayerController_Server::RemovePlayer_Origin(int32 client_index)
+void AAZPlayerController_Server::Origin_RemovePlayer(int32 client_index)
 {
 	if(const auto player_clone = logined_player_characters_.Find(client_index))
 	{
@@ -72,7 +75,7 @@ void AAZPlayerController_Server::RemovePlayer_Origin(int32 client_index)
 	}
 }
 
-void AAZPlayerController_Server::Cloneable_RPlayer(int32 client_index, InputPacket* input)
+void AAZPlayerController_Server::Origin_ControlPlayer(int32 client_index, InputPacket* input)
 {
 	if(const auto player_clone = logined_player_characters_.Find(client_index))
 	{

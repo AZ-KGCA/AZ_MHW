@@ -23,7 +23,6 @@ class AZ_MHW_API AAZCharacter : public ACharacter,
 
 public:
 	AAZCharacter();
-	
 protected:
 	// AI Module
 	FGenericTeamId team_id_;

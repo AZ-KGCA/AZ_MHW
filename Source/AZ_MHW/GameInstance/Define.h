@@ -1,10 +1,7 @@
 #pragma once
 
 #define PACKET_HEADER_SIZE 4
-
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#include <mswsock.h>
+#include "AZWindows.h"
 
 const UINT32 MAX_SOCKBUF = 256;	//패킷 크기
 const UINT32 MAX_SOCK_SENDBUF = 4096;	// 소켓 버퍼의 크기

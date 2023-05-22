@@ -1,8 +1,6 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
-#include "Windows/AllowWindowsPlatformTypes.h"
-#include <Windows.h>
-#include "Windows/HideWindowsPlatformTypes.h"
+#include "AZWindows.h"
 #include "Odbc.h"
 #include "CommonPacket.h"
 
@@ -15,3 +13,4 @@ struct PacketInfo
 	UINT16 data_size_ = 0;
 	char* P_data_ptr_ = nullptr;
 };
+
