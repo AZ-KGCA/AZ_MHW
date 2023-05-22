@@ -15,7 +15,7 @@
 #include "AZ_MHW/Login/AZLoginMgr.h"
 #include "AZ_MHW/GameMode/AZGameMode_InGame.h"
 #include "AZ_MHW/HUD/AZHUD_InGame.h"
-#include "..\Manager\AZInventoryManager.h"
+#include "..\Manager\AZInventoryMgr.h"
 #include  "Engine/GameInstance.h"
 //FIXME merged need del
 #include "AZ_MHW/Manager/AZInputMgr.h"

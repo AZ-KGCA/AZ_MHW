@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AZInventoryManager.h"
+#include "AZInventoryMgr.h"
 #include "AZTableMgr.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "Util/AZUtility.h"
@@ -16,6 +16,9 @@ void UAZInventoryManager::Init()
 	CreateStartItem();
 	SetPotionSlot();
 	SetBottleSlot();
+	SetWeaponSlot();
+	SetArmorSlot();
+	
 }
 
 void UAZInventoryManager::ResetMgr()
@@ -41,10 +44,10 @@ void UAZInventoryManager::GetTableData()
 		total_data.name = total_item->name;
 		total_data.warehouse_max = total_item->warehouse_max;
 		total_data.pocket_max = total_item->pocket_max;
+		total_data.init_count = total_item->init_count;
 		FString type = total_item->type;
 		total_data.type = UAZUtility::StringToEnum<EItemType>(type);
 		total_data_map_.Emplace(total_data.id, total_data);
-		UE_LOG(LogTemp,Warning,TEXT("%s"),*total_data.name);
 	}
 	
 	for(auto potion_data : instance_->table_mgr->potion_item_array_)
@@ -103,6 +106,7 @@ void UAZInventoryManager::GetTableData()
 		armor_struct.defense = armor->defense;
 		armor_data_map_.Emplace(armor_struct.id, armor_struct);
 	}
+
 }
 
 void UAZInventoryManager::CreateStartItem()
@@ -148,8 +152,50 @@ void UAZInventoryManager::CreateStartItem()
 			}
 			AddPocketBottle(info);
 		}
+		else if(item.Value.type == EItemType::weapon)
+		{
+			FWeaponInfo info;
+			info.item_key = item.Value.id;
+			info.item_name = item.Value.name;
+			info.item_type = item.Value.type;
+			if(melee_weapon_data_map_.Contains(info.item_key))
+			{
+				FMeleeWeaponDataStruct* m_weapon = melee_weapon_data_map_.Find(info.item_key);
+				info.damage = m_weapon->damage;
+				info.hone = m_weapon->hone;
+				info.is_equip = false;
+				info.weapon_type = m_weapon->type;
+				
+			}
+			else if(range_weapon_data_map_.Contains(info.item_key))
+			{
+				FRangeWeaponDataStruct* r_weapon = range_weapon_data_map_.Find(info.item_key);
+				info.damage = r_weapon->damage;
+				info.weapon_type = r_weapon->type;
+				info.bottle_type_array = r_weapon->bottle_array;
+			}
+			AddWarehouseWeapon(info);
+		}
+		else if(item.Value.type == EItemType::armor)
+		{
+			FArmorInfo info;
+			info.item_key = item.Value.id;
+			info.item_name = item.Value.name;
+			info.item_type = item.Value.type;
+			if(armor_data_map_.Contains(info.item_key))
+			{
+				FArmorDataStruct* armor = armor_data_map_.Find(info.item_key);
+				info.is_equip = false;
+				info.defense = armor->defense;
+				info.armor_type = armor->type;
+			}
+			AddWarehouseArmor(info);
+		}
 	}
 }
+
+
+
 int32 UAZInventoryManager::GetInventoryCurrCount(EItemType item_type, EStorageType type)
 {
 	int32 count = 0;
@@ -277,8 +323,16 @@ void UAZInventoryManager::RemoveItem(int32 item_key, EItemType item_type, EStora
 			bottle_pocket_.Remove(item_key);
 		}
 		break;
+		
+	case EItemType::weapon:
+		weapon_warehouse_.Remove(item_key);
+		break;
+	case EItemType::armor:
+		armor_warehouse_.Remove(item_key);
+		break;
 	}
 }
+
 
 TArray<UAZPotionItem*> UAZInventoryManager::GetPotionSlot()
 {
@@ -289,6 +343,16 @@ TArray<UAZPotionItem*> UAZInventoryManager::GetPotionSlot()
 TArray<UAZAmmoItem*> UAZInventoryManager::GetBottleSlot()
 {
 	return bottle_slot_;
+}
+
+TArray<UAZWeaponItem*> UAZInventoryManager::GetWeaponSlot()
+{
+	return weapon_slot_;
+}
+
+TArray<UAZArmorItem*> UAZInventoryManager::GetArmorSlot()
+{
+	return total_armor_slot_;
 }
 
 bool UAZInventoryManager::AddWarehousePotion(FPotionInfo& info)
@@ -461,6 +525,8 @@ UAZAmmoItem* UAZInventoryManager::CreateBottle(FAmmoInfo& info)
 	return bottle;
 }
 
+
+
 UAZWeaponItem* UAZInventoryManager::CreateWeapon(FWeaponInfo& info)
 {
 	UAZWeaponItem* weapon = NewObject<UAZWeaponItem>();
@@ -476,15 +542,11 @@ bool UAZInventoryManager::AddWarehouseWeapon(FWeaponInfo& info)
 	{
 		return false;
 	}
-	else
-	{
-		weapon_warehouse_.Emplace(info.item_key, CreateWeapon(info));
-	}
-
+	weapon_warehouse_.Emplace(info.item_key, CreateWeapon(info));
 	return true;
 }
 
-void UAZInventoryManager::EquipWeapon(int32 item_key)
+void UAZInventoryManager::ChangeWeaponEquipState(int32 item_key)
 {
 	UAZWeaponItem** weapon = weapon_warehouse_.Find(item_key);
 	if(weapon == nullptr)
@@ -499,6 +561,28 @@ void UAZInventoryManager::EquipWeapon(int32 item_key)
 	{
 		(*weapon)->EquipStateChange(false);
 	}
+}
+
+
+void UAZInventoryManager::SetWeaponSlot()
+{
+	for(auto weapon : weapon_warehouse_)
+	{
+		weapon_slot_.Emplace(weapon.Value);
+	}
+}
+
+FWeaponInfo UAZInventoryManager::GetEquipWeaponInfo()
+{
+	FWeaponInfo info;
+	for(auto weapon : weapon_warehouse_)
+	{
+		if(weapon.Value->GetWeaponInfo().is_equip == true)
+		{
+			info = weapon.Value->GetWeaponInfo();
+		}
+	}
+	return info;
 }
 
 UAZWeaponItem* UAZInventoryManager::GetEquipWeapon()
@@ -521,6 +605,36 @@ UAZArmorItem* UAZInventoryManager::CreateArmor(FArmorInfo& info)
 	return armor;
 }
 
+UAZArmorItem* UAZInventoryManager::GetEquipArmorToType(int32 armor_index)
+{
+	UAZArmorItem* armor = nullptr;
+	EArmorType armor_type_ = static_cast<EArmorType>(armor_index);
+	armor = FindEquipArmor(armor_type_);
+	if(armor == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("nullptr"));
+		return armor;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("%d : %s"), armor->GetItemInfo().item_key, *armor->GetItemInfo().item_name);
+	return armor;
+}
+
+UAZArmorItem* UAZInventoryManager::FindEquipArmor(EArmorType type)
+{
+	UAZArmorItem* item = nullptr;
+	for(auto armor : armor_warehouse_)
+	{
+		if(armor.Value->GetItemInfo().armor_type == type)
+		{
+			if(armor.Value->GetItemInfo().is_equip == true)
+			{
+				item = armor.Value;
+			}
+		}
+	}
+	return item;
+}
+
 bool UAZInventoryManager::AddWarehouseArmor(FArmorInfo& info)
 {
 	UAZArmorItem** armor = armor_warehouse_.Find(info.item_key);
@@ -533,7 +647,7 @@ bool UAZInventoryManager::AddWarehouseArmor(FArmorInfo& info)
 	return true;
 }
 
-void UAZInventoryManager::EquipArmor(int32 item_key)
+void UAZInventoryManager::ChangeArmorEquipState(int32 item_key)
 {
 	UAZArmorItem** armor = armor_warehouse_.Find(item_key);
 	if(armor == nullptr)
@@ -550,9 +664,13 @@ void UAZInventoryManager::EquipArmor(int32 item_key)
 	}
 }
 
-UAZArmorItem* UAZInventoryManager::GetEquipArmor(int32 ui_index)
+
+void UAZInventoryManager::SetArmorSlot()
 {
-	return nullptr;
+	for(auto armor : armor_warehouse_)
+	{
+		total_armor_slot_.Emplace(armor.Value);
+	}
 }
 
 bool UAZInventoryManager::ChangeBottleStorage(int32 item_key, EStorageType type, int32 move_count)

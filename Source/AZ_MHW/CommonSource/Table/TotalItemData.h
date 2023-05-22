@@ -16,6 +16,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString value;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 warehouse_max;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 pocket_max;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) int32 init_count;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString type;
 
 public:
