@@ -50,6 +50,7 @@ struct PACKET_HEADER
 {
 	UINT16 packet_length;
 	UINT16 packet_id;
+	INT32 success;
 };
 struct LOGIN_REQUEST_PACKET : public PACKET_HEADER
 {
