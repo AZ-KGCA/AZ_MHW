@@ -8,7 +8,6 @@
 #include "Components/EditableTextBox.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/Button.h"
-#include "AZ_MHW/GameInstance/Client_To_Server.h"
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "AZ_MHW/HUD/AZHUD.h"

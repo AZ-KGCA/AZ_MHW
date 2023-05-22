@@ -59,10 +59,6 @@ public:
 	//MinSuhong
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UApp_Server* iocp_net_server_;
-	 
-	//UPROPERTY(Transient)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UClient_To_Server* client_connect;
 
 ////////////
 // Server //

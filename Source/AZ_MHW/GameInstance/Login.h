@@ -40,7 +40,4 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UAZGameInstance* az_game_instance;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UClient_To_Server* client_to_server;
 };

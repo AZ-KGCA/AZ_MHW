@@ -3,7 +3,6 @@
 
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 
-#include "AZ_MHW/GameInstance/Client_To_Server.h"
 #include "AZ_MHW/CommonSource/AZLog.h"
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
@@ -20,7 +19,6 @@ void UAZSocketHolder::Init(ESocketHolderType holder_type)
 {
 	socket_holder_type_ = holder_type;
 
-	AZGameInstance = Cast<UAZGameInstance>(GetOuter());
 	InitIsShowWaitWidgetException();
 	InitSendLoger();
 }
