@@ -99,7 +99,7 @@ public:
 	bool CreatePrepare();
 	void ErrorMsg(SQLHSTMT  stmt);
 	void Connect(std::wstring dbName);
-	void ConnetMssql(std::wstring dbName);
+	void ConnectMssql(std::wstring dbName);
 	void DisConnect();
 	bool AddSQL(dbitem& record);
 	bool UpdateSQL(dbitem& record, std::wstring selectName);

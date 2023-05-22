@@ -14,7 +14,9 @@
 #endif
 
 // Collision trace channels defines
-#define ECC_AZPLAYER ECollisionChannel::ECC_GameTraceChannel1
+#define ECC_PLAYER ECollisionChannel::ECC_GameTraceChannel1
+#define ECC_MONSTER ECollisionChannel::ECC_GameTraceChannel2
+#define ECC_PLAYERATTACK ECollisionChannel::ECC_GameTraceChannel1
 
 // Physical material surface type defines
 #define EPS_HEAD EPhysicalSurface::SurfaceType1

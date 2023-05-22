@@ -30,4 +30,5 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AZ") struct FBlackboardKeySelector key_is_triggered_by_sight_;
 	UPROPERTY(EditAnywhere, Category = "AZ") struct FBlackboardKeySelector key_action_mode_;
 	UPROPERTY(EditAnywhere, Category = "AZ") struct FBlackboardKeySelector key_target_character_;
+	UPROPERTY(EditAnywhere, Category = "AZ") struct FBlackboardKeySelector key_action_delay_;
 };

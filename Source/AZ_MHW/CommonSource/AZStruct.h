@@ -8,16 +8,17 @@
 //============================================
 // Character Common
 
+// for blueprint usages
 USTRUCT(BlueprintType)
-struct FStatusEffectInfo
+struct FDamageInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) EStatusEffectType type;
-	UPROPERTY(EditAnywhere) float duration;
+	UPROPERTY(EditAnywhere) EDamageType type;
+	UPROPERTY(EditAnywhere) int32 amount;
 
-	FStatusEffectInfo() : type(EStatusEffectType::None), duration(0) {};
-	FStatusEffectInfo(EStatusEffectType type, float duration) : type(type), duration(duration) {};
+	FDamageInfo() : type(EDamageType::None), amount(0) {};
+	FDamageInfo(EDamageType type, int32 amount) : type(type), amount(amount) {};
 };
 
 USTRUCT(BlueprintType)
@@ -25,14 +26,28 @@ struct FAttackInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) int32 base_damage;
-	UPROPERTY(EditAnywhere) EDamageType damage_type;
-	UPROPERTY(EditAnywhere) TArray<FStatusEffectInfo> status_effects;
+	UPROPERTY(EditAnywhere) TArray<FDamageInfo> damage_array;
+	UPROPERTY(EditAnywhere) EAttackEffectType attack_effect;
 
-	FAttackInfo() : base_damage(0), damage_type(EDamageType::None) {};
-	FAttackInfo(int32 base_damage, EDamageType damage_type) : base_damage(base_damage), damage_type(damage_type) {};
-	FAttackInfo(int32 base_damage, EDamageType damage_type, TArray<FStatusEffectInfo> status_effects) :
-		base_damage(base_damage), damage_type(damage_type), status_effects(status_effects) {};
+	FAttackInfo() : attack_effect(EAttackEffectType::None) {};
+	int32 GetDamageTotal()
+	{
+		int32 total_damage = 0;
+		for (const auto damage_info : damage_array)
+		{
+			total_damage += damage_info.amount;
+		}
+		return total_damage;
+	}
+	FString GetDebugString()
+	{
+		FString debug_str;
+		for (auto damage_info : damage_array)
+		{
+			debug_str += FString::Printf(TEXT("[%s] %d "), *UAZUtility::EnumToString(damage_info.type), damage_info.amount);
+		}
+		return debug_str;
+	}
 };
 
 // End of Character Common
@@ -128,36 +143,62 @@ struct FBossEscapeStats
 	}
 };
 
+// Used for packet only
 USTRUCT(BlueprintType)
-struct FBossBodyPartDebuffInfo
+struct FBossBodyPartDebuffState
+{
+	GENERATED_BODY()
+	
+	bool is_wounded;
+	bool is_broken;
+	bool is_severed;
+
+	FBossBodyPartDebuffState()
+	{
+		is_wounded = is_broken = is_severed = false;
+	}
+};
+//
+// USTRUCT(BlueprintType)
+// struct FBossBodyPartState
+// {
+// 	
+// };
+
+USTRUCT(BlueprintType)
+struct FBossBodyPartState
 {
 	GENERATED_BODY()
 
 	// Wound 	
-	bool is_woundable;
-	int32 wound_required_damage;
-	int32 wound_accumulated_damage;
+	UPROPERTY(VisibleAnywhere) bool is_woundable;
+	UPROPERTY(VisibleAnywhere) bool is_wounded;
+	UPROPERTY(VisibleAnywhere) int32 wound_required_damage;
+	UPROPERTY(VisibleAnywhere) int32 wound_accumulated_damage;
 	
 	// Part break 
-	bool is_breakable;
-	int32 break_required_damage;
-	int32 break_accumulated_damage;
+	UPROPERTY(VisibleAnywhere) bool is_breakable;
+	UPROPERTY(VisibleAnywhere) bool is_broken;
+	UPROPERTY(VisibleAnywhere) int32 break_required_damage;
+	UPROPERTY(VisibleAnywhere) int32 break_accumulated_damage;
 
 	// Sever 
-	bool is_severable;
-	int32 sever_required_damage;
-	int32 sever_accumulated_damage;
+	UPROPERTY(VisibleAnywhere) bool is_severable;
+	UPROPERTY(VisibleAnywhere) bool is_severed;
+	UPROPERTY(VisibleAnywhere) int32 sever_required_damage;
+	UPROPERTY(VisibleAnywhere) int32 sever_accumulated_damage;
 	
-	bool is_stunnable;
+	UPROPERTY(VisibleAnywhere) bool is_stunnable;
 
-	FBossBodyPartDebuffInfo()
+	FBossBodyPartState()
 	{
 		is_breakable = is_severable = is_woundable = is_stunnable = false;
+		is_wounded = is_broken = is_severed = false;
 		break_required_damage = break_accumulated_damage = 0;
 		sever_required_damage = sever_accumulated_damage = 0;
 		wound_required_damage = wound_accumulated_damage = 0;
 	}
-	FBossBodyPartDebuffInfo(TArray<int32> damage_info) : FBossBodyPartDebuffInfo()
+	FBossBodyPartState(TArray<int32> damage_info) : FBossBodyPartState()
 	{
 		// Wound
 		if (damage_info[0] != -1)
@@ -214,12 +255,12 @@ struct FBossWeaknessStats
 {
 	GENERATED_BODY()
 
-	TArray<int32> head;
-	TArray<int32> neck;
-	TArray<int32> body;
-	TArray<int32> tail;
-	TArray<int32> wing;
-	TArray<int32> leg;
+	UPROPERTY(VisibleAnywhere) TArray<int32> head;
+	UPROPERTY(VisibleAnywhere) TArray<int32> neck;
+	UPROPERTY(VisibleAnywhere) TArray<int32> body;
+	UPROPERTY(VisibleAnywhere) TArray<int32> tail;
+	UPROPERTY(VisibleAnywhere) TArray<int32> wing;
+	UPROPERTY(VisibleAnywhere) TArray<int32> leg;
 	TArray<TArray<int32>> weakness_array;
 	TMap<EMonsterBodyPart, TArray<int32>*> weakness_map;
 	
@@ -285,11 +326,11 @@ struct FBossInfo
 	bool has_transition_animation;
 	FBossEscapeStats escape_stats;
 	FBossWeaknessStats weakness_stats;
-	FBossBodyPartDebuffInfo head_state;
-	FBossBodyPartDebuffInfo body_state;
-	FBossBodyPartDebuffInfo wing_state;
-	FBossBodyPartDebuffInfo tail_state;
-	FBossBodyPartDebuffInfo leg_state;
+	FBossBodyPartState head_state;
+	FBossBodyPartState body_state;
+	FBossBodyPartState wing_state;
+	FBossBodyPartState tail_state;
+	FBossBodyPartState leg_state;
 	TArray<EMonsterBodyPart> stunnable_parts;
 	FBossRageStats rage_stats;
 	float tenderised_damage_multiplier;
@@ -300,19 +341,20 @@ struct FMonsterCombatActionInfo
 {
 	GENERATED_BODY()
 	
-	int32 action_id;
-	int32 monster_id;
-	FName animation_name;
-	FName montage_section_name;
-	EAttackEffect attack_effect;
-	int32 damage_base;
-	int32 damage_poison;
-	EMonsterActionTriggerType triggers;
-	EMonsterActionConditionType conditions;
-	int32 condition_min_distance_from_target;
-	int32 condition_max_distance_from_target;
-	float cooltime;
-	float cooltime_timer;
+	UPROPERTY(VisibleAnywhere) int32 action_id;
+	UPROPERTY(VisibleAnywhere) int32 monster_id;
+
+	// Animation info
+	UPROPERTY(VisibleAnywhere) FName animation_name;
+	UPROPERTY(VisibleAnywhere) FName montage_section_name;
+
+	// Triggers and conditions
+	UPROPERTY(VisibleAnywhere) EMonsterActionTriggerType triggers;
+	UPROPERTY(VisibleAnywhere) EMonsterActionConditionType conditions;
+	UPROPERTY(VisibleAnywhere) int32 condition_min_distance_from_target;
+	UPROPERTY(VisibleAnywhere) int32 condition_max_distance_from_target;
+	
+	UPROPERTY(VisibleAnywhere) float attack_delay;
 
 	FMonsterCombatActionInfo() {}
 };
@@ -322,13 +364,13 @@ struct FMonsterNonCombatActionInfo
 {
 	GENERATED_BODY()
 	
-	int32 action_id;
-	int32 monster_id;
-	FName animation_name;
-	FName montage_section_name;
-	EMonsterActionConditionType conditions;
-	float condition_min_health_ratio;		// only checked if condition includes Health
-	float condition_max_health_ratio;
+	UPROPERTY(VisibleAnywhere) int32 action_id;
+	UPROPERTY(VisibleAnywhere) int32 monster_id;
+	UPROPERTY(VisibleAnywhere) FName animation_name;
+	UPROPERTY(VisibleAnywhere) FName montage_section_name;
+	UPROPERTY(VisibleAnywhere) EMonsterActionConditionType conditions;
+	UPROPERTY(VisibleAnywhere) float condition_min_health_ratio;		// only checked if condition includes Health
+	UPROPERTY(VisibleAnywhere) float condition_max_health_ratio;
 
 	FMonsterNonCombatActionInfo() {}
 };

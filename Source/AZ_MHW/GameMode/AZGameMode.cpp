@@ -11,12 +11,13 @@
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Level/AZWorldSettings.h"
 #include "AZ_MHW/PlayerController/AZPlayerController.h"
-#include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
+
 #include "Engine/AssetManager.h"
 #include "Engine/LevelStreaming.h"
 #include "Engine/WorldComposition.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
+#include "GameFramework/DefaultPawn.h"
 
 AAZGameMode::AAZGameMode()
 {
@@ -25,7 +26,7 @@ AAZGameMode::AAZGameMode()
 	audio_component_->bAutoActivate = false;
 	RootComponent = audio_component_;
 
-	DefaultPawnClass = AAZPlayer_Playable::StaticClass();
+	DefaultPawnClass = ADefaultPawn::StaticClass();
 	PlayerControllerClass = AAZPlayerController::StaticClass();
 	HUDClass = AAZHUD::StaticClass();
 
@@ -36,10 +37,6 @@ AAZGameMode::AAZGameMode()
 	is_started = false;
 }
 
-AAZGameMode::~AAZGameMode()
-{
-
-}
 
 void AAZGameMode::InitGame(const FString& map_name, const FString& options, FString& error_message)
 {

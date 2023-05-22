@@ -2,29 +2,25 @@
 
 
 #include "AZGameMode_InitGame.h"
-
-#include "AZGameMode_Server.h"
-#include "GameFramework/DefaultPawn.h"
-#include "GameFramework/GameStateBase.h"
-#include "GameFramework/HUD.h"
-#include "GameFramework/PlayerState.h"
-#include "Kismet/GameplayStatics.h"
+#include <GameFramework/DefaultPawn.h>
+#include <GameFramework/GameStateBase.h>
+#include <Kismet/GameplayStatics.h>
 
 
 AAZGameMode_InitGame::AAZGameMode_InitGame()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	
+	bStartPlayersAsSpectators = false;
 	bNetLoadOnClient = false;
 	bPauseable = true;
-	bStartPlayersAsSpectators = false;
 
-	DefaultPawnClass = ADefaultPawn::StaticClass();
-	PlayerControllerClass = APlayerController::StaticClass();
+	DefaultPawnClass = ADefaultPawn::StaticClass();//기본
+	PlayerControllerClass = APlayerController::StaticClass();//기본
 	
-	PlayerStateClass = nullptr;
-	GameStateClass = nullptr;
-	HUDClass = nullptr;
+	PlayerStateClass = nullptr;//분기
+	GameStateClass = nullptr;//분기
+	HUDClass = nullptr;//분기
+	
 	//GameSessionClass = AGameSession::StaticClass();
 	//SpectatorClass = ASpectatorPawn::StaticClass();
 
@@ -32,11 +28,16 @@ AAZGameMode_InitGame::AAZGameMode_InitGame()
 	//ServerStatReplicatorClass = AServerStatReplicator::StaticClass();
 }
 
-// Called when the game starts or when spawned
 void AAZGameMode_InitGame::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/*
+	const FString mode_string = FCommandLine::Get();
 	
+	if(mode_string == "") PlayServerMode();
+	else PlayClientMode();
+	*/
 }
 
 void AAZGameMode_InitGame::InitGame(const FString& map_name, const FString& options, FString& error_message)
@@ -47,6 +48,7 @@ void AAZGameMode_InitGame::InitGame(const FString& map_name, const FString& opti
 
 void AAZGameMode_InitGame::PlayServerMode()
 {
+	//FIXME(빌드시 동기화할 맵으로 변경)
 	UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_Server.BP_Server_C");
 }
 

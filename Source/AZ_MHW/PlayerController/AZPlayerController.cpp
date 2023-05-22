@@ -10,14 +10,10 @@ AAZPlayerController::AAZPlayerController()
 {
 	
 }
+
 void AAZPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-}
-void AAZPlayerController::OnPossess(APawn* in_pawn)
-{
-	Super::OnPossess(in_pawn);
 	
 }
 
@@ -27,4 +23,17 @@ void AAZPlayerController::SetupInputComponent()
 	AZGameInstance->input_mgr_->SetupDefaultBindAction(InputComponent, GetLocalPlayer());
 	
 }
+
+void AAZPlayerController::OnPossess(APawn* in_pawn)
+{
+	Super::OnPossess(in_pawn);
+	
+}
+
+void AAZPlayerController::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+
+
 

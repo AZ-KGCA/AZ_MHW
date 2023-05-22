@@ -11,7 +11,7 @@
 DECLARE_DELEGATE_RetVal_OneParam(bool, FTriggerEndAnimation, UAZAnimInstance*)//애니메이션 종료조건 트리거 델리게이트
 
 class AAZPlayer;
-class AAZPlayerState;
+class AAZPlayerState_Client;
 
 /**
  * 플레이어 애니메이션블루프린트의 뼈대
