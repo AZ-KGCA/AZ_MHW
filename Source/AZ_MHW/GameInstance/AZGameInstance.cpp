@@ -37,7 +37,7 @@ UGameInstanceProxy AZGameInstance;
 
 UAZGameInstance::UAZGameInstance()
 {
-	AZGameInstance = this;
+
 }
 UAZGameInstance::~UAZGameInstance()
 {

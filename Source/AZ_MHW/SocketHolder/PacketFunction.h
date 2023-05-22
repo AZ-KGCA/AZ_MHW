@@ -13,25 +13,34 @@ class AZ_MHW_API UPacketFunction : public UObject
 	GENERATED_BODY()
 
 public:
-	UPacketFunction();
+	UPacketFunction() {}
 
 public:
 	bool ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_packet);
 	void Init();
 
 public:
-	// client
+	// client(Login)
 	void LoginResponse(LOGIN_RESPONSE_PACKET* packet, bool is_successed);
 	void SigninResponse(LOGIN_RESPONSE_PACKET* packet, bool is_successed);
 
 public:
-	// server
+	// server(Login)
 	void LoginRequest(UINT32 client_index, LOGIN_REQUEST_PACKET* packet);
 	void SignupRequest(UINT32 client_index, LOGIN_REQUEST_PACKET* packet);
-	void RequestChatting(UINT32 client_index, LOGIN_REQUEST_PACKET* packet);
-	void RequestInGame(/*todo*/);
-	void RequestPlayerMove(/*todo*/);
 
 public:
-	class UAZGameInstance* game_instance_;
+	// server(Chat)
+	void RequestChatting(UINT32 client_index, LOGIN_REQUEST_PACKET* packet);
+
+public:
+	// map
+	void RequestInGame(/*todo*/);
+
+public:
+	// server(character)
+	void RequestPlayerMove(/*todo*/);
+
+private:
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };

@@ -52,43 +52,43 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	{
 		LOGIN_RESPONSE_PACKET* packet = (LOGIN_RESPONSE_PACKET*)recv_packet;
 		UPacketFunction::LoginResponse(packet, true);
-		AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::LOGIN_REQUEST, out_request_protocol);
+		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::LOGIN_REQUEST, out_request_protocol);
 	}
 	break;
 	case PACKET_ID::LOGIN_RESPONSE_FAIL:
 	{
 		LOGIN_RESPONSE_PACKET* packet = (LOGIN_RESPONSE_PACKET*)recv_packet;
 		UPacketFunction::LoginResponse(packet, false);
-		AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::LOGIN_REQUEST, out_request_protocol);
+		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::LOGIN_REQUEST, out_request_protocol);
 	}
 	break;
 	case PACKET_ID::SIGNIN_RESPONSE_SUCCESS:
 	{
 		LOGIN_RESPONSE_PACKET* packet = (LOGIN_RESPONSE_PACKET*)recv_packet;
 		UPacketFunction::SigninResponse(packet, true);
-		AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::SIGNIN_REQUEST, out_request_protocol);
+		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::SIGNIN_REQUEST, out_request_protocol);
 	}
 	break;
 	case PACKET_ID::SIGNIN_RESPONSE_FAIL:
 	{
 		LOGIN_RESPONSE_PACKET* packet = (LOGIN_RESPONSE_PACKET*)recv_packet;
 		UPacketFunction::SigninResponse(packet, false);
-		AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::SIGNIN_REQUEST, out_request_protocol);
+		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::SIGNIN_REQUEST, out_request_protocol);
 	}
 	break;
 	case PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS:
 	{
-		AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::CHAT_SEND_REQUEST, out_request_protocol);
+		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::CHAT_SEND_REQUEST, out_request_protocol);
 	}
 	break;
 	case PACKET_ID::CHAT_SEND_RESPONSE_FAIL:
 	{
-		AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::CHAT_SEND_REQUEST, out_request_protocol);
+		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::CHAT_SEND_REQUEST, out_request_protocol);
 	}
 	break;
 	case PACKET_ID::IN_GAME_SUCCESS:
 	{
-		AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::IN_GAME_REQUEST, out_request_protocol);
+		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::IN_GAME_REQUEST, out_request_protocol);
 	}
 	break;
 	default:
@@ -98,6 +98,6 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	break;
 	}
 
-	AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->ScreenWaitProc(out_request_protocol);
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->ScreenWaitProc(out_request_protocol);
 	return true;
 }

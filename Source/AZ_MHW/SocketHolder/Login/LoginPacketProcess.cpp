@@ -1,14 +1,8 @@
-
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
 
 #include "AZ_MHW/Login/AZLoginMgr.h"
 #include "AZ_MHW/HUD/AZHUD.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
-
-
-UPacketFunction::UPacketFunction()
-{
-}
 
 void UPacketFunction::LoginResponse(LOGIN_RESPONSE_PACKET* packet, bool is_successed)
 {
@@ -73,8 +67,8 @@ void UPacketFunction::SignupRequest(UINT32 client_index, LOGIN_REQUEST_PACKET* p
 {
 	dbitem record;
 
-	auto P_user_id = game_instance_->ConvertCharToSqlTCHAR(packet->user_id); ;
-	auto P_user_pw = game_instance_->ConvertCharToSqlTCHAR(packet->user_pw); ;
+	auto P_user_id = AZGameInstance->ConvertCharToSqlTCHAR(packet->user_id); ;
+	auto P_user_pw = AZGameInstance->ConvertCharToSqlTCHAR(packet->user_pw); ;
 
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
@@ -107,25 +101,4 @@ void UPacketFunction::SignupRequest(UINT32 client_index, LOGIN_REQUEST_PACKET* p
 
 		game_instance_->SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 	}
-}
-
-void UPacketFunction::RequestChatting(UINT32 client_index, LOGIN_REQUEST_PACKET* packet)
-{
-	LOGIN_REQUEST_PACKET login_res_packet;
-	login_res_packet.packet_id = (int)PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS;
-	login_res_packet.packet_length = sizeof(login_res_packet);
-	//login_res_packet.clinet_id = client_index;
-	strcpy_s(login_res_packet.user_id, sizeof(login_res_packet.user_id), packet->user_id);
-
-	game_instance_->BroadCastSendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
-}
-
-void UPacketFunction::RequestInGame()
-{
-	//todo
-}
-
-void UPacketFunction::RequestPlayerMove()
-{
-	//todo
 }
