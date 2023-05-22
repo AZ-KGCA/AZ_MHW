@@ -41,12 +41,14 @@ UAZGameInstance::UAZGameInstance()
 }
 UAZGameInstance::~UAZGameInstance()
 {
-	AZGameInstance = nullptr;
+	
 }
 
 void UAZGameInstance::Init()
 {
 	Super::Init();
+
+	AZGameInstance = this;
 
 	UAZGameSingleton::instance();
 
@@ -119,14 +121,14 @@ void UAZGameInstance::Shutdown()
 	AZ_LOG("Shutdown");
 
 	// Destroy in reverse order of creation
+	input_mgr_ = nullptr;
 	game_option = nullptr;
 	login_mgr = nullptr;
 	save_data = nullptr;
 	game_config = nullptr;
 	map_mgr = nullptr;
 	hud_data_mgr = nullptr;
-	input_mgr_ = nullptr;
-	
+	packet_function_ = nullptr;
 }
 
 void UAZGameInstance::RestMgr()

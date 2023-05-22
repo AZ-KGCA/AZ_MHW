@@ -159,10 +159,7 @@ public:
 
 	int Server_Packet_Send(const char* packet, int packet_size);
 
-	void Signin();
-
 	void receive_thread();
-	//void receive_data_read_thread();
 
 	void ClientTimerProcessPacket();
 
