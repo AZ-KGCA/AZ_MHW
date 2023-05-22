@@ -262,6 +262,7 @@ public:
 	int32 guid_;//Player UID
 
 	FString* id_;//DB에서 검색할 플레이어 ID
+	
 	FString* nickname_;//캐릭터 이름
 	
 	//플레이어 입력상태(애니메이션)

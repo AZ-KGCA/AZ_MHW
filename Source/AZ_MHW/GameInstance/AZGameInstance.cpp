@@ -321,7 +321,7 @@ void UAZGameInstance::AddNewSingleton(UAZSingletonObject* mgr)
 
 void UAZGameInstance::TimerProcessPacket()
 {
-	UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
+	//UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
 
 	if (auto packet_data = DequePacketData(); packet_data.packet_id_ > (UINT16)PACKET_ID::SYS_END)
 	{

@@ -37,21 +37,35 @@ public:
 	// map
 	void RequestInGame(/*todo*/);
 
-	
-	
-#pragma region PlayerChacterParts
-private:
+#pragma region PlayerCharacterParts
 public:
-	// server(character)
-	void RequestPlayerMove(/*todo*/);
-
-	void RequestPlayerAction();
-	void RequestPlayerEquipment();
-	void RequestPlayerState();
+#pragma region Client->Server
+	void RequestOriginPlayerCreate(UINT32 client_index);
+	void RequestOriginPlayerDestroy(UINT32 client_index);
 	
+	void RequestOriginPlayerAction(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
+	void RequestOriginPlayerEquipment(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
+	void CommandUpdatePlayerState(UINT32 client_index, UPDATE_PLAYER_STATE_PACKET* packet);
+
+	void ReqeustPlayerCharacterCreate();
+	void RequestPlayerCharacterDestroy();//플레이어 캐릭터 제거
+#pragma endregion
+#pragma region Server->Client
+	//void CommandUpdateField(UINT32 client_index);
+	//void CommandUpdateMerchant(UINT32 client_index);
+	
+	void CommandCreateRemotablePlayer(UINT32 client_index);
+	void CommandDestroyRemotablePlayer(UINT32 client_index);
+	void CommandActionRemotablePlayer(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
+	void CommandEquipRemotablePlayer(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
+	void CommandUpdateRemotablePlayerState(UINT32 client_index, UPDATE_PLAYER_STATE_PACKET* packet);
+	
+	void ResponePlayerCharacterCreate();//플레이어 생성후 데이터받기
+	void ResponePlayerCharacterDestroy();//플레이어 제거후 데이터받기
+	void RequestDisplayPlayerDemage(UINT32 client_index);//플레이어가 준 데미지 표시
 	
 #pragma endregion 
-
+#pragma endregion 
 private:
 	UPROPERTY() class UAZGameInstance* game_instance_;
 };

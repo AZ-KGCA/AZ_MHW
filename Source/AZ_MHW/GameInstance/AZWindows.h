@@ -1,19 +1,23 @@
-﻿#include "Windows/AllowWindowsPlatformTypes.h"
+﻿#pragma once
+/** 윈도우 API, 외부 API 헤더, STL 헤더는 아래에 인클루드 해주세요.*/
+#include "Windows/AllowWindowsPlatformTypes.h"
+#define WIN32_LEAN_AND_MEAN
 
 #include <unordered_set>
 #include <unordered_map>
 #include <map>
 #include <set>
-#include <thread>
 #include <queue>
-#include <vector>
 #include <deque>
+#include <stack>
+#include <vector>
+#include <list>
+#include <tuple>
 
 #include <thread>
 #include <mutex>
 #include <memory>
-// client
-#include <iostream>
+
 #include <winsock2.h>
 #include <windows.h>
 #include <Ws2tcpip.h>

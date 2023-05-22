@@ -1,5 +1,5 @@
 #pragma once
-#define WIN32_LEAN_AND_MEAN
+
 #include "AZWindows.h"
 #include "Odbc.h"
 #include "CommonPacket.h"

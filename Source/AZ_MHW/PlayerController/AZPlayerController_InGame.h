@@ -55,9 +55,10 @@ public:
 	/** GetCommandBitMask */
 	UFUNCTION(BlueprintCallable) int32 GetCommandBitMask();
 	/** UI에서 호출하거나, 버튼 이벤트에 심어주세요 */
-	UFUNCTION(BlueprintCallable) void RequestChangeEquipment(int32 item_id);
-	
-	UFUNCTION(BlueprintCallable) void RequestBuyItem(int32 item_id);
+	UFUNCTION(BlueprintCallable)
+	void RequestChangeEquipment(int32 item_id);
+	UFUNCTION(BlueprintCallable)
+	void RequestBuyItem(int32 item_id);
 
 	
 #pragma region InGame Playable Part
@@ -74,6 +75,7 @@ public:
 	void ForceInterpolation(FVector position, FRotator direction);
 	/** 장비변경에 의한 근거리, 원거리 조작 매핑 변경 */
 	void SetupWeaponInputMappingContext(int32 weapon_type);
+	
 #pragma endregion
 
 #pragma region Remotable Part
@@ -95,8 +97,8 @@ public:
 	/** 서버에서 호출하여, 상태 갱신*/
 	void Remotable_UpdatePlayerState(int32 guid, FAZPlayerCharacterState character_state);
 #pragma endregion
+	
 #pragma region Origin Part
-
 	/** */
 	void Origin_AddPlayer();
 	/** */

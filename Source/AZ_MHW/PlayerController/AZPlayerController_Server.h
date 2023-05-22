@@ -7,7 +7,6 @@
 #include "AZPlayerController_Server.generated.h"
 
 
-struct InputPacket;
 struct FAZPlayerActionState;
 class AAZPlayer_Origin;
 
@@ -40,7 +39,7 @@ public:
 	/** 인게임 퇴장->클라로 맵변경 + 원격제거 명령*/
 	void Origin_RemovePlayer(int32 client_index);
 	/** 입력값 받기*/
-	void Origin_ControlPlayer(int32 client_index, InputPacket* input);
+	void Origin_ControlPlayer(int32 client_index, FVector cur_pos,float cur_dir, float input_dir, int32 input_data);
 
 	/** */
 	

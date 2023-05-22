@@ -75,7 +75,8 @@ void AAZPlayerController_Server::Origin_RemovePlayer(int32 client_index)
 	}
 }
 
-void AAZPlayerController_Server::Origin_ControlPlayer(int32 client_index, InputPacket* input)
+void AAZPlayerController_Server::Origin_ControlPlayer(int32 client_index, FVector cur_pos, float cur_dir,
+	float input_dir, int32 input_data)
 {
 	if(const auto player_clone = logined_player_characters_.Find(client_index))
 	{

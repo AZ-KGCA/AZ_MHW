@@ -31,8 +31,8 @@ AAZPlayer::AAZPlayer()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	//캡슐 크기조정
 	//GetCapsuleComponent()->InitCapsuleSize();
-	const float capsule_half_height = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-	GetMesh()->AddLocalOffset(FVector(0.0f,0.0f,capsule_half_height));
+	const float capsule_half_height = GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+2.f;
+	GetMesh()->AddLocalOffset(FVector(0.0f,0.0f,-capsule_half_height));
 
 	//Animation 설정
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);

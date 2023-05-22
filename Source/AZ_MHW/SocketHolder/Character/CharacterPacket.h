@@ -1,15 +1,26 @@
 ﻿#pragma once
 
-struct CREATE_PACKET : public PACKET_HEADER
+
+struct CREATE_PLAYER_CHARACTER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
-};
-struct REMOVE_PACKET :public PACKET_HEADER
-{
-	int32 guid;
+	char nick_name[33];//Why 33?
+	
+	CREATE_PLAYER_CHARACTER_PACKET()
+	{
+		packet_length = sizeof(CREATE_PLAYER_CHARACTER_PACKET);
+		guid = -1;
+	}
 };
 
-struct INPUT_PACKET : public PACKET_HEADER
+struct REMOVE_PLAYER_CHARACTER_PACKET : public PACKET_HEADER
+{
+	int32 guid;
+	
+	char nick_name[33];
+};
+
+struct ACTION_PLAYER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
 	
@@ -18,27 +29,50 @@ struct INPUT_PACKET : public PACKET_HEADER
 	float input_direction;
 	int32 input_data;
 
-	INPUT_PACKET()
+	ACTION_PLAYER_PACKET()
 	{
-		//packet_id = static_cast<int>(PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ);
-		packet_length = sizeof(INPUT_PACKET);
-
+		packet_length = sizeof(ACTION_PLAYER_PACKET);
+		guid = -1;
+		
 		current_direction = 0.f;
 		input_direction = 0.f;
 		input_data = 0;
+		
 	}
 };
 
-struct UPDATE_STATE_PACKET :public PACKET_HEADER
+struct UPDATE_PLAYER_STATE_PACKET : public PACKET_HEADER
 {
 	int32 guid;
 	
 	int32 state_value;
-	int32 _value;
+	int32 value;
 };
 
-struct EQUIP_PACKET : public PACKET_HEADER
+struct EQUIPMENT_PLAYER_PACKET : public PACKET_HEADER
+{
+	int32 guid;
+	
+	int32 item_head_id;
+	int32 item_hair_id;
+	int32 item_body_id;
+	int32 item_leg_id;
+	int32 item_arm_id;
+	int32 item_waist_id;
+	
+	int32 item_weapon_id;
+	int32 item_consume_id;
+	int32 item_ammo_id;
+};
+
+struct INVENTORY_PLAYER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
 	int32 item_id;
+	int32 item_count;
+	char item_vaule[128];
+	
+	bool is_inventory;
+	//true == inventory
+	//false == warehouse
 };

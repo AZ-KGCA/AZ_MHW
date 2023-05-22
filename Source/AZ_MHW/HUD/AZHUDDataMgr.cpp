@@ -9,8 +9,6 @@
 #include "AZ_MHW/Util/AZUtility.h"
 #include "Kismet/GameplayStatics.h"
 
-#undef MessageBox
-#undef MessageBoxW
 
 void UAZHUDDataMgr::Init()
 {
@@ -25,7 +23,7 @@ void UAZHUDDataMgr::Init()
 	// WaitingWidget
 	InitWidgetData(EUILayer::WaitingWidget, EUIName::AZWidget_Waiting, true, false, TEXT("/Game/AZ/Widget/BP_Widget_Waiting.BP_Widget_Waiting_C"));
 	// Basic Box
-	InitWidgetData(EUILayer::MessageBox, EUIName::AZWidget_MessageBoxBasic, true, false, TEXT("/Game/AZ/Widget/BP_Widget_MsgBox.BP_Widget_MsgBox_C"));
+	InitWidgetData(EUILayer::MsgBox, EUIName::AZWidget_MessageBoxBasic, true, false, TEXT("/Game/AZ/Widget/BP_Widget_MsgBox.BP_Widget_MsgBox_C"));
 
 
 	// InOut

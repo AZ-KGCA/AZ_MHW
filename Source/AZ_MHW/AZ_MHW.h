@@ -3,7 +3,6 @@
 #pragma once
  
 #include <CoreMinimal.h>
-#include "Define/AZDefine.h"
 
 /** 이 게임 모듈의 헤더파일이 아닌 경우(= 엔진, 플러그인 헤더인 경우) < > 시스템경로 괄호로 헤더를 감싼다.*/
 /** H파일의 경우 CoreMinimal.h가 제일 먼저 포함, 마지막은 자신의 .generated.h (UCLASS, USTRUCT의 경우)*/
