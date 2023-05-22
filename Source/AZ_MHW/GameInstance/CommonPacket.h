@@ -14,28 +14,27 @@ enum class PACKET_ID : UINT16
 	//DB
 	DB_END = 99,
 
-	// Server -> Client
+	CS_LOGIN_SIGNIN_REQ = 1000,
+	CS_LOGIN_SIGNIN_RES = 1001,
+	CS_LOGIN_SIGNUP_REQ = 1002,
+	CS_LOGIN_SIGNUP_RES = 1003,
 
-	// Client -> Server
-	LOGIN_REQUEST = 201,
-	LOGIN_RESPONSE_SUCCESS = 202,
-	LOGIN_RESPONSE_FAIL = 203,
+	CS_CHAT_MSG_CMD = 1010,
+	SC_CHAT_MSG_CMD = 1011,
 
-	SIGNIN_REQUEST = 204,
-	SIGNIN_RESPONSE_SUCCESS = 205,
-	SIGNIN_RESPONSE_FAIL = 206,
-
-	CHAT_SEND_REQUEST = 301,
-	CHAT_SEND_RESPONSE_SUCCESS = 302,
-	CHAT_SEND_RESPONSE_FAIL = 303,
-
-	IN_GAME_REQUEST = 401,
-	IN_GAME_SUCCESS = 402,
-	IN_GAME_FAIL = 403,
-
-	IN_GAME_INPUT_REQUEST = 501,
-
-	PACKET_CHATNAME_REQ = 1001,
+	CS_ITEM_TOTAL_INFO_REQ = 1100,
+	CS_ITEM_TOTAL_INFO_RES = 1101,
+	CS_ITEM_UNEQUIP_REQ = 1102,
+	CS_ITEM_UNEQUIP_RES = 1103,
+	CS_ITEM_EQUIP_REQ = 1104,
+	CS_ITEM_EQUIP_RES = 1105,
+	CS_ITEM_MOVE_REQ = 1106,
+	CS_ITEM_MOVE_RES = 1107,
+	CS_ITEM_CREATE_REQ = 1108,
+	CS_ITEM_CREATE_RES = 1109,
+	CS_ITEM_USE_REQ = 1110,
+	CS_ITEM_USE_RES = 1111,
+	SC_ITEM_INFO_CMD = 1112
 };
 
 template<>
@@ -50,32 +49,11 @@ struct PACKET_HEADER
 {
 	UINT16 packet_length;
 	UINT16 packet_id;
-	INT32 success;
-};
-struct LOGIN_REQUEST_PACKET : public PACKET_HEADER
-{
-	char user_id[33];
-	char user_pw[33];
+	INT32 success = 0;
 };
 
-struct LOGIN_RESPONSE_PACKET : public PACKET_HEADER
-{
-	UINT16 result;
-};
-
-struct INPUT_PACKET : public PACKET_HEADER
-{
-	FVector current_position;
-	FRotator current_direction;
-
-	FRotator input_direction;
-	int32 input_data;
-
-	INPUT_PACKET()
-	{
-		packet_id = static_cast<int>(PACKET_ID::IN_GAME_INPUT_REQUEST);
-		packet_length = sizeof(INPUT_PACKET);
-		input_data = 0;
-	}
-};
+#include "AZ_MHW/SocketHolder/Item/ItemPacket.h"
+#include "AZ_MHW/SocketHolder/Chat/ChatPacket.h"
+#include "AZ_MHW/SocketHolder/Login/LoginPacket.h"
+#include "AZ_MHW/SocketHolder/Map/MapPacket.h"
 #pragma pack(pop) //위에 설정된 패킹설정이 사라짐
