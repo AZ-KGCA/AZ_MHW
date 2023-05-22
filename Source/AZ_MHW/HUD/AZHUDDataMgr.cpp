@@ -9,6 +9,9 @@
 #include "AZ_MHW/Util/AZUtility.h"
 #include "Kismet/GameplayStatics.h"
 
+#undef MessageBox
+#undef MessageBoxW
+
 void UAZHUDDataMgr::Init()
 {
 	widget_datas.Empty();

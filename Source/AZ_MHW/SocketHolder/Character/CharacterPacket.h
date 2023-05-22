@@ -1,4 +1,5 @@
-﻿
+﻿#pragma once
+
 struct CREATE_PACKET : public PACKET_HEADER
 {
 	int32 guid;
