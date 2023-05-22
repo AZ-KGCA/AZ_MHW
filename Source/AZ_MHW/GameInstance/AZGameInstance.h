@@ -133,16 +133,7 @@ private:
 	//Server End
 
 // client
-public:	// Delegate
-	//FDle_InGameConnect Fuc_in_game_connect;
-	//FDle_InGameInit Fuc_in_game_init;
-	//FDle_MoveInfo Fun_move_info_;
-	//FChat_Broadcast_Success Fuc_boradcast_success;
-
-	//UPROPERTY(BlueprintAssignable, VisibleAnywhere, BlueprintCallable, Category = "Event")
-	//FDele_Dynamic_OneParam Fuc_Dynamic_OneParam;
-
-	//bool in_game_ = false;
+public:
 	int32 client_index_;
 	RECV_PACKET call_recv_packet_;
 
@@ -167,7 +158,6 @@ public:
 public:
 	SOCKET sock;
 	SOCKADDR_IN sa; // 목적지+포트
-	LOGIN_REQUEST_PACKET signin_packet;
 
 	std::thread recv_thread_;
 

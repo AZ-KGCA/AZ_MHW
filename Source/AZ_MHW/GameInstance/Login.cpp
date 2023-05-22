@@ -21,7 +21,7 @@ void ULogin::NativeConstruct()
 
 FString ULogin::SetLoginInfo(FString id, FString pw)
 {
-	LOGIN_REQUEST_PACKET login_send_packet;
+	/*LOGIN_REQUEST_PACKET login_send_packet;
 	login_send_packet.packet_id = (int)PACKET_ID::LOGIN_REQUEST;
 	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), TCHAR_TO_ANSI(*id));
 	strcpy_s(login_send_packet.user_pw, sizeof(login_send_packet.user_pw), TCHAR_TO_ANSI(*pw));
@@ -32,7 +32,7 @@ FString ULogin::SetLoginInfo(FString id, FString pw)
 
 	UE_LOG(LogTemp, Warning, TEXT("[Login.cpp] pakcet_id : %d, pakcet_userid : %s\n"), login_send_packet.packet_id, login_send_packet.user_id);
 
-	az_game_instance->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
+	az_game_instance->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);*/
 
 	return login_id;
 }

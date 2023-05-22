@@ -110,7 +110,7 @@ void UAZSocketHolder::InitIsShowWaitWidgetException()
 {
 	is_show_wait_widget_exception_protocols_.Empty();
 	// 로딩창 막는 패킷
-	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)PACKET_ID::IN_GAME_INPUT_REQUEST);
+	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)PACKET_ID::CS_CHAT_MSG_CMD);
 }
 
 void UAZSocketHolder::InitSendLoger()
