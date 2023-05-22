@@ -36,14 +36,14 @@ UChatting::UChatting(const FObjectInitializer& ObjectInitializer)
 
 void UChatting::ChatMsgSend(FString msg)
 {
-	LOGIN_REQUEST_PACKET login_send_packet;
+	/*LOGIN_REQUEST_PACKET login_send_packet;
 	login_send_packet.packet_id = (int)PACKET_ID::CHAT_SEND_REQUEST;
 	strcpy_s(login_send_packet.user_id, sizeof(login_send_packet.user_id), FStringToCharArray(*msg));
 	login_send_packet.packet_length = sizeof(login_send_packet);
 
 	UE_LOG(LogTemp, Warning, TEXT("[ChatMsgSend.cpp] pakcet_id : %d, pakcet_userid : %s \n"), login_send_packet.packet_id, *CharArrayToFString(login_send_packet.user_id));
 
-	az_game_instance->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
+	az_game_instance->Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);*/
 }
 
 

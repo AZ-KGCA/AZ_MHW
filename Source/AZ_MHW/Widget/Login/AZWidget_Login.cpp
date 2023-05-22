@@ -95,8 +95,8 @@ void UAZWidget_Login::OnClicked_Login()
 
 	UE_LOG(LogTemp, Warning, TEXT("로그인 체크 id : %s / pw :%s\n"), *c_id_->GetText().ToString(), *c_pass_->GetText().ToString());
 
-	LOGIN_REQUEST_PACKET login_send_packet;
-	login_send_packet.packet_id = (unsigned short)PACKET_ID::LOGIN_REQUEST;
+	CS_LOGIN_SIGNIN_REQ login_send_packet;
+	login_send_packet.packet_id = (unsigned short)PACKET_ID::CS_LOGIN_SIGNIN_REQ;
 	FCStringAnsi::Strncpy(login_send_packet.user_id, TCHAR_TO_ANSI(*id), sizeof(login_send_packet.user_id) - 1);
 	FCStringAnsi::Strncpy(login_send_packet.user_pw, TCHAR_TO_ANSI(*password), sizeof(login_send_packet.user_pw) - 1);
 	login_send_packet.packet_length = sizeof(login_send_packet);
@@ -113,8 +113,8 @@ void UAZWidget_Login::OnClicked_SignUp()
 	FString id = c_id_->GetText().ToString();
 	FString password = c_pass_->GetText().ToString();
 
-	LOGIN_REQUEST_PACKET login_send_packet;
-	login_send_packet.packet_id = (unsigned short)PACKET_ID::SIGNIN_REQUEST;
+	CS_LOGIN_SIGNUP_REQ login_send_packet;
+	login_send_packet.packet_id = (unsigned short)PACKET_ID::CS_LOGIN_SIGNUP_REQ;
 	FCStringAnsi::Strncpy(login_send_packet.user_id, TCHAR_TO_ANSI(*id), sizeof(login_send_packet.user_id) - 1);
 	FCStringAnsi::Strncpy(login_send_packet.user_pw, TCHAR_TO_ANSI(*password), sizeof(login_send_packet.user_pw) - 1);
 	login_send_packet.packet_length = sizeof(login_send_packet);

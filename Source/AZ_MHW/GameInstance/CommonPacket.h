@@ -15,6 +15,28 @@ enum class PACKET_ID : UINT16
 	//DB
 	DB_END = 99,
 
+	CS_LOGIN_SIGNIN_REQ = 1000,
+	CS_LOGIN_SIGNIN_RES = 1001,
+	CS_LOGIN_SIGNUP_REQ = 1002,
+	CS_LOGIN_SIGNUP_RES = 1003,
+
+	CS_CHAT_MSG_CMD = 1010,
+	SC_CHAT_MSG_CMD = 1011,
+
+	CS_ITEM_TOTAL_INFO_REQ = 1100,
+	CS_ITEM_TOTAL_INFO_RES = 1101,
+	CS_ITEM_UNEQUIP_REQ = 1102,
+	CS_ITEM_UNEQUIP_RES = 1103,
+	CS_ITEM_EQUIP_REQ = 1104,
+	CS_ITEM_EQUIP_RES = 1105,
+	CS_ITEM_MOVE_REQ = 1106,
+	CS_ITEM_MOVE_RES = 1107,
+	CS_ITEM_CREATE_REQ = 1108,
+	CS_ITEM_CREATE_RES = 1109,
+	CS_ITEM_USE_REQ = 1110,
+	CS_ITEM_USE_RES = 1111,
+	SC_ITEM_INFO_CMD = 1112
+
 	
 	//SERVER INGAME BROADCAST ENVIRONMENT
 	SC_BROADCAST_UPDATE_MERCHANT_CMD = 9000,//상점 정보 갱신 전파
@@ -72,19 +94,11 @@ struct PACKET_HEADER
 {
 	UINT16 packet_length;
 	UINT16 packet_id;
-	INT32 success;
+	INT32 success = 0;
 };
-struct LOGIN_REQUEST_PACKET : public PACKET_HEADER
-{
-	char user_id[33];
-	char user_pw[33];
-};
-
-struct LOGIN_RESPONSE_PACKET : public PACKET_HEADER
-{
-	UINT16 result;
-};
-
-#include "SocketHolder/Character/CharacterPacket.h"
-
+#include "AZ_MHW/SocketHolder/Character/CharacterPacket.h"
+#include "AZ_MHW/SocketHolder/Item/ItemPacket.h"
+#include "AZ_MHW/SocketHolder/Chat/ChatPacket.h"
+#include "AZ_MHW/SocketHolder/Login/LoginPacket.h"
+#include "AZ_MHW/SocketHolder/Map/MapPacket.h"
 #pragma pack(pop) //위에 설정된 패킹설정이 사라짐

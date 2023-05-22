@@ -645,54 +645,6 @@ void UAZGameInstance::receive_thread()
 	}
 }
 
-/*void UAZGameInstance::receive_data_read_thread()
-{
-	while (recevie_connected)
-	{
-		// 대기열에 액세스하기 위한 잠금 획득
-		std::lock_guard<std::mutex> lock(received_data_mutex);
-
-		// 큐에 받은 데이터가 있는지 확인
-		if (!receive_header_check_data_queue.empty()) {
-			// 대기열에서 처음 받은 데이터 가져오기
-			Login_Send_Packet* received_data = receive_header_check_data_queue.front();
-
-			switch (received_data->packet_id)
-			{
-			case (UINT32)CLIENT_PACKET_ID::LOGIN_RESPONSE_SUCCESS:
-				::MessageBox(NULL, L"Signin_Success", L"SignIn", 0);
-				UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 201] packet id : %d\n"), received_data->packet_id);
-				// 캐릭터 선택창 델리게이트 달어야하지만 인게임 진입으로 일단 변경
-				if (Fuc_in_game_connect.IsBound() == true) Fuc_in_game_connect.Execute(received_data->clinet_id);
-				break;
-			case (UINT32)CLIENT_PACKET_ID::LOGIN_RESPONSE_FAIL:
-				//::MessageBox(NULL, L"Signin_Fail", L"SignIn", 0);
-				UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 202] packet id : %d\n"), received_data->packet_id);
-				break;
-			case (UINT32)CLIENT_PACKET_ID::SIGNIN_RESPONSE_SUCCESS:
-				//::MessageBox(NULL, L"Signup_Success", L"Signup", 0);
-				UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 203] packet id : %d\n"), received_data->packet_id);
-				break;
-			case (UINT32)CLIENT_PACKET_ID::SIGNIN_RESPONSE_FAIL:
-				//::MessageBox(NULL, L"Signup_Fail", L"Signup", 0);
-				UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 204] packet id : %d\n"), received_data->packet_id);
-				break;
-			case (UINT32)CLIENT_PACKET_ID::CHAT_SEND_RESPONSE_SUCCESS:
-				//::MessageBox(NULL, L"BroadCast Msg", L"Signup", 0);
-				// TODO 여기에 델리게이트 달아서 챗 메세지 들어온거 확인하기                     
-				UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 302] packet id : %d Data : %s\n"), received_data->packet_id, *defind.CharArrayToFString(received_data->user_id));
-				if (Fuc_boradcast_success.IsBound() == true) Fuc_boradcast_success.Execute(*defind.CharArrayToFString(received_data->user_id));
-				if (Fuc_Dynamic_OneParam.IsBound() == true) Fuc_Dynamic_OneParam.Broadcast(*defind.CharArrayToFString(received_data->user_id));
-				break;
-			default:
-				UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch default] packet id : %d\n"), received_data->packet_id);
-				break;
-			}
-			receive_header_check_data_queue.pop();
-		}
-	}
-}*/
-
 void UAZGameInstance::ClientTimerProcessPacket()
 {
 	if (recevie_connected == false)
@@ -715,25 +667,6 @@ void UAZGameInstance::ClientTimerProcessPacket()
 				AZ_LOG("[client Packet process failed]:[id:%d]", base_packet->packet_id);
 			}
 		}
-		/*switch (received_ingmae_data_->packet_id)
-		{
-		case (UINT32)CLIENT_PACKET_ID::IN_GAME_SUCCESS:
-			::MessageBox(NULL, L"IN_GAME_SUCCESS", L"SignIn", 0);
-			UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch 402] packet id : %d data : %s\n"), received_ingmae_data_->packet_id, *received_ingmae_data_->fvector_.ToString());
-			// 캐릭터 선택창 델리게이트 달어야하지만 인게임 진입으로 일단 변경
-			if (Fuc_in_game_init.IsBound() == true) Fuc_in_game_init.Execute(*received_ingmae_data_);
-			break;
-		case (UINT32)CLIENT_PACKET_ID::IN_GAME_MOVE_END:
-			UE_LOG(LogTemp, Warning, TEXT("[move_info_3] packet id : %d vector : %s rotator : %s\n"),
-				received_ingmae_data_->packet_id, *received_ingmae_data_->fvector_.ToString(), *received_ingmae_data_->frotator_.ToString());
-			// 델리게이트 달아서 매니저로 보내자 일단
-			if (Fun_move_info_.IsBound() == true) Fun_move_info_.Execute(*received_ingmae_data_);
-			break;
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("[client_to_server_receive_switch default] packet id : %d\n"), received_ingmae_data_->packet_id);
-			break;
-		}*/
-
 		receive_data_queue_.pop();
 		delete[] base_packet;
 	}
@@ -748,12 +681,6 @@ void UAZGameInstance::ClientTimerProcessPacket()
 void UAZGameInstance::InGameAccept()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[InGameAccept]\n"));
-
-	LOGIN_REQUEST_PACKET login_send_packet;
-	login_send_packet.packet_id = (int)PACKET_ID::IN_GAME_REQUEST;
-	login_send_packet.packet_length = sizeof(login_send_packet);
-
-	Server_Packet_Send((char*)&login_send_packet, login_send_packet.packet_length);
 }
 
 // client end

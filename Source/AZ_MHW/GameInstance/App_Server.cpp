@@ -11,7 +11,7 @@ UApp_Server::UApp_Server()
 void UApp_Server::OnConnect(const UINT32 client_index)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[OnConnect_App_Server] Client : Index(%d)\n"), client_index);
-	PacketInfo packet{ client_index, (UINT16)PACKET_ID::PACKET_CHATNAME_REQ, 0 };
+	PacketInfo packet{ client_index, (UINT16)PACKET_ID::SYS_USER_CONNECT, 0 };
 
 	// SYS_USER_CONNECT 패킷을 전달
 	P_packet_manager_->PushSystemPacket(packet);
