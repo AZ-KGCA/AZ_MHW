@@ -7,7 +7,7 @@
 #include "AZPlayerController_Server.generated.h"
 
 
-struct Input_Packet;
+struct InputPacket;
 struct FAZPlayerActionState;
 class AAZPlayer_Origin;
 
@@ -36,13 +36,14 @@ public:
 	UPROPERTY() TMap<int32, AAZPlayer_Origin*> logined_player_characters_;
 	
 	/** 인게임 입장->클라로 초기화 + 원격생성명령*/
-	void CreateClonePlayer(int32 client_index);
+	void AddPlayer_Origin(int32 client_index);
 	/** 인게임 퇴장->클라로 맵변경 + 원격제거 명령*/
-	void RemoveClonePlayer(int32 client_index);
+	void RemovePlayer_Origin(int32 client_index);
 	/** 입력값 받기*/
-	void ReceivePlayerInput(int32 client_index, Input_Packet* input);
+	void Cloneable_RPlayer(int32 client_index, InputPacket* input);
 
 	/** */
+	
 	
 	/** 결과값 보내기*/
 	void SendPlayerSimulationResult(int32 client_index );

@@ -1,30 +1,30 @@
-// Copyright Team AZ. All Rights Reserved.
+﻿// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "AZMonsterMeshComponent.generated.h"
+#include "AZ_MHW/CommonSource/AZStruct.h"
+#include "AZMonsterMeshComponent_Client.generated.h"
 
 enum class EMonsterBodyPart : uint8;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class AZ_MHW_API UAZMonsterMeshComponent : public UActorComponent
+class AZ_MHW_API UAZMonsterMeshComponent_Client : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	UAZMonsterMeshComponent();
+	UAZMonsterMeshComponent_Client();
 	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
+	void On_FCG_MONSTER_BODY_STATE_CMD(TMap<EMonsterBodyPart, FBossBodyPartDebuffState> body_states);
 	
-	// Property Initialisers
-	void InitializeMeshVisibilities();
-
 protected:
 	// Property Initialisers
 	void SetUpDynamicMaterials();
 	void SetUpBodyPartMaterialMaps();
+	void InitializeMeshVisibilities();
 	
 	// Body Mesh Material Opacity Setters
 	void SetMaterialVisibility(uint8 material_idx, bool is_visible);
@@ -41,8 +41,9 @@ protected:
 	UFUNCTION() void BlinkEyes();
 	
 private:
-	TWeakObjectPtr<class AAZMonster> owner_;
+	TWeakObjectPtr<class AAZMonster_Client> owner_;
 	TWeakObjectPtr<USkeletalMeshComponent> mesh_;
+	UPROPERTY(VisibleAnywhere) TMap<EMonsterBodyPart, bool> wound_map_;
 
 	// material maps
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Material")
