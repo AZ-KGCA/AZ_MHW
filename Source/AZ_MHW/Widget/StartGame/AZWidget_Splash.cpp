@@ -25,7 +25,7 @@ void UAZWidget_Splash::OnOpen(bool immediately)
 		PlayAnimation(splash_ani);
 	}
 
-	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::Splash);
+	game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::Splash);
 }
 
 void UAZWidget_Splash::OnAnimationFinished_Implementation(const UWidgetAnimation* animation)
@@ -34,6 +34,6 @@ void UAZWidget_Splash::OnAnimationFinished_Implementation(const UWidgetAnimation
 
 	if (animation == splash_ani)
 	{
-		AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::LoginPageStart);
+		game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::LoginPageStart);
 	}
 }

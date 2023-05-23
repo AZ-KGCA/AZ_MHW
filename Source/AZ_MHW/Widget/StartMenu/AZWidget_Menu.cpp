@@ -39,7 +39,7 @@ void UAZWidget_Menu::OnOpen(bool immediately)
 void UAZWidget_Menu::OnClicked_Start()
 {
 	//UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), FName("/Game/Extern/PT2_TestMap/Maps/Map_PT2_Test"));
-	UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
+	UGameplayStatics::OpenLevel(game_instance_->GetWorld(), FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
 }
 
 void UAZWidget_Menu::OnClicked_Option()

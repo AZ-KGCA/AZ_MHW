@@ -35,7 +35,7 @@ void UAZWidget_Launcher::OnAnimationFinished_Implementation(const UWidgetAnimati
 
 	if (animation)
 	{
-		AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::LoginPageStart);
+		game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::LoginPageStart);
 	}
 }
 

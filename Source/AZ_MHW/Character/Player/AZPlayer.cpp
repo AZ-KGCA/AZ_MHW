@@ -62,7 +62,7 @@ AAZPlayer::AAZPlayer()
 void AAZPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	//투명 머테리얼으로 원본 가리기
 	if(auto material_asset =LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/AZ/Character/Mesh/FBone/M_Transparent")))
 	{

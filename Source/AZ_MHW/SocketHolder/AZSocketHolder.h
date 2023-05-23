@@ -183,6 +183,8 @@ private:
 	UPROPERTY() TArray<FAZWaitProtocol> waiting_protocol_list_;
 
 	TMap<uint64, CAZSendDetailLoger*> write_log_map_;
+
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };
 
 template <typename msg_type>

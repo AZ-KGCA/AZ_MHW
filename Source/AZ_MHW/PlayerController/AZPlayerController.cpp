@@ -13,18 +13,20 @@ AAZPlayerController::AAZPlayerController()
 void AAZPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	
 }
 void AAZPlayerController::OnPossess(APawn* in_pawn)
 {
 	Super::OnPossess(in_pawn);
-	
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 }
 
 void AAZPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	AZGameInstance->input_mgr_->SetupDefaultBindAction(InputComponent, GetLocalPlayer());
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
+	game_instance_->input_mgr_->SetupDefaultBindAction(InputComponent, GetLocalPlayer());
 	
 }
 

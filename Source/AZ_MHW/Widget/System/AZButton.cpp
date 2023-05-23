@@ -73,9 +73,10 @@ FReply SAZButton::OnMouseButtonUp(const FGeometry& my_geometry, const FPointerEv
 					// pressed the button down first, then we'll allow the click to proceed without an active capture
 					const bool bTriggerForMouseEvent = (InputClickMethod == EButtonClickMethod::MouseUp || HasMouseCapture());
 
-					if ((bTriggerForTouchEvent || bTriggerForMouseEvent))
+					/*if ((bTriggerForTouchEvent || bTriggerForMouseEvent))
 					{
-						if (AZGameInstance->GetHUD())
+						Cast<UAZGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+						if (game_instance_->GetHUD())
 						{
 							AZGameInstance->GetHUD()->SetHandledTouchPosition(mouse_event);
 
@@ -85,7 +86,7 @@ FReply SAZButton::OnMouseButtonUp(const FGeometry& my_geometry, const FPointerEv
 
 							Reply = ExecuteOnClick();
 						}
-					}
+					}*/
 				}
 			}
 		}

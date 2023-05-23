@@ -197,4 +197,8 @@ private:
 
 	//FIXME 병합시 확인필요
 	bool HasFloor(class AAZCharacter* character);
+
+protected:
+	UPROPERTY() class UAZGameInstance* game_instance_;
+
 };

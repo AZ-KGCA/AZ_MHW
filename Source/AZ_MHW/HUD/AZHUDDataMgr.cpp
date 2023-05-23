@@ -14,6 +14,7 @@
 
 void UAZHUDDataMgr::Init()
 {
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	widget_datas.Empty();
 
 	// launcher
@@ -25,7 +26,7 @@ void UAZHUDDataMgr::Init()
 	// WaitingWidget
 	InitWidgetData(EUILayer::WaitingWidget, EUIName::AZWidget_Waiting, true, false, TEXT("/Game/AZ/Widget/BP_Widget_Waiting.BP_Widget_Waiting_C"));
 	// Basic Box
-	InitWidgetData(EUILayer::MessageBox, EUIName::AZWidget_MessageBoxBasic, true, false, TEXT("/Game/AZ/Widget/BP_Widget_MsgBox.BP_Widget_MsgBox_C"));
+	InitWidgetData(EUILayer::MsgBox, EUIName::AZWidget_MessageBoxBasic, true, false, TEXT("/Game/AZ/Widget/BP_Widget_MsgBox.BP_Widget_MsgBox_C"));
 
 
 	// InOut
@@ -131,13 +132,13 @@ UAZWidget* FAZWidgetData::GetWidget()
 	return widget;
 }
 
-UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget)
+UAZWidget* FAZWidgetData::GetOrCreateWidget(bool& bGetWidget, UAZGameInstance* game_instance)
 {
 	UAZWidget* widget = widget_ptr.Get();
 	if (widget == nullptr)
 	{
 		UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(widget_full_path);
-		widget_ptr = CreateWidget<UAZWidget, UAZGameInstance*>(AZGameInstance.GetReference(), load_class);
+		widget_ptr = CreateWidget<UAZWidget, UAZGameInstance*>(game_instance, load_class);
 		widget = widget_ptr.Get();
 		bGetWidget = false;
 	}

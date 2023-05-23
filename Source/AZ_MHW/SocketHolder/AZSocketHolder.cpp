@@ -17,7 +17,6 @@ UAZSocketHolder::UAZSocketHolder()
 void UAZSocketHolder::Init(ESocketHolderType holder_type)
 {
 	socket_holder_type_ = holder_type;
-
 	game_instance_ = Cast<UAZGameInstance>(GetOuter());
 	InitIsShowWaitWidgetException();
 	InitSendLoger();
@@ -25,7 +24,7 @@ void UAZSocketHolder::Init(ESocketHolderType holder_type)
 
 void UAZSocketHolder::Disconnect()
 {
-	if (game_instance_->timer_destroy_sw)
+	if (game_instance_->client_check == true)
 	{
 		game_instance_->Client_Shutdown();
 	}
@@ -122,9 +121,9 @@ void UAZSocketHolder::InitSendLoger()
 void UAZSocketHolder::ShowWaitingWidget(bool is_forced)
 {
 	UAZWidget_Waiting* waiting_widget = nullptr;
-	if (AZGameInstance && AZGameInstance->GetHUD())
+	if (game_instance_ && game_instance_->GetHUD())
 	{
-		waiting_widget = AZGameInstance->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true);
+		waiting_widget = game_instance_->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true);
 	}
 
 	if (waiting_widget == nullptr)
@@ -173,7 +172,7 @@ void UAZSocketHolder::EraseWaitProtocol(TArray<FString> protocol_name_tag)
 		}
 	}
 
-	if (AZGameInstance->IsWaitingProtocolEmpty())
+	if (game_instance_->IsWaitingProtocolEmpty())
 	{
 		SafeHideWaitingWidget(true);
 	}
@@ -209,9 +208,9 @@ void UAZSocketHolder::SafeHideWaitingWidget(bool is_clear)
 		UAZWidget_Waiting::ClearForceWaiting();
 	}
 
-	if (AZGameInstance->GetHUD()->IsInViewportWaitingWidget())
+	if (game_instance_->GetHUD()->IsInViewportWaitingWidget())
 	{
-		AZGameInstance->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+		game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
 	}
 }
 

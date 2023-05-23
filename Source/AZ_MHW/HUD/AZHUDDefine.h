@@ -74,7 +74,7 @@ enum class EUILayer : uint8
 	Scene,
 	Popup,
 	WaitingWidget,
-	MessageBox,
+	MsgBox,
 	Top,
 	Max
 };

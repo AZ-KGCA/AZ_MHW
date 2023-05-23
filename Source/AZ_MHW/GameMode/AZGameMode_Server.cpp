@@ -1,4 +1,4 @@
-﻿// Copyright Team AZ. All Rights Reserved.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZGameMode_Server.h"
@@ -29,7 +29,7 @@ AAZGameMode_Server::AAZGameMode_Server()
 	
 	PlayerStateClass = AAZPlayerState_Server::StaticClass();//Server State
 	GameStateClass = AAZGameState_Server::StaticClass();//Server State
-	HUDClass = AHUD::StaticClass();//Server UI
+	//HUDClass = AHUD::StaticClass();//Server UI
 
 	//GameSessionClass = AGameSession::StaticClass();
 	//SpectatorClass = ASpectatorPawn::StaticClass();

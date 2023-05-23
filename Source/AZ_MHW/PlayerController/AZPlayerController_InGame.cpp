@@ -22,6 +22,7 @@ AAZPlayerController_InGame::AAZPlayerController_InGame()
 void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
 	playable_player_state_ = GetPlayerState<AAZPlayerState>();
 
@@ -32,7 +33,7 @@ void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 	input_packet.packet_length = sizeof(PACKET_HEADER);
 	
 	//
-	AZGameInstance->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+	game_instance_->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
 }
 
 void AAZPlayerController_InGame::Tick(float delta_time)
@@ -58,13 +59,13 @@ void AAZPlayerController_InGame::SetupWeaponInputMappingContext(int32 weapon_typ
 {
 	if(weapon_type > 10)//원거리 무기인 경우
 	{
-		AZGameInstance->input_mgr_->RemoveInputMappingContext(TEXT("MeleeWeapons"));
-		AZGameInstance->input_mgr_->AddInputMappingContext(TEXT("RangedWeapons"));
+		game_instance_->input_mgr_->RemoveInputMappingContext(TEXT("MeleeWeapons"));
+		game_instance_->input_mgr_->AddInputMappingContext(TEXT("RangedWeapons"));
 	}
 	else
 	{
-		AZGameInstance->input_mgr_->RemoveInputMappingContext(TEXT("RangedWeapons"));
-		AZGameInstance->input_mgr_->AddInputMappingContext(TEXT("MeleeWeapons"));
+		game_instance_->input_mgr_->RemoveInputMappingContext(TEXT("RangedWeapons"));
+		game_instance_->input_mgr_->AddInputMappingContext(TEXT("MeleeWeapons"));
 	}
 }
 
@@ -152,15 +153,15 @@ void AAZPlayerController_InGame::RemoveRemotablePlayer(int32 guid)
 void AAZPlayerController_InGame::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	AZGameInstance->input_mgr_->ClearInputMappingContext();
+	game_instance_->input_mgr_->ClearInputMappingContext();
 	//AZGameInstance->input_mgr->AddInputMappingContext(TEXT("UI"));
 
 	//Camera Rotate Action + Base Move Action
-	AZGameInstance->input_mgr_->AddInputMappingContext(TEXT("InGame"));
+	game_instance_->input_mgr_->AddInputMappingContext(TEXT("InGame"));
 	SetupWeaponInputMappingContext(GetPlayerState<AAZPlayerState>()->equipment_state_.weapon_type);
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
-		UAZInputMgr* input_mgr = AZGameInstance->input_mgr_;
+		UAZInputMgr* input_mgr = game_instance_->input_mgr_;
 		//W
 		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveForward"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveForward_Start);
 		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveForward"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveForward_End);

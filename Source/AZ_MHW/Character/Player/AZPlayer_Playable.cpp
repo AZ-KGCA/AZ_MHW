@@ -73,12 +73,13 @@ void AAZPlayer_Playable::BeginDestroy()
 void AAZPlayer_Playable::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
 	Super::SetupPlayerInputComponent(player_input_component);
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<
 		UEnhancedInputComponent>(player_input_component))
 	{
-		enhanced_input_component->BindAction(AZGameInstance->input_mgr_->GetInputAction("Look"),
+		enhanced_input_component->BindAction(game_instance_->input_mgr_->GetInputAction("Look"),
 		                                     ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionLook);
-		enhanced_input_component->BindAction(AZGameInstance->input_mgr_->GetInputAction("Zoom"),
+		enhanced_input_component->BindAction(game_instance_->input_mgr_->GetInputAction("Zoom"),
 		                                     ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionZoom);
 		//...
 	}
@@ -125,7 +126,7 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 {
 	//on_use_item_.Broadcast();
 	//const auto& item_index;// ui manager한테서 가져오기
-	const auto& buff = AZGameInstance->inventory_mgr->UsePotion(0);
+	const auto& buff = game_instance_->inventory_mgr->UsePotion(0);
 
 	switch (buff.target)
 	{

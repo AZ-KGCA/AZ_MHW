@@ -10,7 +10,7 @@
 
 TArray<FSpawnObjectInfo> UAZMapStatics::GetCurMapSpawnObjectInfo()
 {
-	return GetMapSpawnObjectInfo(AZGameInstance->map_mgr->GetMapIndex());
+	return TArray<FSpawnObjectInfo>();//GetMapSpawnObjectInfo(game_instance_->map_mgr->GetMapIndex());//no static
 }
 
 TArray<FSpawnObjectInfo> UAZMapStatics::GetMapSpawnObjectInfo(int32 map_index)

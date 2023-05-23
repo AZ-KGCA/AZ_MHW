@@ -122,4 +122,6 @@ protected:
 
 	UPROPERTY()
 	class USoundWave* bgm_sound_wave_;
+
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };

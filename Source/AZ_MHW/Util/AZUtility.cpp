@@ -17,11 +17,6 @@ DEFINE_LOG_CATEGORY(AZ)
 
 void UAZUtility::ShippingLog(const FString log_msg)
 {
-	if (AZGameInstance)
-	{
-		return;
-	}
-
 	UE_LOG(LogShipping, Log, TEXT("%s"), *log_msg);
 }
 

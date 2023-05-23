@@ -27,14 +27,14 @@ void AAZGameMode_Login::InitGame(const FString& map_name, const FString& options
 {
 	Super::InitGame(map_name, options, error_message);
 	
-	AZGameInstance->game_option->InitGameOption();
+	game_instance_->game_option->InitGameOption();
 }
 
 void AAZGameMode_Login::BeginPlay()
 {
 	Super::BeginPlay();
-	if (AZGameInstance->GetPlayerController() != nullptr)
+	if (game_instance_->GetPlayerController() != nullptr)
 	{
-		AZGameInstance->GetPlayerController()->SetShowMouseCursor(true);
+		game_instance_->GetPlayerController()->SetShowMouseCursor(true);
 	}
 }

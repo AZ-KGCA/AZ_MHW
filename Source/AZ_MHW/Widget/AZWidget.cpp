@@ -6,6 +6,7 @@
 #include "AZ_MHW/Widget/System/WidgetAction/AZWidgetAction.h"
 #include "MovieScene.h"
 #include "AZ_MHW/GameMode/AZGameMode.h"
+#include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/HUD/AZHUD.h"
 
 //UAZWidget::UAZWidget(const FObjectInitializer& object_initializer)
@@ -98,6 +99,7 @@ void UAZWidget::StopAnimToOrigin(UWidgetAnimation* anim)
 
 void UAZWidget::Init()
 {
+    game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
     open_ani = GetWidgetAnimation(TEXT("Open"));
 
     if (open_ani != nullptr)

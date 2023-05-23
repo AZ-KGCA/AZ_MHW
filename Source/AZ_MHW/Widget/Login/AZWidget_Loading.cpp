@@ -150,7 +150,7 @@ void UAZWidget_Loading::OnReleasedTouchScreen()
 
 void UAZWidget_Loading::OnMoveTouchScreen(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 {
-	auto* loading_scene_actor_instance = AZGameInstance->map_mgr->GetLoadingSceneActor();
+	auto* loading_scene_actor_instance = game_instance_->map_mgr->GetLoadingSceneActor();
 
 	if (IsValid(loading_scene_actor_instance) == false)
 		AZ_LOG("[UAZWidget_Loading] Miss Loading Scene Actor!!!");

@@ -44,7 +44,7 @@ AAZGameMode::~AAZGameMode()
 void AAZGameMode::InitGame(const FString& map_name, const FString& options, FString& error_message)
 {
 	Super::InitGame(map_name, options, error_message);
-
+	game_instance_ = Cast<UAZGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	//if ()
 }
 
@@ -105,7 +105,7 @@ void AAZGameMode::OnGamePauseReleased()
 TArray<ULevelStreaming*> GetAsyncLoadableStreamingLevel_Implement(TArray<ULevelStreaming*> all_streamings)
 {
 	TArray<ULevelStreaming*> result_array;
-	if (AAZWorldSettings* world_setting = Cast<AAZWorldSettings>(AZGameInstance->GetWorld()->GetWorldSettings()))
+	/*if (AAZWorldSettings* world_setting = Cast<AAZWorldSettings>(game_instance_->GetWorld()->GetWorldSettings()))
 	{
 		int32 platform_map_count = world_setting->platform_level_name.Num();
 
@@ -130,7 +130,7 @@ TArray<ULevelStreaming*> GetAsyncLoadableStreamingLevel_Implement(TArray<ULevelS
 				}
 			}
 		}
-	}
+	}*/
 	return result_array;
 }
 
@@ -150,7 +150,7 @@ void AAZGameMode::LoadSyncExtraLevels()
 	for (int32 i = 0; i < sync_load_level_name_list_.Num(); ++i)
 	{
 		AZ_LOG("[AZAsyncLoad][AAZGameMode::LoadSyncExtraLevels] %s", *sync_load_level_name_list_[i].ToString());
-		AZGameInstance->map_mgr->AddSubLevelFromPackageName(sync_load_level_name_list_[i]);
+		game_instance_->map_mgr->AddSubLevelFromPackageName(sync_load_level_name_list_[i]);
 	}
 	sync_load_level_name_list_.Empty();
 	GetWorld()->FlushLevelStreaming(EFlushLevelStreamingType::Full);
@@ -214,7 +214,7 @@ void AAZGameMode::EndAsyncLoad()
 
 	if (GetWorld()->HasBegunPlay() == false)
 	{
-		AZGameInstance->map_mgr->StartPlayManuallyProc();
+		game_instance_->map_mgr->StartPlayManuallyProc();
 	}
 }
 
@@ -300,9 +300,9 @@ void AAZGameMode::OnGameMsg(FAZGameMsg* new_msg)
 void AAZGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	if (AZGameInstance->GetPlayerController() != nullptr)
+	if (game_instance_->GetPlayerController() != nullptr)
 	{
-		AZGameInstance->GetPlayerController()->SetShowMouseCursor(false);
+		game_instance_->GetPlayerController()->SetShowMouseCursor(false);
 	}
 	//PlatformSetting();
 
