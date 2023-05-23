@@ -3,7 +3,6 @@
 #include <AZ_MHW/CommonSource/Table/MonsterData.h>
 #include <AZ_MHW/CommonSource/Table/MonsterNonCombatActionData.h>
 #include <AZ_MHW/CommonSource/Table/MonsterCombatActionData.h>
-#include "AZ_MHW/Define/AZDefine.h"
 #include "AZTableMgr.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"

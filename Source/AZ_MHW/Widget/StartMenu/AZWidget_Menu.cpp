@@ -38,7 +38,9 @@ void UAZWidget_Menu::OnOpen(bool immediately)
 
 void UAZWidget_Menu::OnClicked_Start()
 {
+	//FIXME DEVMODE 각주해제
 	//UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), FName("/Game/Extern/PT2_TestMap/Maps/Map_PT2_Test"));
+	//FIXME DEVMODE 삭제할것
 	UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
 }
 

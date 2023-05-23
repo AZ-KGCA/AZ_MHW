@@ -724,6 +724,11 @@ void AAZHUD::CloseAllUI()
 {
 	TMap<EUIName, FAZWidgetData> widget_datas;
 	UAZHUDDataMgr* hud_data_mgr = AZGameInstance->hud_data_mgr;
+	//테스트용으로 접속된 Client 종료시,
+	//GameInstance는 클라이언트간 공유하기 때문에 엔진이 터진다.
+	if(hud_data_mgr == nullptr) return;
+	//각주를 하니 이번엔 서버쓰레드가 회수안되서 터진다.
+
 	widget_datas = hud_data_mgr->GetWidgetDatas();
 
 	for (auto& widget_pair : widget_datas)

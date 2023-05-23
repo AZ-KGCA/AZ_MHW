@@ -83,26 +83,26 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		break;
 	case PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ:
 		//입력햇으니 액션하세요.
-		const auto packet = (ACTION_PLAYER_PACKET*)recv_packet;
-		UPacketFunction::RequestOriginPlayerAction(client_index, packet);
+		
 		break;
+		
 	case PACKET_ID::CS_PLAYER_ORIGIN_EQUIP_REQ:
 		//장비변경햇으니 변경하시고.
 
 		break;
-	case PACKET_ID::CS_PLAYER_GUID_REQ:
+	case PACKET_ID::CS_PLAYER_LOCAL_GUID_REQ:
 		//GUID 주세요.
 
 		break;
-	case PACKET_ID::CS_PLAYER_CHARACTER_DATA_REQ:
+	case PACKET_ID::CS_PLAYER_LOCAL_CHARACTER_DATA_REQ:
 		//데이터 주세요.
 
 		break;
-	case PACKET_ID::CS_PLAYER_CHARACTER_CREATE_REQ:
+	case PACKET_ID::CS_PLAYER_LOCAL_CHARACTER_CREATE_REQ:
 		//캐릭터 생성해주세요.
 
 		break;
-	case PACKET_ID::CS_PLAYER_CHARACTER_DESTROY_REQ:
+	case PACKET_ID::CS_PLAYER_LOCAL_CHARACTER_DESTROY_REQ:
 		//캐릭터 제거해주세요.
 
 		break;
@@ -187,36 +187,36 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	}
 	break;
 #pragma region Character_PART
-	case PACKET_ID::SC_BROADCAST_CREATE_PLAYER_CMD:
+	case PACKET_ID::SC_PLAYER_REMOTABLE_CREATE_CMD:
 		//원격 생성명령
 
 		break;
-	case PACKET_ID::SC_BROADCAST_DESTROY_PLAYER_CMD:
+	case PACKET_ID::SC_PLAYER_REMOTABLE_DESTROY_CMD:
 		//원격 제거명령
 
 		break;
-	case PACKET_ID::SC_BROADCAST_UPDATE_FIELD_CMD:
+	case PACKET_ID::SC_ENVIRONMENT_UPDATE_FIELD_CMD:
 		//필드 갱신명령
 
 		break;
-	case PACKET_ID::SC_BROADCAST_EQUIP_PLAYER_CMD:
+	case PACKET_ID::SC_PLAYER_REMOTABLE_EQUIP_CMD:
 		//원격 장비명령
 
 		break;
-	case PACKET_ID::SC_BROADCAST_ACTION_PLAYER_CMD:
+	case PACKET_ID::SC_PLAYER_REMOTABLE_ACTION_CMD:
 		//원격 액션명령
 
 		break;
 
-	case PACKET_ID::SC_PLAYER_CHARACTER_DATA_RES:
+	case PACKET_ID::SC_PLAYER_LOCAL_CHARACTER_DATA_RES:
 		//캐릭터 데이터 받기
 
 		break;
-	case PACKET_ID::SC_PLAYER_CHARACTER_CREATE_RES:
+	case PACKET_ID::SC_PLAYER_LOCAL_CHARACTER_CREATE_RES:
 		//캐릭터 생성 받기
 
 		break;
-	case PACKET_ID::SC_PLAYER_CHARACTER_DESTROY_RES:
+	case PACKET_ID::SC_PLAYER_LOCAL_CHARACTER_DESTROY_RES:
 		//캐릭터 파괴 받기
 
 		break;
@@ -234,7 +234,6 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	}
 
 	game_instance_->GetSocketHolder(ESocketHolderType::Game)->ScreenWaitProc(out_request_protocol);
-
+	
 	return (is_server_packet || is_client_packet);
->>>>>>> origin/feature/UI
 }

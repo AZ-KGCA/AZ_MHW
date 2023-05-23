@@ -55,7 +55,7 @@ void UAZPlayerMgr::Init()
 	GetSkeletalMesh(11000);
 	GetSkeletalMesh(11500);
 	GetSkeletalMesh(12000);
-	GetSkeletalMesh(12500);
+	//GetSkeletalMesh(12500);
 }
 
 void UAZPlayerMgr::Shutdown()

@@ -9,6 +9,8 @@
 #include "GameFramework/GameState.h"
 #include "GameFramework/HUD.h"
 #include "GameFramework/PlayerState.h"
+#include "GameInstance/AZGameInstance.h"
+#include "HUD/AZHUD.h"
 
 
 AAZGameMode_InitGame::AAZGameMode_InitGame()
@@ -23,7 +25,7 @@ AAZGameMode_InitGame::AAZGameMode_InitGame()
 	
 	PlayerStateClass = APlayerState::StaticClass();//분기
 	GameStateClass = nullptr;//AGameState::StaticClass();//분기
-	HUDClass = nullptr;//AHUD::StaticClass();//분기
+	HUDClass = AAZHUD::StaticClass();//AHUD::StaticClass();//분기
 	
 	//GameSessionClass = AGameSession::StaticClass();
 	//SpectatorClass = ASpectatorPawn::StaticClass();
@@ -53,14 +55,15 @@ void AAZGameMode_InitGame::InitGame(const FString& map_name, const FString& opti
 void AAZGameMode_InitGame::PlayServerMode()
 {
 	//FIXME(빌드시 동기화할 맵으로 변경)
-	UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_DevServer.BP_DevServer_C");
+	//UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_DevServer.BP_DevServer_C");
 	//UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/Map_InGame"),true,"?game=/Game/AZ/GameMode/BP_Server.BP_Server_C");
+	UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_Server.BP_Server_C");
 }
 
 void AAZGameMode_InitGame::PlayClientMode()
 {
-	UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"), true, "?game=/Game/AZ/GameMode/BP_DevLogin.BP_DevLogin_C");
-	//UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/Map_Launcher"), true, "?game=/Game/AZ/GameMode/BP_DevLogin.BP_DevLogin_C");
+	//UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"), true, "?game=/Game/AZ/GameMode/BP_DevLogin.BP_DevLogin_C");
+	UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/Map_Launcher"), true, "?game=/Game/AZ/GameMode/BP_Launcher.BP_Launcher_C");
 }
 
 

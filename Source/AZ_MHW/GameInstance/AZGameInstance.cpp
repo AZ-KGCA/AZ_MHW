@@ -35,10 +35,7 @@ UAZGameInstance::UAZGameInstance()
 {
 
 }
-UAZGameInstance::~UAZGameInstance()
-{
-	
-}
+
 
 void UAZGameInstance::Init()
 {

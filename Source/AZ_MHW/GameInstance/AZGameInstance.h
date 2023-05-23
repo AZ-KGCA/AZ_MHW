@@ -184,7 +184,6 @@ private:
 	
 public:
 	UAZGameInstance();
-	virtual ~UAZGameInstance();
 
 	virtual void Init() override;
 	virtual void Shutdown() override;
