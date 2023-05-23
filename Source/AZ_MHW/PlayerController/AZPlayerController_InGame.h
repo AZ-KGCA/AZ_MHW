@@ -16,7 +16,7 @@ class UAZAnimInstance_Player;
 class UAZAnimInstance_Playable;
 class UAZAnimInstance_Remotable;
 
-class AAZPlayerState;
+class AAZPlayerState_Client;
 class AAZPlayer_Playable;
 class AAZPlayer_Remotable;
 
@@ -38,55 +38,85 @@ public:
 	
 #pragma region Inherited function
 protected:
+	/** */
+	virtual void BeginPlay() override;
+	/** */
 	virtual void SetupInputComponent() override;
-
-	//virtual void BeginPlay() override;
-
+	/** */
 	virtual void OnPossess(APawn* pawn) override;
-	
+	/** */
 	virtual void Tick(float delta_time) override;
-
-	//virtual void BeginDestroy() override;
-	
+	/** */
+	virtual void BeginDestroy() override;
 #pragma endregion 
 public:
-	/** 장비변경에 의한 근거리, 원거리 조작 매핑 변경*/
-	void SetupWeaponInputMappingContext(int32 weapon_type);
+	/** GetAnimationBitMask */
+	UFUNCTION(BlueprintCallable) int32 GetAnimationMask();
+	/** GetCommandBitMask */
+	UFUNCTION(BlueprintCallable) int32 GetCommandBitMask();
+	/** UI에서 호출하거나, 버튼 이벤트에 심어주세요 */
+	UFUNCTION(BlueprintCallable)
+	void RequestChangeEquipment(int32 item_id);
+	UFUNCTION(BlueprintCallable)
+	void RequestBuyItem(int32 item_id);
+
 	
-	/** 소유 플레이어 캐릭터*/
+#pragma region InGame Playable Part
+	/** 소유 플레이어 캐릭터 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	AAZPlayer_Playable* playable_player_;
-	/** 소유 플레이어 정보*/
+	/** 소유 플레이어 정보 */
 	UPROPERTY(EditAnywhere)
-	AAZPlayerState* playable_player_state_;
+	AAZPlayerState_Client* playable_player_state_;
 
-	/** 서버로 부터 받은 정보를 토대로 캐릭터클래스 초기화*/
+	/** 서버로 부터 받은 정보를 토대로 캐릭터클래스 초기화(다른클래스로 빼기) */
 	void InitializePlayer(FAZPlayerCharacterState character_state, FAZPlayerEquipmentState equipment_state);
-	/** 강제 보간적용*/
+	/** 강제 보간적용 */
 	void ForceInterpolation(FVector position, FRotator direction);
-	/** */
-	UFUNCTION(BlueprintCallable)
-	int32 GetCommandBitMask();
+	/** 장비변경에 의한 근거리, 원거리 조작 매핑 변경 */
+	void SetupWeaponInputMappingContext(int32 weapon_type);
+	
+#pragma endregion
 
-	void ChangeEquipment(int32 itemID);
-
-#pragma region Remotable 
+#pragma region Remotable Part
 	/** 원격 플레이어 캐릭터 맵*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	TMap<int32, AAZPlayer_Remotable*> remotable_player_map_;
 	/** 액터의 제거를 쉽게 하기 위해서 소유 */
 	UPROPERTY(EditAnywhere)
-	TMap<int32, AAZPlayerState*> remotable_player_state_map_;
-	/** 서버에서 호출하여 클라에 원격 캐릭터 생성 제거 및 명령 */
-	void AddRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state, FAZPlayerEquipmentState equipment_state);
-	void RemoveRemotablePlayer(int32 guid);
-	void ControlRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state, FRotator result_direction, int32 command_bitmask);
+	TMap<int32, AAZPlayerState_Client*> remotable_player_state_map_;
+	
+	/** 서버에서 호출하여, 클라에 원격 캐릭터 생성 (접속)*/
+	void Remotable_AddPlayer(int32 guid, const FAZPlayerCharacterState& character_state, const FAZPlayerEquipmentState& equipment_state);
+	/** 서버에서 호출하여, 클라에 원격 캐릭터 제거 (접속종료)*/
+	void Remotable_RemovePlayer(int32 guid);
+	/** 서버에서 호출하여, 클라에 원격 캐릭터 조종 (다른 클라의 인풋이벤트->서버 원본 캐릭터를 조종-> 원격 전파)*/
+	void Remotable_ControlPlayer(int32 guid, const FAZPlayerCharacterState& character_state, const FRotator& result_direction, int32 result_command_bitmask);
+	/** 서버에서 호출하여, 강제 갱신*/
+	void Remotable_ForceUpdatePlayer(int32 guid, FVector position, FRotator direction);
+	/** 서버에서 호출하여, 상태 갱신*/
+	void Remotable_UpdatePlayerState(int32 guid, FAZPlayerCharacterState character_state);
+#pragma endregion
+	
+#pragma region Origin Part
+	/** */
+	void Origin_AddPlayer();
+	/** */
+	void Origin_RemovePlayer();
+	/** */
+	void Origin_ControlPlayer();
+	/** */
+	void Origin_EquipPlayer();
+	/** */
+	void Origin_UpdatePlayer();
+
 #pragma endregion 
 	
 #pragma region Input Event function
 public:
 	//ToDo:CameraManager만들고 Player_Playable에서 여기로 옮기기?
-	//void ActionLook(const FInputActionValue& Value);//카메라 조종
+	//void ActionLook(const FInputActionValue& value);//카메라 조종
+	//void ActionZoom(const FInputActionValue& value);//카메라 조종
 	void ActionInputDirection();
 	
 	/** MeleeContext */

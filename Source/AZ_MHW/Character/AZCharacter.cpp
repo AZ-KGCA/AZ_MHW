@@ -10,17 +10,6 @@ AAZCharacter::AAZCharacter()
 	SetGenericTeamId(uint8(EObjectType::None));
 }
 
-void AAZCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-}
-
-void AAZCharacter::SetupPlayerInputComponent(UInputComponent* player_input_component)
-{
-	Super::SetupPlayerInputComponent(player_input_component);
-}
-
 void AAZCharacter::SetGenericTeamId(const FGenericTeamId& team_id)
 {
 	team_id_ = team_id;

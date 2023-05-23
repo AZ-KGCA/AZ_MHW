@@ -5,7 +5,7 @@
 #include <CoreMinimal.h>
 #include "AZ_MHW.h"
 #include <GameFramework/PlayerState.h>
-#include <AZPlayerState.generated.h>
+#include "AZPlayerState_Client.generated.h"
 
 /** 플레이어 액션(인풋) 상태 <-플레이어 컨트롤러가 갱신
  * 이외에도 추가할 것,
@@ -242,12 +242,12 @@ struct FAZPlayerEquipmentState
  * 맵을 넘겨도 사라지지 않는다.(그렇기에 유저의 정보 담아두기)
  */
 UCLASS()
-class AZ_MHW_API AAZPlayerState : public APlayerState
+class AZ_MHW_API AAZPlayerState_Client : public APlayerState
 {
 	GENERATED_BODY()
 	
 public:
-	AAZPlayerState();
+	AAZPlayerState_Client();
 
 #pragma region Inherited function
 protected:
@@ -259,7 +259,12 @@ protected:
 public:
 	/** 이 PlayerState 고유 ID */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	int32 guid_;
+	int32 guid_;//Player UID
+
+	FString* id_;//DB에서 검색할 플레이어 ID
+	
+	FString* nickname_;//캐릭터 이름
+	
 	//플레이어 입력상태(애니메이션)
 	//원격PC는 입력상태값을 받아서 움직인다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

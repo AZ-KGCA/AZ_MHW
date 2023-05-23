@@ -46,7 +46,6 @@ class AZ_MHW_API AAZGameMode : public AGameModeBase, public IAZMsgObject
 
 public:
 	AAZGameMode();
-	virtual ~AAZGameMode();
 
 	virtual void InitGame(const FString& map_name, const FString& , FString& ErrorMessage) override;
 	virtual void InitGameState() override;

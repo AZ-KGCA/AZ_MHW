@@ -18,7 +18,6 @@
 UCLASS(Blueprintable,BlueprintType)
 class AZ_MHW_API UAZInventoryManager : public UObject
 {
-
 	GENERATED_BODY()
 private:
 	UPROPERTY() TMap<int32, FTotalItemDataStruct> total_data_map_;

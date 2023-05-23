@@ -126,7 +126,7 @@ public:
 	ESocketHolderType GetHolderType() { return socket_holder_type_; }
 
 	void InitIsShowWaitWidgetException();
-	void InitSendLoger();
+	void InitSendLogger();
 
 	void ShowWaitingWidget(bool is_forced = false);
 	bool IsShowWaitWidget(PACKET_HEADER* send_msg);

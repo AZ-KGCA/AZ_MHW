@@ -11,7 +11,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class AAZPlayerController_InGame;
-class AAZPlayerState;
+class AAZPlayerState_Client;
 
 struct FInputActionValue;
 
@@ -41,7 +41,7 @@ protected:
 	virtual void PossessedBy(AController* new_controller) override;
 #pragma endregion
 public:
-	UPROPERTY() AAZPlayerState* playable_player_state_;
+	UPROPERTY() AAZPlayerState_Client* playable_player_state_;
 
 	//TODO: 카메라 매니저 만들기?
 	UPROPERTY(VisibleDefaultsOnly, Category=Camera)
@@ -64,4 +64,6 @@ public:
 	//인터렉션가능
 	//벽타기가능 등
 	//박스 이용?(밀기,들기,당기기) 어떻게 해
+	
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 };

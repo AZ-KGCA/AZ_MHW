@@ -1,7 +1,6 @@
 // Copyright Team AZ. All Rights Reserved.
 
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
-#include <Kismet/GameplayStatics.h>
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/ClientMsg/AZMsgHandler.h"
 #include "AZ_MHW/CommonSource/AZLog.h"
@@ -9,7 +8,6 @@
 #include "AZ_MHW/Manager/AZGameConfig.h"
 #include "AZ_MHW/Manager/AZGameOption.h"
 #include "AZ_MHW/Manager/AZSaveData.h"
-#include "AZ_MHW/Manager/SaveData/GameOptionSaveData.h"
 #include "AZ_MHW/HUD/AZHUDDataMgr.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
@@ -17,13 +15,12 @@
 #include "AZ_MHW/HUD/AZHUD_InGame.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
-#include "..\Manager\AZInventoryManager.h"
-#include  "Engine/GameInstance.h"
-//FIXME merged need del
+#include "AZ_MHW/Manager/AZInventoryManager.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
-#include "..\Manager\AZPlayerMgr.h"
+#include "AZ_MHW/Manager/SaveData/GameOptionSaveData.h"
 //FIXME merged need del
 #include <GameFramework/Character.h>
+#include <Kismet/GameplayStatics.h>
 
 //MinSuhong Add
 #include "App_Server.h" // 서버 클래스 [ODBC 연결되어 있음 Packet.h]
@@ -31,16 +28,12 @@
 #include "Odbc.h"
 #include "TimerManager.h"
 #include "UserManager.h"
-#include "PlayerController/AZPlayerController_Server.h"
 
 UAZGameInstance::UAZGameInstance()
 {
 
 }
-UAZGameInstance::~UAZGameInstance()
-{
-	
-}
+
 
 void UAZGameInstance::Init()
 {
@@ -321,7 +314,7 @@ void UAZGameInstance::AddNewSingleton(UAZSingletonObject* mgr)
 
 void UAZGameInstance::TimerProcessPacket()
 {
-	UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
+	//UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
 
 	if (auto packet_data = DequePacketData(); packet_data.packet_id_ > (UINT16)PACKET_ID::SYS_END)
 	{
@@ -363,7 +356,7 @@ void UAZGameInstance::PacketEnd()
 void UAZGameInstance::DbRun()
 {
 	odbc->Init();
-	odbc->ConnetMssql(L"odbc_test.dsn");
+	odbc->ConnectMssql(L"odbc_test.dsn");
 	odbc->Load();
 }
 

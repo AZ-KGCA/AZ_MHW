@@ -104,10 +104,9 @@ void UAZInputMgr::BeginDestroy()
 
 void UAZInputMgr::SetupDefaultBindAction(UInputComponent* player_input_component, const ULocalPlayer* local_player)
 {
-	if(local_player_ == nullptr)
-	{
-		local_player_ = local_player;
-	}
+	//클라에서 마지막을 등록된 플레이어
+	local_player_ = local_player;
+	
 	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<UEnhancedInputComponent>(player_input_component))
 	{
 		enhanced_input_component->ClearActionBindings();

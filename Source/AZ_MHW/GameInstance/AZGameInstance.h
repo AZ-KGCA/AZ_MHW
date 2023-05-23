@@ -4,20 +4,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AZWindows.h"
 #include "Packet.h"
-#include <vector>
-#include <deque>
-#include <thread>
-#include <mutex>
-#include <memory>
-
-// client
-#include <iostream>
-#include <winsock2.h>
-#include <windows.h>
-#include <thread>
-#include <queue>
-#pragma comment(lib, "ws2_32.lib")
 #include "InGamePacket.h"
 // client end
 
@@ -197,7 +185,6 @@ private:
 	
 public:
 	UAZGameInstance();
-	virtual ~UAZGameInstance();
 
 	virtual void Init() override;
 	virtual void Shutdown() override;
