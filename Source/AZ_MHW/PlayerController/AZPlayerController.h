@@ -44,4 +44,6 @@ public:
 
 	//UPROPERTY(BlueprintReadOnly)
 	//AAZPlayer* Player;
+protected:
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };

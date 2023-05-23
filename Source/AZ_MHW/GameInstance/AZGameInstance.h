@@ -25,6 +25,7 @@
 #include "AZ_MHW/GameInstance/AZGameInstanceData.h"
 #include "AZ_MHW/PlayerController/AZPlayerController.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
+#include "Kismet/GameplayStatics.h"
 #include "AZGameInstance.generated.h"
 
 /**
@@ -249,71 +250,3 @@ private:
 private:
 	UPROPERTY() TArray<class UAZSingletonObject*> mgrs;
 };
-
-class UGameInstanceProxy
-{
-public:
-	UGameInstanceProxy() :
-		game_instance_(nullptr)
-	{};
-
-	inline UAZGameInstance* operator->()
-	{
-		// GInst is changed often on the game thread when in PIE, accessing on any other thread is going to be a race condition
-		// In general, the rendering thread should not dereference UObjects, unless there is a mechanism in place to make it safe
-		//checkSlow(IsInGameThread());
-		return game_instance_;
-	}
-
-	inline const UAZGameInstance* operator->() const
-	{
-		//checkSlow(IsInGameThread());
-		return game_instance_;
-	}
-
-	inline UAZGameInstance& operator*()
-	{
-		//checkSlow(IsInGameThread());
-		return *game_instance_;
-	}
-
-	inline const UAZGameInstance& operator*() const
-	{
-		//checkSlow(IsInGameThread());
-		return *game_instance_;
-	}
-
-	inline UGameInstanceProxy& operator=(UAZGameInstance* InWorld)
-	{
-		game_instance_ = InWorld;
-		return *this;
-	}
-
-	inline UGameInstanceProxy& operator=(const UGameInstanceProxy& InProxy)
-	{
-		game_instance_ = InProxy.game_instance_;
-		return *this;
-	}
-
-	inline bool operator==(const UGameInstanceProxy& Other) const
-	{
-		return game_instance_ == Other.game_instance_;
-	}
-
-	inline operator UAZGameInstance* () const
-	{
-		//checkSlow(IsInGameThread());
-		return game_instance_;
-	}
-
-	inline UAZGameInstance* GetReference()
-	{
-		//checkSlow(IsInGameThread());
-		return game_instance_;
-	}
-
-private:
-	UAZGameInstance* game_instance_;
-};
-
-extern AZ_MHW_API class UGameInstanceProxy AZGameInstance;

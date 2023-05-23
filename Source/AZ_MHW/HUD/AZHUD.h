@@ -51,7 +51,7 @@ public:
 		{
 			return nullptr;
 		}
-		return Cast<widget_type>(widget_data->GetOrCreateWidget(is_get_widget));
+		return Cast<widget_type>(widget_data->GetOrCreateWidget(is_get_widget, game_instance_));
 	}
 
 	template<typename widget_type>
@@ -106,7 +106,7 @@ public:
 					}
 
 					bool is_get_widget = false;
-					UAZWidget* widget = widget_data->GetOrCreateWidget(is_get_widget);
+					UAZWidget* widget = widget_data->GetOrCreateWidget(is_get_widget, game_instance_);
 					if (widget == nullptr)
 					{
 						continue;
@@ -167,7 +167,7 @@ public:
 		else
 		{
 			bool is_get_widget = false;
-			widget = Cast<widget_type>(widget_data->GetOrCreateWidget(is_get_widget));
+			widget = Cast<widget_type>(widget_data->GetOrCreateWidget(is_get_widget, game_instance_));
 			if (widget == nullptr)
 			{
 				return nullptr;
@@ -263,4 +263,6 @@ protected:
 
 	UPROPERTY() TArray<class UAZWidget_MsgBoxBase*> msg_box_stack_;
 	TArray<FMsgBoxInfo> msg_box_infos_;
+
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };

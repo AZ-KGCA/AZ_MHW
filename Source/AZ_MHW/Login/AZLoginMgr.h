@@ -66,4 +66,7 @@ public:
 	void OnForceKicked(EForceKick forcekick);
 
 	UFUNCTION() void RetryReconnectRequired();
+
+private:
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };

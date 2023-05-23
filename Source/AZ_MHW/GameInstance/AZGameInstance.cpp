@@ -33,8 +33,6 @@
 #include "UserManager.h"
 #include "PlayerController/AZPlayerController_Server.h"
 
-UGameInstanceProxy AZGameInstance;
-
 UAZGameInstance::UAZGameInstance()
 {
 
@@ -48,8 +46,6 @@ void UAZGameInstance::Init()
 {
 	Super::Init();
 
-	AZGameInstance = this;
-
 	UAZGameSingleton::instance();
 
 	packet_function_ = NewObject<UPacketFunction>(this);
@@ -58,26 +54,26 @@ void UAZGameInstance::Init()
 
 	msg_handler = NewObject<UAZMsgHandler>(this);
 
-	game_config = NewObject<UAZGameConfig>();
+	game_config = NewObject<UAZGameConfig>(this);
 	game_config->Load();
 
-	save_data = NewObject<UAZSaveData>();
+	save_data = NewObject<UAZSaveData>(this);
 	save_data->LoadAll();
 
-	hud_data_mgr = NewObject<UAZHUDDataMgr>();
+	hud_data_mgr = NewObject<UAZHUDDataMgr>(this);
 	hud_data_mgr->Init();
 
-	game_option = NewObject<UAZGameOption>();
+	game_option = NewObject<UAZGameOption>(this);
 	game_option->Init();
 	UAZGameOption::option_save_data = &save_data->option_save_data->game_option_save_data;
 
-	login_mgr = NewObject<UAZLoginMgr>();
+	login_mgr = NewObject<UAZLoginMgr>(this);
 	login_mgr->Init();
 
-	inventory_mgr = NewObject<UAZInventoryManager>();
+	inventory_mgr = NewObject<UAZInventoryManager>(this);
 	inventory_mgr->Init();
 	
-	input_mgr_ = NewObject<UAZInputMgr>();
+	input_mgr_ = NewObject<UAZInputMgr>(this);
 	input_mgr_->Init();
 
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));

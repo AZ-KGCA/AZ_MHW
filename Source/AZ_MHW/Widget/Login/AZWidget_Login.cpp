@@ -49,7 +49,7 @@ void UAZWidget_Login::OnOpen(bool immediately)
 {
 	Super::OnOpen(immediately);
 
-	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::WaitingForTouch);
+	game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::WaitingForTouch);
 }
 
 void UAZWidget_Login::SetLoginMode(ELogInMode login_mode)
@@ -81,7 +81,7 @@ void UAZWidget_Login::OnTouchAnyPress()
 {
 	UE_LOG(LogTemp, Warning, TEXT("client open\n"));
 	c_btn_any_press_->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	UAZLoginMgr* login_mgr = AZGameInstance->login_mgr;
+	UAZLoginMgr* login_mgr = game_instance_->login_mgr;
 	if (login_mgr != nullptr)
 	{
 		login_mgr->ChangeSequence(UAZLoginMgr::ESequence::ConnectGameServer);
@@ -100,12 +100,12 @@ void UAZWidget_Login::OnClicked_Login()
 	FCStringAnsi::Strncpy(login_send_packet.user_id, TCHAR_TO_ANSI(*id), sizeof(login_send_packet.user_id) - 1);
 	FCStringAnsi::Strncpy(login_send_packet.user_pw, TCHAR_TO_ANSI(*password), sizeof(login_send_packet.user_pw) - 1);
 	login_send_packet.packet_length = sizeof(login_send_packet);
-	AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&login_send_packet, login_send_packet.packet_length);
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&login_send_packet, login_send_packet.packet_length);
 }
 
 void UAZWidget_Login::OnClicked_Close()
 {
-	AZGameInstance->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::GameExit);
+	game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::GameExit);
 }
 
 void UAZWidget_Login::OnClicked_SignUp()
@@ -118,5 +118,5 @@ void UAZWidget_Login::OnClicked_SignUp()
 	FCStringAnsi::Strncpy(login_send_packet.user_id, TCHAR_TO_ANSI(*id), sizeof(login_send_packet.user_id) - 1);
 	FCStringAnsi::Strncpy(login_send_packet.user_pw, TCHAR_TO_ANSI(*password), sizeof(login_send_packet.user_pw) - 1);
 	login_send_packet.packet_length = sizeof(login_send_packet);
-	AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&login_send_packet, login_send_packet.packet_length);
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&login_send_packet, login_send_packet.packet_length);
 }

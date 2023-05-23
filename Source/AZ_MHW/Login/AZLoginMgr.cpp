@@ -24,8 +24,9 @@ UAZLoginMgr::UAZLoginMgr()
 
 void UAZLoginMgr::Init()
 {
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	login_page_start_sequence_ = ESequence::None;
-	SetServerIpPort(ESocketHolderType::Game, AZGameInstance->game_config->GetDefaultServerIP(), AZGameInstance->game_config->GetDefaultServerPort());
+	SetServerIpPort(ESocketHolderType::Game, game_instance_->game_config->GetDefaultServerIP(), game_instance_->game_config->GetDefaultServerPort());
 }
 
 void UAZLoginMgr::Tick(float delta_time)
@@ -56,34 +57,34 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 	{
 		FShaderPipelineCache::SetBatchMode(FShaderPipelineCache::BatchMode::Background);
 		FShaderPipelineCache::ResumeBatching();
-		UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), FName("/Game/AZ/Map/Map_Login"));
+		UGameplayStatics::OpenLevel(game_instance_->GetWorld(), FName("/Game/AZ/Map/Map_Login"));
 	}break;
 	case ESequence::WaitingForTouch:
 	{
-		UAZWidget_Login* login_page = AZGameInstance->GetHUD()->GetUI<UAZWidget_Login>(EUIName::AZWidget_Login);
+		UAZWidget_Login* login_page = game_instance_->GetHUD()->GetUI<UAZWidget_Login>(EUIName::AZWidget_Login);
 		login_page->SetLoginMode(UAZWidget_Login::ELogInMode::TouchConnect);
 	}break;
 	case ESequence::ConnectGameServerReady:
 	{
-		UAZWidget_Login* login_page = AZGameInstance->GetHUD()->GetUI<UAZWidget_Login>(EUIName::AZWidget_Login);
+		UAZWidget_Login* login_page = game_instance_->GetHUD()->GetUI<UAZWidget_Login>(EUIName::AZWidget_Login);
 		login_page->SetLoginMode(UAZWidget_Login::ELogInMode::IDPassword);
 	}break;
 	case ESequence::ConnectGameServer:
 	{
-		if (AZGameInstance->GetHUD())
+		if (game_instance_->GetHUD())
 		{
-			if (auto waiting_widget = AZGameInstance->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true))
+			if (auto waiting_widget = game_instance_->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true))
 			{
 				waiting_widget->OnForceWaiting();
 			}
 		}
-		UAZSocketHolder* socket_holder = AZGameInstance->GetSocketHolder(ESocketHolderType::Game);
+		UAZSocketHolder* socket_holder = game_instance_->GetSocketHolder(ESocketHolderType::Game);
 		if (socket_holder == nullptr)
 		{
 			UAZUtility::ShippingLog(FString::Printf(TEXT("[UAZLoginMgr socketHolder null]")));
 			UAZWidget_Waiting::ClearForceWaiting();
-			AZGameInstance->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
-			AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::OvertopBasic, TEXT("111"), EUIMsgBoxBtnType::OkOrCancel,
+			game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+			game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::OvertopBasic, TEXT("111"), EUIMsgBoxBtnType::OkOrCancel,
 				this, TEXT("RetryReconnectRequired"), TEXT("OnServerDisconnected"), TEXT("OnServerDisconnected"), TEXT("종료"));
 			return;
 		}
@@ -96,7 +97,7 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 		socket_holder->Connect(server_ip, server_port, [&](ESocketResult socket_result)
 			{
 				UAZWidget_Waiting::ClearForceWaiting();
-				AZGameInstance->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+				game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
 				if (socket_result == ESocketResult::Success)
 				{
 					ChangeSequence(ESequence::ConnectGameServerReady);
@@ -104,7 +105,7 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 				else
 				{
 					//팝업 띄우기
-					AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("게임서버 접속을 실패하였습니다."), EUIMsgBoxBtnType::Confirm,
+					game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("게임서버 접속을 실패하였습니다."), EUIMsgBoxBtnType::Confirm,
 						this, TEXT("RetryReconnectRequired"), L"", L"", L"확인");
 				}
 			});
@@ -113,8 +114,8 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 	{
 		// FIXME Sever
 		// 패킷 보내기(인증 되었다고 생각하고 넘기기)
-		AZGameInstance->GetHUD()->CloseAllUI();
-		AZGameInstance->GetHUD()->OpenScene<UAZWidget_Menu>(EUIName::AZWidget_Menu);
+		game_instance_->GetHUD()->CloseAllUI();
+		game_instance_->GetHUD()->OpenScene<UAZWidget_Menu>(EUIName::AZWidget_Menu);
 	}break;
 	case ESequence::PlayerSelectEnter:
 	{

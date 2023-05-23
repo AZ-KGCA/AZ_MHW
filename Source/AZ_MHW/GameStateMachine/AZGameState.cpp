@@ -19,6 +19,8 @@ UAZGameState::UAZGameState()
 
 void UAZGameState::Init(EGameState init_state_id)
 {
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
+
 	state_id_ = init_state_id;
 
 	current_state_name_ = GetName();
@@ -128,7 +130,7 @@ ACharacter* UAZGameState::GetPlayer()
 	auto* player = Cast<ACharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (player == nullptr)
 	{
-		player = AZGameInstance->GetPlayer();
+		player = game_instance_->GetPlayer();
 	}
 	return player;
 }

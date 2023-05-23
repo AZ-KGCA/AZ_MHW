@@ -24,6 +24,7 @@ void AAZHUD::PostLoad()
 void AAZHUD::BeginPlay()
 {
 	Super::BeginPlay();
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	// click effect pool processing
 }
 
@@ -92,7 +93,7 @@ void AAZHUD::OnFadeInOut(const float in_time, const float out_time)
 	if (FAZWidgetData* const widget_data = GetWidgetData(EUIName::AZWidget_Fade))
 	{
 		bool get_widget = false;
-		if (auto widget = Cast<UAZWidget_Fade>(widget_data->GetOrCreateWidget(get_widget)))
+		if (auto widget = Cast<UAZWidget_Fade>(widget_data->GetOrCreateWidget(get_widget, game_instance_)))
 		{
 			if (widget->IsInViewport() == false)
 			{
@@ -187,7 +188,7 @@ void AAZHUD::CloseAllMsgBoxExceptOvertop()
 
 UAZWidget_MsgBoxBasic* AAZHUD::OpenMoveToCashShopMsgBox()
 {
-	UAZWidget_MsgBoxBase* msg_box = AZGameInstance->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic,
+	UAZWidget_MsgBoxBase* msg_box = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic,
 		"Move",
 		EUIMsgBoxBtnType::OkOrCancel, nullptr, TEXT(""), TEXT(""), TEXT(""),
 		"Cancle");
@@ -219,7 +220,7 @@ UAZWidget_MsgBoxBase* AAZHUD::OpenMsgBox(EUIMsgBoxType msgBoxType, const FString
 	}
 
 	// 로딩중
-	if (AZGameInstance->map_mgr->IsOnLoading())
+	if (game_instance_->map_mgr->IsOnLoading())
 	{
 		AZ_LOG("Message : %s", *desc);
 	}
@@ -235,7 +236,7 @@ UAZWidget_MsgBoxBase* AAZHUD::OpenMsgBox(EUIMsgBoxType msgBoxType, const FString
 	// 메시지 박스는 여러개 만들 수 있도록 새로 생성
 	UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(widget_data->widget_full_path);
 	AZ_PRINT_LOG_IF_FALSE(load_class, nullptr);
-	UAZWidget_MsgBoxBase* msg_box = CreateWidget<UAZWidget_MsgBoxBase, UAZGameInstance*>(AZGameInstance.GetReference(), load_class);
+	UAZWidget_MsgBoxBase* msg_box = CreateWidget<UAZWidget_MsgBoxBase, UAZGameInstance*>(game_instance_, load_class);
 
 	if (!msg_box)
 	{
@@ -609,17 +610,17 @@ EUIName AAZHUD::GetCurSceneNameEnum()
 
 FAZWidgetData* AAZHUD::GetWidgetData(EUIName widget_name_enum)
 {
-	return AZGameInstance->hud_data_mgr->GetWidgetData(widget_name_enum);
+	return game_instance_->hud_data_mgr->GetWidgetData(widget_name_enum);
 }
 
 FAZWidgetData* AAZHUD::GetWidgetData(EUIName widget_name_enum) const
 {
-	return AZGameInstance->hud_data_mgr->GetWidgetData(widget_name_enum);
+	return game_instance_->hud_data_mgr->GetWidgetData(widget_name_enum);
 }
 
 FAZWidgetData* AAZHUD::GetSubWidgetData(ESubUIName widget_name_enum)
 {
-	return AZGameInstance->hud_data_mgr->GetSubWidgetData(widget_name_enum);
+	return game_instance_->hud_data_mgr->GetSubWidgetData(widget_name_enum);
 }
 
 EUIName AAZHUD::GetTopWidgetName()
@@ -723,7 +724,7 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 void AAZHUD::CloseAllUI()
 {
 	TMap<EUIName, FAZWidgetData> widget_datas;
-	UAZHUDDataMgr* hud_data_mgr = AZGameInstance->hud_data_mgr;
+	UAZHUDDataMgr* hud_data_mgr = game_instance_->hud_data_mgr;
 	widget_datas = hud_data_mgr->GetWidgetDatas();
 
 	for (auto& widget_pair : widget_datas)

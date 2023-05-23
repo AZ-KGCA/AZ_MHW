@@ -20,5 +20,5 @@ void AAZGameMode_Launcher::InitGame(const FString& map_name, const FString& opti
 {
 	Super::InitGame(map_name, options, error_message);
 
-	AZGameInstance->game_option->InitGameOption();
+	game_instance_->game_option->InitGameOption();
 }

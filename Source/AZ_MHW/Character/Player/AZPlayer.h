@@ -88,4 +88,6 @@ protected:
 	virtual float ProcessDamage(const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info, float applied_damage) override;
 	UFUNCTION() void PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* damage_instigator);
 #pragma endregion 
+
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };

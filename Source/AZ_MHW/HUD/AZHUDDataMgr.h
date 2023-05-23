@@ -23,7 +23,7 @@ struct FAZWidgetData
 
 public:
 	class UAZWidget* GetWidget();
-	class UAZWidget* GetOrCreateWidget(bool& bGetWidget);
+	class UAZWidget* GetOrCreateWidget(bool& bGetWidget, UAZGameInstance* game_instance);
 	bool IsWidgetValid() const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZWidgetData")
@@ -68,4 +68,7 @@ private:
 	TMap<EUIName, FAZWidgetData> widget_datas;
 	TMap<ESubUIName, FAZWidgetData> sub_widget_datas;
 	TMap<EUIName, EAZWidgetDataRequestState> widget_data_request_states;
+
+protected:
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };

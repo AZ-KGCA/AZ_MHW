@@ -71,4 +71,7 @@ private:
 protected:
 	TArray<EGameState> block_states_;
 	UPROPERTY() FString current_state_name_;
+
+protected:
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };

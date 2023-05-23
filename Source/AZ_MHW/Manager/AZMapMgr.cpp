@@ -66,6 +66,7 @@ UAZMapMgr::~UAZMapMgr()
 
 void UAZMapMgr::Init()
 {
+	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	same_map_enter_ready_ = false;
 }
 
@@ -112,7 +113,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 {
 	if (reserved_force_kick_ != EForceKick::Max)
 	{
-		AZGameInstance->login_mgr->OnForceKicked(reserved_force_kick_);
+		game_instance_->login_mgr->OnForceKicked(reserved_force_kick_);
 		reserved_force_kick_ = EForceKick::Max;
 		return;
 	}
@@ -160,7 +161,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 		{
 			AZResourceHelper::ClearReference(EAZResourceCacheType::MapOnly);
 
-			if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(AZGameInstance->GetGameMode()))
+			if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()))
 			{
 				game_mode->GetWorldMapHandler()->ClearWorldMapInfo();
 			}
@@ -174,12 +175,12 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 			bool use_seamless_loading = true;
 			if (use_seamless_loading == true)
 			{
-				AZGameInstance->GetWorld()->SeamlessTravel(map_path);
+				game_instance_->GetWorld()->SeamlessTravel(map_path);
 			}
 			else
 			{
 				FName map_name(*map_path);
-				UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), map_name);
+				UGameplayStatics::OpenLevel(game_instance_->GetWorld(), map_name);
 			}
 
 			post_load_map_delegate_handle_ = FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UAZMapMgr::PostLoadMapFunction);
@@ -266,7 +267,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 				}*/
 			}
 
-			if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(AZGameInstance->GetGameMode()))
+			if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()))
 			{
 				//game_mode->ResetAreaPortalAndWarp();
 				game_mode->RemoveAllAppearObjects();
@@ -340,14 +341,14 @@ void UAZMapMgr::PostLoadMapFunction(UWorld* world)
 		StartPlayManuallyProc();
 	}
 
-	AZGameInstance->InitSocketOnMapLoad();
+	game_instance_->InitSocketOnMapLoad();
 
 	FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(post_load_map_delegate_handle_);
 }
 
 void UAZMapMgr::MapChannelMove(int32 map_rec_key, int32 channel_index)
 {
-	if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(AZGameInstance->GetGameMode()))
+	if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()))
 	{
 		game_mode->RemoveAllAppearObjects();
 	}
@@ -365,14 +366,14 @@ void UAZMapMgr::OnMapEnter_Ack()
 		current_map_->OnStart();
 	}
 
-	if (same_map_enter_ready_ && AZGameInstance->GetPlayer())
+	if (same_map_enter_ready_ && game_instance_->GetPlayer())
 	{
 		same_map_enter_ready_ = false;
 		// FIXME 병합시 확인하기
 		//AZGameInstance->GetPlayer()->ReleaseMapMove();
 	}
 
-	if (UAZWidget_InGame* ui = AZGameInstance->GetHUD()->GetUI<UAZWidget_InGame>(EUIName::AZWidget_InGame))
+	if (UAZWidget_InGame* ui = game_instance_->GetHUD()->GetUI<UAZWidget_InGame>(EUIName::AZWidget_InGame))
 	{
 		// FIXME 퀘스트 추가시 UI변경하기
 		/*if (AZGameInstance->QuestMgr->GetStartQuestInformIndex() > 0 && GetCurrentMapType() != EMapType::RealmWar)
@@ -403,7 +404,7 @@ void UAZMapMgr::OnMapEnter_Ack()
 
 void UAZMapMgr::OnMapExit()
 {
-	AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(UGameplayStatics::GetGameMode(AZGameInstance->GetWorld()));
+	AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(UGameplayStatics::GetGameMode(game_instance_->GetWorld()));
 	if (game_mode)
 	{
 		game_mode->OnMapExit();
@@ -466,12 +467,12 @@ void UAZMapMgr::SendMapEnter()
 	}
 	*/
 
-	AZGameInstance->GetGameMode()->OnMapEnter();
+	game_instance_->GetGameMode()->OnMapEnter();
 }
 
 void UAZMapMgr::StartPlayManuallyProc()
 {
-	if (AZGameInstance->GetGameMode()->CollectAsyncLoadPackage() <= 0)
+	if (game_instance_->GetGameMode()->CollectAsyncLoadPackage() <= 0)
 	{
 		// FIXME 솔로 던전에서 확인하기
 		/*if (GetCurrentMapType() == EMapType::AloneQUestDungeon)
@@ -479,18 +480,18 @@ void UAZMapMgr::StartPlayManuallyProc()
 			PreLoadResources_Sync();
 		}*/
 
-		if (AZGameInstance->GetWorld()->WorldComposition)
+		if (game_instance_->GetWorld()->WorldComposition)
 		{
-			AZGameInstance->GetWorld()->PopulateStreamingLevelsToConsider();
+			game_instance_->GetWorld()->PopulateStreamingLevelsToConsider();
 			FlushStreaming();
 		}
 		else
 		{
-			AZGameInstance->GetGameMode()->SetGamePaused(false);
+			game_instance_->GetGameMode()->SetGamePaused(false);
 			AZ_LOG("No WorldComposition in AAZGameMode_InGame");
 		}
 
-		AZGameInstance->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UAZMapMgr::FirstTickAfterStartPlayManuallyProc));
+		game_instance_->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UAZMapMgr::FirstTickAfterStartPlayManuallyProc));
 	}
 }
 
@@ -522,19 +523,19 @@ void UAZMapMgr::MapExit_Syn()
 
 void UAZMapMgr::FirstTickAfterStartPlayManuallyProc()
 {
-	AZGameInstance->GetGameMode()->StartPlayManually();
-	RenewLevelStreamingState(false, AZGameInstance->GetPlayer(), true);
-	AZGameInstance->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UAZMapMgr::SecondTickAfterStartPlayManuallyProc));
+	game_instance_->GetGameMode()->StartPlayManually();
+	RenewLevelStreamingState(false, game_instance_->GetPlayer(), true);
+	game_instance_->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UAZMapMgr::SecondTickAfterStartPlayManuallyProc));
 }
 
 void UAZMapMgr::SecondTickAfterStartPlayManuallyProc()
 {
-	if (!AZGameInstance->GetWorld()->WorldComposition)
+	if (!game_instance_->GetWorld()->WorldComposition)
 	{
 		StopCapture();
-		AZGameInstance->GetHUD()->OnFadeInOut(0.5f, 0.5f);
+		game_instance_->GetHUD()->OnFadeInOut(0.5f, 0.5f);
 		FTimerHandle handle;
-		AZGameInstance->GetWorld()->GetTimerManager().SetTimer(handle, FTimerDelegate::CreateUObject(this, &UAZMapMgr::ThirdTickAfterStartPlayManuallyProc), 0.5f, false);
+		game_instance_->GetWorld()->GetTimerManager().SetTimer(handle, FTimerDelegate::CreateUObject(this, &UAZMapMgr::ThirdTickAfterStartPlayManuallyProc), 0.5f, false);
 		SendMapEnter();
 	}
 
@@ -547,18 +548,18 @@ void UAZMapMgr::SecondTickAfterStartPlayManuallyProc()
 void UAZMapMgr::ThirdTickAfterStartPlayManuallyProc()
 {
 	CloseLoadingScene();
-	AZGameInstance->GetGameMode()->LoadSyncExtraLevels();
+	game_instance_->GetGameMode()->LoadSyncExtraLevels();
 
 	if (reserved_force_kick_ != EForceKick::Max)
 	{
-		AZGameInstance->login_mgr->OnForceKicked(reserved_force_kick_);
+		game_instance_->login_mgr->OnForceKicked(reserved_force_kick_);
 		reserved_force_kick_ = EForceKick::Max;
 	}
 }
 
 void UAZMapMgr::ProcessDisappearObject(int32 object_serial)
 {
-	if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(AZGameInstance->GetGameMode()))
+	if (AAZGameMode_InGame* game_mode = Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()))
 	{
 		auto* object = game_mode->FindAppearActors(object_serial);
 
@@ -582,7 +583,7 @@ void UAZMapMgr::ProcessDisappearObject(int32 object_serial)
 
 		FDestroyedObject msg(object_serial);
 		msg.object_ptr = object;
-		AZGameInstance->OnGameMsg(&msg);
+		game_instance_->OnGameMsg(&msg);
 
 		// FIXME 병합시 추가하기
 		/*if (AAZPlayer_Playable* player = AZGameInstance->GetPlayer())
@@ -734,7 +735,7 @@ void UAZMapMgr::OnBeginDungeon()
 
 void UAZMapMgr::UpdateStreaming()
 {
-	if (!AZGameInstance || !AZGameInstance->GetWorld() || !AZGameInstance->GetWorld()->WorldComposition || !AZGameInstance->GetPlayer())
+	if (!game_instance_ || !game_instance_->GetWorld() || !game_instance_->GetWorld()->WorldComposition || !game_instance_->GetPlayer())
 	{
 		return;
 	}
@@ -752,7 +753,7 @@ void UAZMapMgr::UpdateStreaming()
 
 	if (current_streaming_state_ == EStreamingState::None)
 	{
-		RenewLevelStreamingState(false, AZGameInstance->GetPlayer());
+		RenewLevelStreamingState(false, game_instance_->GetPlayer());
 		return;
 	}
 
@@ -803,10 +804,10 @@ void UAZMapMgr::UpdateWorldCompositionStreamingState(bool include_player)
 		FRotator rot;
 		if (character_only_streaming_ == false)
 		{
-			AZGameInstance->GetPlayerController()->GetPlayerViewPoint(location, rot);
+			game_instance_->GetPlayerController()->GetPlayerViewPoint(location, rot);
 			locations.Add(location);
 		}
-		locations.Add(AZGameInstance->GetPlayer()->GetActorLocation());
+		locations.Add(game_instance_->GetPlayer()->GetActorLocation());
 	}
 	bool include_additional_location = false;
 	switch (current_streaming_state_)
@@ -825,32 +826,32 @@ void UAZMapMgr::UpdateWorldCompositionStreamingState(bool include_player)
 
 	if (locations.Num() > 0)
 	{
-		if (AZGameInstance->GetPlayerController() && AZGameInstance->GetPlayerController()->bCinematicMode)
+		if (game_instance_->GetPlayerController() && game_instance_->GetPlayerController()->bCinematicMode)
 		{
-			AZGameInstance->GetWorld()->WorldComposition->UpdateStreamingStateCinematic(locations.GetData(), locations.Num());
+			game_instance_->GetWorld()->WorldComposition->UpdateStreamingStateCinematic(locations.GetData(), locations.Num());
 		}
 		else
 		{
-			AZGameInstance->GetWorld()->WorldComposition->UpdateStreamingState(locations.GetData(), locations.Num());
+			game_instance_->GetWorld()->WorldComposition->UpdateStreamingState(locations.GetData(), locations.Num());
 		}
 	}
 }
 
 void UAZMapMgr::UpdateStreamingOnCinematic()
 {
-	if (AZGameInstance->GetPlayerController() && AZGameInstance->GetPlayerController()->bCinematicMode)
+	if (game_instance_->GetPlayerController() && game_instance_->GetPlayerController()->bCinematicMode)
 	{
-		AZGameInstance->GetWorld()->WorldComposition->UpdateStreamingStateCinematic(cinematic_camera_trajectories_.GetData(), cinematic_camera_trajectories_.Num());
+		game_instance_->GetWorld()->WorldComposition->UpdateStreamingStateCinematic(cinematic_camera_trajectories_.GetData(), cinematic_camera_trajectories_.Num());
 	}
 	else
 	{
-		AZGameInstance->GetWorld()->WorldComposition->UpdateStreamingState(cinematic_camera_trajectories_.GetData(), cinematic_camera_trajectories_.Num());
+		game_instance_->GetWorld()->WorldComposition->UpdateStreamingState(cinematic_camera_trajectories_.GetData(), cinematic_camera_trajectories_.Num());
 	}
 }
 
 void UAZMapMgr::UpdateStreamingCheck()
 {
-	if (AZGameInstance == nullptr)
+	if (game_instance_ == nullptr)
 	{
 		return;
 	}
@@ -860,7 +861,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 		return;
 	}
 
-	if (auto* world = AZGameInstance->GetWorld())
+	if (auto* world = game_instance_->GetWorld())
 	{
 		if (world->WorldComposition == nullptr)
 		{
@@ -897,7 +898,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 				{
 					if (streaming_level->bDisableDistanceStreaming == false)
 					{
-						auto dynamic_streaming_levels = AZGameInstance->GetGameMode()->GetAsyncLoadableStreamingTile();
+						auto dynamic_streaming_levels = game_instance_->GetGameMode()->GetAsyncLoadableStreamingTile();
 						if (dynamic_streaming_levels.Contains(streaming_level) == false)
 						{
 							continue;
@@ -933,14 +934,14 @@ void UAZMapMgr::UpdateStreamingCheck()
 				//FIXME 병합시 확인
 				if (/*HasFloor(AZGameInstance->GetPlayer())*/true)
 				{
-					if (AZGameInstance->GetGameMode()->HasActorBegunPlay())
+					if (game_instance_->GetGameMode()->HasActorBegunPlay())
 					{
 						OnFinishStreamingLevelShown();
 					}
 					else
 					{
 						current_streaming_state_ = Paused;
-						AZGameInstance->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UAZMapMgr::OnFinishStreamingLevelShown));
+						game_instance_->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UAZMapMgr::OnFinishStreamingLevelShown));
 					}
 				}
 				else
@@ -957,14 +958,14 @@ void UAZMapMgr::UpdateStreamingCheck()
 
 			if (waiting_max_frame_count_ >= 300)
 			{
-				if (AZGameInstance->GetGameMode()->HasActorBegunPlay())
+				if (game_instance_->GetGameMode()->HasActorBegunPlay())
 				{
 					OnFinishStreamingLevelShown();
 				}
 				else
 				{
 					current_streaming_state_ = Paused;
-					AZGameInstance->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UAZMapMgr::OnFinishStreamingLevelShown));
+					game_instance_->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UAZMapMgr::OnFinishStreamingLevelShown));
 				}
 			}
 		}
@@ -975,7 +976,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 			{
 				if (end_waiting == false)
 				{
-					RenewLevelStreamingState(false, AZGameInstance->GetPlayer());
+					RenewLevelStreamingState(false, game_instance_->GetPlayer());
 				}
 				else
 				{
@@ -994,7 +995,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 			if (end_waiting || waiting_max_frame_count_ >= 300)
 			{
 				current_streaming_state_ = OnCinematic;
-				AZGameInstance->GetGameMode()->SetGamePaused(false);
+				game_instance_->GetGameMode()->SetGamePaused(false);
 			}
 			else
 			{
@@ -1007,7 +1008,7 @@ void UAZMapMgr::UpdateStreamingCheck()
 
 void UAZMapMgr::UpdateLoadingLightHiddenCheck()
 {
-	if (!AZGameInstance || !AZGameInstance->GetWorld() || !AZGameInstance->GetWorld()->WorldComposition || !AZGameInstance->GetPlayer())
+	if (!game_instance_ || !game_instance_->GetWorld() || !game_instance_->GetWorld()->WorldComposition || !game_instance_->GetPlayer())
 	{
 		return;
 	}
@@ -1017,11 +1018,11 @@ void UAZMapMgr::UpdateLoadingLightHiddenCheck()
 		return;
 	}
 
-	if (AZGameInstance->GetWorld())
+	if (game_instance_->GetWorld())
 	{
 		TArray<AActor*> actors;
 
-		UGameplayStatics::GetAllActorsOfClass(AZGameInstance->GetWorld(), AActor::StaticClass(), actors);
+		UGameplayStatics::GetAllActorsOfClass(game_instance_->GetWorld(), AActor::StaticClass(), actors);
 		for (int i = 0; i < actors.Num(); ++i)
 		{
 			if (actors[i]->ActorHasTag(TAG_LoadingCheck))
@@ -1079,7 +1080,7 @@ void UAZMapMgr::UpdateLoadingLightHiddenCheck()
 
 void UAZMapMgr::RenewLevelStreamingState(bool force_flush, /*FIXME 병합시 확인*/ACharacter* player, bool close_loading_scene_on_finish)
 {
-	UWorld* world = AZGameInstance->GetWorld();
+	UWorld* world = game_instance_->GetWorld();
 
 	if (world == nullptr)
 	{
@@ -1097,9 +1098,9 @@ void UAZMapMgr::RenewLevelStreamingState(bool force_flush, /*FIXME 병합시 확
 
 	close_loading_scene_on_finish_ = close_loading_scene_on_finish;
 
-	if (AZGameInstance->GetGameMode()->HasActorBegunPlay())
+	if (game_instance_->GetGameMode()->HasActorBegunPlay())
 	{
-		AZGameInstance->GetGameMode()->SetGamePaused(true);
+		game_instance_->GetGameMode()->SetGamePaused(true);
 	}
 
 	level_streaming_position_ = player ? player->GetActorLocation() : enter_pos_;
@@ -1115,7 +1116,7 @@ void UAZMapMgr::RenewLevelStreamingState(bool force_flush, /*FIXME 병합시 확
 
 void UAZMapMgr::OnFinishStreamingLevelShown()
 {
-	UWorld* world = AZGameInstance->GetWorld();
+	UWorld* world = game_instance_->GetWorld();
 
 	if (!world || !world->WorldComposition)
 	{
@@ -1126,13 +1127,13 @@ void UAZMapMgr::OnFinishStreamingLevelShown()
 	if (renew_streaming_recursive_count_ < 10 /*&& HasFloor(AZGameInstance->GetPlayer()) == false*/)
 	{
 		++renew_streaming_recursive_count_;
-		RenewLevelStreamingState(false, AZGameInstance->GetPlayer(), close_loading_scene_on_finish_);
+		RenewLevelStreamingState(false, game_instance_->GetPlayer(), close_loading_scene_on_finish_);
 		return;
 	}
 
-	if (AZGameInstance->GetGameMode()->HasActorBegunPlay())
+	if (game_instance_->GetGameMode()->HasActorBegunPlay())
 	{
-		AZGameInstance->GetGameMode()->SetGamePaused(false);
+		game_instance_->GetGameMode()->SetGamePaused(false);
 	}
 	else
 	{
@@ -1158,7 +1159,7 @@ void UAZMapMgr::OnFinishStreamingLevelShown()
 	if (close_loading_scene_on_finish_ && IsOnLoading())
 	{
 		StopCapture();
-		AZGameInstance->GetHUD()->OnFadeInOut(0.5f, 0.5f);
+		game_instance_->GetHUD()->OnFadeInOut(0.5f, 0.5f);
 		FTimerHandle handle;
 		GetWorld()->GetTimerManager().SetTimer(handle, FTimerDelegate::CreateUObject(this, &UAZMapMgr::ThirdTickAfterStartPlayManuallyProc), 0.5f, false);
 	}
@@ -1194,12 +1195,12 @@ void UAZMapMgr::OnFinishStreamingLevelShown()
 
 void UAZMapMgr::OnRecvWarpRequest(bool is_teleport)
 {
-	if (AZGameInstance == nullptr || AZGameInstance->GetWorld() == nullptr)
+	if (game_instance_ == nullptr || game_instance_->GetWorld() == nullptr)
 	{
 		return;
 	}
 
-	if (AZGameInstance->GetWorld()->WorldComposition)
+	if (game_instance_->GetWorld()->WorldComposition)
 	{
 		ready_server_sync_streaming_ = true;
 		if (close_loading_scene_on_finish_ == false)
@@ -1227,7 +1228,7 @@ void UAZMapMgr::OnRecvWarpRequest(bool is_teleport)
 
 void UAZMapMgr::SetPrepareCinmaticStreaming(const TArray<FVector>& cinematic_locations)
 {
-	if (AZGameInstance->GetWorld() == nullptr || AZGameInstance->GetWorld()->WorldComposition == nullptr)
+	if (game_instance_->GetWorld() == nullptr || game_instance_->GetWorld()->WorldComposition == nullptr)
 	{
 		return;
 	}
@@ -1237,14 +1238,14 @@ void UAZMapMgr::SetPrepareCinmaticStreaming(const TArray<FVector>& cinematic_loc
 	{
 		FVector loc;
 		FRotator rot;
-		AZGameInstance->GetPlayerController()->GetPlayerViewPoint(loc, rot);
+		game_instance_->GetPlayerController()->GetPlayerViewPoint(loc, rot);
 		cinematic_camera_trajectories_.Add(loc);
-		cinematic_camera_trajectories_.Add(AZGameInstance->GetPlayer()->GetActorLocation());
+		cinematic_camera_trajectories_.Add(game_instance_->GetPlayer()->GetActorLocation());
 	}
 	cinematic_camera_trajectories_.Append(cinematic_locations.GetData(), cinematic_locations.Num());
 
 	waiting_max_frame_count_ = 0;
-	AZGameInstance->GetGameMode()->SetGamePaused(true);
+	game_instance_->GetGameMode()->SetGamePaused(true);
 	current_streaming_state_ = PrepareCinematic;
 
 	UpdateStreamingOnCinematic();
@@ -1257,7 +1258,7 @@ void UAZMapMgr::FinishCinematicStreaming()
 		return;
 	}
 
-	RenewLevelStreamingState(true, AZGameInstance->GetPlayer());
+	RenewLevelStreamingState(true, game_instance_->GetPlayer());
 }
 
 void UAZMapMgr::OpenLoadingScene(int32 map_index)
@@ -1284,7 +1285,7 @@ void UAZMapMgr::OpenLoadingScene(int32 map_index)
 	UClass* load_class = AZResourceHelper::LoadClassFast<UAZWidget>(path);
 	if (load_class)
 	{
-		loading_widget_ = Cast<UAZWidget_Loading>(UUserWidget::CreateWidgetInstance(*AZGameInstance, load_class, TEXT("LoadingScene")));
+		loading_widget_ = Cast<UAZWidget_Loading>(UUserWidget::CreateWidgetInstance(*game_instance_, load_class, TEXT("LoadingScene")));
 		if (loading_widget_)
 		{
 			loading_widget_->Init();
@@ -1298,7 +1299,7 @@ void UAZMapMgr::OpenLoadingScene(int32 map_index)
 			loading_widget_->SetLoadingModel(model_data, map_index);
 
 			TArray<AActor*> actors;
-			UGameplayStatics::GetAllActorsOfClass(AZGameInstance->GetWorld(), AActor::StaticClass(), actors);
+			UGameplayStatics::GetAllActorsOfClass(game_instance_->GetWorld(), AActor::StaticClass(), actors);
 			for (int i = 0; i < actors.Num(); ++i)
 			{
 				actors[i]->Tags.Emplace(TAG_LoadingCheck);
@@ -1380,21 +1381,21 @@ bool UAZMapMgr::IsOnLoading() const
 
 void UAZMapMgr::FlushStreaming()
 {
-	if (IsValid(AZGameInstance->GetWorld()) == false)
+	if (IsValid(game_instance_->GetWorld()) == false)
 	{
 		return;
 	}
 
-	if (AZGameInstance->GetWorld()->WorldComposition == nullptr)
+	if (game_instance_->GetWorld()->WorldComposition == nullptr)
 	{
 		return;
 	}
 
-	AZGameInstance->GetWorld()->UpdateLevelStreaming();
+	game_instance_->GetWorld()->UpdateLevelStreaming();
 	FlushAsyncLoading();
-	AZGameInstance->GetWorld()->UpdateLevelStreaming();
+	game_instance_->GetWorld()->UpdateLevelStreaming();
 
-	auto streaming_levels = AZGameInstance->GetWorld()->GetStreamingLevels();
+	auto streaming_levels = game_instance_->GetWorld()->GetStreamingLevels();
 
 	while (true)
 	{
@@ -1418,7 +1419,7 @@ void UAZMapMgr::FlushStreaming()
 			{
 				if (streaming_level->bDisableDistanceStreaming == false)
 				{
-					auto dynamic_streaming_levels = AZGameInstance->GetGameMode()->GetAsyncLoadableStreamingLevel();
+					auto dynamic_streaming_levels = game_instance_->GetGameMode()->GetAsyncLoadableStreamingLevel();
 					if (dynamic_streaming_levels.Contains(streaming_level) == false)
 					{
 						continue;
@@ -1446,7 +1447,7 @@ void UAZMapMgr::FlushStreaming()
 		}
 
 		FlushAsyncLoading();
-		AZGameInstance->GetWorld()->UpdateLevelStreaming();
+		game_instance_->GetWorld()->UpdateLevelStreaming();
 	}
 }
 
@@ -1489,7 +1490,7 @@ TArray<FVector> UAZMapMgr::GetStreamingLocations() const
 	{
 		FVector loc;
 		FRotator rot;
-		AZGameInstance->GetPlayerController()->GetPlayerViewPoint(loc, rot);
+		game_instance_->GetPlayerController()->GetPlayerViewPoint(loc, rot);
 		locations.Add(loc);
 		// FIXME 병합시 수정 필요.
 		//locations.Add(AZGameInstance->GetPlayer()->GetActorLocation());
@@ -1506,7 +1507,7 @@ void UAZMapMgr::AddSubLevelFromPackageName(const FName& package_name, UPackage* 
 {
 	if (GetWorld()->WorldComposition == nullptr)
 	{
-		TArray<ULevelStreaming*> async_loadable_streaming_list = AZGameInstance->GetGameMode()->GetAsyncLoadableStreamingLevel();
+		TArray<ULevelStreaming*> async_loadable_streaming_list = game_instance_->GetGameMode()->GetAsyncLoadableStreamingLevel();
 		for (int32 i = 0; i < async_loadable_streaming_list.Num(); ++i)
 		{
 			if (async_loadable_streaming_list[i]->GetWorldAssetPackageFName() == package_name)
@@ -1521,7 +1522,7 @@ void UAZMapMgr::AddSubLevelFromPackageName(const FName& package_name, UPackage* 
 	}
 	else
 	{
-		TArray<ULevelStreaming*> async_loadable_streaming_list = AZGameInstance->GetGameMode()->GetAsyncLoadableStreamingLevel();
+		TArray<ULevelStreaming*> async_loadable_streaming_list = game_instance_->GetGameMode()->GetAsyncLoadableStreamingLevel();
 		for (int32 i = 0; i < async_loadable_streaming_list.Num(); ++i)
 		{
 			if (async_loadable_streaming_list[i]->GetWorldAssetPackageFName() == package_name)

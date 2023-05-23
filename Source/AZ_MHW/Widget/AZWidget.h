@@ -149,4 +149,6 @@ protected:
 
 	UFUNCTION() void OpenAlphaTimeCallBack();
 	virtual void OnAlphaTimeFinished();
+
+	UPROPERTY() class UAZGameInstance* game_instance_;
 };
