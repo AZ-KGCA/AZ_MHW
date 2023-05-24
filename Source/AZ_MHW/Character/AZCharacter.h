@@ -26,8 +26,10 @@ public:
 protected:
 	// AI Module
 	FGenericTeamId team_id_;
+	virtual void BeginPlay() override;
 	
 public:
+	
 	// GenericTeamAgent Interface
 	virtual void SetGenericTeamId(const FGenericTeamId& team_id) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;

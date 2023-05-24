@@ -34,7 +34,6 @@ UAZGameInstance::UAZGameInstance()
 
 }
 
-
 void UAZGameInstance::Init()
 {
 	Super::Init();
@@ -83,11 +82,10 @@ void UAZGameInstance::Init()
 	{
 		iocp_net_server_ = NewObject<UApp_Server>(this, TEXT("iocp_net_server_"));
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Start Client!"));
+	UE_LOG(LogTemp, Warning, TEXT("Start Server!"));
 	// 서버 패킷 큐 타이머
 	GetWorld()->GetTimerManager().SetTimer(server_timer_handle_, this, &UAZGameInstance::TimerProcessPacket, TimerRate, true);
-
+	UE_LOG(LogTemp, Warning, TEXT("Start Client!"));
 	// 클라이언트 패킷 큐 타이머
 	GetWorld()->GetTimerManager().SetTimer(client_timer_handle_, this, &UAZGameInstance::ClientTimerProcessPacket, TimerRate, true);
 }
@@ -340,7 +338,7 @@ void UAZGameInstance::TimerProcessPacket()
 
 void UAZGameInstance::PacketInit(const UINT32 max_client)
 {
-	CreateCompent(max_client);
+	CreateComponent(max_client);
 }
 
 void UAZGameInstance::PacketEnd()
@@ -392,7 +390,7 @@ SQLTCHAR* UAZGameInstance::ConvertCharToSqlTCHAR(const char* charArray)
 	return sqlTCharArray;
 }
 
-void UAZGameInstance::CreateCompent(const UINT32 max_client)
+void UAZGameInstance::CreateComponent(const UINT32 max_client)
 {
 	user_manager_ = new UserManager;
 	user_manager_->Init(max_client);

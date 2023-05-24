@@ -87,7 +87,7 @@ public:
 	Odbc* odbc;
 
 private:
-	void CreateCompent(const UINT32 max_client);
+	void CreateComponent(const UINT32 max_client);
 
 	void ClearConnectionInfo(INT32 client_index);
 

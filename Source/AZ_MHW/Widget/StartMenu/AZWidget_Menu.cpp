@@ -39,9 +39,9 @@ void UAZWidget_Menu::OnOpen(bool immediately)
 void UAZWidget_Menu::OnClicked_Start()
 {
 	//FIXME DEVMODE 각주해제
-	//UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), FName("/Game/Extern/PT2_TestMap/Maps/Map_PT2_Test"));
+	//UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/Extern/PT2_TestMap/Maps/Map_PT2_Test"));
 	//FIXME DEVMODE 삭제할것
-	UGameplayStatics::OpenLevel(AZGameInstance->GetWorld(), FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
+	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
 }
 
 void UAZWidget_Menu::OnClicked_Option()
@@ -54,5 +54,6 @@ void UAZWidget_Menu::OnClicked_Credits()
 
 void UAZWidget_Menu::OnClicked_Close()
 {
-	FGenericPlatformMisc::RequestExit(false);
+	//로직 통일
+	game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::GameExit);
 }
