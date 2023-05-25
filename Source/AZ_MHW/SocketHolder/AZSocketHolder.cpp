@@ -86,7 +86,10 @@ bool UAZSocketHolder::SendPacket(PACKET_HEADER* send_msg, int packet_size)
 	}
 
 	AZ_PRINT_LOG_IF_FALSE(send_msg, false);
-	int len = game_instance_->Server_Packet_Send((char*)send_msg, packet_size);
+	//int len = game_instance_->Server_Packet_Send((char*)send_msg, packet_size);
+	// 메모리 카피로 대체
+	memcpy(game_instance_->send_buffer_ + game_instance_->send_buffer_offset_, send_msg, packet_size);
+	game_instance_->send_buffer_offset_ += packet_size;
 
 	if (IsShowWaitWidget(send_msg) == true)
 	{
@@ -99,7 +102,7 @@ bool UAZSocketHolder::SendPacket(PACKET_HEADER* send_msg, int packet_size)
 	if (!WriteDetailLog(send_msg))
 	{
 		FString packet_name = UAZUtility::EnumToString<PACKET_ID>((PACKET_ID)send_msg->packet_id);
-		UAZUtility::ShippingLog(FString::Printf(TEXT("[UAZSocketHolder::Send] %s byteSent"), *packet_name, len));
+		UAZUtility::ShippingLog(FString::Printf(TEXT("[UAZSocketHolder::Send] %s byteSent"), *packet_name, packet_size));
 	}
 
 	return true;
