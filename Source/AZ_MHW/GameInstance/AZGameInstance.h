@@ -72,6 +72,7 @@ public:
 public:
 	FTimerHandle server_timer_handle_;
 	FTimerHandle client_timer_handle_;
+	FTimerHandle client_send_timer_handle_;
 
 	void TimerProcessPacket();
 
@@ -105,8 +106,6 @@ private:
 
 	void EnqueuePacketData(const UINT32 client_index);
 
-	PacketInfo DequePacketData();
-
 	PacketInfo DequeSystemPacketData();
 
 	void ProcessSystemPacket(const UINT32 client_index, const UINT16 packet_id, const UINT16 packet_size, char* P_packet);
@@ -137,6 +136,13 @@ private:
 public:
 	int32 client_index_;
 	RECV_PACKET call_recv_packet_;
+	int recv_buffer_offset_;
+	char client_recv_buffer_[65535];
+	char client_recv_temp_buffer_[100000];
+
+	int send_buffer_offset_;
+	char send_buffer_[100000];
+
 
 public:
 	bool Server_Connect(const FString& ip, int32 port);
@@ -150,6 +156,8 @@ public:
 	void receive_thread();
 
 	void ClientTimerProcessPacket();
+
+	void ClientSendProcess();
 
 	// 캐릭터 동기화
 public:

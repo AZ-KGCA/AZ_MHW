@@ -5,7 +5,7 @@
 
 class User
 {
-	const UINT32 PACKET_DATA_BUFFER_SIZE = 8096;
+	const UINT32 PACKET_DATA_BUFFER_SIZE = 65535;
 
 public:
 	enum class DOMAIN_STATE

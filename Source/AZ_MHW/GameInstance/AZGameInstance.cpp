@@ -48,6 +48,13 @@ void UAZGameInstance::Init()
 
 	UAZGameSingleton::instance();
 
+	recv_buffer_offset_ = 0;
+	memset(client_recv_buffer_, 0, sizeof(client_recv_buffer_));
+	memset(client_recv_temp_buffer_, 0, sizeof(client_recv_temp_buffer_));
+
+	send_buffer_offset_ = 0;
+	memset(send_buffer_, 0, sizeof(send_buffer_));
+
 	packet_function_ = NewObject<UPacketFunction>(this);
 	packet_function_->Init();
 	call_recv_packet_.BindUObject(packet_function_ ,&UPacketFunction::ProcessPacket);
@@ -97,6 +104,9 @@ void UAZGameInstance::Init()
 
 	// 클라이언트 패킷 큐 타이머
 	GetWorld()->GetTimerManager().SetTimer(client_timer_handle_, this, &UAZGameInstance::ClientTimerProcessPacket, TimerRate, true);
+
+	// 클라이언트 send 큐 타이머
+	GetWorld()->GetTimerManager().SetTimer(client_send_timer_handle_, this, &UAZGameInstance::ClientSendProcess, TimerRate, true);
 }
 
 void UAZGameInstance::Shutdown()
@@ -323,11 +333,34 @@ void UAZGameInstance::TimerProcessPacket()
 {
 	UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
 
-	if (auto packet_data = DequePacketData(); packet_data.packet_id_ > (UINT16)PACKET_ID::SYS_END)
+	UINT32 user_index = 0;
 	{
-		//is_idle = false;
-		// 요청이 있는 경우 처리
-		ProcessRecvPacket(packet_data.client_index_, packet_data.packet_id_, packet_data.data_size_, packet_data.P_data_ptr_);
+		std::lock_guard<std::mutex> grard(lock_);
+		// 현재 Send 요청을 보낸 유저가 있는지 확인
+		if (!server_in_coming_packet_user_index_.empty())
+		{
+			user_index = server_in_coming_packet_user_index_.front();
+
+			// 알아낸 index로 유저 객체 가져옴
+			while (true)
+			{
+				auto P_user = user_manager_->GetUserByConnIdx(user_index);
+				auto packet_data = P_user->GetPacket();
+				packet_data.client_index_ = user_index;
+
+				if (packet_data.packet_id_ > (UINT16)PACKET_ID::SYS_END)
+				{
+					//is_idle = false;
+					// 요청이 있는 경우 처리
+					ProcessRecvPacket(packet_data.client_index_, packet_data.packet_id_, packet_data.data_size_, packet_data.P_data_ptr_);
+				}
+				else
+				{
+					break;
+				}
+			}
+			server_in_coming_packet_user_index_.pop_front();
+		}
 	}
 
 	// 시스템 패킷 (연결 & 연결 종료가 발생한 경우)
@@ -420,31 +453,6 @@ void UAZGameInstance::EnqueuePacketData(const UINT32 client_index)
 {
 	std::lock_guard<std::mutex> guard(lock_);
 	server_in_coming_packet_user_index_.push_back(client_index);
-}
-
-PacketInfo UAZGameInstance::DequePacketData()
-{
-	UINT32 user_index = 0;
-
-	{
-		std::lock_guard<std::mutex> grard(lock_);
-		// 현재 Send 요청을 보낸 유저가 있는지 확인
-		if (server_in_coming_packet_user_index_.empty())
-		{
-			return PacketInfo();
-		}
-
-		// 요청한 데이터가 있다면 index 추출
-		user_index = server_in_coming_packet_user_index_.front();
-		server_in_coming_packet_user_index_.pop_front();
-	}
-
-	// 알아낸 index로 유저 객체 가져옴
-	auto P_user = user_manager_->GetUserByConnIdx(user_index);
-	auto packet_data = P_user->GetPacket();
-	packet_data.client_index_ = user_index;
-
-	return packet_data;
 }
 
 PacketInfo UAZGameInstance::DequeSystemPacketData()
@@ -601,28 +609,54 @@ int UAZGameInstance::Server_Packet_Send(const char* packet, int packet_size)
 
 void UAZGameInstance::receive_thread()
 {
-	char buffer[20000];
 	int result;
 
 	while (recevie_connected)
 	{
-		result = recv(sock, buffer, sizeof(buffer), 0);
+		result = recv(sock, client_recv_buffer_, sizeof(client_recv_buffer_), 0);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-		// TODO 이곳에서 데이터 전송 받는거 확인하기
-
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		int remain_data = result;
 		if (result > 0)
 		{
-			char* recv_buffer = new char[10000];
-			ZeroMemory(recv_buffer, sizeof(char) * 10000);
-			CopyMemory(recv_buffer, buffer, result);
+			// 현재 오프셋에서 결과 값만큼 메모리 카피
+			memcpy(client_recv_temp_buffer_ + recv_buffer_offset_, client_recv_buffer_, result);
+			while (remain_data > 0)
+			{
+				int header_check = remain_data + recv_buffer_offset_;
+				if (header_check < sizeof(PACKET_HEADER))
+				{
+					recv_buffer_offset_ = header_check;
+					break;
+				}
+				//헤더 체크
+				PACKET_HEADER* header = (PACKET_HEADER*)(client_recv_temp_buffer_);
+				UINT16 packet_length = header->packet_length;
+				int total_length = recv_buffer_offset_ + remain_data;
+				// 헤더 크기와 같거나 더 많이 온 경우(현재 length는 패킷 전체 구조체 크기를 담고 있다.)
+				if (packet_length <= total_length)
+				{
+					char* char_packet = new char[packet_length];
 
-			PACKET_HEADER* base_packet = (PACKET_HEADER*)recv_buffer;
+					memcpy(char_packet, client_recv_temp_buffer_, header->packet_length);
+					{
+						std::lock_guard<std::mutex> lock(received_data_mutex);
+						PACKET_HEADER* base_packet = (PACKET_HEADER*)char_packet;
+						receive_data_queue_.push(base_packet);
+					}
 
-			std::lock_guard<std::mutex> lock(received_data_mutex);
-
-			receive_data_queue_.push(base_packet);
+					//메모리 위치를 앞으로 옳김(최대한 안전하게 처리하자)
+					remain_data = remain_data - packet_length;
+					memmove(client_recv_temp_buffer_, client_recv_temp_buffer_ + packet_length, remain_data);
+					recv_buffer_offset_ = 0;
+				}
+				else
+				{
+					recv_buffer_offset_ = remain_data;
+					break;
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
 		}
 		else if (result == 0)
 		{
@@ -668,13 +702,50 @@ void UAZGameInstance::ClientTimerProcessPacket()
 			}
 		}
 		receive_data_queue_.pop();
-		delete[] base_packet;
+		delete[] (char*)base_packet;
 	}
 
 	if (server_client_check)
 	{
 		FTimerManager& timerManager = GetWorld()->GetTimerManager();
 		timerManager.ClearTimer(client_timer_handle_);
+	}
+}
+
+void UAZGameInstance::ClientSendProcess()
+{
+	if (server_client_check)
+	{
+		FTimerManager& timerManager = GetWorld()->GetTimerManager();
+		timerManager.ClearTimer(client_send_timer_handle_);
+	}
+
+	if (send_buffer_offset_ == 0)
+	{
+		return;
+	}
+
+	int len = Server_Packet_Send(send_buffer_, send_buffer_offset_);
+	if (len > 0)
+	{
+		send_buffer_offset_ -= len;
+		memmove(send_buffer_, send_buffer_ + len, send_buffer_offset_);
+		return;
+	}
+	else if (len -1)
+	{
+		int error = WSAGetLastError();
+		switch (error)
+		{
+		case WSAEWOULDBLOCK:
+		case WSAEINTR:
+			break;
+		default:
+			recevie_connected = false;
+			FTimerManager& timerManager = GetWorld()->GetTimerManager();
+			timerManager.ClearTimer(client_send_timer_handle_);
+			break;
+		}
 	}
 }
 
