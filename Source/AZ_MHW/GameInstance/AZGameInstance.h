@@ -137,6 +137,9 @@ private:
 public:
 	int32 client_index_;
 	RECV_PACKET call_recv_packet_;
+	int recv_buffer_offset_;
+	char client_recv_buffer_[65535];
+	char client_recv_temp_buffer_[100000];
 
 public:
 	bool Server_Connect(const FString& ip, int32 port);

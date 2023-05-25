@@ -48,6 +48,10 @@ void UAZGameInstance::Init()
 
 	UAZGameSingleton::instance();
 
+	recv_buffer_offset_ = 0;
+	memset(client_recv_buffer_, 0, sizeof(client_recv_buffer_));
+	memset(client_recv_temp_buffer_, 0, sizeof(client_recv_temp_buffer_));
+
 	packet_function_ = NewObject<UPacketFunction>(this);
 	packet_function_->Init();
 	call_recv_packet_.BindUObject(packet_function_ ,&UPacketFunction::ProcessPacket);
@@ -601,28 +605,54 @@ int UAZGameInstance::Server_Packet_Send(const char* packet, int packet_size)
 
 void UAZGameInstance::receive_thread()
 {
-	char buffer[20000];
 	int result;
 
 	while (recevie_connected)
 	{
-		result = recv(sock, buffer, sizeof(buffer), 0);
+		result = recv(sock, client_recv_buffer_, sizeof(client_recv_buffer_), 0);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-		// TODO 이곳에서 데이터 전송 받는거 확인하기
-
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		int remain_data = result;
 		if (result > 0)
 		{
-			char* recv_buffer = new char[10000];
-			ZeroMemory(recv_buffer, sizeof(char) * 10000);
-			CopyMemory(recv_buffer, buffer, result);
+			// 현재 오프셋에서 결과 값만큼 메모리 카피
+			memcpy(client_recv_temp_buffer_ + recv_buffer_offset_, client_recv_buffer_, result);
+			while (remain_data > 0)
+			{
+				int header_check = remain_data;
+				if (header_check < sizeof(PACKET_HEADER))
+				{
+					recv_buffer_offset_ = remain_data;
+					break;
+				}
+				//헤더 체크
+				PACKET_HEADER* header = (PACKET_HEADER*)(client_recv_temp_buffer_);
+				UINT16 packet_length = header->packet_length;
+				int total_length = recv_buffer_offset_ + remain_data;
+				// 헤더 크기와 같거나 더 많이 온 경우(현재 length는 패킷 전체 구조체 크기를 담고 있다.)
+				if (packet_length <= total_length)
+				{
+					char* char_packet = new char[packet_length];
 
-			PACKET_HEADER* base_packet = (PACKET_HEADER*)recv_buffer;
+					memcpy(char_packet, client_recv_temp_buffer_, header->packet_length);
+					{
+						std::lock_guard<std::mutex> lock(received_data_mutex);
+						PACKET_HEADER* base_packet = (PACKET_HEADER*)char_packet;
+						receive_data_queue_.push(base_packet);
+					}
 
-			std::lock_guard<std::mutex> lock(received_data_mutex);
-
-			receive_data_queue_.push(base_packet);
+					//메모리 위치를 앞으로 옳김(최대한 안전하게 처리하자)
+					remain_data = remain_data - packet_length;
+					memmove(client_recv_temp_buffer_, client_recv_temp_buffer_ + packet_length, remain_data);
+					recv_buffer_offset_ = 0;
+				}
+				else
+				{
+					recv_buffer_offset_ = remain_data;
+					break;
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}
 		}
 		else if (result == 0)
 		{
@@ -668,7 +698,7 @@ void UAZGameInstance::ClientTimerProcessPacket()
 			}
 		}
 		receive_data_queue_.pop();
-		delete[] base_packet;
+		delete[] (char*)base_packet;
 	}
 
 	if (server_client_check)
