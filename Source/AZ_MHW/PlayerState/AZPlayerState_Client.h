@@ -3,9 +3,10 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "AZ_MHW.h"
 #include <GameFramework/PlayerState.h>
+#include "AZ_MHW/Item/AZItemData.h"
 #include "AZPlayerState_Client.generated.h"
+
 
 /** 플레이어 액션(인풋) 상태 <-플레이어 컨트롤러가 갱신
  * 이외에도 추가할 것,
@@ -17,54 +18,16 @@ struct FAZPlayerActionState
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector input_direction;//캐릭터의 입력방향(플레이어의 시선방향(월드방향)기준 + 입력벡터)
-	
+	FRotator input_direction;//캐릭터의 입력방향(플레이어의 시선방향(월드방향)기준 + 입력벡터)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_move_forward:1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_move_left:1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_move_back:1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_move_right:1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_normal_action:1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_special_action:1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_unique_action:1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_dash_action:1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_interaction:1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_evade_action:1;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_use_item:1;
+	int32 input_bitmask;
 	
 	FAZPlayerActionState()
 	{
 		//bitfield = Initializer 선언초기화 문법은 C++20에서가능
 		//비트필드는 생성자에서 초기화해야한다.
-		input_direction = FVector::Zero();//플레이어가 인지하는 입력방향
-		
-		bit_move_forward = false;//W
-		bit_move_left = false;//A
-		bit_move_back = false;//S
-		bit_move_right = false;//D
-
-		bit_normal_action = false;//MLB
-		bit_special_action = false;//MRB
-
-		bit_unique_action = false;//Ctrl
-
-		bit_interaction = false;//F
-		bit_dash_action = false;//Shift
-		bit_evade_action = false;//Space
-		bit_use_item = false;//E
+		input_direction = FRotator::ZeroRotator;//플레이어가 인지하는 입력방향
+		input_bitmask = 0;
 	}
 };
 /** 플레이어 캐릭터의 상태<-플레이어 캐릭터가 갱신
@@ -79,6 +42,10 @@ struct FAZPlayerCharacterState
 	FVector character_position;//현재 캐릭터의 위치;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRotator character_direction;//현재 캐릭터의 전방방향
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 character_action_mask;//현재 캐릭터의 액션 상태
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int32 character_action_priority;//현재 캐릭터의 액션 우선도
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 max_health_point;//체력
@@ -107,6 +74,7 @@ struct FAZPlayerCharacterState
 	//전투
 	//벞//디벞목록?(Enum?)
 
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bit_hit:1;//피격상태
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -115,7 +83,6 @@ struct FAZPlayerCharacterState
 	//uint32 bAirborne:1;//절벽인지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bit_slide:1;//미끄러지는 중인지
-
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//uint32 bClimb:1;//등반액션인지
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -124,7 +91,6 @@ struct FAZPlayerCharacterState
 	//uint32 bSwim:1;//수영액션인지
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//uint32 bMount:1;//마운트상태
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bit_common:1;//일반상태인지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -140,7 +106,9 @@ struct FAZPlayerCharacterState
 	{
 		character_position = FVector::ZeroVector;
 		character_direction = FRotator::ZeroRotator;
-
+		character_action_mask =0;
+		character_action_priority =-1;
+		
 		max_health_point = 100;
 		current_health_point = 100;
 		max_stamina = 100;
@@ -257,13 +225,16 @@ protected:
 	virtual void BeginDestroy() override;
 #pragma endregion
 public:
+	/** OnPawnSet AddDynamic Function*/
+	UFUNCTION() void SetPlayerCharacter(APlayerState* player_state, APawn* new_pawn, APawn* old_pawn);
+	
 	/** 이 PlayerState 고유 ID */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	int32 guid_;//Player UID
-
-	FString* id_;//DB에서 검색할 플레이어 ID
-	
-	FString* nickname_;//캐릭터 이름
+	int32 uid_;//User ID
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	int32 cid_;//Character ID
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	FString nickname_;//character Name
 	
 	//플레이어 입력상태(애니메이션)
 	//원격PC는 입력상태값을 받아서 움직인다.
@@ -280,15 +251,14 @@ public:
 	FAZPlayerEquipmentState equipment_state_;
 
 	//캐릭터 인벤토리
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TMap<int32, FItemInfo> inventory_state_;
 	//이 구조체는 위젯 단지 인벤토리 정보출력용이다.(실제 사용은 서버에서 처리된다.)
 	//예시: 물약을먹는다. 클라이언트에는 1개, 서버에는 0개있다고 가정
 	//클라이언트가 이 상태에서 물약사용을 시도하면 물약섭취 애니메이션을 하긴하지만,
 	//서버에서는 물약이 0개라 처리가 이루어지지못함으로 체력이 회복되지않고,
 	//클라이언트에서도 체력이 회복되는 이벤트를 못받앗음으로 체력이 회복되지 않는다.
-	//
 	//탄약등 다양한 아이템들이 모두 마찬가지,
 	//로컬 클라이언트가 시도하면, 이 구조체의 갯수 조건체크로 애니메이션은 실행되지만
 	//실제처리는 서버에서 검증후 결과이벤트로 처리된다.
-	//UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	//FAZPlayerInventoryState? Inventory{ TMap<ID,갯수>? };
 };

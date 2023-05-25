@@ -106,14 +106,14 @@ void UAZInputMgr::SetupDefaultBindAction(UInputComponent* player_input_component
 {
 	//클라에서 마지막을 등록된 플레이어
 	local_player_ = local_player;
-	
+	ClearInputMappingContext();
 	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<UEnhancedInputComponent>(player_input_component))
 	{
 		enhanced_input_component->ClearActionBindings();
 		
 		// if(const auto& input_action_asset = GetInputAction("InputActionName"))
 		// {
-		// 	enhanced_input_component->BindAction(input_action_asset, ETriggerEvent::Triggered,this, &UAZInputMgr::ActionTest);
+		// 		enhanced_input_component->BindAction(input_action_asset, ETriggerEvent::Triggered,this, &UAZInputMgr::ActionTest);
 		// }
 	}
 }

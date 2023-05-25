@@ -17,8 +17,8 @@ UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	none,
-	greatSword,
-	bow,
+	greatSword=0,
+	bow=11,
 };
 
 UENUM(BlueprintType)

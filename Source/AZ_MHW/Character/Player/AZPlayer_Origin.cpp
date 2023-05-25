@@ -6,8 +6,8 @@
 
 AAZPlayer_Origin::AAZPlayer_Origin()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
 }
 
 void AAZPlayer_Origin::BeginPlay()
@@ -19,11 +19,13 @@ void AAZPlayer_Origin::BeginPlay()
 void AAZPlayer_Origin::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
+	
 }
 
 void AAZPlayer_Origin::BeginDestroy()
 {
 	Super::BeginDestroy();
+	
 }
 
 float AAZPlayer_Origin::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result,

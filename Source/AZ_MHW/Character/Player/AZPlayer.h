@@ -51,7 +51,10 @@ protected:
 	virtual  void BeginDestroy() override;
 #pragma endregion
 public:
-	//각 Player_ Origin, Playable, Remotable에서 초기화 시점이 다르다.
+	//각 Player_... Origin, Playable, Remotable 초기화 시점이 다르다.
+	//Playable->빙의시 컨트롤러에서 초기화
+	//Origin->생성시 컨르롤러에서 T맵에서 초기화
+	//Remotable->생성시 컨르롤러에서 T맵에서 초기화
 	UPROPERTY() AAZPlayerState_Client* player_character_state_;
 	
 	//UPROPERTY() TMap<FName, USkeletalMeshComponent*> character_parts_map_;
@@ -62,12 +65,27 @@ public:
 	UPROPERTY() USkeletalMeshComponent* arm_mesh_;
 	UPROPERTY() USkeletalMeshComponent* waist_mesh_;
 	UPROPERTY() USkeletalMeshComponent* leg_mesh_;
+	
 	UPROPERTY() TMap<FName, AAZSocketActor*> character_sockets_map_;
-
-	/** playerState의 CharacterEquipState 변경후 갱신처리시 호출*/
+	//playable, remotable만 필요한 것이지만 시간이 없다.
+	UPROPERTY() USkeletalMeshComponent* face_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* head_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* hair_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* body_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* arm_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* waist_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* leg_fx_mesh_;
+	
+	/** 메시 파츠 갱신처리시 호출*/
 	void SetSKMeshParts();
-	/** playerState의 CharacterEquipState 변경후 갱신처리시 호출*/
+	/** 무기 소켓 갱신처리시 호출*/
 	void SetSKMeshSocket();
+	/** 바디 이펙트용 메시의 머테리얼 설정(TODO: 임시 고정 이펙트)*/
+	//void SetMeshEfxMaterial(FString material_name_path);
+	void SetSKMeshEfxMaterial();
+	/** 바디 이펙트 온 오프*/
+	UFUNCTION(BlueprintCallable)
+	void SetEnableSKMeshEfx(bool on_off);
 	
 	/** 소켓액터 추가 */
 	void CreateSocketActor(FName new_socket_actor_name, FName in_socket_name);

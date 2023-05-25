@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AZPlayerState_Client.h"
+#include "GameFramework/PlayerState.h"
 #include "AZPlayerState_Server.generated.h"
 
 /**
  * 서버 설정용
  */
 UCLASS()
-class AZ_MHW_API AAZPlayerState_Server : public AAZPlayerState_Client
+class AZ_MHW_API AAZPlayerState_Server : public APlayerState
 {
 	GENERATED_BODY()
 

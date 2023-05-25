@@ -22,6 +22,8 @@ public:
 	//현재 소켓 오브젝트(스켈레탈 메시)
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* socket_mesh_asset_;
+	UPROPERTY(VisibleAnywhere)
+	USkeletalMeshComponent* socket_fx_mesh_asset_;
 	
 	//소켓 부모 액터
 	UPROPERTY(VisibleAnywhere)

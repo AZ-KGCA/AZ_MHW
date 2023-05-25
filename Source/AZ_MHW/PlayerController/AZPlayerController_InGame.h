@@ -7,10 +7,14 @@
 #include "AZ_MHW/PlayerController/AZPlayerController.h"//상속
 #include "AZPlayerController_InGame.generated.h"
 
+struct FInputActionValue;
 struct FAZPlayerEquipmentState;
 struct FAZPlayerCharacterState;
+
 class UInputAction;
 class UInputMappingContext;
+class USpringArmComponent;
+class UCameraComponent;
 
 class UAZAnimInstance_Player;
 class UAZAnimInstance_Playable;
@@ -45,23 +49,34 @@ protected:
 	/** */
 	virtual void OnPossess(APawn* pawn) override;
 	/** */
+	virtual void OnUnPossess() override;
+	/** */
 	virtual void Tick(float delta_time) override;
 	/** */
 	virtual void BeginDestroy() override;
 #pragma endregion 
 public:
-	/** GetAnimationBitMask */
-	UFUNCTION(BlueprintCallable) int32 GetAnimationMask();
+	UFUNCTION(BlueprintCallable)
+	float GetInputAngle();
 	/** GetCommandBitMask */
-	UFUNCTION(BlueprintCallable) int32 GetCommandBitMask();
+	UFUNCTION(BlueprintCallable)
+	int32 GetInputBitMask();
+
+#pragma region InGame Item Control
 	/** UI에서 호출하거나, 버튼 이벤트에 심어주세요 */
 	UFUNCTION(BlueprintCallable)
-	void RequestChangeEquipment(int32 item_id);
+	void ChangeEquipment(int32 item_id);
 	UFUNCTION(BlueprintCallable)
-	void RequestBuyItem(int32 item_id);
-
+	void BuyItem(int32 item_id, int32 item_count = 1);
+	UFUNCTION(BlueprintCallable)
+	void SellItem(int32 item_id, int32 item_count = 1);
+	UFUNCTION(BlueprintCallable)
+	void GetItem(int32 item_id, int32 item_count = 1);
+	UFUNCTION(BlueprintCallable)
+	void UseItem(int32 item_id, int32 item_count =1);
+#pragma endregion 	
 	
-#pragma region InGame Playable Part
+#pragma region InGame Playable Control
 	/** 소유 플레이어 캐릭터 */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	AAZPlayer_Playable* playable_player_;
@@ -78,7 +93,7 @@ public:
 	
 #pragma endregion
 
-#pragma region Remotable Part
+#pragma region InGame Remotable Control
 	/** 원격 플레이어 캐릭터 맵*/
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	TMap<int32, AAZPlayer_Remotable*> remotable_player_map_;
@@ -98,26 +113,34 @@ public:
 	void Remotable_UpdatePlayerState(int32 guid, FAZPlayerCharacterState character_state);
 #pragma endregion
 	
-#pragma region Origin Part
-	/** */
-	void Origin_AddPlayer();
-	/** */
-	void Origin_RemovePlayer();
-	/** */
-	void Origin_ControlPlayer();
-	/** */
-	void Origin_EquipPlayer();
-	/** */
-	void Origin_UpdatePlayer();
-
-#pragma endregion 
-	
 #pragma region Input Event function
+#pragma region Input BitMask Variable
+	
+	uint32 bit_move_forward:1;
+	uint32 bit_move_left:1;
+	uint32 bit_move_back:1;
+	uint32 bit_move_right:1;
+
+	uint32 bit_normal_action:1;
+	uint32 bit_special_action:1;
+
+	uint32 bit_unique_action:1;
+	uint32 bit_dash_action:1;
+
+	uint32 bit_interaction:1;
+	uint32 bit_evade_action:1;
+	uint32 bit_use_item:1;
+
+	
+#pragma endregion 
 public:
-	//ToDo:CameraManager만들고 Player_Playable에서 여기로 옮기기?
-	//void ActionLook(const FInputActionValue& value);//카메라 조종
-	//void ActionZoom(const FInputActionValue& value);//카메라 조종
-	void ActionInputDirection();
+	UPROPERTY(VisibleInstanceOnly)
+	USpringArmComponent* spring_arm_comp_;//CameraControll
+	UPROPERTY(VisibleInstanceOnly)
+	UCameraComponent* temp_camera_comp_;//Camera
+	
+	void ActionInputLook(const FInputActionValue& value);
+	void ActionInputZoom(const FInputActionValue& value);
 	
 	/** MeleeContext */
 	void ActionMoveForward_Start();	//W

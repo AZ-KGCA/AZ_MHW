@@ -54,14 +54,15 @@ public:
 #pragma region PlayerCharacterParts
 public:
 #pragma region Client->Server
-	void RequestOriginPlayerCreate(UINT32 client_index);
-	void RequestOriginPlayerDestroy(UINT32 client_index);
+	void PlayerOriginCreateRequest(UINT32 client_index);
+	void PlayerOriginDestroyRequest(UINT32 client_index);
 	
-	void RequestOriginPlayerAction(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
-	void RequestOriginPlayerEquipment(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
-	void CommandUpdatePlayerState(UINT32 client_index, UPDATE_PLAYER_STATE_PACKET* packet);
+	void PlayerOriginActionRequest(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
+	void PlayerOriginEquipmentRequest(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
 
-	void ReqeustPlayerCharacterCreate();
+	void PlayerStateUpdateCommand(UINT32 client_index, UPDATE_PLAYER_STATE_PACKET* packet);
+
+	void RequestPlayerCharacterCreate();
 	void RequestPlayerCharacterDestroy();//플레이어 캐릭터 제거
 #pragma endregion
 #pragma region Server->Client

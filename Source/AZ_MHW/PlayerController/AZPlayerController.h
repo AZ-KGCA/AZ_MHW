@@ -28,13 +28,18 @@ protected:
 	/** */
 	virtual void BeginPlay() override;
 	/** */
-	virtual void SetupInputComponent() override;
-	/** */
 	virtual void OnPossess(APawn* in_pawn) override;
+	/** */
+	virtual void SetupInputComponent() override;
 	/** */
 	virtual void BeginDestroy() override;
 #pragma endregion
 public:
+	/** Capture -> NoneCapture
+	 *  NoneCapture -> Capture
+	 */
+	void ActionChangeControlMode();
+	
 	//UPROPERTY(BlueprintReadOnly)
 	//AAZCameraManager* CameraMgr;
 	

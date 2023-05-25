@@ -83,7 +83,8 @@ void UAZGameInstance::Init()
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UAZGameInstance::BeginLoadingScreen);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UAZGameInstance::EndLoadingScreen);
 
-	float TimerRate = 1.0f / 30.0f;  // 초당 30회
+	float TimerRate = 1.0f / 60.0f;  // 초당 60회
+	//1player tick = 1초 60회 미만
 
 	if (iocp_net_server_ == nullptr)
 	{
@@ -666,6 +667,7 @@ void UAZGameInstance::receive_thread()
 				recevie_connected = false;
 				break;
 			}
+			
 		}
 	}
 }
@@ -681,7 +683,8 @@ void UAZGameInstance::ClientTimerProcessPacket()
 	std::lock_guard<std::mutex> lock(received_data_mutex);
 
 	// 큐에 받은 데이터가 있는지 확인
-	if (!receive_data_queue_.empty()) {
+	if (!receive_data_queue_.empty())
+	{
 		// 대기열에서 처음 받은 데이터 가져오기
 		PACKET_HEADER* base_packet = receive_data_queue_.front();
 		if (call_recv_packet_.IsBound())

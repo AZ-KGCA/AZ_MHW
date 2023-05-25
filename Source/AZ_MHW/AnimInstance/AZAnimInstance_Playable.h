@@ -28,11 +28,6 @@ protected:
 	virtual void NativeUpdateAnimation(float delta_seconds) override;
 #pragma endregion
 public:
-	/** 플레이어 캐릭터 데이터 캐시*/
-	UPROPERTY(BlueprintReadWrite)
-	AAZPlayer* player_cache_;
-	UPROPERTY(BlueprintReadWrite)
-	AAZPlayerState_Client* player_state_cache_;
 
 	//데이터의 처리가없는데 굳이 플레이어블에서?
 	UFUNCTION() void AnimNotify_OnUseItem();

@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameStateBase.h"
+#include "GameFramework/GameState.h"
 #include "AZGameState_Client.generated.h"
 
 UCLASS()
-class AZ_MHW_API AAZGameState_Client : public AGameStateBase
+class AZ_MHW_API AAZGameState_Client : public AGameState
 {
 	GENERATED_BODY()
 
@@ -16,7 +16,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void BeginDestroy() override;
 
+	virtual void BeginDestroy() override;
 public:
 };
