@@ -4,6 +4,7 @@
 #include <mutex>
 #include <queue>
 
+const int RECV_BUFFER_SIZE = 20000;
 class ClientInfo
 {
 public:
@@ -165,7 +166,7 @@ public:
 		DWORD dwFlag = 0;
 		DWORD dwRecvNumBytes = 0;
 
-		recv_overlapped_ex_.wsa_buf_.len = MAX_SOCKBUF;
+		recv_overlapped_ex_.wsa_buf_.len = RECV_BUFFER_SIZE;
 		recv_overlapped_ex_.wsa_buf_.buf = recv_buf_;
 		recv_overlapped_ex_.E_operation_ = IOOperation::RECV;
 
@@ -302,7 +303,7 @@ private:
 
 	// Recv
 	stOverlappedEx recv_overlapped_ex_; //RECV Overlapped I/O작업을 위한 변수
-	char recv_buf_[MAX_SOCKBUF];  //데이터 버퍼
+	char recv_buf_[RECV_BUFFER_SIZE];  //데이터 버퍼
 
 	// Send (queue 형태)
 	std::mutex send_lock_;
