@@ -5,7 +5,7 @@
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZPlayerMgr.h"
 #include "Character/AZCharacter.h"
-#include "PlayerState/AZPlayerState.h"
+#include "PlayerState/AZPlayerState_Client.h"
 
 UAZAnimInstance_Player::UAZAnimInstance_Player()
 {

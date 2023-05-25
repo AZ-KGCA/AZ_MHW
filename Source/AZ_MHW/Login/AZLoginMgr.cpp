@@ -48,7 +48,16 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 	{
 	case ESequence::GameExit:
 	{
-		FGenericPlatformMisc::RequestExit(false);
+#if UE_EDITOR
+			if (GEngine)
+			{
+				GEngine->DeferredCommands.Add(TEXT("Exit"));
+			}
+#else
+			//빌드시에도 버그터지는지 확인 바람(이현수)
+			FGenericPlatformMisc::RequestExit(false);
+#endif
+			
 	}break;
 	case ESequence::Splash:
 	{

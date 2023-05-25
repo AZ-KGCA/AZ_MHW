@@ -4,12 +4,14 @@
 #include "AZPlayerController_InGame.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Remotable.h"
 
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
+
+#include "SocketHolder/AZSocketHolder.h"
 
 //#include <Components/SkinnedMeshComponent.h>
 
@@ -19,149 +21,24 @@ AAZPlayerController_InGame::AAZPlayerController_InGame()
 	//InternalConstructor
 }
 
-void AAZPlayerController_InGame::OnPossess(APawn* pawn)
+void AAZPlayerController_InGame::BeginPlay()
 {
-	Super::OnPossess(pawn);
-	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
-	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
-	playable_player_state_ = GetPlayerState<AAZPlayerState>();
-
-	PACKET_HEADER input_packet;
-	// //strcpy_s(input_packet.input_position, sizeof(FVector),FV );
-	// //strcpy_s(input_packet.input_direction, sizeof(FRotator), );
-	input_packet.packet_id = 401;
-	input_packet.packet_length = sizeof(PACKET_HEADER);
-	
-	//
-	game_instance_->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+	Super::BeginPlay();
 }
 
-void AAZPlayerController_InGame::Tick(float delta_time)
-{
-	Super::Tick(delta_time);
-	
-	//Input_Packet input_packet;
-	
-	//strcpy_s(input_packet.current_position, sizeof(FVector),FV );
-	//strcpy_s(input_packet.current_direction, sizeof(FVector), FR );
-
-	//strcpy_s(input_packet.input_direction, sizeof(FRotator), FR);
-	//input_packet.input_data = GetCommandBitMask();
-	//AZGameInstance->client_connect->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
-}
-
-void AAZPlayerController_InGame::InitializePlayer(FAZPlayerCharacterState character_state,
-	FAZPlayerEquipmentState equipment_state)
-{
-}
-
-void AAZPlayerController_InGame::SetupWeaponInputMappingContext(int32 weapon_type)
-{
-	if(weapon_type > 10)//원거리 무기인 경우
-	{
-		game_instance_->input_mgr_->RemoveInputMappingContext(TEXT("MeleeWeapons"));
-		game_instance_->input_mgr_->AddInputMappingContext(TEXT("RangedWeapons"));
-	}
-	else
-	{
-		game_instance_->input_mgr_->RemoveInputMappingContext(TEXT("RangedWeapons"));
-		game_instance_->input_mgr_->AddInputMappingContext(TEXT("MeleeWeapons"));
-	}
-}
-
-void AAZPlayerController_InGame::ForceInterpolation(FVector position, FRotator direction)
-{
-	playable_player_->SetActorLocation(position);
-	playable_player_->SetActorRotation(direction);
-}
-
-int32 AAZPlayerController_InGame::GetCommandBitMask()
-{
-	int32 result = 0;//None
-
-	if(playable_player_state_->action_state_.bit_move_forward) result |=(1<<0);//W 1
-	if(playable_player_state_->action_state_.bit_move_left) result |=(1<<1);//A 2
-	if(playable_player_state_->action_state_.bit_move_back) result |=(1<<2);//S 4
-	if(playable_player_state_->action_state_.bit_move_right) result |=(1<<3);//D 8
-
-	if(playable_player_state_->action_state_.bit_normal_action) result |=(1<<4);//MLB 16
-	if(playable_player_state_->action_state_.bit_special_action) result |=(1<<5);//MRB 32
-	if(playable_player_state_->action_state_.bit_evade_action) result |=(1<<6);//Space 64
-	if(playable_player_state_->action_state_.bit_dash_action) result |=(1<<7);//LeftShift 128
-	if(playable_player_state_->action_state_.bit_unique_action) result |=(1<<8);//LeftCtrl 256
-
-	if(playable_player_state_->action_state_.bit_use_item) result |=(1<<9);//E 512
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<10);//V
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<11);//F
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<12);//R
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<13);//C
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<14);//M
-
-	return result;
-}
-
-void AAZPlayerController_InGame::ChangeEquipment(int32 itemID)
-{
-	//State에서 현재 장착아이템 아이디가져왓
-	//DB에서 아이템 정보가져와서
-	//state에서 빼고
-	
-	//DB에서 새로장착할 아이템 정보값가져와 적용하고
-
-	//메시 변경
-	playable_player_->ChangeSocketMesh(TEXT("SourceHandle"),itemID);
-	playable_player_->ChangeEquipmentMesh(itemID);
-
-	//서버에 전송(바꿀께요)
-}
-
-
-void AAZPlayerController_InGame::AddRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state,
-                                                    FAZPlayerEquipmentState equipment_state)
-{
-	//GetWorld()->SpawnActor<AAZPlayer_Remotable>();
-	//remotable_player_map_.Add(guid,)
-	
-	//GetWorld()->SpawnActor<AAZPlayerState>();
-	//remotable_player_state_map_.Add(guid,)
-
-	//Initialize position, rotation
-}
-
-void AAZPlayerController_InGame::ControlRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state,
-	FRotator result_direction, int32 command_bitmask)
-{
-	if(auto player_clone = remotable_player_map_.Find(guid))
-	{
-		//(*player_clone)->
-	}
-}
-
-void AAZPlayerController_InGame::RemoveRemotablePlayer(int32 guid)
-{
-	remotable_player_state_map_.Remove(guid);
-	remotable_player_map_.Remove(guid);
-	
-	//state액터 제거하기
-	//character액터 제거하기
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//input_action
-/////////////////////////////////////////////////////////////////////////////////////////////////////
 void AAZPlayerController_InGame::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	game_instance_->input_mgr_->ClearInputMappingContext();
+	AZGameInstance->input_mgr_->ClearInputMappingContext();
 	//AZGameInstance->input_mgr->AddInputMappingContext(TEXT("UI"));
 
 	//Camera Rotate Action + Base Move Action
-	game_instance_->input_mgr_->AddInputMappingContext(TEXT("InGame"));
-	SetupWeaponInputMappingContext(GetPlayerState<AAZPlayerState>()->equipment_state_.weapon_type);
+	AZGameInstance->input_mgr_->AddInputMappingContext(TEXT("InGame"));
+	SetupWeaponInputMappingContext(GetPlayerState<AAZPlayerState_Client>()->equipment_state_.weapon_type);
+
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
-		UAZInputMgr* input_mgr = game_instance_->input_mgr_;
+		UAZInputMgr* input_mgr = AZGameInstance->input_mgr_;
 		//W
 		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveForward"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveForward_Start);
 		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveForward"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveForward_End);
@@ -199,6 +76,173 @@ void AAZPlayerController_InGame::SetupInputComponent()
 		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("UseItem"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUseItem_End);
 	}
 }
+
+void AAZPlayerController_InGame::OnPossess(APawn* pawn)
+{
+	Super::OnPossess(pawn);
+	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
+	playable_player_state_ = GetPlayerState<AAZPlayerState_Client>();
+
+	PACKET_HEADER input_packet;
+	// //strcpy_s(input_packet.input_position, sizeof(FVector),FV );
+	// //strcpy_s(input_packet.input_direction, sizeof(FRotator), );
+	input_packet.packet_id = 401;
+	input_packet.packet_length = sizeof(PACKET_HEADER);
+	
+	//
+	AZGameInstance->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+}
+
+void AAZPlayerController_InGame::Tick(float delta_time)
+{
+	Super::Tick(delta_time);
+	
+	//Input_Packet input_packet;
+	
+	//strcpy_s(input_packet.current_position, sizeof(FVector),FV );
+	//strcpy_s(input_packet.current_direction, sizeof(FVector), FR );
+
+	//strcpy_s(input_packet.input_direction, sizeof(FRotator), FR);
+	//input_packet.input_data = GetCommandBitMask();
+	//AZGameInstance->client_connect->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+}
+
+void AAZPlayerController_InGame::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+
+
+int32 AAZPlayerController_InGame::GetAnimationMask()
+{
+	return 0;
+}
+
+void AAZPlayerController_InGame::RequestChangeEquipment(int32 itemID)
+{
+}
+
+void AAZPlayerController_InGame::RequestBuyItem(int32 itemID)
+{
+}
+
+void AAZPlayerController_InGame::InitializePlayer(FAZPlayerCharacterState character_state,
+                                                  FAZPlayerEquipmentState equipment_state)
+{
+}
+
+void AAZPlayerController_InGame::SetupWeaponInputMappingContext(int32 weapon_type)
+{
+	if(weapon_type > 10)//원거리 무기인 경우
+	{
+		AZGameInstance->input_mgr_->RemoveInputMappingContext(TEXT("MeleeWeapons"));
+		AZGameInstance->input_mgr_->AddInputMappingContext(TEXT("RangedWeapons"));
+	}
+	else
+	{
+		AZGameInstance->input_mgr_->RemoveInputMappingContext(TEXT("RangedWeapons"));
+		AZGameInstance->input_mgr_->AddInputMappingContext(TEXT("MeleeWeapons"));
+	}
+}
+
+void AAZPlayerController_InGame::ForceInterpolation(FVector position, FRotator direction)
+{
+	playable_player_->SetActorLocation(position);
+	playable_player_->SetActorRotation(direction);
+}
+
+int32 AAZPlayerController_InGame::GetCommandBitMask()
+{
+	int32 result = 0;//None
+
+	if(playable_player_state_->action_state_.bit_move_forward) result |=(1<<0);//W 1
+	if(playable_player_state_->action_state_.bit_move_left) result |=(1<<1);//A 2
+	if(playable_player_state_->action_state_.bit_move_back) result |=(1<<2);//S 4
+	if(playable_player_state_->action_state_.bit_move_right) result |=(1<<3);//D 8
+
+	if(playable_player_state_->action_state_.bit_normal_action) result |=(1<<4);//MLB 16
+	if(playable_player_state_->action_state_.bit_special_action) result |=(1<<5);//MRB 32
+	if(playable_player_state_->action_state_.bit_evade_action) result |=(1<<6);//Space 64
+	if(playable_player_state_->action_state_.bit_dash_action) result |=(1<<7);//LeftShift 128
+	if(playable_player_state_->action_state_.bit_unique_action) result |=(1<<8);//LeftCtrl 256
+
+	if(playable_player_state_->action_state_.bit_use_item) result |=(1<<9);//E 512
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<10);//V
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<11);//F
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<12);//R
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<13);//C
+	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<14);//M
+
+	return result;
+}
+
+
+
+void AAZPlayerController_InGame::Remotable_AddPlayer(int32 guid, const FAZPlayerCharacterState& character_state, const FAZPlayerEquipmentState& equipment_state)
+{
+	//GetWorld()->SpawnActor<AAZPlayer_Remotable>();
+	//remotable_player_map_.Add(guid,)
+	
+	//GetWorld()->SpawnActor<AAZPlayerState>();
+	//remotable_player_state_map_.Add(guid,)
+
+	//Initialize position, rotation
+}
+
+void AAZPlayerController_InGame::Remotable_RemovePlayer(int32 guid)
+{
+	remotable_player_state_map_.Remove(guid);
+	remotable_player_map_.Remove(guid);
+	
+	//state액터 제거하기
+	//character액터 제거하기
+}
+
+void AAZPlayerController_InGame::Remotable_ControlPlayer(int32 guid, const FAZPlayerCharacterState& character_state, const FRotator& result_direction, int32 result_command_bitmask)
+{
+	if(auto player_clone = remotable_player_map_.Find(guid))
+	{
+		//(*player_clone)->
+	}
+}
+
+
+void AAZPlayerController_InGame::Origin_AddPlayer()
+{
+	
+	//AZGameInstance->GetSocketHolder(ESocketHolderType::Game)->SendPacket();
+}
+
+void AAZPlayerController_InGame::Origin_RemovePlayer()
+{
+}
+
+void AAZPlayerController_InGame::Origin_ControlPlayer()
+{
+}
+
+void AAZPlayerController_InGame::Origin_UpdatePlayer()
+{
+}
+
+void AAZPlayerController_InGame::Origin_EquipPlayer()
+{
+	//State에서 현재 장착아이템 아이디가져왓
+	//DB에서 아이템 정보가져와서
+	//state에서 빼고
+	
+	//DB에서 새로장착할 아이템 정보값가져와 적용하고
+
+	//메시 변경
+	//playable_player_->ChangeSocketMesh(TEXT("SourceHandle"),itemID);
+	//playable_player_->ChangeEquipmentMesh(itemID);
+
+	//서버에 전송(바꿀께요)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//input_action
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AAZPlayerController_InGame::ActionInputDirection()
 {

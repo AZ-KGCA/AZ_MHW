@@ -1,6 +1,5 @@
 #pragma once
-#include <unordered_map>
-
+#include "AZWindows.h"
 #include "ErrorCode.h"
 #include "User.h"
 class UserManager

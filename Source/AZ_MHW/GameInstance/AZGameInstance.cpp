@@ -1,7 +1,6 @@
 // Copyright Team AZ. All Rights Reserved.
 
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
-#include <Kismet/GameplayStatics.h>
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/ClientMsg/AZMsgHandler.h"
 #include "AZ_MHW/CommonSource/AZLog.h"
@@ -9,7 +8,6 @@
 #include "AZ_MHW/Manager/AZGameConfig.h"
 #include "AZ_MHW/Manager/AZGameOption.h"
 #include "AZ_MHW/Manager/AZSaveData.h"
-#include "AZ_MHW/Manager/SaveData/GameOptionSaveData.h"
 #include "AZ_MHW/HUD/AZHUDDataMgr.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
@@ -17,13 +15,12 @@
 #include "AZ_MHW/HUD/AZHUD_InGame.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
-#include "..\Manager\AZInventoryManager.h"
-#include  "Engine/GameInstance.h"
-//FIXME merged need del
+#include "AZ_MHW/Manager/AZInventoryManager.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
-#include "..\Manager\AZPlayerMgr.h"
+#include "AZ_MHW/Manager/SaveData/GameOptionSaveData.h"
 //FIXME merged need del
 #include <GameFramework/Character.h>
+#include <Kismet/GameplayStatics.h>
 
 //MinSuhong Add
 #include "App_Server.h" // 서버 클래스 [ODBC 연결되어 있음 Packet.h]
@@ -31,15 +28,10 @@
 #include "Odbc.h"
 #include "TimerManager.h"
 #include "UserManager.h"
-#include "PlayerController/AZPlayerController_Server.h"
 
 UAZGameInstance::UAZGameInstance()
 {
 
-}
-UAZGameInstance::~UAZGameInstance()
-{
-	
 }
 
 void UAZGameInstance::Init()
@@ -97,11 +89,10 @@ void UAZGameInstance::Init()
 	{
 		iocp_net_server_ = NewObject<UApp_Server>(this, TEXT("iocp_net_server_"));
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Start Client!"));
+	UE_LOG(LogTemp, Warning, TEXT("Start Server!"));
 	// 서버 패킷 큐 타이머
 	GetWorld()->GetTimerManager().SetTimer(server_timer_handle_, this, &UAZGameInstance::TimerProcessPacket, TimerRate, true);
-
+	UE_LOG(LogTemp, Warning, TEXT("Start Client!"));
 	// 클라이언트 패킷 큐 타이머
 	GetWorld()->GetTimerManager().SetTimer(client_timer_handle_, this, &UAZGameInstance::ClientTimerProcessPacket, TimerRate, true);
 
@@ -331,7 +322,7 @@ void UAZGameInstance::AddNewSingleton(UAZSingletonObject* mgr)
 
 void UAZGameInstance::TimerProcessPacket()
 {
-	UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
+	//UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
 
 	UINT32 user_index = 0;
 	{
@@ -380,7 +371,7 @@ void UAZGameInstance::TimerProcessPacket()
 
 void UAZGameInstance::PacketInit(const UINT32 max_client)
 {
-	CreateCompent(max_client);
+	CreateComponent(max_client);
 }
 
 void UAZGameInstance::PacketEnd()
@@ -396,7 +387,7 @@ void UAZGameInstance::PacketEnd()
 void UAZGameInstance::DbRun()
 {
 	odbc->Init();
-	odbc->ConnetMssql(L"odbc_test.dsn");
+	odbc->ConnectMssql(L"odbc_test.dsn");
 	odbc->Load();
 }
 
@@ -432,7 +423,7 @@ SQLTCHAR* UAZGameInstance::ConvertCharToSqlTCHAR(const char* charArray)
 	return sqlTCharArray;
 }
 
-void UAZGameInstance::CreateCompent(const UINT32 max_client)
+void UAZGameInstance::CreateComponent(const UINT32 max_client)
 {
 	user_manager_ = new UserManager;
 	user_manager_->Init(max_client);

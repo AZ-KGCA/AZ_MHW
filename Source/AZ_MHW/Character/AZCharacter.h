@@ -23,18 +23,13 @@ class AZ_MHW_API AAZCharacter : public ACharacter,
 
 public:
 	AAZCharacter();
-#pragma region Inherited function
-protected:
-	virtual void BeginPlay() override;
-
-	virtual void SetupPlayerInputComponent(UInputComponent* player_input_component) override;
-#pragma endregion
-	
 protected:
 	// AI Module
 	FGenericTeamId team_id_;
+	virtual void BeginPlay() override;
 	
 public:
+	
 	// GenericTeamAgent Interface
 	virtual void SetGenericTeamId(const FGenericTeamId& team_id) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;

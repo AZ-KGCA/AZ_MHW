@@ -1,6 +1,6 @@
 #pragma once
 
-//TODO ¿¡·¯ ÄÚµå Áßº¹ »ç¿ëÇÏÁö ¾Êµµ·Ï ÇÑ´Ù
+//TODO ì—ëŸ¬ ì½”ë“œ ì¤‘ë³µ ì‚¬ìš©í•˜ì§€ ì•Šë„ë¡ í•œë‹¤
 enum class ERROR_CODE : unsigned short
 {
 	NONE = 0,
