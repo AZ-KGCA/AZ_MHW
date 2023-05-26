@@ -25,6 +25,14 @@ struct dbitem
 	int			sex;
 };
 
+struct dbitem2
+{
+	std::wstring col1;
+	std::wstring col2;
+	std::wstring name;
+	int			 count;
+};
+
 // 1개의 필드 정보
 struct TColDescription
 {
@@ -94,6 +102,21 @@ public:
 	TCHAR	   m_szLoginPw[20] = { 0, };
 	SQLINTEGER  m_iLoginIdDataLength;
 	SQLINTEGER  m_iLoginPwDataLength;
+
+	/////////////////////
+	// inventory table //
+	/////////////////////
+	SQLHSTMT  g_hInventoryAllStmt; // SQLPrepare SelectAll 핸들
+	TCHAR     m_InventoryName[64] = { 0, };
+	SQLINTEGER m_InventoryLength;
+	SQLLEN m_InventoryColumn;
+
+	std::vector<TColDescription>	inventory_column_list_;
+	std::vector<RECORD>				inventory_dbData_List;
+	std::vector<dbitem>				inventory_db_List;
+
+	RECORD inventory_data;
+
 public:
 	void Init();
 	bool CreatePrepare();
@@ -106,8 +129,17 @@ public:
 	bool ReadRecord(std::wstring selectName);
 	bool DeleteSQL(const TCHAR* szName);
 	bool LoginCheckSQL(const TCHAR* szName, const TCHAR* szPw);
+	RECORD Inventory_Open(const TCHAR* szName);
+	bool GetItem(dbitem2& record);
+	bool GetItemCount(dbitem2& record);
+	bool UseItem(dbitem2& record);
+	bool UseItemCount(dbitem2& record);
+	bool InventoryToStorage(dbitem2& record);
+	bool Item_Mount(dbitem2& record);
+	bool Item_Unmount(dbitem2& record);
 
-public:
+private:
+	// Prepare
 	bool CreateUserAllSelect();
 	bool CreateSelectWhereName();
 	bool CreateInsertAccount();
@@ -115,6 +147,7 @@ public:
 	bool DeleteLoingInfo();
 	bool LoginCheck();
 	bool Signup();
+	bool InventoryOpenSql();
 
 public:
 	int    retID;					SQLLEN  lID;

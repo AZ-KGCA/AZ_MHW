@@ -130,6 +130,9 @@ bool Odbc::CreatePrepare()
 	// Login
 	LoginCheck();
 
+	// Inventory
+	InventoryOpenSql();
+
 	return true;
 } // End CreatePrepare
 
@@ -494,6 +497,49 @@ bool Odbc::Signup()
 	return true;
 }
 
+bool Odbc::InventoryOpenSql()
+{
+	// Inventory Select All * 대신 검색할 컬럼명만 넣어야한다. 별도로 컬럼을 제외해서 select 할수가 없음
+	SQLRETURN ret;
+	std::wstring sql6 = L"select * from inventory where Name=?";
+	ret = SQLAllocHandle(
+		SQL_HANDLE_STMT,  // 할당하고자하는 핸들 타입
+		g_hDbc, // 생성할 부모 핸들 지정
+		&g_hInventoryAllStmt // 생성할 핸들의 주소
+	);
+
+	// SQLPrepare 파라미터만 바꿔서 sql 실행
+	ret = SQLPrepare(
+		g_hInventoryAllStmt, // Handle
+		(SQLTCHAR*)sql6.c_str(), // 실행할 sql 문
+		SQL_NTS	// TextLength?
+	);
+
+	m_InventoryLength = sizeof(m_InventoryName);
+	m_InventoryColumn = SQL_NTS;
+
+	// ?를 파라미터 마커라고 하며, 실행중 바인딩된 변수값으로 대체 ? 만큼 SQLBindParameter 할당 해야 한다.
+	ret = SQLBindParameter(g_hInventoryAllStmt, // 명령핸들
+		1, // 파라미터 번호
+		SQL_PARAM_INPUT, // 파라미터 용도
+		SQL_UNICODE, // 파라미터 데이터 타입(C형)
+		SQL_CHAR, // 파라미터 데이터 타입(SQL형)
+		m_InventoryLength, // 파라미터 변수의 크기
+		0, // 파라미터 변수의 자리수
+		m_InventoryName, // 실제 파라미터와 연결될 변수의 주소
+		m_InventoryLength, // 파라미터의 문자열이나 이진형일때 버퍼의 크기
+		&m_InventoryColumn // 길이와 상태 인수
+	);
+
+	if (ret != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hInventoryAllStmt);
+		return false;
+	}
+
+	return true;
+}
+
 bool Odbc::LoginCheckSQL(const TCHAR* szName, const TCHAR* szPw)
 {
 	UE_LOG(LogTemp, Warning, TEXT("LoginCheckSQL"));
@@ -523,6 +569,189 @@ bool Odbc::LoginCheckSQL(const TCHAR* szName, const TCHAR* szPw)
 	if (g_hLoginCheckStmt) SQLCloseCursor(g_hLoginCheckStmt);
 	SQLFreeStmt(g_hLoginCheckStmt, SQL_CLOSE);
 	return false;
+}
+
+RECORD Odbc::Inventory_Open(const TCHAR* szName)
+{
+	inventory_dbData_List.clear();
+	inventory_column_list_.clear();
+
+	ZeroMemory(m_InventoryName, sizeof(m_InventoryName));
+	CopyMemory(m_InventoryName, szName, sizeof(szName));
+
+	SQLRETURN hr = SQLExecute(g_hInventoryAllStmt);
+
+	if (hr != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hInventoryAllStmt);
+		inventory_data;
+	}
+
+	SQLSMALLINT colCount; // g_hSelectAllStmt 명령문 핸들의 결과값을 저장 변수
+	SQLNumResultCols(g_hInventoryAllStmt, &colCount); // 결과 집합의 개수 반환 SQLNumResultCols(명령문 핸들, 결과 저장 포인터)
+
+	TColDescription col;
+
+	// 컬럼 명을 담음
+	for (int iCol = 1; iCol < colCount + 1; iCol++)
+	{
+		col.icol = iCol;
+		hr = SQLDescribeCol(
+			g_hInventoryAllStmt,
+			col.icol,
+			col.szColName,
+			sizeof(col.szColName),
+			&col.pcchColName,
+			&col.pfSqlType,
+			&col.pcbColDef,
+			&col.pibScale,
+			&col.pfNullable);
+		if (hr != SQL_SUCCESS)
+		{
+			ErrorMsg(g_hInventoryAllStmt);
+			break;
+		}
+		inventory_column_list_.push_back(col);
+	}
+
+	while (SQLFetch(g_hInventoryAllStmt) != SQL_NO_DATA)
+	{
+		dbitem dtItem;
+		// 쿼리 결과값을 record에 저장
+		for (int iCol = 0; iCol < inventory_column_list_.size(); iCol++)
+		{
+			/* SQLBindCol 대체한다.
+			   데이터형 상관없이 모든 것을 스트링으로 받겠다.*/
+			   // SQLGetData 결과 집합 단일 열에 데이터를 검색한다
+			hr = SQLGetData(
+				g_hInventoryAllStmt,
+				inventory_column_list_[iCol].icol,
+				SQL_WCHAR, inventory_column_list_[iCol].bindData,
+				sizeof(inventory_column_list_[iCol].bindData),
+				NULL);
+
+			if (hr == SQL_SUCCESS)
+			{
+				inventory_data.push_back(inventory_column_list_[iCol].bindData);
+			}
+		}
+		if (hr == SQL_SUCCESS)
+		{
+			inventory_dbData_List.push_back(inventory_data);
+		}
+	}
+
+	if (g_hInventoryAllStmt) SQLCloseCursor(g_hInventoryAllStmt);
+	SQLFreeStmt(g_hInventoryAllStmt, SQL_CLOSE);
+
+	return inventory_data;
+}
+
+bool Odbc::GetItem(dbitem2& record)
+{
+	TCHAR sql[256] = { 0, };
+	_stprintf(sql, L"update inventory set %s += 1 where name = '%s'",
+		record.col1.c_str(), record.name.c_str());
+	SQLRETURN hr = SQLExecDirect(g_hStmt, sql, SQL_NTS);
+	if (hr != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hStmt);
+		return false;
+	}
+	if (g_hStmt) SQLCloseCursor(g_hStmt);
+	return true;
+}
+
+bool Odbc::GetItemCount(dbitem2& record)
+{
+	TCHAR sql[256] = { 0, };
+	_stprintf(sql, L"update inventory set %s += %d where name = '%s'",
+		record.col1.c_str(), record.count, record.name.c_str());
+	SQLRETURN hr = SQLExecDirect(g_hStmt, sql, SQL_NTS);
+	if (hr != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hStmt);
+		return false;
+	}
+	if (g_hStmt) SQLCloseCursor(g_hStmt);
+	return true;
+}
+
+bool Odbc::UseItem(dbitem2& record)
+{
+	TCHAR sql[256] = { 0, };
+	_stprintf(sql, L"update inventory set %s -= 1 where name = '%s'",
+		record.col1.c_str(), record.name.c_str());
+	SQLRETURN hr = SQLExecDirect(g_hStmt, sql, SQL_NTS);
+	if (hr != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hStmt);
+		return false;
+	}
+	if (g_hStmt) SQLCloseCursor(g_hStmt);
+	return true;
+}
+
+bool Odbc::UseItemCount(dbitem2& record)
+{
+	TCHAR sql[256] = { 0, };
+	_stprintf(sql, L"update inventory set %s -= %d where name = '%s'",
+		record.col1.c_str(), record.count, record.name.c_str());
+	SQLRETURN hr = SQLExecDirect(g_hStmt, sql, SQL_NTS);
+	if (hr != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hStmt);
+		return false;
+	}
+	if (g_hStmt) SQLCloseCursor(g_hStmt);
+	return true;
+}
+
+bool Odbc::InventoryToStorage(dbitem2& record)
+{
+	TCHAR sql[256] = { 0, };
+	_stprintf(sql, L"UPDATE inventory SET %s = %s + %d, %s = %s - %d WHERE Name = '%s'",
+		record.col1.c_str(), record.col1.c_str(), record.count,
+		record.col2.c_str(), record.col2.c_str(), record.count, record.name.c_str());
+
+	SQLRETURN hr = SQLExecDirect(g_hStmt, sql, SQL_NTS);
+	if (hr != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hStmt);
+		return false;
+	}
+	if (g_hStmt) SQLCloseCursor(g_hStmt);
+	return true;
+}
+
+bool Odbc::Item_Mount(dbitem2& record)
+{
+	TCHAR sql[256] = { 0, };
+	_stprintf(sql, L"update inventory set %s = %s where name = '%s'",
+		record.col1.c_str(), record.col2.c_str(), record.name.c_str());
+	SQLRETURN hr = SQLExecDirect(g_hStmt, sql, SQL_NTS);
+	if (hr != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hStmt);
+		return false;
+	}
+	if (g_hStmt) SQLCloseCursor(g_hStmt);
+	return true;
+}
+
+bool Odbc::Item_Unmount(dbitem2& record)
+{
+	TCHAR sql[256] = { 0, };
+	_stprintf(sql, L"update inventory set %s = 0 where name = '%s'",
+		record.col1.c_str(), record.name.c_str());
+	SQLRETURN hr = SQLExecDirect(g_hStmt, sql, SQL_NTS);
+	if (hr != SQL_SUCCESS)
+	{
+		ErrorMsg(g_hStmt);
+		return false;
+	}
+	if (g_hStmt) SQLCloseCursor(g_hStmt);
+	return true;
 }
 
 bool Odbc::CreateUserAllSelect()
