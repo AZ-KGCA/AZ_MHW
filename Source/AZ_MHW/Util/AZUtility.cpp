@@ -12,6 +12,7 @@ DEFINE_LOG_CATEGORY(AZ_DAMAGE)
 DEFINE_LOG_CATEGORY(LogShipping)
 DEFINE_LOG_CATEGORY(AZMonster)
 DEFINE_LOG_CATEGORY(AZMonster_Network)
+DEFINE_LOG_CATEGORY(AZMonster_Aggro)
 DEFINE_LOG_CATEGORY(AZItem)
 DEFINE_LOG_CATEGORY(AZ)
 
@@ -34,12 +35,11 @@ char* UAZUtility::FNameToCharArr(FName name)
 {
 	std::string std_str(TCHAR_TO_UTF8(*name.ToString()));
 	char* char_arr = new char[std_str.length() + 1];
-	strcpy_s(char_arr, sizeof(char_arr), std_str.c_str());
+	strcpy_s(char_arr, std_str.length() + 1, std_str.c_str());
 	return char_arr;
 }
 
-FName UAZUtility::CharArrToFName(const char* CharArray)
+FName UAZUtility::CharArrToFName(const char* char_arr)
 {
-	std::string std_str = CharArray;
-	return FName(std_str.c_str());
+	return FName(UTF8_TO_TCHAR(char_arr));
 }

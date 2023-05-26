@@ -12,6 +12,7 @@
 
 #include "CommonSource/Define/GameDefine.h"
 #include "Components/CapsuleComponent.h"
+#include "GameInstance/AZGameInstance.h"
 
 //#include "AZ_MHW/Manager/AZTableMgr.h"
 //#include <Components/CapsuleComponent.h>

@@ -1,25 +1,37 @@
 ﻿// Copyright Team AZ. All Rights Reserved.
 
 #include "AZMonsterPacketHandlerComponent_Client.h"
+
+#include "AnimInstance/AZAnimInstance_Monster.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent_Client.h"
 #include "AZ_MHW/Character/Monster/AZMonster_Client.h"
+#include "AZ_MHW/GameInstance/CommonPacket.h"
+#include "GameInstance/AZGameInstance.h"
+#include "SocketHolder/AZSocketHolder.h"
 
 UAZMonsterPacketHandlerComponent_Client::UAZMonsterPacketHandlerComponent_Client()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bWantsInitializeComponent = true;
 }
 
-void UAZMonsterPacketHandlerComponent_Client::InitializeComponent()
+void UAZMonsterPacketHandlerComponent_Client::Init()
 {
-	Super::InitializeComponent();
-	
 	// Set owner as monster_client
 	owner_ = Cast<AAZMonster_Client>(GetOwner());
 	if (!owner_.IsValid())
 	{
 		UE_LOG(AZMonster, Error, TEXT("[UAZMonsterPacketHandlerComponent_Client] Invalid owner actor!"));
 	}
+	game_instance_ = Cast<UAZGameInstance>(GetOwner()->GetWorld()->GetGameInstance());
+}
+
+void UAZMonsterPacketHandlerComponent_Client::Send_CS_MONSTER_UPDATE_REQ()
+{
+	CS_MONSTER_UPDATE_REQ end_packet;
+	end_packet.object_serial = owner_->object_serial_;
+	end_packet.packet_length = sizeof(end_packet);
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&end_packet, end_packet.packet_length);
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][%d] Send_CS_MONSTER_UPDATE_REQ"), owner_->object_serial_);
 }
 
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_TRANSFORM_CMD(FVector location, FRotator rotation, bool is_forced)
@@ -41,8 +53,8 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_TRANSFORM_CMD(F
 }
 
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_BODY_STATE_CMD(
-	FBossBodyPartDebuffState head_state, FBossBodyPartDebuffState back_state, FBossBodyPartDebuffState left_wing_state,
-	FBossBodyPartDebuffState right_wing_state, FBossBodyPartDebuffState tail_state)
+	const FBossBodyPartDebuffState head_state, const FBossBodyPartDebuffState back_state, const FBossBodyPartDebuffState left_wing_state,
+	const FBossBodyPartDebuffState right_wing_state, const FBossBodyPartDebuffState tail_state)
 {
 	// handle in mesh component
 	owner_->mesh_component_->SetBodyState(EMonsterBodyPart::Head, head_state);
@@ -57,16 +69,33 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_BODY_STATE_CMD(
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ENTER_COMBAT_CMD()
 {
 	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][#%d][Receive_SC_MONSTER_ENTER_COMBAT_CMD]"), owner_->object_serial_);
+	owner_->action_state_info_.action_mode = EMonsterActionMode::Combat;
+	owner_->anim_instance_->UpdateAnimation();
 	owner_->OnEnterCombat.Broadcast();
 }
 
-void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_START_CMD(FMonsterActionStateInfo action_info, float start_positon)
+void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_START_CMD(const FMonsterActionStateInfo action_info, float start_positon)
 {
+	owner_->anim_instance_->is_doing_action_ = false;
 	owner_->SetActionStateInfo(action_info);
-	
-	// TODO Start position
-	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][#%d][Receive_SC_MONSTER_ACTION_START_CMD] Action name: %s, Montage section: %s, Start from: %f"),
-		owner_->object_serial_, *action_info.animation_name.ToString(), *action_info.montage_section_name.ToString(), start_positon);
+	owner_->anim_instance_->UpdateAnimation();
+}
+
+void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_END_CMD(FVector location, FRotator rotation, EMonsterActionMode action_mode)
+{
+	owner_->SetActorLocation(location);
+	owner_->SetActorRotation(rotation);
+	owner_->action_state_info_.action_mode = action_mode;
+	owner_->anim_instance_->is_doing_action_ = false;
+	Cast<UAZAnimInstance_Monster>(owner_->GetMesh()->GetAnimInstance())->SetDoingAction(false);
+	owner_->action_state_info_.priority_score = EMonsterActionPriority::Locomotion;
+	owner_->action_state_info_.move_state = EMoveState::None;
+	owner_->action_state_info_.animation_name = NAME_None;
+	owner_->action_state_info_.montage_section_name = NAME_None;
+
+	owner_->anim_instance_->UpdateAnimation();
+	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][#%d][Receive_SC_MONSTER_ACTION_END_CMD] Action mode: %s, Location: %s, Rotation: %s"),
+		owner_->object_serial_, *UAZUtility::EnumToString(action_mode), *location.ToString(), *rotation.ToString());
 }
 
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_PART_CHANGE_CMD(EMonsterBodyPart body_part, EMonsterBodyPartChangeType change_type)

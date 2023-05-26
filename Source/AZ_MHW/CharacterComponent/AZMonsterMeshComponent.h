@@ -15,7 +15,7 @@ class AZ_MHW_API UAZMonsterMeshComponent : public UActorComponent
 
 public:	
 	UAZMonsterMeshComponent();
-	virtual void InitializeComponent() override;
+	void Init();
 	virtual void BeginPlay() override;
 	
 	// Property Initialisers

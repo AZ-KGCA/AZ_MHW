@@ -7,6 +7,8 @@
 #include "AZ_MHW/CommonSource/AZStruct.h"
 #include "AZMonsterHealthComponent.generated.h"
 
+class AAZMonster;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class AZ_MHW_API UAZMonsterHealthComponent : public UActorComponent
 {
@@ -15,6 +17,7 @@ class AZ_MHW_API UAZMonsterHealthComponent : public UActorComponent
 public:
 	// Property Initialisers
 	UAZMonsterHealthComponent();
+	void Init();
 	void InitializeRuntimeValues();
 
 	// Property Getters
@@ -31,7 +34,7 @@ public:
 	float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 	float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
 	UFUNCTION() void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
-
+	
 protected:
 	// Damage functions
 	bool IsReceivedAttackValid(EDamageType damage_type, EMonsterBodyPart damaged_part);
@@ -40,7 +43,7 @@ protected:
 	void CheckBeBroken(EMonsterBodyPart damaged_part, float damage_amount);
 	void CheckBeSevered(EMonsterBodyPart damaged_part, float damage_amount);
 	void ReduceHealth(float amount);
-
+	
 	// Broadcasted via owner delegate
 	UFUNCTION() void OnBodyPartWounded(EMonsterBodyPart body_part);
 	UFUNCTION() void OnBodyPartWoundHealed(EMonsterBodyPart body_part);
@@ -49,11 +52,10 @@ protected:
 	UFUNCTION() void OnDeath();
 	
 protected:
-	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
 	
 private:
-	TWeakObjectPtr<class AAZMonster> owner_;
+	TWeakObjectPtr<AAZMonster> owner_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Health") int32 base_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") int32 base_stamina_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") float tired_duration_;

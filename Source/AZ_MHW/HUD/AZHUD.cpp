@@ -610,7 +610,15 @@ EUIName AAZHUD::GetCurSceneNameEnum()
 
 FAZWidgetData* AAZHUD::GetWidgetData(EUIName widget_name_enum)
 {
-	return game_instance_->hud_data_mgr->GetWidgetData(widget_name_enum);
+	if(game_instance_)
+	{
+		//맵전환할때 호출하면 못찾아는거 같음 확인바람
+		if(game_instance_->hud_data_mgr)
+		{
+			return game_instance_->hud_data_mgr->GetWidgetData(widget_name_enum);
+		}
+	}
+	return nullptr;
 }
 
 FAZWidgetData* AAZHUD::GetWidgetData(EUIName widget_name_enum) const
@@ -725,23 +733,26 @@ void AAZHUD::CloseAllUI()
 {
 	TMap<EUIName, FAZWidgetData> widget_datas;
 	UAZHUDDataMgr* hud_data_mgr = game_instance_->hud_data_mgr;
-	widget_datas = hud_data_mgr->GetWidgetDatas();
-
-	for (auto& widget_pair : widget_datas)
+	if (hud_data_mgr)
 	{
-		FAZWidgetData& ui_widget_data = widget_pair.Value;
+		widget_datas = hud_data_mgr->GetWidgetDatas();
 
-		if (ui_widget_data.IsWidgetValid())
+		for (auto& widget_pair : widget_datas)
 		{
-			UAZWidget* ui_widget = ui_widget_data.GetWidget();
+			FAZWidgetData& ui_widget_data = widget_pair.Value;
 
-			ui_widget->RemoveFromParent();
-			ui_widget->MarkAsGarbage();
-			ui_widget->ConditionalBeginDestroy();
-			ui_widget = nullptr;
+			if (ui_widget_data.IsWidgetValid())
+			{
+				UAZWidget* ui_widget = ui_widget_data.GetWidget();
+
+				ui_widget->RemoveFromParent();
+				ui_widget->MarkAsGarbage();
+				ui_widget->ConditionalBeginDestroy();
+				ui_widget = nullptr;
+			}
 		}
 	}
-
+	
 	for (auto& kv : scene_datas)
 	{
 		kv.Value.child_widget_names.Empty();

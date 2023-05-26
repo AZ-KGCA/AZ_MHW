@@ -77,7 +77,6 @@ enum class EDamageType : uint8
 	None,
 };
 
-
 // End of Character
 // -------------------------------------------------
 // Monster

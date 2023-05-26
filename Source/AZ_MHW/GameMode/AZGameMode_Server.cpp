@@ -10,6 +10,7 @@
 #include "AZ_MHW/PlayerState/AZGameState_Server.h"
 #include "AZ_MHW/PlayerState/AZPlayerState_Server.h"
 #include "AZ_MHW/Manager/AZObjectMgr_Server.h"
+#include "Engine/LevelStreamingDynamic.h"
 
 
 AAZGameMode_Server::AAZGameMode_Server()
@@ -21,7 +22,8 @@ AAZGameMode_Server::AAZGameMode_Server()
 	bStartPlayersAsSpectators = false;
 
 	DefaultPawnClass = ADefaultPawn::StaticClass();
-	PlayerControllerClass = AAZPlayerController_Server::StaticClass();
+	
+	//PlayerControllerClass = AAZPlayerController_Server::StaticClass();
 	
 	//Player처리하기
 	//연결된 클라이언트의 플레이어 컨트롤러로 부터 입력값을 전송받는다.
@@ -29,6 +31,7 @@ AAZGameMode_Server::AAZGameMode_Server()
 	
 	PlayerStateClass = AAZPlayerState_Server::StaticClass();//Server State
 	GameStateClass = AAZGameState_Server::StaticClass();//Server State
+	// showdebug 못해서 임시로 막아둠
 	//HUDClass = AHUD::StaticClass();//Server UI
 
 	//GameSessionClass = AGameSession::StaticClass();
@@ -41,13 +44,20 @@ AAZGameMode_Server::AAZGameMode_Server()
 void AAZGameMode_Server::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// TEMP 서버에서는 스트리밍 레벨 다 로드해두기
+	bool is_succeeded = false;
+	// 패키징할때 설명 확인 MUST
+	combat_level_ = ULevelStreamingDynamic::LoadLevelInstance(this, TEXT("StreamingMap_Combat"),
+		FVector::ZeroVector, FRotator::ZeroRotator, is_succeeded);
+	combat_level_->SetShouldBeLoaded(true);
+	combat_level_->SetShouldBeVisible(true);
 }
 
 void AAZGameMode_Server::InitGame(const FString& map_name, const FString& options, FString& error_message)
 {
 	Super::InitGame(map_name, options, error_message);
-	object_mgr_ = NewObject<UAZObjectMgr_Server>();
+	object_mgr_ = NewObject<UAZObjectMgr_Server>(this);
 }
 
 void AAZGameMode_Server::Tick(float delta_seconds)

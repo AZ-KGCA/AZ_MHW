@@ -7,19 +7,16 @@
 #include "AZ_MHW/Util/AZUtility.h"
 #include <PhysicalMaterials/PhysicalMaterial.h>
 
-#include "CommonSource/Define/GameDefine.h"
-#include "Controller/AZAIController.h"
+#include "AZMonsterAggroComponent.h"
+#include "Character/Player/AZPlayer_Origin.h"
 
 UAZMonsterHealthComponent::UAZMonsterHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bWantsInitializeComponent = true;
 }
 
-void UAZMonsterHealthComponent::InitializeComponent()
+void UAZMonsterHealthComponent::Init()
 {
-	Super::InitializeComponent();
-	
 	// Set owner as monster
 	owner_ = Cast<AAZMonster>(GetOwner());
 	if (!owner_.IsValid())
@@ -34,20 +31,20 @@ void UAZMonsterHealthComponent::InitializeComponent()
 
 	// Set boss properties
 	if (!owner_->IsABoss()) return;
-	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr_->GetBossInfo(owner_->GetMonsterID(), owner_->GetBossRank());
-
-	body_part_states_.Add(EMonsterBodyPart::Head, boss_info->head_state);
-	body_part_states_.Add(EMonsterBodyPart::Back, boss_info->body_state);
-	body_part_states_.Add(EMonsterBodyPart::LeftWing, boss_info->wing_state);
-	body_part_states_.Add(EMonsterBodyPart::RightWing, boss_info->wing_state);
-	body_part_states_.Add(EMonsterBodyPart::Tail, boss_info->tail_state);
-	body_part_states_.Add(EMonsterBodyPart::Leg, boss_info->leg_state);
+	FBossInfo boss_info = UAZGameSingleton::instance()->monster_mgr_->GetBossInfo(owner_->GetMonsterID(), owner_->GetBossRank());
 	
-	tenderised_damage_multiplier_	= boss_info->tenderised_damage_multiplier;
-	escape_stats_					= boss_info->escape_stats;
-	weakness_stats_					= boss_info->weakness_stats;
-	base_stamina_					= boss_info->base_stamina;
-	tired_duration_					= boss_info->tired_duration;
+	body_part_states_.Add(EMonsterBodyPart::Head, boss_info.head_state);
+	body_part_states_.Add(EMonsterBodyPart::Back, boss_info.body_state);
+	body_part_states_.Add(EMonsterBodyPart::LeftWing, boss_info.wing_state);
+	body_part_states_.Add(EMonsterBodyPart::RightWing, boss_info.wing_state);
+	body_part_states_.Add(EMonsterBodyPart::Tail, boss_info.tail_state);
+	body_part_states_.Add(EMonsterBodyPart::Leg, boss_info.leg_state);
+	
+	tenderised_damage_multiplier_	= boss_info.tenderised_damage_multiplier;
+	escape_stats_					= boss_info.escape_stats;
+	weakness_stats_					= boss_info.weakness_stats;
+	base_stamina_					= boss_info.base_stamina;
+	tired_duration_					= boss_info.tired_duration;
 
 	InitializeRuntimeValues();	
 }
@@ -130,15 +127,20 @@ float UAZMonsterHealthComponent::ApplyDamage(AActor* damaged_actor, const FHitRe
 float UAZMonsterHealthComponent::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
 	if (IsPendingKill()) return 0.f;
-
+	
 	// check if this attack is a transition trigger
 	if (!owner_->IsInCombat())
 	{
 		owner_->EnterCombat(damage_instigator, false);
 	}
 	
-	// TODO status effects
-	EAttackEffectType attack_effect = attack_info.attack_effect;
+	// Check if attacker is valid
+	AAZPlayer_Origin* attacker = Cast<AAZPlayer_Origin>(damage_instigator);
+	if (!attacker)
+	{
+		UE_LOG(AZMonster, Error, TEXT("[UAZMonsterHealthComponent] Invalid damage instigator"));
+		return 0.f;
+	}
 	
 	// Check if damage is valid
 	// Single damage type exists for each hunter's attack
@@ -146,6 +148,9 @@ float UAZMonsterHealthComponent::ProcessDamage(AActor* damage_instigator, const 
 	const EDamageType damage_type = attack_info.damage_array[0].type;
 	if (!IsReceivedAttackValid(damage_type, damaged_body_part)) return 0.f;
 
+	// TODO status effects
+	EAttackEffectType attack_effect = attack_info.attack_effect;
+	
 	// Apply weakness
 	int32 weakness = weakness_stats_.weakness_array[UAZUtility::EnumToByte(damaged_body_part)][UAZUtility::EnumToByte(damage_type)];
 	float processed_damage =  attack_info.damage_array[0].amount * (weakness / 10);
@@ -171,6 +176,9 @@ float UAZMonsterHealthComponent::ProcessDamage(AActor* damage_instigator, const 
 
 	// General processing
 	ReduceHealth(processed_damage);
+
+	// Update aggro information
+	owner_->aggro_component_->IncreaseByDamage(attacker->object_serial_, processed_damage);
 	
 	return processed_damage;
 }

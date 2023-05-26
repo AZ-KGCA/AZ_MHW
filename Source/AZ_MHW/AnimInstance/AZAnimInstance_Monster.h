@@ -19,6 +19,8 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float delta_seconds) override;
 	void PlayNextAnimation();
+	UFUNCTION(BlueprintImplementableEvent) void UpdateAnimation();
+	UFUNCTION(BlueprintImplementableEvent) void SetDoingAction(bool doing_action);
 
 protected:
 	UFUNCTION(BlueprintCallable) AAZMonster* CastMonster();

@@ -19,13 +19,16 @@ public:
 	AAZMonster_Client();
 	
 	// Overrides
-	virtual void PreInitializeComponents() override;
 	virtual void BeginPlay() override;
 
-	// Others
-	bool IsABoss() const;
-	void SetActionStateInfo(FMonsterActionStateInfo action_state_info);
+	// Setters
+	void Init(int32 monster_id, EBossRank rank);
+	void SetMeshAndColliders();
+	void SetActionStateInfo(const FMonsterActionStateInfo action_state_info);
 	//animnotify_animation
+
+	// Getters
+	bool IsABoss() const;
 	
 	// Delegates
 	DECLARE_MULTICAST_DELEGATE(FOnEnterCombatSignature);
@@ -44,11 +47,11 @@ public:
 protected:
 	// Properties
 	UPROPERTY(VisibleAnywhere, Category = "AZ") int32 monster_id_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ") int32 boss_id_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ") EBossRank rank_;
-	
+
+public:
 	// States
-	UPROPERTY(VisibleAnywhere) FMonsterActionStateInfo action_state_info_;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FMonsterActionStateInfo action_state_info_;
 	UPROPERTY(VisibleAnywhere) bool is_dead_;
 
 public:

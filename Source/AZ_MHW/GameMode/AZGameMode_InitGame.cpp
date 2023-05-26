@@ -36,7 +36,6 @@ AAZGameMode_InitGame::AAZGameMode_InitGame()
 void AAZGameMode_InitGame::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AAZGameMode_InitGame::InitGame(const FString& map_name, const FString& options, FString& error_message)
@@ -47,7 +46,9 @@ void AAZGameMode_InitGame::InitGame(const FString& map_name, const FString& opti
 
 void AAZGameMode_InitGame::PlayServerMode()
 {
-	UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_Server.BP_Server_C");
+	//UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_Server.BP_Server_C");
+	// TEMP MONSTER TEST
+	UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/ServerDebug/ServerDebug_Level"),true,"?game=/Game/AZ/ServerDebug/BP_ServerDebug_GM.BP_ServerDebug_GM_C");
 }
 
 void AAZGameMode_InitGame::PlayClientMode()

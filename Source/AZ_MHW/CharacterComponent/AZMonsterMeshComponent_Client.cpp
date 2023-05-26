@@ -8,13 +8,10 @@
 UAZMonsterMeshComponent_Client::UAZMonsterMeshComponent_Client()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bWantsInitializeComponent = true;
 }
 
-void UAZMonsterMeshComponent_Client::InitializeComponent()
+void UAZMonsterMeshComponent_Client::Init()
 {
-	Super::InitializeComponent();
-	
 	// Set owner as monster_client
 	owner_ = Cast<AAZMonster_Client>(GetOwner());
 	if (!owner_.IsValid())
@@ -41,7 +38,7 @@ void UAZMonsterMeshComponent_Client::BeginPlay()
 	if (!owner_.IsValid()) return;
 	if (owner_->IsABoss() && mesh_material_indices_default_.IsEmpty())
 	{
-		UE_LOG(AZMonster, Warning, TEXT("[AZMonsterMeshComponent] Mesh material indices not set for a boss monster!"));
+		UE_LOG(AZMonster, Warning, TEXT("[UAZMonsterMeshComponent_Client] Mesh material indices not set for a boss monster!"));
 	}
 
 	// Bind events and delegates
@@ -56,7 +53,7 @@ void UAZMonsterMeshComponent_Client::BeginPlay()
 	if (mesh_->GetMaterialIndex("Eyelid_Default"))
 	{
 		FTimerDelegate blink_eye_timer_delegate = FTimerDelegate::CreateUObject(this, &UAZMonsterMeshComponent_Client::BlinkEyes);
-		GetWorld()->GetTimerManager().SetTimer(blink_eye_timer_handle_, blink_eye_timer_delegate, 4, true);
+		owner_->GetWorld()->GetTimerManager().SetTimer(blink_eye_timer_handle_, blink_eye_timer_delegate, 4, true);
 	}
 }
 

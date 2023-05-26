@@ -13,7 +13,7 @@ public:
 	void Init();
 
 private:
-	// Behavior tree asset loader function
+	// Asset loader function
 	bool LoadBehaviorTreeAssets();
 	
 	// Monster table loader functions
@@ -25,11 +25,11 @@ private:
 public:
 	// Monster table getter functions
 	FMonsterInfo* GetMonsterInfo(const int32 monster_id);
-	FBossInfo* GetBossInfo(const int32 monster_id, const EBossRank rank);
+	FBossInfo GetBossInfo(const int32 monster_id, const EBossRank rank);
 	TMap<int32, FMonsterNonCombatActionInfo>* GetMonsterNonCombatActionInfo(const int32 monster_id);
 	TMap<int32, FMonsterCombatActionInfo>* GetMonsterCombatActionInfo(const int32 monster_id);
 	FAttackInfo* GetAttackInfo(const int32 action_id);
-
+	
 	// Behavior tree assets getter functions
 	class UBehaviorTree* GetBehaviorTree(FName filename);
 
@@ -44,6 +44,6 @@ private:
 	TMap<int32, TMap<int32, FMonsterCombatActionInfo>> monster_combat_action_info_map_;
 	TMap<int32, FAttackInfo> monster_attack_info_map_;
 
-	// Behavior tree asset map
+	// Asset maps
 	UPROPERTY() TMap<FName, UBehaviorTree*> behavior_tree_map_;
 };

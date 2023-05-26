@@ -107,22 +107,22 @@ struct MonsterActionStateInfo
 	}
 	MonsterActionStateInfo(FMonsterActionStateInfo state_info)
 	{
-		action_mode = EMonsterActionMode::Normal;
-		priority_score = EMonsterActionPriority::None;
-		move_state = EMoveState::None;
-		target_angle = 0.0f;
+		action_mode = state_info.action_mode;
+		priority_score = state_info.priority_score;
+		move_state = state_info.move_state;
+		target_angle = state_info.target_angle;
 		strcpy_s(animation_name, sizeof(animation_name), UAZUtility::FNameToCharArr(state_info.animation_name));
 		strcpy_s(montage_section_name, sizeof(montage_section_name), UAZUtility::FNameToCharArr(state_info.montage_section_name));
 	}
 	FMonsterActionStateInfo Convert()
 	{
 		FMonsterActionStateInfo state_info;
-		state_info.action_mode = action_mode;
-		state_info.priority_score = priority_score;
-		state_info.move_state = move_state;
-		state_info.animation_name = UAZUtility::CharArrToFName(animation_name);
-		state_info.montage_section_name = UAZUtility::CharArrToFName(montage_section_name);
-		state_info.target_angle = target_angle;
+		state_info.action_mode = this->action_mode;
+		state_info.priority_score = this->priority_score;
+		state_info.move_state = this->move_state;
+		state_info.animation_name = UAZUtility::CharArrToFName(this->animation_name);
+		state_info.montage_section_name = UAZUtility::CharArrToFName(this->montage_section_name);
+		state_info.target_angle = this->target_angle;
 
 		return state_info;
 	}
@@ -168,8 +168,7 @@ struct FBossEscapeStats
 
 	FBossEscapeStats()
 	{
-		num_allowed_escapes = 0;
-		escape_health_ratios.Empty();
+		//num_allowed_escapes = 0;
 	};
 	FBossEscapeStats(const int32 num_allowed_escapes, const TArray<float>& escape_health_ratios)
 	{
@@ -179,7 +178,7 @@ struct FBossEscapeStats
 	FBossEscapeStats(const int32 num_allowed_escapes, const TArray<int32>& escape_health_ratios)
 	{
 		this->num_allowed_escapes = num_allowed_escapes;
-		for (const int32 escape_health_ratio : escape_health_ratios)
+		for (const int32& escape_health_ratio : escape_health_ratios)
 		{
 			this->escape_health_ratios.Add(UAZUtility::PerTenThousandToPerOne(escape_health_ratio));
 		}
@@ -399,7 +398,9 @@ struct FMonsterCombatActionInfo
 	
 	UPROPERTY(VisibleAnywhere) float attack_delay;
 
-	FMonsterCombatActionInfo() {}
+	FMonsterCombatActionInfo() : action_id(-1), monster_id(-1), animation_name(NAME_None),
+		montage_section_name(NAME_None), triggers(EMonsterActionTriggerType::None), conditions(EMonsterActionConditionType::None),
+		condition_min_distance_from_target(-1), condition_max_distance_from_target(-1), attack_delay(0) {}
 };
 
 USTRUCT(BlueprintType)
@@ -415,7 +416,9 @@ struct FMonsterNonCombatActionInfo
 	UPROPERTY(VisibleAnywhere) float condition_min_health_ratio;		// only checked if condition includes Health
 	UPROPERTY(VisibleAnywhere) float condition_max_health_ratio;
 
-	FMonsterNonCombatActionInfo() {}
+	FMonsterNonCombatActionInfo() : action_id(-1), monster_id(-1), animation_name(NAME_None),
+		montage_section_name(NAME_None), conditions(EMonsterActionConditionType::None),
+		condition_min_health_ratio(0), condition_max_health_ratio(0){}
 };
 
 USTRUCT(BlueprintType)
@@ -428,6 +431,21 @@ struct FBossBodyCondition
 	void Reset() {}
 };
 
+USTRUCT(BlueprintType)
+struct FMonsterSpawnInfo
+{
+	GENERATED_BODY()
+	
+	int32 monster_id;
+	EBossRank rank;
+	FVector location;
+	FRotator rotation;
+
+	FMonsterSpawnInfo()
+		: monster_id(-1), rank(EBossRank::Low), location(FVector::ZeroVector), rotation(FRotator::ZeroRotator) {}
+	FMonsterSpawnInfo(int32 id, EBossRank rank, FVector loc, FRotator rot)
+		: monster_id(id), rank(rank), location(loc), rotation(rot) {}
+};
 
 // End of Monster
 //============================================

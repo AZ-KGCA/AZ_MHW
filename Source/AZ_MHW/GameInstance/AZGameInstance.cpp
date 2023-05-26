@@ -239,6 +239,41 @@ TArray<FString> UAZGameInstance::GetWaitingPorotocolNames() const
 	return result_array;
 }
 
+void UAZGameInstance::BindLevelAddRemoveEvents()
+{
+	FWorldDelegates::LevelRemovedFromWorld.AddUObject(this, &UAZGameInstance::OnLevelRemovedFromWorld);
+	FWorldDelegates::LevelAddedToWorld.AddUObject(this, &UAZGameInstance::OnLevelAddedToWorld);
+}
+
+// TEMP: 메인메뉴 -> 인게임 로딩시 메인메뉴 레벨 사라지는 이벤트
+void UAZGameInstance::OnLevelRemovedFromWorld(ULevel* in_level, UWorld* in_world)
+{
+	if (!in_level) // when transition starts
+	{
+		// 로딩 스크린 띄우기
+		FWorldDelegates::LevelRemovedFromWorld.RemoveAll(this);
+	}
+}
+
+// TEMP: 스트리밍 레벨 (전투 맵) 추가되는 이벤트를 위해 사용
+void UAZGameInstance::OnLevelAddedToWorld(ULevel* in_level, UWorld* in_world)
+{
+	// TODO 로딩 위젯 지우기
+	FWorldDelegates::LevelAddedToWorld.RemoveAll(this);
+
+	auto n = in_level->GetName();
+	// TEMP LOAD FINISHED PACKET
+	// CS_COMBAT_MAP_LOAD_FINISH_CMD packet;
+	// GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet, packet.packet_length);
+}
+
+void UAZGameInstance::OnLevelLoaded()
+{
+	// TEMP JOIN PACKET
+	CS_COMBAT_MAP_ENTER_REQ packet;
+	GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet, packet.packet_length);
+}
+
 AAZHUD* UAZGameInstance::GetHUD()
 {
 	if (GetPlayerController() == nullptr)
@@ -331,7 +366,7 @@ void UAZGameInstance::AddNewSingleton(UAZSingletonObject* mgr)
 
 void UAZGameInstance::TimerProcessPacket()
 {
-	UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
+	//UE_LOG(LogTemp, Warning, TEXT("TimerProcessPacket"));
 
 	UINT32 user_index = 0;
 	{
@@ -755,3 +790,6 @@ void UAZGameInstance::InGameAccept()
 }
 
 // client end
+
+
+

@@ -15,6 +15,8 @@ class UAZMonsterHealthComponent;
 class UAZMonsterMeshComponent;
 class UAZMonsterPacketHandlerComponent;
 class AAZAIController;
+class UAnimInstance;
+class UAnimBlueprint;
 
 // Forward declaration of enum classes
 enum class EMoveState : uint8;
@@ -33,15 +35,12 @@ public:
 	AAZMonster();
 	
 	// Overrides
-	virtual void PreInitializeComponents() override;
-	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 	virtual void GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const override;
-	//temp TODO
-	virtual void Tick(float DeltaSeconds) override;
-	virtual void BeginDestroy() override;
-	
+
 	// Property Initialisers
+	void Init(int32 monster_id, EBossRank rank);
+	void SetMeshAndColliders();
 	void SetUpDefaultProperties();
 	void SetMonsterInfo();
 	void SetBossInfo();
@@ -137,6 +136,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") bool has_combat_transition_anim_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") FBossRageStats rage_stats_; // yet to be implemented
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Others")
+	TArray<TEnumAsByte<EObjectTypeQuery>> hit_object_types_;
+	
 protected:
 	// Properties: Defined runtime
 	UPROPERTY(EditAnywhere, Category = "AZ | Monster | States") bool is_flying_;
@@ -144,9 +146,6 @@ protected:
 	bool is_dead_;
 	
 	// Other properties
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation") UAZAnimInstance_Monster* anim_instance_;
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation") TObjectPtr<UAZAnimInstance_Monster> anim_instance_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster") int32 active_action_id_;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Others")
-	TArray<TEnumAsByte<EObjectTypeQuery>> hit_object_types_;
 };

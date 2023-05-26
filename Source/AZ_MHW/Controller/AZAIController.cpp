@@ -11,6 +11,7 @@
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Util/AZUtility.h"
 #include "Character/Player/AZPlayer.h"
+#include "Character/Player/AZPlayer_Origin.h"
 
 AAZAIController::AAZAIController()
 {
@@ -136,6 +137,7 @@ void AAZAIController::SetUpPerceptionSystem()
 	// sight_->DetectionByAffiliation.bDetectNeutrals = false;
 }
 
+//TEMP CHECK TOMORROW
 ETeamAttitude::Type AAZAIController::GetTeamAttitudeTowards(const AActor& other_actor) const
 {
 	// Check if pawn
@@ -214,7 +216,7 @@ void AAZAIController::OnEnterCombat()
 		active_move_request_id_ = FAIRequestID::InvalidRequest;
 	}
 	
-	AAZCharacter* target = owner_->aggro_component_->GetTargetRef();
+	AAZPlayer_Origin* target = owner_->aggro_component_->GetTargetRef();
 	GetPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
 	SetBlackboardValueAsObject(AZBlackboardKey::target_character, target);
 }

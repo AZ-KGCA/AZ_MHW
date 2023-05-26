@@ -3,7 +3,6 @@
 #include <AZ_MHW/CommonSource/Table/MonsterData.h>
 #include <AZ_MHW/CommonSource/Table/MonsterNonCombatActionData.h>
 #include <AZ_MHW/CommonSource/Table/MonsterCombatActionData.h>
-#include "AZ_MHW/Define/AZDefine.h"
 #include "AZTableMgr.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
@@ -190,9 +189,9 @@ FMonsterInfo* UAZMonsterMgr::GetMonsterInfo(const int32 monster_id)
 	return monster_info_map_.Find(monster_id);
 }
 
-FBossInfo* UAZMonsterMgr::GetBossInfo(const int32 monster_id, const EBossRank rank)
+FBossInfo UAZMonsterMgr::GetBossInfo(const int32 monster_id, const EBossRank rank)
 {
-	return boss_info_map_.Find(MakeTuple(monster_id, rank));
+	return *boss_info_map_.Find(MakeTuple(monster_id, rank));
 }
 
 TMap<int32, FMonsterNonCombatActionInfo>* UAZMonsterMgr::GetMonsterNonCombatActionInfo(const int32 monster_id)

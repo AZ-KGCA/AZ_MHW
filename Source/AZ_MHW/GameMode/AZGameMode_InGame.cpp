@@ -10,6 +10,8 @@
 #include "AZ_MHW/Manager/AZObjectMgr_Client.h"
 #include "AZ_MHW/PlayerController/AZPlayerController_InGame.h"
 #include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "Engine/LevelStreamingDynamic.h"
+#include "SocketHolder/AZSocketHolder.h"
 
 AAZGameMode_InGame::AAZGameMode_InGame()
 {
@@ -27,17 +29,22 @@ void AAZGameMode_InGame::Tick(float delta_seconds)
 void AAZGameMode_InGame::InitGame(const FString& map_name, const FString& options, FString& error_message)
 {
 	Super::InitGame(map_name, options, error_message);
-	object_mgr_ = NewObject<UAZObjectMgr_Client>();
 }
 
 void AAZGameMode_InGame::PreStartPlay()
 {
 	Super::PreStartPlay();
+	object_mgr_ = NewObject<UAZObjectMgr_Client>(this);
 }
 
 void AAZGameMode_InGame::PostStartPlay()
 {
 	Super::PostStartPlay();
+}
+
+void AAZGameMode_InGame::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void AAZGameMode_InGame::Destroyed()
@@ -396,3 +403,51 @@ void AAZGameMode_InGame::ForEachBossMonsters(OnForEachCharacterDelegate func)
 	}*/
 }
 
+//----------------------------------------------------------------------------
+// TEMP TEST
+// TODO 캐릭터/위젯 로직으로 옮기기. 맵이동 TEST용
+void AAZGameMode_InGame::OpenQuestWidget()
+{
+	/*
+	// playercontroller 없어서 테스트 불가
+	auto msg_box = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("QuestTemp"), EUIMsgBoxBtnType::Confirm,
+	this, TEXT(""), L"", L"", L"확인");
+
+	if (msg_box)
+	{
+		UAZWidget_MsgBoxBasic* msg_box_basic = Cast<UAZWidget_MsgBoxBasic>(msg_box);
+		if (msg_box_basic)
+		{
+			msg_box_basic->SetTitle("전투맵 이동 테스트");
+			msg_box_basic->AddHandler(EMsgEventButtonType::Left, this, FName(TEXT("RequestWarpCombatLevel")));
+		}
+	}
+	*/
+	game_instance_->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &AAZGameMode_InGame::RequestWarpCombatLevel));
+}
+
+void AAZGameMode_InGame::RequestWarpCombatLevel()
+{
+	game_instance_->BindLevelAddRemoveEvents();
+	FWorldDelegates::LevelAddedToWorld.AddUObject(this, &AAZGameMode_InGame::OnCombatLevelLoaded);
+	
+	// TEMP JOIN PACKET
+	CS_COMBAT_MAP_ENTER_REQ packet;
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet, packet.packet_length);
+	
+	bool is_succeeded = false;
+	// 패키징할때 설명 확인 MUST
+	combat_level_ = ULevelStreamingDynamic::LoadLevelInstance(game_instance_, TEXT("StreamingMap_Combat"),
+		FVector::ZeroVector, FRotator::ZeroRotator, is_succeeded);
+	combat_level_->SetShouldBeLoaded(true);
+	combat_level_->SetShouldBeVisible(true);
+}
+
+void AAZGameMode_InGame::OnCombatLevelLoaded(ULevel* in_level, UWorld* in_world)
+{
+	FWorldDelegates::LevelAddedToWorld.RemoveAll(this);
+	
+	// TEMP LOAD FINISHED PACKET
+	CS_COMBAT_MAP_LOAD_FINISH_CMD packet;
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet, packet.packet_length);
+}

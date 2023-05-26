@@ -11,13 +11,12 @@ AAZPlayer_Origin::AAZPlayer_Origin()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	Cast<AAZGameMode_Server>(AZGameInstance->GetGameMode())->object_mgr_->AddObject(this);
 }
 
 void AAZPlayer_Origin::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Cast<AAZGameMode_Server>(game_instance_->GetGameMode())->object_mgr_->AddObject(this);
 }
 
 void AAZPlayer_Origin::Tick(float delta_seconds)

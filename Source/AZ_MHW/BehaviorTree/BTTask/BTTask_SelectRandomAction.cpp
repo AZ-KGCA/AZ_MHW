@@ -82,10 +82,14 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectNonCombatAction(AAZMonster
 
 	// If there is no available action, return fail
 	if (available_action_ids.IsEmpty())
+	{
+		UE_LOG(AZMonster, Warning, TEXT("BT: NO ACTION"));
 		return EBTNodeResult::Failed;
+	}
 	
 	// Select random action from available actions
 	const int idx = FMath::RandRange(0, available_action_ids.Num()-1);
+	UE_LOG(AZMonster, Warning, TEXT("BT: Action index selected: %d"), available_action_ids[idx]);
 	owner->SetActionState(available_action_ids[idx]);
 	return EBTNodeResult::Succeeded;
 }

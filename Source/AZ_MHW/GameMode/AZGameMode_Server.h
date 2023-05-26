@@ -7,6 +7,7 @@
 #include "AZGameMode_Server.generated.h"
 
 class UAZObjectMgr_Server;
+class ULevelStreamingDynamic;
 
 /**
  * 서버에서 필요한 방식으로 프로그램을 실행합니다.
@@ -28,8 +29,9 @@ protected:
 #pragma endregion
 
 public:
-	// 위치 여기에 놔도 문제 안생기는지 확인 필요
-	TObjectPtr<UAZObjectMgr_Server> object_mgr_;
+	// 디버깅용 blueprintReadWrite TEMP
+	UPROPERTY(BlueprintReadWrite) TObjectPtr<UAZObjectMgr_Server> object_mgr_;
+	TWeakObjectPtr<ULevelStreamingDynamic> combat_level_;
 	
 	//TQueue<> login_queue_;?
 	//TQueue<> input_queue_;? 이런식으로 하는게 맞나...

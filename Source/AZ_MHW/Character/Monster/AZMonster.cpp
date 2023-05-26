@@ -11,18 +11,20 @@
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZ_MHW/CommonSource/Define/GameDefine.h"
 #include "AZ_MHW/Character/Player/AZPlayer.h"
+#include "AZ_MHW/Manager/AZResourceMgr.h"
 
 #include <Perception/AISense_Sight.h>
 #include <GameFrameWork/CharacterMovementComponent.h>
 #include <Kismet/KismetSystemLibrary.h>
+#include <BrainComponent.h>
+#include <Components/CapsuleComponent.h>
 
-#include "BrainComponent.h"
+#include "Character/Player/AZPlayer_Origin.h"
 
 
 AAZMonster::AAZMonster()
 {
-	//TODO TEMP
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	
 	// Initialise common properties
 	monster_id_ = boss_id_ = -1;
@@ -44,16 +46,55 @@ AAZMonster::AAZMonster()
 	packet_handler_component_ = CreateDefaultSubobject<UAZMonsterPacketHandlerComponent>(TEXT("PacketHandlerComponent"));
 }
 
-void AAZMonster::PreInitializeComponents()
+void AAZMonster::Init(int32 monster_id, EBossRank rank)
 {
-	Super::PreInitializeComponents();
+	monster_id_ = monster_id;
+	rank_ = rank;
+	
 	SetUpDefaultProperties();
+	aggro_component_->Init();
+	health_component_->Init();
+	mesh_component_->Init();
+	packet_handler_component_->Init();
+	InitializeRuntimeValues();
 }
 
-void AAZMonster::PostInitializeComponents()
+void AAZMonster::SetMeshAndColliders()
 {
-	Super::PostInitializeComponents();
-	InitializeRuntimeValues();
+	FString name = name_.ToString();
+	
+	// Set capsule collider
+	GetCapsuleComponent()->SetCapsuleRadius(127.0f);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(127.0f);
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("AZMonsterCapsule"));
+	
+	// Set skeletal mesh
+	FString asset_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SK_%s"), *name, *name);
+	if(auto sk_asset = LoadObject<USkeletalMesh>(nullptr,*asset_path))
+	{
+		GetMesh()->SetSkeletalMesh(sk_asset);
+		GetMesh()->SetRelativeLocation(FVector(73, 0, -120));
+		GetMesh()->SetCollisionProfileName(TEXT("AZMonster"));
+	}
+	else
+	{
+		UE_LOG(AZMonster, Error, TEXT("[AAZMonster][%d] Skeletal mesh not found!"), monster_id_);
+		return;
+	}
+
+	// Set animation class
+	// not working
+	FString anim_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Animations/ABP_%s"), *name, *name);
+	if (UClass* anim_asset = AZResourceHelper::LoadClass<UAnimInstance>(anim_path))
+	{
+		GetMesh()->SetAnimInstanceClass(anim_asset);
+		GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+		anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
+	}
+	else
+	{
+		UE_LOG(AZMonster, Error, TEXT("[AAZMonster][%d] ABP not found!"), monster_id_);
+	}
 }
 
 void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rotation) const
@@ -69,28 +110,12 @@ void AAZMonster::GetActorEyesViewPoint(FVector& out_location, FRotator& out_rota
 	}
 }
 
-// TEMP TODO
-void AAZMonster::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	if (GEngine)
-	{
-		float delta_sec = GetWorld()->GetDeltaSeconds();
-		GEngine->AddOnScreenDebugMessage(-1, delta_sec, FColor::Yellow, 
-		FString::Printf(TEXT("Current active action id: %d"), active_action_id_));
-	}
-}
-
-void AAZMonster::BeginDestroy()
-{
-	Super::BeginDestroy();
-}
-
 void AAZMonster::SetUpDefaultProperties()
 {
 	SetMonsterInfo();
 	SetBossInfo();
 	SetActionInfo();
+	SetMeshAndColliders();
 }
 
 void AAZMonster::SetMonsterInfo()
@@ -118,19 +143,12 @@ void AAZMonster::SetBossInfo()
 {
 	// Return if monster id and/or monster rank are not set
 	if (!IsABoss()) return;
-	
-	// Return if boss information is not found in the table
-	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr_->GetBossInfo(monster_id_, rank_);
-	if (!boss_info)
-	{
-		UE_LOG(AZMonster, Warning, TEXT("Boss data is not found for monster #%d"), monster_id_);
-		return;
-	}
 
 	// Set properties
-	boss_id_					= boss_info->boss_id;
-	has_combat_transition_anim_	= boss_info->has_transition_animation;
-	rage_stats_					= boss_info->rage_stats;
+	FBossInfo boss_info = UAZGameSingleton::instance()->monster_mgr_->GetBossInfo(monster_id_, rank_);
+	boss_id_					= boss_info.boss_id;
+	has_combat_transition_anim_	= boss_info.has_transition_animation;
+	rage_stats_					= boss_info.rage_stats;
 }
 
 void AAZMonster::SetActionInfo()
@@ -156,12 +174,14 @@ void AAZMonster::InitializeRuntimeValues()
 	is_flying_ = false;
 	is_enraged_ = false;
 	action_state_info_.Reset();
-	//TODO aggro_component_->Reset();
+	aggro_component_->Reset();
 	health_component_->InitializeRuntimeValues();
 }
 
 void AAZMonster::BeginPlay()
 {
+	checkf(monster_id_ != -1, TEXT("Monster properties are not set! Init() is not called."));
+	
 	Super::BeginPlay();
 	SpawnDefaultController();
 	anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
@@ -171,9 +191,9 @@ void AAZMonster::EnterCombat(AActor* combat_instigator, bool is_triggered_by_sig
 {
 	if (IsInCombat()) return;
 
-	UE_LOG(AZMonster, Warning, TEXT("[AZMONSTER] Entering combat by %s"), is_triggered_by_sight ? TEXT("sight") : TEXT("damage"));
+	UE_LOG(AZMonster, Log, TEXT("[AZMONSTER] Entering combat by %s"), is_triggered_by_sight ? TEXT("sight") : TEXT("damage"));
 	GetController()->SetBlackboardValueAsBool(AZBlackboardKey::is_triggered_by_sight, is_triggered_by_sight);
-	aggro_component_->SetBestTarget(Cast<AAZCharacter>(combat_instigator));
+	aggro_component_->ForceSetBestTarget(Cast<AAZPlayer_Origin>(combat_instigator));
 		
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
@@ -235,16 +255,21 @@ void AAZMonster::SetActionState(int32 action_id)
 	{
 	case EMonsterActionMode::Normal:
 		{
-			if (const FMonsterNonCombatActionInfo* action_data = noncombat_action_map_.Find(action_id))
+			if (FMonsterNonCombatActionInfo* action_data = noncombat_action_map_.Find(action_id))
 			{
 				action_state_info_.animation_name = action_data->animation_name;
 				action_state_info_.montage_section_name = action_data->montage_section_name;
 				is_found = true;
 			}
+			else
+			{
+				int i = 0;
+			}
 			break;
 		}
 	case EMonsterActionMode::Transition:
 		anim_instance_->is_doing_action_ = false;
+		Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance())->SetDoingAction(false);
 	case EMonsterActionMode::Combat:
 		{
 			if (const FMonsterCombatActionInfo* action_data = combat_action_map_.Find(action_id))
@@ -272,6 +297,8 @@ void AAZMonster::SetActionState(int32 action_id)
 	// Update common data
 	action_state_info_.priority_score = EMonsterActionPriority::Action;
 	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, uint8(ECharacterState::Action));
+	anim_instance_->is_doing_action_ = false;
+	Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance())->SetDoingAction(false);
 
 	// TODO this only covers combat mode; cannot process non-combat player conscious actions
 	// Update target angle
@@ -281,6 +308,9 @@ void AAZMonster::SetActionState(int32 action_id)
 		SetTargetAngle(angle);
 		active_action_id_ = action_id;
 	}
+
+	UE_LOG(AZMonster, Warning, TEXT("Action selected: %s, %s"), *action_state_info_.animation_name.ToString(), *action_state_info_.montage_section_name.ToString());
+	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
 }
 
 int32 AAZMonster::GetMonsterID() const
@@ -333,8 +363,11 @@ void AAZMonster::AnimNotify_EndOfAction()
 	}
 	// return to normal action state
 	anim_instance_->is_doing_action_ = false;
+	Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance())->SetDoingAction(false);
 	active_action_id_ = -1;
 	SetMoveState(EMoveState::None);
+
+	packet_handler_component_->Send_SC_MONSTER_ACTION_END_CMD();
 }
 
 void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name)
@@ -343,6 +376,9 @@ void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName nex
 	action_state_info_.montage_section_name = next_montage_section_name;
 	SetTargetAngle(aggro_component_->GetAngle2DToTarget());
 	anim_instance_->is_doing_action_ = false;
+	Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance())->SetDoingAction(false);
+
+	//packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
 }
 
 void AAZMonster::AnimNotify_SetMovementMode(EMovementMode movement_mode)
@@ -424,3 +460,5 @@ void AAZMonster::DoDamage(AActor* damaged_actor, const FHitResult hit_result)
 		IAZDamageAgentInterface::Execute_ApplyDamage(this, damaged_actor, hit_result, *attack_info);
 	}
 }
+
+// 메시처리등 서버에서 불필요한 부분 빼기

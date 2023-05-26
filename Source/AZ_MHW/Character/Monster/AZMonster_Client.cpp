@@ -1,58 +1,112 @@
 ﻿// Copyright Team AZ. All Rights Reserved.
 
 #include "AZ_MHW/Character/Monster/AZMonster_Client.h"
+
+#include "AIController.h"
 #include "AZ_MHW/AnimInstance/AZAnimInstance_Monster.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent_Client.h"
 #include "AZ_MHW/CharacterComponent/AZMonsterPacketHandlerComponent_Client.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFrameWork/CharacterMovementComponent.h"
+#include "Manager/AZResourceMgr.h"
 
 AAZMonster_Client::AAZMonster_Client()
 {
 	// Initialise common properties
 	monster_id_ = -1;
-	boss_id_ = -1;
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
 	// Disable AI Controller
+	AIControllerClass = AAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::Disabled;
 		
 	// Create components
-	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent_Client>(TEXT("MeshComponent"));
-	packet_handler_component_ = CreateDefaultSubobject<UAZMonsterPacketHandlerComponent_Client>(TEXT("PacketHandlerComponent"));
+	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent_Client>(TEXT("Mesh Component"));
+	packet_handler_component_ = CreateDefaultSubobject<UAZMonsterPacketHandlerComponent_Client>(TEXT("Packet Handler Component"));
 }
 
-void AAZMonster_Client::PreInitializeComponents()
+void AAZMonster_Client::Init(int32 monster_id, EBossRank rank)
 {
-	Super::PreInitializeComponents();
+	if (monster_id == -1) return;
+
+	monster_id_ = monster_id;
+	rank_ = rank;
+	SetMeshAndColliders();
+	mesh_component_->Init();
+	packet_handler_component_->Init();
+}
+
+void AAZMonster_Client::SetMeshAndColliders()
+{
+	FString name = UAZGameSingleton::instance()->monster_mgr_->GetMonsterName(monster_id_).ToString();
 	
-	// Return if monster id and/or monster rank are not set
-	if (monster_id_ == -1 || rank_ == EBossRank::None) return;
+	// Set capsule collider
+	GetCapsuleComponent()->SetCapsuleRadius(127.0f);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(127.0f); 
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("AZMonsterCapsule"));
 	
-	// Return if boss information is not found in the table
-	const FBossInfo* boss_info = UAZGameSingleton::instance()->monster_mgr_->GetBossInfo(monster_id_, rank_);
-	if (!boss_info)
+	// Set skeletal mesh
+	FString sk_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SK_%s"), *name, *name);
+	if(auto sk_asset = LoadObject<USkeletalMesh>(nullptr,*sk_path))
 	{
-		UE_LOG(AZMonster, Warning, TEXT("Boss data is not found for monster #%d"), monster_id_);
+		GetMesh()->SetSkeletalMesh(sk_asset);
+		GetMesh()->SetRelativeLocation(FVector(73, 0, -120));
+		GetMesh()->SetCollisionProfileName(TEXT("AZMonster"));
+	}
+	else
+	{
+		UE_LOG(AZMonster, Error, TEXT("[AAZMonster_Client][%d] Skeletal mesh not found!"), monster_id_);
 		return;
 	}
-	boss_id_ = boss_info->boss_id;
+
+	// Set animation class
+	FString anim_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Animations/ABP_%s_Client"), *name, *name);
+	if (UClass* anim_asset = AZResourceHelper::LoadClass<UAnimInstance>(anim_path))
+	{
+		GetMesh()->SetAnimInstanceClass(anim_asset);
+		anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
+	}
+	else
+	{
+		UE_LOG(AZMonster, Error, TEXT("[AAZMonster_Client][%d] ABP not found!"), monster_id_);
+	}
 }
 
 void AAZMonster_Client::BeginPlay()
 {
 	Super::BeginPlay();
-	anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
 }
 
 bool AAZMonster_Client::IsABoss() const
 {
-	return monster_id_ == -1 || rank_ == EBossRank::None;
+	return monster_id_ != -1 && rank_ != EBossRank::None;
 }
 
-void AAZMonster_Client::SetActionStateInfo(FMonsterActionStateInfo action_state_info)
+void AAZMonster_Client::SetActionStateInfo(const FMonsterActionStateInfo action_state_info)
 {
 	action_state_info_ = action_state_info;
 }
 
-
-
+// anim notify jump to animation 처리하는 함수 넣기
+//
+// void AAZMonster_Client::AnimNotify_EndOfAction()
+// {
+// 	// if the action was a transition action, finish transition
+// 	if (action_state_info_.action_mode == EMonsterActionMode::Transition)
+// 	{
+// 		action_state_info_.action_mode = EMonsterActionMode::Combat;
+// 	}
+// 	// return to normal action state
+// 	anim_instance_->is_doing_action_ = false;
+// 	action_state_info_.priority_score = EMonsterActionPriority::Locomotion;
+// 	action_state_info_.move_state = EMoveState::None;
+// 	action_state_info_.animation_name = NAME_None;
+// 	action_state_info_.montage_section_name = NAME_None;
+// }
+//
+// void AAZMonster_Client::AnimNotify_SetMovementMode(EMovementMode movement_mode)
+// {
+// 	GetCharacterMovement()->SetMovementMode(movement_mode);
+// }

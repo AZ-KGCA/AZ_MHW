@@ -17,7 +17,8 @@ class AZ_MHW_API UAZMonsterMeshComponent_Client : public UActorComponent
 
 public:	
 	UAZMonsterMeshComponent_Client();
-	virtual void InitializeComponent() override;
+	
+	void Init();
 	virtual void BeginPlay() override;
 	void SetBodyState(EMonsterBodyPart body_part, FBossBodyPartDebuffState state);
 

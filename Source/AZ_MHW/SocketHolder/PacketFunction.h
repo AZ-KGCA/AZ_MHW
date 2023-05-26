@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
+#include "Character/Monster/AZMonster.h"
 #include "PacketFunction.generated.h"
 
 
@@ -56,15 +57,23 @@ public:
 	// Monster
 	AAZMonster_Client* GetMonster_Client(int32 object_serial);
 	void Receive_SC_MONSTER_SPAWN_CMD(const SC_MONSTER_SPAWN_CMD* packet);
+	void Receive_SC_MONSTER_SPAWN_END_CMD(const SC_MONSTER_SPAWN_END_CMD* packet);
 	void Receive_SC_MONSTER_TRANSFORM_CMD(const SC_MONSTER_TRANSFORM_CMD* packet);
 	void Receive_SC_MONSTER_BODY_STATE_CMD(const SC_MONSTER_BODY_STATE_CMD* packet);
 	void Receive_SC_MONSTER_ENTER_COMBAT_CMD(const SC_MONSTER_ENTER_COMBAT_CMD* packet);
 	void Receive_SC_MONSTER_ACTION_START_CMD(const SC_MONSTER_ACTION_START_CMD* packet);
+	void Receive_SC_MONSTER_ACTION_END_CMD(const SC_MONSTER_ACTION_END_CMD* packet);
 	void Receive_SC_MONSTER_PART_CHANGE_CMD(const SC_MONSTER_PART_CHANGE_CMD* packet);
 	void Receive_SC_MONSTER_HIT_CMD(const SC_MONSTER_HIT_CMD* packet); 
-	void Receive_SC_MONSTER_DIE_CMD(const SC_MONSTER_DIE_CMD* packet); 
-#pragma endregion
+	void Receive_SC_MONSTER_DIE_CMD(const SC_MONSTER_DIE_CMD* packet);
+
+	AAZMonster* GetMonster_Server(int32 object_serial);
+	void Receive_CS_COMBAT_MAP_ENTER_REQ(UINT32 client_index, CS_COMBAT_MAP_ENTER_REQ* packet);
+	void Receive_CS_COMBAT_MAP_LOAD_FINISH_CMD(UINT32 client_index, CS_COMBAT_MAP_LOAD_FINISH_CMD* packet);
+	void TimerLoop_Send_SC_MONSTER_SPAWN_CMD(UINT32 client_idx, int32 num_to_spawn);
+	void Receive_CS_MONSTER_UPDATE_REQ(UINT32 client_idx, CS_MONSTER_UPDATE_REQ* packet);
 
 private:
 	UPROPERTY() TWeakObjectPtr<class UAZGameInstance> game_instance_;
+	FTimerHandle test_timer;
 };

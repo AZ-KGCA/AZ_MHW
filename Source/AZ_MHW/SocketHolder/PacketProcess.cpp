@@ -13,6 +13,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 {
 	bool is_server_packet = true;
 	bool is_client_packet = true;
+	
 	// Process packets from client to server
 	switch ((PACKET_ID)recv_packet->packet_id)
 	{
@@ -70,13 +71,29 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		UPacketFunction::ItemUseRequest(client_index, packet);
 	}
 	break;
+	case PACKET_ID::CS_COMBAT_MAP_ENTER_REQ:
+	{
+		CS_COMBAT_MAP_ENTER_REQ* packet = (CS_COMBAT_MAP_ENTER_REQ*)recv_packet;
+		UPacketFunction::Receive_CS_COMBAT_MAP_ENTER_REQ(client_index, packet);
+	}
+	break;
+	case PACKET_ID::CS_COMBAT_MAP_LOAD_FINISH_CMD:
+	{
+		CS_COMBAT_MAP_LOAD_FINISH_CMD* packet = (CS_COMBAT_MAP_LOAD_FINISH_CMD*)recv_packet;
+		UPacketFunction::Receive_CS_COMBAT_MAP_LOAD_FINISH_CMD(client_index, packet);
+	}
+	break;
+	case PACKET_ID::CS_MONSTER_UPDATE_REQ:
+	{
+		CS_MONSTER_UPDATE_REQ* packet = (CS_MONSTER_UPDATE_REQ*)recv_packet;
+		UPacketFunction::Receive_CS_MONSTER_UPDATE_REQ(client_index, packet);
+	}
+	break;
 	default:
 	{
 		is_server_packet = false;
 	}
 	break;
-	default:
-		break;
 	}
 //===========================================================================================================================================//
 	// Process packets from server to client
@@ -159,6 +176,13 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		UPacketFunction::Receive_SC_MONSTER_SPAWN_CMD(packet);
 	}
 	break;
+	case PACKET_ID::SC_MONSTER_SPAWN_END_CMD:
+	{
+		const SC_MONSTER_SPAWN_END_CMD* packet = reinterpret_cast<SC_MONSTER_SPAWN_END_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_SPAWN_END_CMD(packet);
+		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::CS_COMBAT_MAP_ENTER_REQ, out_request_protocol);
+	}
+	break;
 	case PACKET_ID::SC_MONSTER_TRANSFORM_CMD:
 	{
 		const SC_MONSTER_TRANSFORM_CMD* packet = reinterpret_cast<SC_MONSTER_TRANSFORM_CMD*>(recv_packet);
@@ -183,6 +207,12 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		UPacketFunction::Receive_SC_MONSTER_ACTION_START_CMD(packet);
 	}
 	break;
+	case PACKET_ID::SC_MONSTER_ACTION_END_CMD:
+	{
+		const SC_MONSTER_ACTION_END_CMD* packet = reinterpret_cast<SC_MONSTER_ACTION_END_CMD*>(recv_packet);
+		UPacketFunction::Receive_SC_MONSTER_ACTION_END_CMD(packet);
+	}
+	break;
 	case PACKET_ID::SC_MONSTER_PART_CHANGE_CMD:
 	{
 		const SC_MONSTER_PART_CHANGE_CMD* packet = reinterpret_cast<SC_MONSTER_PART_CHANGE_CMD*>(recv_packet);
@@ -201,7 +231,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		UPacketFunction::Receive_SC_MONSTER_DIE_CMD(packet);
 	}
 	break;
-	
+			
 	default:
 	{
 		is_client_packet = false;

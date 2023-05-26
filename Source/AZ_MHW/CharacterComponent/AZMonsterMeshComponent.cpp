@@ -9,13 +9,10 @@
 UAZMonsterMeshComponent::UAZMonsterMeshComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bWantsInitializeComponent = true;
 }
 
-void UAZMonsterMeshComponent::InitializeComponent()
+void UAZMonsterMeshComponent::Init()
 {
-	Super::InitializeComponent();
-	
 	// Set owner as monster
 	owner_ = Cast<AAZMonster>(GetOwner());
 	if (!owner_.IsValid())
