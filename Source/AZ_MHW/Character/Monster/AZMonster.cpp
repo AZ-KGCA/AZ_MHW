@@ -51,6 +51,7 @@ void AAZMonster::Init(int32 monster_id, EBossRank rank)
 {
 	monster_id_ = monster_id;
 	rank_ = rank;
+	acceptance_radius_ = 300.0f;
 	
 	SetUpDefaultProperties();
 	aggro_component_->Init();

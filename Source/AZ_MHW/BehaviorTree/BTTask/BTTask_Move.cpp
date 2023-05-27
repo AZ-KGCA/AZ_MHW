@@ -100,8 +100,8 @@ EBTNodeResult::Type UBTTask_Move::ExecuteTask(UBehaviorTreeComponent& owner_comp
 			{
 #if WITH_EDITOR
 				UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [PathPoint %d] %s"), point_iter, *(nav_path->PathPoints[point_iter].ToString()));
-				DrawDebugSphere(GetWorld(), nav_path->PathPoints[point_iter], 5.0f, 16, FColor::Red, false, 10.0f, 0U, 20.f);
-				DrawDebugLine(GetWorld(), nav_path->PathPoints[point_iter - 1], nav_path->PathPoints[point_iter], FColor::Red, false, 10.0f, 0U, 5.f);
+				//DrawDebugSphere(GetWorld(), nav_path->PathPoints[point_iter], 5.0f, 16, FColor::Red, false, 10.0f, 0U, 20.f);
+				//DrawDebugLine(GetWorld(), nav_path->PathPoints[point_iter - 1], nav_path->PathPoints[point_iter], FColor::Red, false, 10.0f, 0U, 5.f);
 #endif
 			}
 		}
