@@ -379,7 +379,7 @@ void AAZPlayerController_InGame::EquipPlayer_Remotable(int32 guid, int32 item_id
 
 void AAZPlayerController_InGame::UpdatePlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state)
 {
-	if(const auto found_player = remotable_player_map_.Find(guid))
+	if(const auto& found_player = remotable_player_map_.Find(guid))
 	{
 		const auto& remotable_player= (*found_player);
 

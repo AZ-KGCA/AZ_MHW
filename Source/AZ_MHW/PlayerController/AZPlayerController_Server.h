@@ -114,6 +114,6 @@ private:
 	void UpdatePlayerState_Remotable(int32 client_index);
 	
 	void SendPlayerSimulationResult(int32 client_index);
-	
+
 #pragma endregion 
 };

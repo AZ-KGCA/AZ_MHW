@@ -72,7 +72,7 @@ void AAZPlayerController_Server::RemovePlayerState_Origin(int32 client_index)
 
 void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
 {
-	//TODO 임시(UI에서 호출햇어야함)
+	//TODO 임시(인게임 접속전에 호출햇어야함)
 	AddPlayerState_Origin(client_index);
 
 	//원본 캐릭터 생성
@@ -118,12 +118,12 @@ void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
 			packets.second_id = online_player->player_character_state_->equipment_state_.second_weapon_item_id;
 			packets.pos = online_player->player_character_state_->character_state_.character_position;
 			packets.dir = online_player->player_character_state_->character_state_.character_direction.Yaw;
-			packets.guid = online_player_index;
+			packets.guid = client_index;
 			game_instance_->SendPacketFunc(online_player_index, packets.packet_length,(char*)&packets);
 
 			CREATE_PLAYER_CHARACTER_PACKET packet;
 			packet.packet_id = (int)PACKET_ID::SC_PLAYER_REMOTABLE_CREATE_CMD;
-			packet.guid = online_player_index;
+			packet.guid = client_index;
 			game_instance_->SendPacketFunc(online_player_index, packet.packet_length, (char*)&packet);
 		}
 	}
@@ -159,7 +159,6 @@ void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
 				packets.guid = online_player_index;
 				game_instance_->SendPacketFunc(client_index, packets.packet_length,(char*)&packets);
 
-				
 				packet.guid = online_player_index;
 				game_instance_->SendPacketFunc(client_index, packet.packet_length, (char*)&packet);
 			}
@@ -197,6 +196,7 @@ void AAZPlayerController_Server::ActionPlayer_Origin(int32 client_index, FVector
 		packet.current_position = (*player)->player_character_state_->character_state_.character_position;
 		packet.input_direction = (*player)->player_character_state_->action_state_.input_direction.Yaw;
 		packet.input_data = (*player)->player_character_state_->action_state_.input_bitmask;
+
 		for(auto online_player_pair : online_player_characters_)
 		{
 			const auto& online_player_index = (online_player_pair.Key);
