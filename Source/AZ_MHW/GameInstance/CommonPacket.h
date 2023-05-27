@@ -41,20 +41,21 @@ enum class PACKET_ID : UINT16
 #pragma region Character
 	//CLIENT(UI)
 	//LOGIN SCREEN(UI)
-	//CS_PLAYER_PLAYABLE_GUID_REQ=9000,//아이디번호 요청(플레이어 번호? GUID)
+	//로그인시
+	CS_PLAYER_PLAYABLE_GUID_REQ=9000,//아이디번호 요청(플레이어 번호? GUID)
 
 	//CHARACTER SELECT SCREEN(메인메뉴에서 받아서 가지고 있다가 선택창에서 마네퀸 플레이어 액터생성후)
-	CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ = 9001,//플레이어 캐릭터데이터(생김새만) 요청
+	CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ = 9001,//아이디 번호로 플레이어 캐릭터데이터(생김새만) 요청
 	//DB에서 캐릭터 데이터 가져와서 보유상태로 넘겨줌
 	SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES = 9002,//플레이어 캐릭터데이터(생김새만) 응답
 
 	//CHARACTER SELECT CREATE & DESTROY(UI)
-	CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ = 9003,//캐릭터창에서 캐릭터 생성 요청
-	//생성후 결과(캐릭터 데이터)넘겨줌
-	SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES = 9004,//캐릭터창에서 캐릭터 생성 응답
-	CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ = 9005,//캐릭터창에서 캐릭터 제거 요청
+	CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ = 9003,//캐릭터창에서 캐릭터 정보 생성 요청
+	//생성후 결과(캐릭터 데이터 = 캐릭터 번호)넘겨줌
+	SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES = 9004,//캐릭터창에서 캐릭터 정보 생성 응답
+	CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ = 9005,//캐릭터창에서 캐릭터 정보 제거 요청
 	//제거후 결과 넘겨줌
-	SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES = 9006,//캐릭터창에서 캐릭터 제거 응답
+	SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES = 9006,//캐릭터창에서 캐릭터 정보 제거 응답
 	
 	//CHARACTER SELECT IN GAME(UI)
 	CS_PLAYER_CHARACTER_SELECT_REQ = 9007,//캐릭터 선택함.->해당 캐릭터 데이터(인벤까지) 요청
@@ -68,11 +69,13 @@ enum class PACKET_ID : UINT16
 	CS_PLAYER_ORIGIN_DESTROY_REQ=9102,//원본제거 요청
 	CS_PLAYER_ORIGIN_ACTION_REQ=9103,//원본액션 요청
 	CS_PLAYER_ORIGIN_EQUIP_REQ=9104,//원본장비교체 요청
+	CS_PLAYER_ORIGIN_CHECK_REQ=9105,//원본확인 요청
 	//CS_PLAYER_ORIGIN_BUY_REQ=9105,//상점 구매 요청
 	//CS_PLAYER_ORIGIN_SELL_REQ=9106,//상점 판매 요청
 
 	//SERVER
 	//INGAME SCREEN
+	SC_PLAYER_STATE_REMOTABLE_CREATE_CMD=9500,//원격 플레이어 상태 전파
 	SC_PLAYER_REMOTABLE_CREATE_CMD=9501,//원격 플레이어 생성 전파
 	//(새로접속한 유저는 접속중인 유저를)+(접속중인 유저에게 새로 접속한 유저를)
 	SC_PLAYER_REMOTABLE_DESTROY_CMD=9502,//원격 플레이어 제거 전파

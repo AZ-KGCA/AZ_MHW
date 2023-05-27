@@ -19,14 +19,8 @@ void UAZAnimInstance_Playable::NativeInitializeAnimation()
 
 void UAZAnimInstance_Playable::NativeUpdateAnimation(float delta_seconds)
 {
-	//상태변화 체크
-	//입력변화 체크
-	//액션조건 체크
-	//액션 선택
-	//액션 실행화
-
-	//회전보간, 전환확인
 	Super::NativeUpdateAnimation(delta_seconds);
+	
 }
 
 void UAZAnimInstance_Playable::AnimNotify_OnUseItem()

@@ -94,7 +94,7 @@ public:
 	/** 컨트롤러 대리 호출. 소켓장비(메시) 변경 */
 	void ChangeSocketMesh(FName socket_actor_name, int32 item_id);
 	/** 컨트롤러 대리 호출. 장비타입, 아이템아이디 부위별 변경기능 */
-	void ChangeEquipmentMesh(int32 item_id);
+	void ChangeEquipment(int32 item_id);
 
 private:
 	/** bForceUpdate: 이미 붙어 있는 컴포넌트도 또 호출할 것인가*/

@@ -282,11 +282,12 @@ void AAZPlayer::SetEnableSKMeshEfx(bool on_off)
 	}
 }
 
-void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
+void AAZPlayer::ChangeEquipment(int32 item_id)
 {
 	auto material_asset =LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/AZ/BodyAura/M_BodyAura"));
 	if(material_asset == nullptr) return;
-	
+
+	//TODO ItemId= WeaponType가져오기
 	if(1000 < item_id && item_id < 8001)
 	{
 		ChangeSocketMesh(TEXT("MainHand"),item_id);
@@ -295,6 +296,7 @@ void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 			if((*socket_actor)->socket_fx_mesh_asset_)
 			{
 				(*socket_actor)->socket_fx_mesh_asset_->SetMaterial(0,material_asset);
+				player_character_state_->equipment_state_.first_weapon_item_id = item_id;
 			}
 		}
 	}
@@ -309,6 +311,7 @@ void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 				body_fx_mesh_->SetSkeletalMesh(skeletal_mesh);
 				body_fx_mesh_->SetLeaderPoseComponent(GetMesh(),true);
 				body_fx_mesh_->SetMaterial(0, material_asset);
+				player_character_state_->equipment_state_.body_item_id = item_id;
 			}
 			else if(item_id <= 11000)
 			{
@@ -317,6 +320,7 @@ void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 				leg_fx_mesh_->SetSkeletalMesh(skeletal_mesh);
 				leg_fx_mesh_->SetLeaderPoseComponent(GetMesh(),true);
 				leg_fx_mesh_->SetMaterial(0, material_asset);
+				player_character_state_->equipment_state_.leg_item_id = item_id;
 			}
 			else if(item_id <= 11500)
 			{
@@ -325,6 +329,7 @@ void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 				arm_fx_mesh_->SetSkeletalMesh(skeletal_mesh);
 				arm_fx_mesh_->SetLeaderPoseComponent(GetMesh(),true);
 				arm_fx_mesh_->SetMaterial(0, material_asset);
+				player_character_state_->equipment_state_.arm_item_id = item_id;
 			}
 			else if(item_id <= 12000)
 			{
@@ -333,6 +338,7 @@ void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 				waist_fx_mesh_->SetSkeletalMesh(skeletal_mesh);
 				waist_fx_mesh_->SetLeaderPoseComponent(GetMesh(),true);
 				waist_fx_mesh_->SetMaterial(0, material_asset);
+				player_character_state_->equipment_state_.waist_item_id = item_id;
 			}
 			else if(item_id <= 12500)
 			{
@@ -341,6 +347,7 @@ void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 				head_fx_mesh_->SetSkeletalMesh(skeletal_mesh);
 				head_fx_mesh_->SetLeaderPoseComponent(GetMesh(),true);
 				head_fx_mesh_->SetMaterial(0, material_asset);
+				player_character_state_->equipment_state_.head_item_id = item_id;
 			}
 			else if(item_id < 12600)
 			{
@@ -349,6 +356,7 @@ void AAZPlayer::ChangeEquipmentMesh(int32 item_id)
 				hair_fx_mesh_->SetSkeletalMesh(skeletal_mesh);
 				hair_fx_mesh_->SetLeaderPoseComponent(GetMesh(),true);
 				hair_fx_mesh_->SetMaterial(0, material_asset);
+				player_character_state_->equipment_state_.hair_item_id = item_id;
 			}
 		}
 	}
@@ -388,7 +396,6 @@ void AAZPlayer::ChangeSocketSlot(FName socket_actor_name, FName in_socket_name)
 	{
 		(*socket_actor)->SetSocketComponent(in_socket_name);
 	}
-	
 }
 
 
@@ -454,7 +461,7 @@ void AAZPlayer::PostProcessDamage(AActor* damage_instigator, const FHitResult hi
 	
 	if(const auto player_state = GetPlayerState<AAZPlayerState_Client>())
 	{
-	    // TODO 공격타입별로 데미지 계산, attack_info.damage_array에 TTuple<EDamageType, int32> 꼴로 있습니다
+	    //TODO 공격타입별로 데미지 계산, attack_info.damage_array에 TTuple<EDamageType, int32> 꼴로 있습니다
 		player_state->character_state_.current_health_point -= attack_info.GetDamageTotal();
 		if(player_state->character_state_.current_health_point <= 0)
 		{

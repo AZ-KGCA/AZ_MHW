@@ -54,31 +54,31 @@ public:
 #pragma region PlayerCharacterParts
 public:
 #pragma region Client->Server
-	void PlayerOriginCreateRequest(UINT32 client_index);
-	void PlayerOriginDestroyRequest(UINT32 client_index);
+	void CreatePlayerCharacterRequest(UINT32 client_index);
+	void DestroyPlayerCharacterRequest(UINT32 client_index);
 	
-	void PlayerOriginActionRequest(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
-	void PlayerOriginEquipmentRequest(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
+	void CreatePlayerOriginRequest(UINT32 client_index);
+	void DestroyPlayerOriginRequest(UINT32 client_index);
+	void ActionPlayerOriginRequest(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
+	void EquipPlayerOriginRequest(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
 
-	void PlayerStateUpdateCommand(UINT32 client_index, UPDATE_PLAYER_STATE_PACKET* packet);
-
-	void RequestPlayerCharacterCreate();
-	void RequestPlayerCharacterDestroy();//플레이어 캐릭터 제거
+	
 #pragma endregion
 #pragma region Server->Client
-	//void CommandUpdateField(UINT32 client_index);
-	//void CommandUpdateMerchant(UINT32 client_index);
+	void CreatePlayerCharacterRespone();//플레이어 생성후 데이터받기
+	void DestroyPlayerCharacterRespone();//플레이어 제거후 데이터받기
 	
-	void CommandCreateRemotablePlayer(UINT32 client_index);
-	void CommandDestroyRemotablePlayer(UINT32 client_index);
-	void CommandActionRemotablePlayer(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
-	void CommandEquipRemotablePlayer(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
-	void CommandUpdateRemotablePlayerState(UINT32 client_index, UPDATE_PLAYER_STATE_PACKET* packet);
+	void DisplayPlayerDemageRequest();//플레이어가 준 데미지 표시
 	
-	void ResponePlayerCharacterCreate();//플레이어 생성후 데이터받기
-	void ResponePlayerCharacterDestroy();//플레이어 제거후 데이터받기
-	void RequestDisplayPlayerDemage(UINT32 client_index);//플레이어가 준 데미지 표시
+	void ProcessCreatePlayer_Playable();
+	void ProcessCreatePlayer_Remotable(INITIALIZE_PLAYER_STATE_PACKET* packet);
+	void UpdatePlayerStateCommand(UPDATE_PLAYER_STATE_PACKET* packet);
 	
+	void CreatePlayerRemotableCommand(CREATE_PLAYER_CHARACTER_PACKET* packet);
+	void DestroyPlayerRemotableCommand(DESTROY_PLAYER_CHARACTER_PACKET* packet);
+	void ActionPlayerRemotableCommand(ACTION_PLAYER_PACKET* packet);
+	void EquipPlayerRemotableCommand(EQUIPMENT_PLAYER_PACKET* packet);
+	void UpdatePlayerStateRemotableCommand(UPDATE_PLAYER_STATE_PACKET* packet);
 #pragma endregion 
 #pragma endregion 
 private:

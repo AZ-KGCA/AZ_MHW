@@ -24,7 +24,7 @@ AAZGameMode_InitGame::AAZGameMode_InitGame()
 	PlayerControllerClass = APlayerController::StaticClass();//기본
 	
 	PlayerStateClass = APlayerState::StaticClass();//분기
-	GameStateClass = nullptr;//AGameState::StaticClass();//분기
+	GameStateClass = AGameState::StaticClass();//AGameState::StaticClass();//분기
 	HUDClass = AAZHUD::StaticClass();//AHUD::StaticClass();//분기
 	
 	//GameSessionClass = AGameSession::StaticClass();

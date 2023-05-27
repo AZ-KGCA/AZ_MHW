@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-//캐릭터 생성패킷?
+//캐릭터 생성패킷
 struct CREATE_PLAYER_CHARACTER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
@@ -12,20 +12,20 @@ struct CREATE_PLAYER_CHARACTER_PACKET : public PACKET_HEADER
 		guid = -1;
 	}
 };
-
-struct REMOVE_PLAYER_CHARACTER_PACKET : public PACKET_HEADER
+//캐릭터 제거패킷
+struct DESTROY_PLAYER_CHARACTER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
 	int32 character_index;
 
-	REMOVE_PLAYER_CHARACTER_PACKET()
+	DESTROY_PLAYER_CHARACTER_PACKET()
 	{
-		packet_length = sizeof(REMOVE_PLAYER_CHARACTER_PACKET);
+		packet_length = sizeof(DESTROY_PLAYER_CHARACTER_PACKET);
 		guid = -1;
 	}
-	
 };
 
+//캐릭터 액션패킷
 struct ACTION_PLAYER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
@@ -45,45 +45,40 @@ struct ACTION_PLAYER_PACKET : public PACKET_HEADER
 		input_data = 0;
 	}
 };
-
+//캐릭터 상태 갱신패킷
 struct UPDATE_PLAYER_STATE_PACKET : public PACKET_HEADER
 {
 	int32 guid;
-	
+	/** 상태타입 변경*/
+	int32 state_type;
 	int32 state_value;
-	int32 value;
-
+	/** 상태 비트마스크*/
+	int32 state_bitmask;
+	
 	UPDATE_PLAYER_STATE_PACKET()
 	{
 		packet_length = sizeof(UPDATE_PLAYER_STATE_PACKET);
 		guid = -1;
+		state_type = -1;
+		state_value = -1;
 		
+		state_bitmask = -1;
 	}
 };
-
+//캐릭터 장비변경패킷
 struct EQUIPMENT_PLAYER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
-	
-	int32 item_head_id;
-	int32 item_hair_id;
-	int32 item_body_id;
-	int32 item_leg_id;
-	int32 item_arm_id;
-	int32 item_waist_id;
-	
-	int32 item_weapon_id;
-	int32 item_consume_id;
-	int32 item_ammo_id;
+	int32 item_id;
 
 	EQUIPMENT_PLAYER_PACKET()
 	{
 		packet_length = sizeof(EQUIPMENT_PLAYER_PACKET);
 		guid = -1;
-		
+		item_id = -1;
 	}
 };
-
+//SC전용
 struct INVENTORY_PLAYER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
@@ -104,5 +99,42 @@ struct INVENTORY_PLAYER_PACKET : public PACKET_HEADER
 		item_count = -1;
 		item_pos = -1;
 	}
+};
+
+struct INITIALIZE_PLAYER_STATE_PACKET : public PACKET_HEADER
+{
+	int32 guid;
 	
+	FVector pos;
+	float dir;
+	
+	int32 head_id;
+	int32 hair_id;
+	int32 body_id;
+	int32 waist_id;
+	int32 arm_id;
+	int32 leg_id;
+	int32 weapon_id;
+	int32 first_id;
+	int32 second_id;
+	
+	INITIALIZE_PLAYER_STATE_PACKET()
+	{
+		packet_length = sizeof(INITIALIZE_PLAYER_STATE_PACKET);
+		guid = -1;
+		
+		pos = FVector::ZeroVector;
+		dir = 0;
+		
+		head_id = 0;
+		hair_id=0;
+		body_id=0;
+		waist_id=0;
+		arm_id=0;
+		leg_id=0;
+		
+		weapon_id=0;
+		first_id=0;
+		second_id=0;
+	}
 };

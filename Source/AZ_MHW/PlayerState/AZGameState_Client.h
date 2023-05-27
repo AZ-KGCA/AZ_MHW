@@ -7,7 +7,7 @@
 #include "AZGameState_Client.generated.h"
 
 UCLASS()
-class AZ_MHW_API AAZGameState_Client : public AGameState
+class AZ_MHW_API AAZGameState_Client : public AGameStateBase
 {
 	GENERATED_BODY()
 

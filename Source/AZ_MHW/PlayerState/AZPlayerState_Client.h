@@ -16,7 +16,7 @@ USTRUCT(BlueprintType)
 struct FAZPlayerActionState
 {
 	GENERATED_USTRUCT_BODY()
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRotator input_direction;//캐릭터의 입력방향(플레이어의 시선방향(월드방향)기준 + 입력벡터)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -156,7 +156,7 @@ struct FAZPlayerEquipmentState
 	int32 leg_item_id;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 weapon_type;//비트마스크, 몽타주 등이 달라진다.
+	int32 weapon_type;//소켓메시, 인풋매핑컨텍스트, 몽타주 변경처리
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 first_weapon_item_id;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
