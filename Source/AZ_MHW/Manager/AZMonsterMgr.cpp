@@ -119,7 +119,8 @@ bool UAZMonsterMgr::ConvertBossTable()
 		boss_info.tenderised_damage_multiplier		= UAZUtility::PerTenThousandToPerOne(boss_data->tenderised_damage_multiplier);
 		boss_info.escape_stats						= FBossEscapeStats(boss_data->num_allowed_escapes, boss_data->escape_health_ratios);
 
-		boss_info_map_.Add(MakeTuple(boss_info.monster_id, boss_info.rank), boss_info);
+		//boss_info_map_.Add(MakeTuple(boss_info.monster_id, boss_info.rank), boss_info);
+		boss_info_map_.Add(boss_info.monster_id * 1000 + (int)boss_info.rank, boss_info);
 	}
 	return true;
 }
@@ -140,8 +141,9 @@ bool UAZMonsterMgr::ConvertMonsterNonCombatActionTable()
 		noncombat_action_info.condition_min_health_ratio	= UAZUtility::PerTenThousandToPerOne(noncombat_action_data->condition_min_health_ratio);
 		noncombat_action_info.condition_max_health_ratio	= UAZUtility::PerTenThousandToPerOne(noncombat_action_data->condition_max_health_ratio);
 
-		monster_noncombat_action_info_map_.FindOrAdd(noncombat_action_info.monster_id).Add(
-			noncombat_action_info.action_id, noncombat_action_info);
+		//monster_noncombat_action_info_map_.FindOrAdd(noncombat_action_info.monster_id).Add(noncombat_action_info);
+		monster_noncombat_action_info_map_.Add(noncombat_action_info.monster_id, noncombat_action_info.monster_id * 1000 + noncombat_action_info.action_id);
+		noncombat_action_info_map_.Add(noncombat_action_info.monster_id * 1000 + noncombat_action_info.action_id, noncombat_action_info);
 	}
 	return true;
 }
@@ -165,8 +167,9 @@ bool UAZMonsterMgr::ConvertMonsterCombatActionTable()
 		combat_action_info.condition_max_distance_from_target	= combat_action_data->condition_max_distance_from_target;
 		combat_action_info.attack_delay							= UAZUtility::MillisecondsToSeconds(combat_action_data->attack_delay);
 		
-		monster_combat_action_info_map_.FindOrAdd(combat_action_info.monster_id).Add(
-			combat_action_info.action_id, combat_action_info);
+		//monster_combat_action_info_map_.FindOrAdd(combat_action_info.monster_id).Add(combat_action_info);
+		monster_combat_action_info_map_.Add(combat_action_info.monster_id, combat_action_info.monster_id * 1000 + combat_action_info.action_id);
+		combat_action_info_map_.Add(combat_action_info.monster_id * 1000 + combat_action_info.action_id, combat_action_info);
 
 		// Add to attack info map
 		FAttackInfo attack_info;
@@ -191,17 +194,43 @@ FMonsterInfo* UAZMonsterMgr::GetMonsterInfo(const int32 monster_id)
 
 FBossInfo UAZMonsterMgr::GetBossInfo(const int32 monster_id, const EBossRank rank)
 {
-	return *boss_info_map_.Find(MakeTuple(monster_id, rank));
+	return *boss_info_map_.Find(monster_id * 1000 + (int)rank);
 }
 
-TMap<int32, FMonsterNonCombatActionInfo>* UAZMonsterMgr::GetMonsterNonCombatActionInfo(const int32 monster_id)
+TMap<int32, FMonsterNonCombatActionInfo> UAZMonsterMgr::GetMonsterNonCombatActionInfo(const int32 monster_id)
 {
-	return monster_noncombat_action_info_map_.Find(monster_id);
+	TMap<int32, FMonsterNonCombatActionInfo> result;
+	TArray<int32> values_for_key;
+	monster_noncombat_action_info_map_.MultiFind(monster_id, values_for_key);
+	for (auto& key : values_for_key)
+	{
+		auto value = noncombat_action_info_map_.Find(key);
+		if (value == nullptr)
+		{
+			continue;
+		}
+
+		result.Add(value->action_id, *value);
+	}
+	return result;
 }
 
-TMap<int32, FMonsterCombatActionInfo>* UAZMonsterMgr::GetMonsterCombatActionInfo(const int32 monster_id)
+TMap<int32, FMonsterCombatActionInfo> UAZMonsterMgr::GetMonsterCombatActionInfo(const int32 monster_id)
 {
-	return monster_combat_action_info_map_.Find(monster_id);
+	TMap<int32, FMonsterCombatActionInfo> result;
+	TArray<int32> values_for_key;
+	monster_combat_action_info_map_.MultiFind(monster_id, values_for_key);
+	for (auto& key : values_for_key)
+	{
+		auto value = combat_action_info_map_.Find(key);
+		if (value == nullptr)
+		{
+			continue;
+		}
+
+		result.Add(value->action_id, *value);
+	}
+	return result;
 }
 
 FAttackInfo* UAZMonsterMgr::GetAttackInfo(const int32 action_id)

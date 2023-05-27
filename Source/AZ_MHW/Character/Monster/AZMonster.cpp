@@ -1,4 +1,4 @@
-﻿#include "AZ_MHW/Character/Monster/AZMonster.h"
+#include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/AnimInstance/AZAnimInstance_Monster.h"
 #include "AZ_MHW/Controller/AZAIController.h"
@@ -158,13 +158,13 @@ void AAZMonster::SetActionInfo()
 	const auto noncombat_action_info = UAZGameSingleton::instance()->monster_mgr_->GetMonsterNonCombatActionInfo(monster_id_);
 	const auto combat_action_info = UAZGameSingleton::instance()->monster_mgr_->GetMonsterCombatActionInfo(monster_id_);
 
-	if (noncombat_action_info)
-		noncombat_action_map_ = *noncombat_action_info;
+	if (noncombat_action_info.Num())
+		noncombat_action_map_ = noncombat_action_info;
 	else
 		UE_LOG(AZMonster, Warning, TEXT("Non-combat action data is not found for monster #%d"), monster_id_);
 
-	if (combat_action_info)
-		combat_action_map_ = *combat_action_info;
+	if (combat_action_info.Num())
+		combat_action_map_ = combat_action_info;
 	else
 		UE_LOG(AZMonster, Warning, TEXT("Combat action data is not found for monster #%d"), monster_id_);
 }

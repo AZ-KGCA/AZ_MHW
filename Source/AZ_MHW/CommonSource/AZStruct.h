@@ -334,16 +334,19 @@ struct FBossWeaknessStats
 	}
 };
 
+USTRUCT(BlueprintType)
 struct FMonsterInfo
 {
-	int32 monster_id;
-	EMonsterBehaviorType behavior_type;
-	int32 base_hp;
-	FMonsterSightConfigs sight_configs;
-	int32 patrol_range;
-	float patrol_delay;
-	int32 percept_radius;
-	FName name;
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere) int32 monster_id;
+	UPROPERTY(VisibleAnywhere) EMonsterBehaviorType behavior_type;
+	UPROPERTY(VisibleAnywhere) int32 base_hp;
+	UPROPERTY(VisibleAnywhere) FMonsterSightConfigs sight_configs;
+	UPROPERTY(VisibleAnywhere) int32 patrol_range;
+	UPROPERTY(VisibleAnywhere) float patrol_delay;
+	UPROPERTY(VisibleAnywhere) int32 percept_radius;
+	UPROPERTY(VisibleAnywhere) FName name;
 
 	FMonsterInfo()
 	{
@@ -358,24 +361,27 @@ struct FMonsterInfo
 	}
 };
 
+USTRUCT(BlueprintType)
 struct FBossInfo
 {
-	int32 boss_id;
-	int32 monster_id;
-	EBossRank rank;
-	int32 base_stamina;
-	float tired_duration;
-	bool has_transition_animation;
-	FBossEscapeStats escape_stats;
-	FBossWeaknessStats weakness_stats;
-	FBossBodyPartState head_state;
-	FBossBodyPartState body_state;
-	FBossBodyPartState wing_state;
-	FBossBodyPartState tail_state;
-	FBossBodyPartState leg_state;
-	TArray<EMonsterBodyPart> stunnable_parts;
-	FBossRageStats rage_stats;
-	float tenderised_damage_multiplier;
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere) int32 boss_id;
+	UPROPERTY(VisibleAnywhere) int32 monster_id;
+	UPROPERTY(VisibleAnywhere) EBossRank rank;
+	UPROPERTY(VisibleAnywhere) int32 base_stamina;
+	UPROPERTY(VisibleAnywhere) float tired_duration;
+	UPROPERTY(VisibleAnywhere) bool has_transition_animation;
+	UPROPERTY(VisibleAnywhere) FBossEscapeStats escape_stats;
+	UPROPERTY(VisibleAnywhere) FBossWeaknessStats weakness_stats;
+	UPROPERTY(VisibleAnywhere) FBossBodyPartState head_state;
+	UPROPERTY(VisibleAnywhere) FBossBodyPartState body_state;
+	UPROPERTY(VisibleAnywhere) FBossBodyPartState wing_state;
+	UPROPERTY(VisibleAnywhere) FBossBodyPartState tail_state;
+	UPROPERTY(VisibleAnywhere) FBossBodyPartState leg_state;
+	UPROPERTY(VisibleAnywhere) TArray<EMonsterBodyPart> stunnable_parts;
+	UPROPERTY(VisibleAnywhere) FBossRageStats rage_stats;
+	UPROPERTY(VisibleAnywhere) float tenderised_damage_multiplier;
 };
 
 USTRUCT(BlueprintType)
