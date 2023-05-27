@@ -2,7 +2,6 @@
 
 
 #include "AZ_MHW/Widget/Login/AZWidget_Loading.h"
-
 #include "AZ_MHW/Widget/System/AZButton.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
@@ -27,8 +26,8 @@ void UAZWidget_Loading::Init()
 	c_touch_screen_->OnPressed.AddDynamic(this, &UAZWidget_Loading::OnPressedTouchScreen);
 	c_touch_screen_->OnReleased.Clear();
 	c_touch_screen_->OnReleased.AddDynamic(this, &UAZWidget_Loading::OnReleasedTouchScreen);
-	c_touch_screen_->OnMouseMoveEvent.Unbind();
-	c_touch_screen_->OnMouseMoveEvent.BindUObject(this, &UAZWidget_Loading::OnMoveTouchScreen);
+	//c_touch_screen_->OnMouseMoveEvent.Unbind();
+	//c_touch_screen_->OnMouseMoveEvent.BindUObject(this, &UAZWidget_Loading::OnMoveTouchScreen);
 }
 
 void UAZWidget_Loading::OnOpen(bool immediately)
