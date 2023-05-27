@@ -74,11 +74,13 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ENTER_COMBAT_CM
 	owner_->OnEnterCombat.Broadcast();
 }
 
-void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_START_CMD(const FMonsterActionStateInfo action_info, float start_positon)
+void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_START_CMD(const FMonsterActionStateInfo action_info, float start_position)
 {
 	owner_->anim_instance_->is_doing_action_ = false;
 	owner_->SetActionStateInfo(action_info);
 	owner_->anim_instance_->UpdateAnimation();
+	//if (start_position != 0) start_position = owner_->GetWorld()->GetDeltaSeconds() * 4;
+	owner_->anim_instance_->start_position_ = start_position;
 }
 
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_END_CMD(FVector location, FRotator rotation, EMonsterActionMode action_mode)
@@ -87,7 +89,6 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_END_CMD(
 	owner_->SetActorRotation(rotation);
 	owner_->action_state_info_.action_mode = action_mode;
 	owner_->anim_instance_->is_doing_action_ = false;
-	Cast<UAZAnimInstance_Monster>(owner_->GetMesh()->GetAnimInstance())->SetDoingAction(false);
 	owner_->action_state_info_.priority_score = EMonsterActionPriority::Locomotion;
 	owner_->action_state_info_.move_state = EMoveState::None;
 	owner_->action_state_info_.animation_name = NAME_None;

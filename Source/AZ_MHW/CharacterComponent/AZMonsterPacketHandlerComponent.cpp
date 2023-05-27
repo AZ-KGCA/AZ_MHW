@@ -3,6 +3,7 @@
 #include "AZMonsterPacketHandlerComponent.h"
 
 #include "AZMonsterHealthComponent.h"
+#include "AnimInstance/AZAnimInstance_Monster.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
@@ -167,7 +168,7 @@ void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_DIE_CMD()
 
 void UAZMonsterPacketHandlerComponent::Receive_CS_MONSTER_UPDATE_REQ(UINT32 client_index)
 {
-	Send_SC_MONSTER_ACTION_START_CMD(0.0f, client_index); //TODO start position
+	Send_SC_MONSTER_ACTION_START_CMD(owner_->anim_instance_->GetSkelMeshComponent()->GetPosition(), client_index);
 	Send_SC_MONSTER_TRANSFORM_CMD(true, client_index);
 	Send_SC_MONSTER_BODY_STATE_CMD(client_index);
 }

@@ -31,6 +31,7 @@
 #include "Odbc.h"
 #include "TimerManager.h"
 #include "UserManager.h"
+#include "Manager/AZMonsterMgr.h"
 #include "PlayerController/AZPlayerController_Server.h"
 
 UAZGameInstance::UAZGameInstance()
@@ -82,7 +83,7 @@ void UAZGameInstance::Init()
 	
 	input_mgr_ = NewObject<UAZInputMgr>(this);
 	input_mgr_->Init();
-
+	
 	AddNewSingleton(map_mgr = NewObject<UAZMapMgr>(this));
 	msg_handler->OnRegister(map_mgr);
 

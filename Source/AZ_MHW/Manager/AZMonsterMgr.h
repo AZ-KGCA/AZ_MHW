@@ -5,7 +5,7 @@
 #include "AZMonsterMgr.generated.h"
 
 UCLASS()
-class UAZMonsterMgr : public UObject 
+class AZ_MHW_API UAZMonsterMgr : public UObject 
 {
 	GENERATED_BODY()
 	
@@ -39,7 +39,7 @@ public:
 private:
 	// Table maps
 	UPROPERTY() TMap<int32, FMonsterInfo> monster_info_map_; 
-	UPROPERTY() TMap<int32 /*monsterid * 1000 + EBossRank*/, FBossInfo> boss_info_map_;
+	UPROPERTY()	TMap<int32 /*monsterid * 1000 + EBossRank*/, FBossInfo> boss_info_map_;
 
 	TMultiMap<int32 /*monsterid*/, int32/*monsterid * 1000 * actionid*/> monster_noncombat_action_info_map_;
 	UPROPERTY() TMap<int32 /*monsterid * 1000 * actionid*/, FMonsterNonCombatActionInfo> noncombat_action_info_map_;

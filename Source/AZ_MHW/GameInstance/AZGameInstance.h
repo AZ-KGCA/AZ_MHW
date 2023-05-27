@@ -80,7 +80,7 @@ public:
 
 public:
 	FClient_Connect Fclient_connect_;
-
+	
 public:
 
 	void PacketInit(const UINT32 max_client);

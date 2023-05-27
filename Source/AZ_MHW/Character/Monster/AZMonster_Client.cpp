@@ -10,6 +10,7 @@
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFrameWork/CharacterMovementComponent.h"
+#include "GameInstance/AZGameInstance.h"
 #include "Manager/AZResourceMgr.h"
 
 AAZMonster_Client::AAZMonster_Client()
@@ -67,6 +68,7 @@ void AAZMonster_Client::SetMeshAndColliders()
 	{
 		GetMesh()->SetAnimInstanceClass(anim_asset);
 		anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
+		anim_instance_->owner_monster_client_ = this;
 	}
 	else
 	{
@@ -88,25 +90,3 @@ void AAZMonster_Client::SetActionStateInfo(const FMonsterActionStateInfo action_
 {
 	action_state_info_ = action_state_info;
 }
-
-// anim notify jump to animation 처리하는 함수 넣기
-//
-// void AAZMonster_Client::AnimNotify_EndOfAction()
-// {
-// 	// if the action was a transition action, finish transition
-// 	if (action_state_info_.action_mode == EMonsterActionMode::Transition)
-// 	{
-// 		action_state_info_.action_mode = EMonsterActionMode::Combat;
-// 	}
-// 	// return to normal action state
-// 	anim_instance_->is_doing_action_ = false;
-// 	action_state_info_.priority_score = EMonsterActionPriority::Locomotion;
-// 	action_state_info_.move_state = EMoveState::None;
-// 	action_state_info_.animation_name = NAME_None;
-// 	action_state_info_.montage_section_name = NAME_None;
-// }
-//
-// void AAZMonster_Client::AnimNotify_SetMovementMode(EMovementMode movement_mode)
-// {
-// 	GetCharacterMovement()->SetMovementMode(movement_mode);
-// }

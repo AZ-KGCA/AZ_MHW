@@ -113,7 +113,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterHealthComponent> health_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterMeshComponent> mesh_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterPacketHandlerComponent> packet_handler_component_;
-
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation") TObjectPtr<UAZAnimInstance_Monster> anim_instance_;
+	
 	// AIController Properties: Defined from table
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") FMonsterSightConfigs sight_configs_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | AIController") int32 patrol_range_;
@@ -146,6 +147,5 @@ protected:
 	bool is_dead_;
 	
 	// Other properties
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Animation") TObjectPtr<UAZAnimInstance_Monster> anim_instance_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster") int32 active_action_id_;
 };

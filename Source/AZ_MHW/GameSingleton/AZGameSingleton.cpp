@@ -37,6 +37,7 @@ void UAZGameSingleton::Init()
 
 	player_mgr_ = NewObject<UAZPlayerMgr>();
 	player_mgr_->Init();
+
 	monster_mgr_ = NewObject<UAZMonsterMgr>(this);
 	monster_mgr_->Init();
 }

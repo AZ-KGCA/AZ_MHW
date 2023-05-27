@@ -9,6 +9,7 @@
 
 #include "AZMonsterAggroComponent.h"
 #include "Character/Player/AZPlayer_Origin.h"
+#include "GameInstance/AZGameInstance.h"
 
 UAZMonsterHealthComponent::UAZMonsterHealthComponent()
 {

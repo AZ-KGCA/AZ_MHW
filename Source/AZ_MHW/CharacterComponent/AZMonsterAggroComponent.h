@@ -38,7 +38,7 @@ public:
 	void IncreaseByDamage(int32 attacker_serial, int32 damage);
 	void IncreaseByPartChange(int32 attacker_serial, EMonsterBodyPartChangeType change_type);
 	void UpdateByRange();
-	void UpdateByEnterCombat(int32 player_serial);
+	void ActivateByEnterCombat(int32 player_serial);
 	
 private:
 	// Update aggro information

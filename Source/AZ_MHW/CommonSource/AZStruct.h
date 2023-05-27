@@ -168,7 +168,7 @@ struct FBossEscapeStats
 
 	FBossEscapeStats()
 	{
-		//num_allowed_escapes = 0;
+		num_allowed_escapes = 0;
 	};
 	FBossEscapeStats(const int32 num_allowed_escapes, const TArray<float>& escape_health_ratios)
 	{
@@ -361,27 +361,38 @@ struct FMonsterInfo
 	}
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FBossInfo
 {
 	GENERATED_BODY()
+	
+	UPROPERTY() int32 boss_id;
+	UPROPERTY() int32 monster_id;
+	UPROPERTY() EBossRank rank;
+	UPROPERTY() int32 base_stamina;
+	UPROPERTY() float tired_duration;
+	UPROPERTY() bool has_transition_animation;
+	UPROPERTY() FBossEscapeStats escape_stats;
+	UPROPERTY() FBossWeaknessStats weakness_stats;
+	UPROPERTY() FBossBodyPartState head_state;
+	UPROPERTY() FBossBodyPartState body_state;
+	UPROPERTY() FBossBodyPartState wing_state;
+	UPROPERTY() FBossBodyPartState tail_state;
+	UPROPERTY() FBossBodyPartState leg_state;
+	UPROPERTY() TArray<EMonsterBodyPart> stunnable_parts;
+	UPROPERTY() FBossRageStats rage_stats;
+	UPROPERTY() float tenderised_damage_multiplier;
 
-	UPROPERTY(VisibleAnywhere) int32 boss_id;
-	UPROPERTY(VisibleAnywhere) int32 monster_id;
-	UPROPERTY(VisibleAnywhere) EBossRank rank;
-	UPROPERTY(VisibleAnywhere) int32 base_stamina;
-	UPROPERTY(VisibleAnywhere) float tired_duration;
-	UPROPERTY(VisibleAnywhere) bool has_transition_animation;
-	UPROPERTY(VisibleAnywhere) FBossEscapeStats escape_stats;
-	UPROPERTY(VisibleAnywhere) FBossWeaknessStats weakness_stats;
-	UPROPERTY(VisibleAnywhere) FBossBodyPartState head_state;
-	UPROPERTY(VisibleAnywhere) FBossBodyPartState body_state;
-	UPROPERTY(VisibleAnywhere) FBossBodyPartState wing_state;
-	UPROPERTY(VisibleAnywhere) FBossBodyPartState tail_state;
-	UPROPERTY(VisibleAnywhere) FBossBodyPartState leg_state;
-	UPROPERTY(VisibleAnywhere) TArray<EMonsterBodyPart> stunnable_parts;
-	UPROPERTY(VisibleAnywhere) FBossRageStats rage_stats;
-	UPROPERTY(VisibleAnywhere) float tenderised_damage_multiplier;
+	FBossInfo()
+	{
+		boss_id = -1;
+		monster_id = -1;
+		rank = EBossRank::None;
+		base_stamina = 0;
+		tired_duration = 0;
+		has_transition_animation = false;
+		tenderised_damage_multiplier = 1.0f;
+	}
 };
 
 USTRUCT(BlueprintType)

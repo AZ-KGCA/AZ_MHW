@@ -12,6 +12,7 @@
 #include "AZ_MHW/Util/AZUtility.h"
 #include "Character/Player/AZPlayer.h"
 #include "Character/Player/AZPlayer_Origin.h"
+#include "GameInstance/AZGameInstance.h"
 
 AAZAIController::AAZAIController()
 {

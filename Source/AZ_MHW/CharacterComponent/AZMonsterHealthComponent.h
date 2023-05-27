@@ -19,6 +19,7 @@ public:
 	UAZMonsterHealthComponent();
 	void Init();
 	void InitializeRuntimeValues();
+	virtual void BeginPlay() override;
 
 	// Property Getters
 	float GetHealthRatio() const;
@@ -50,9 +51,6 @@ protected:
 	UFUNCTION() void OnBodyPartBroken(EMonsterBodyPart body_part);
 	UFUNCTION() void OnBodyPartSevered(EMonsterBodyPart body_part);
 	UFUNCTION() void OnDeath();
-	
-protected:
-	virtual void BeginPlay() override;
 	
 private:
 	TWeakObjectPtr<AAZMonster> owner_;

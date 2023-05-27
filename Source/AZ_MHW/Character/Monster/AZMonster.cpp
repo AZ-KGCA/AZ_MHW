@@ -20,6 +20,7 @@
 #include <Components/CapsuleComponent.h>
 
 #include "Character/Player/AZPlayer_Origin.h"
+#include "GameInstance/AZGameInstance.h"
 
 
 AAZMonster::AAZMonster()
@@ -88,8 +89,8 @@ void AAZMonster::SetMeshAndColliders()
 	if (UClass* anim_asset = AZResourceHelper::LoadClass<UAnimInstance>(anim_path))
 	{
 		GetMesh()->SetAnimInstanceClass(anim_asset);
-		GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 		anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
+		anim_instance_->owner_monster_ = this;
 	}
 	else
 	{
@@ -193,8 +194,8 @@ void AAZMonster::EnterCombat(AActor* combat_instigator, bool is_triggered_by_sig
 
 	UE_LOG(AZMonster, Log, TEXT("[AZMONSTER] Entering combat by %s"), is_triggered_by_sight ? TEXT("sight") : TEXT("damage"));
 	GetController()->SetBlackboardValueAsBool(AZBlackboardKey::is_triggered_by_sight, is_triggered_by_sight);
-	aggro_component_->ForceSetBestTarget(Cast<AAZPlayer_Origin>(combat_instigator));
-		
+	aggro_component_->ActivateByEnterCombat(Cast<AAZPlayer_Origin>(combat_instigator)->object_serial_);
+	
 	if (has_combat_transition_anim_)
 		SetActionMode(EMonsterActionMode::Transition);
 	else
@@ -215,6 +216,7 @@ void AAZMonster::SetMoveState(EMoveState move_state)
 	action_state_info_.move_state = move_state;
 	action_state_info_.animation_name = NAME_None;
 	action_state_info_.montage_section_name = NAME_None;
+	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
 
 	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::move_state, uint8(move_state));
 	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, uint8(ECharacterState::Locomotion));
@@ -269,7 +271,6 @@ void AAZMonster::SetActionState(int32 action_id)
 		}
 	case EMonsterActionMode::Transition:
 		anim_instance_->is_doing_action_ = false;
-		Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance())->SetDoingAction(false);
 	case EMonsterActionMode::Combat:
 		{
 			if (const FMonsterCombatActionInfo* action_data = combat_action_map_.Find(action_id))
@@ -298,7 +299,6 @@ void AAZMonster::SetActionState(int32 action_id)
 	action_state_info_.priority_score = EMonsterActionPriority::Action;
 	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, uint8(ECharacterState::Action));
 	anim_instance_->is_doing_action_ = false;
-	Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance())->SetDoingAction(false);
 
 	// TODO this only covers combat mode; cannot process non-combat player conscious actions
 	// Update target angle
@@ -310,7 +310,7 @@ void AAZMonster::SetActionState(int32 action_id)
 	}
 
 	UE_LOG(AZMonster, Warning, TEXT("Action selected: %s, %s"), *action_state_info_.animation_name.ToString(), *action_state_info_.montage_section_name.ToString());
-	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
+	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD(0.0f);
 }
 
 int32 AAZMonster::GetMonsterID() const
@@ -363,10 +363,9 @@ void AAZMonster::AnimNotify_EndOfAction()
 	}
 	// return to normal action state
 	anim_instance_->is_doing_action_ = false;
-	Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance())->SetDoingAction(false);
 	active_action_id_ = -1;
 	SetMoveState(EMoveState::None);
-
+	
 	packet_handler_component_->Send_SC_MONSTER_ACTION_END_CMD();
 }
 
@@ -376,9 +375,8 @@ void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName nex
 	action_state_info_.montage_section_name = next_montage_section_name;
 	SetTargetAngle(aggro_component_->GetAngle2DToTarget());
 	anim_instance_->is_doing_action_ = false;
-	Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance())->SetDoingAction(false);
 
-	//packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
+	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
 }
 
 void AAZMonster::AnimNotify_SetMovementMode(EMovementMode movement_mode)

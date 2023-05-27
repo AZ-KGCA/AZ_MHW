@@ -69,7 +69,7 @@ struct magic_enum::customize::enum_range<PACKET_ID>
 	static constexpr int max = 10000;
 };
 
-#pragma pack(push,1)
+//#pragma pack(push,1)
 struct PACKET_HEADER
 {
 	UINT16 packet_length;
@@ -82,4 +82,4 @@ struct PACKET_HEADER
 #include "AZ_MHW/SocketHolder/Login/LoginPacket.h"
 #include "AZ_MHW/SocketHolder/Map/MapPacket.h"
 #include "AZ_MHW/SocketHolder/Monster/MonsterPacket.h"
-#pragma pack(pop) //위에 설정된 패킹설정이 사라짐
+// pack(pop) //위에 설정된 패킹설정이 사라짐

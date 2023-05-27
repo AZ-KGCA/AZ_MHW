@@ -28,7 +28,7 @@ public:
 	UPROPERTY() class UAZMonsterMgr* monster_mgr_;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Classes)
-	TSubclassOf<class UAZResourceMgr> resource_mgr_class;
+	TSubclassOf<UAZResourceMgr> resource_mgr_class;
 
 	FStreamableManager streamable_manager;
 	

@@ -2,7 +2,9 @@
 
 
 #include "AZ_MHW/AnimInstance/AZAnimInstance_Monster.h"
-#include "AZ_MHW/Character/Monster/AZMonster.h"
+
+#include "Character/Monster/AZMonster.h"
+#include "Character/Monster/AZMonster_Client.h"
 
 void UAZAnimInstance_Monster::NativeInitializeAnimation()
 {
@@ -14,12 +16,20 @@ void UAZAnimInstance_Monster::NativeUpdateAnimation(float delta_seconds)
 	Super::NativeUpdateAnimation(delta_seconds);
 }
 
-void UAZAnimInstance_Monster::PlayNextAnimation() 
+AAZMonster* UAZAnimInstance_Monster::GetMonster()
 {
-	
+	if (owner_.Get())
+	{
+		return Cast<AAZMonster>(owner_);
+	}
+	return nullptr;
 }
 
-AAZMonster* UAZAnimInstance_Monster::CastMonster()
+AAZMonster_Client* UAZAnimInstance_Monster::GetMonsterClient()
 {
-	return Cast<AAZMonster>(TryGetPawnOwner());
+	if (owner_.Get())
+	{
+		return Cast<AAZMonster_Client>(owner_);
+	}
+	return nullptr;
 }

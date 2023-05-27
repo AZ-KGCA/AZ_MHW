@@ -43,6 +43,12 @@ void UAZMonsterAggroComponent::InactivateSystem()
 	}
 }
 
+void UAZMonsterAggroComponent::ActivateByEnterCombat(int32 player_serial)
+{
+	ActivateSystem();
+	UpdateAggroSpecific(player_serial, 70, "EnterCombat");
+}
+
 void UAZMonsterAggroComponent::Reset()
 {
 	target_serial_ = INDEX_NONE;
@@ -202,11 +208,6 @@ void UAZMonsterAggroComponent::UpdateByRange()
 			UpdateAggroSpecific(info.Key, -30, "NotInRange");
 		}
 	}
-}
-
-void UAZMonsterAggroComponent::UpdateByEnterCombat(int32 player_serial)
-{
-	UpdateAggroSpecific(player_serial, 70, "EnterCombat");
 }
 
 void UAZMonsterAggroComponent::IncreaseByPartChange(int32 attacker_serial, EMonsterBodyPartChangeType change_type)

@@ -96,13 +96,13 @@ bool UAZMonsterMgr::ConvertBossTable()
 	auto boss_table = UAZGameSingleton::instance()->table_mgr->GetData<UBossData>();
 	if (boss_table.IsEmpty()) return false;
 	
-	for (const auto boss_data : boss_table)
+	for (const UBossData* boss_data : boss_table)
 	{
 		FBossInfo boss_info;
 		boss_info.boss_id							= boss_data->boss_id;
 		boss_info.monster_id						= boss_data->monster_id;
 		boss_info.rank								= UAZUtility::StringToEnum<EBossRank>(boss_data->rank);
-		boss_info.base_stamina						= boss_data->base_stamina;
+		boss_info.base_stamina					= boss_data->base_stamina;
 		boss_info.tired_duration					= UAZUtility::MillisecondsToSeconds(boss_data->tired_duration);
 		boss_info.has_transition_animation			= boss_data->has_transition_animation;
 		boss_info.weakness_stats					= FBossWeaknessStats(boss_data->weakness_head, boss_data->weakness_neck,
@@ -119,7 +119,6 @@ bool UAZMonsterMgr::ConvertBossTable()
 		boss_info.tenderised_damage_multiplier		= UAZUtility::PerTenThousandToPerOne(boss_data->tenderised_damage_multiplier);
 		boss_info.escape_stats						= FBossEscapeStats(boss_data->num_allowed_escapes, boss_data->escape_health_ratios);
 
-		//boss_info_map_.Add(MakeTuple(boss_info.monster_id, boss_info.rank), boss_info);
 		boss_info_map_.Add(boss_info.monster_id * 1000 + (int)boss_info.rank, boss_info);
 	}
 	return true;

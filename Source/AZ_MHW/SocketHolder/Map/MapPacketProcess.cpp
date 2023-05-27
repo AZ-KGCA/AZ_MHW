@@ -3,7 +3,6 @@
 #include "CharacterComponent/AZMonsterPacketHandlerComponent.h"
 #include "GameInstance/AZGameInstance.h"
 #include "GameMode/AZGameMode_Server.h"
-#include "Manager/AZMapMgr.h"
 #include "Manager/AZObjectMgr_Server.h"
 
 // TEMP
