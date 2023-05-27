@@ -8,9 +8,9 @@
 #include "Engine/EngineTypes.h"
 #include "AZGameMode_InGame.generated.h"
 
-/**
- * 
- */
+class UAZObjectMgr_Client;
+class ULevelStreamingDynamic;
+
 UCLASS()
 class AZ_MHW_API AAZGameMode_InGame : public AAZGameMode
 {
@@ -24,6 +24,7 @@ public:
 	virtual void InitGame(const FString& map_name, const FString& options, FString& error_message) override;
 	virtual void PreStartPlay() override;
 	virtual void PostStartPlay() override;
+	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 	virtual void EndPlay(const EEndPlayReason::Type end_play_reason) override;
 
@@ -66,12 +67,20 @@ public:
 	void ForEachAppearInteraction(OnForEachInteractionDelegate func);
 	void ForEachBossMonsters(OnForEachCharacterDelegate func);
 
+	// TEMP
+	UFUNCTION(BlueprintCallable) void OpenQuestWidget(); 
+	void RequestWarpCombatLevel();
+	void OnCombatLevelLoaded(ULevel* in_level, UWorld* in_world);
+
 public:
 	DECLARE_EVENT_OneParam(AAZGameMode_InGame, FAppearObject, AActor*);
 	FAppearObject OnAppearObjectEvent;
 	DECLARE_EVENT_OneParam(AAZGameMode_InGame, FDisappearObject, int32);
 	FDisappearObject OnDisappearObjectEvent;
 
+	UPROPERTY() TObjectPtr<UAZObjectMgr_Client> object_mgr_;
+	TWeakObjectPtr<ULevelStreamingDynamic> combat_level_;
+	
 protected:
 	UPROPERTY() TMap<int32, class AActor*> appear_actors_;
 	// FIXME merged check	

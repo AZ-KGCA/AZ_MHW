@@ -2,7 +2,6 @@
 
 
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
-
 #include "AZ_MHW/CommonSource/AZLog.h"
 #include "AZ_MHW/Util/AZUtility.h"
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
@@ -114,6 +113,8 @@ void UAZSocketHolder::InitIsShowWaitWidgetException()
 	is_show_wait_widget_exception_protocols_.Empty();
 	// 로딩창 막는 패킷
 	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)PACKET_ID::CS_CHAT_MSG_CMD);
+	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)PACKET_ID::CS_COMBAT_MAP_LOAD_FINISH_CMD); // TEMP
+	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)PACKET_ID::CS_MONSTER_UPDATE_REQ);
 }
 
 void UAZSocketHolder::InitSendLoger()
@@ -125,7 +126,7 @@ void UAZSocketHolder::InitSendLoger()
 void UAZSocketHolder::ShowWaitingWidget(bool is_forced)
 {
 	UAZWidget_Waiting* waiting_widget = nullptr;
-	if (game_instance_ && game_instance_->GetHUD())
+	if (game_instance_.IsValid() && game_instance_->GetHUD())
 	{
 		waiting_widget = game_instance_->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true);
 	}
@@ -212,9 +213,12 @@ void UAZSocketHolder::SafeHideWaitingWidget(bool is_clear)
 		UAZWidget_Waiting::ClearForceWaiting();
 	}
 
-	if (game_instance_->GetHUD()->IsInViewportWaitingWidget())
+	if (game_instance_->GetHUD())
 	{
-		game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+		if (game_instance_->GetHUD()->IsInViewportWaitingWidget())
+		{
+			game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+		}
 	}
 }
 

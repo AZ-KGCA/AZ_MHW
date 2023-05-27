@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "AZMonsterAggroComponent.generated.h"
-class AAZCharacter;
+enum class EMonsterBodyPartChangeType : uint8;
+class AAZPlayer_Origin;
 class AAZMonster;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -13,29 +14,49 @@ class AZ_MHW_API UAZMonsterAggroComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	UAZMonsterAggroComponent();
-
-protected:
-	virtual void InitializeComponent() override;
-
 public:
+	// Initialisers
+	UAZMonsterAggroComponent();
+	void Init();
+	void ActivateSystem();
+	void InactivateSystem();
+	void Reset();
+	
 	// Setters
-	void SetBestTarget(AAZCharacter* character);
+	void ForceSetBestTarget(AAZPlayer_Origin* character);
+	void RemoveTarget(int32 player_serial);
 	
 	// Getters
-	int32 GetBestTargetSerial();
-	AAZCharacter* GetTargetRef() const;
-	FVector GetTargetLocation() const;
-	float GetDistance2DToTarget() const;
-	float GetAngle2DToTarget() const;
-	//TODO Get random nearby player location
+	int32 GetTargetSerial();
+	AAZPlayer_Origin* GetTargetRef();
+	FVector GetTargetLocation();
+	FVector GetRandomTargetLocation();
+	float GetDistance2DToTarget();
+	float GetAngle2DToTarget();
 
+	// Updaters
+	void IncreaseByDamage(int32 attacker_serial, int32 damage);
+	void IncreaseByPartChange(int32 attacker_serial, EMonsterBodyPartChangeType change_type);
+	void UpdateByRange();
+	void ActivateByEnterCombat(int32 player_serial);
+	
+private:
+	// Update aggro information
+	void SortAggroInfo();
+	void UpdateAggro();
+	void UpdateAggroSpecific(int32 player_serial, int32 aggro_point, FString update_reason);
+	TPair<int32, int32>* FindByKey(int32 player_serial);
+	
 private:
 	TWeakObjectPtr<AAZMonster> owner_;
-	TWeakObjectPtr<AAZCharacter> best_target_;
 
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) TMap<int32, int32> aggro_info_;
-	UPROPERTY(VisibleAnywhere) int32 test_;
+	int32 target_serial_;
+	TWeakObjectPtr<AAZPlayer_Origin> target_ref_;
+
+	FTimerHandle update_timer_handle_;
+	float update_rate_;
+	float percept_range_;
+
+	// Aggro information storing <object_serial/aggro_point>
+	TArray<TPair<int32, int32>> aggro_info_;
 };

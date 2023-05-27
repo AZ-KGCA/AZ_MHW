@@ -16,15 +16,16 @@ class UAZDamageAgentInterface : public UInterface
 class AZ_MHW_API IAZDamageAgentInterface
 {
 	GENERATED_BODY()
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTakeDamageSignature, float, damage, const FAttackInfo&, attack_info, class AController*, instigator /* Actor*, DamageCauser*/ );
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTakeDamageSignature, AActor*, damage_instigator, const FHitResult, hit_result, FAttackInfo, attack_info);
 
 public:
 	FOnTakeDamageSignature OnTakeDamage;
 	
 protected:
 	// Damage functions
-	UFUNCTION(BlueprintNativeEvent)
-	float ApplyDamage(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info);
-	virtual float ProcessDamage(const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info, float applied_damage);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
+
+public:
+	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
 };

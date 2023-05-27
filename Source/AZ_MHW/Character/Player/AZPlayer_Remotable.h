@@ -30,6 +30,4 @@ protected:
 	/** */
 	//virtual void PossessedBy(AController* new_controller) override;
 	
-	// Damage Processing
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info) override;
 };

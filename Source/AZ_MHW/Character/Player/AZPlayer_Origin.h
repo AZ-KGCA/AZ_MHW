@@ -39,7 +39,7 @@ protected:
 #pragma region Damage Interface
 	// 해당 결과가 유저에게 전달
 protected:
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info) override;
-	virtual float ProcessDamage(const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info, float applied_damage) override;
+	//virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info) override;
+	//virtual float ProcessDamage(const FHitResult& hit_result, AController* event_instigator, const FAttackInfo& attack_info, float applied_damage) override;
 #pragma endregion 
 };

@@ -15,6 +15,10 @@ DECLARE_LOG_CATEGORY_EXTERN(AZ_ATTACK, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(AZ_DAMAGE, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogShipping, Log, All)
 DECLARE_LOG_CATEGORY_EXTERN(AZMonster, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZMonster_Network, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZMonster_Aggro, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZItem, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(AZ, Log, All)
 
 #define PRINT_LOG(str)		UE_LOG(AZ_TEST, Warning, TEXT(str))
 #define PRINT_FUNCTION()	UE_LOG(AZ_TEST, Warning, TEXT("%s"), __FUNCTIONW__)
@@ -77,4 +81,8 @@ public:
 	
 	static float MillisecondsToSeconds(const int32 milliseconds);
 	static float PerTenThousandToPerOne(const int32 per_ten_thousand);
+
+	// for server-client transmission
+	static char* FNameToCharArr(FName name);
+	static FName CharArrToFName(const char* char_array);
 };

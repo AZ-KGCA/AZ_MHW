@@ -35,6 +35,8 @@ protected:
 	FGenericTeamId team_id_;
 	
 public:
+	UPROPERTY(VisibleAnywhere) int32 object_serial_;
+	
 	// GenericTeamAgent Interface
 	virtual void SetGenericTeamId(const FGenericTeamId& team_id) override;
 	virtual FGenericTeamId GetGenericTeamId() const override;

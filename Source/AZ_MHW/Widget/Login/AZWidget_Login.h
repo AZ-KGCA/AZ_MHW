@@ -6,6 +6,9 @@
 #include "AZ_MHW/Widget/AZWidget.h"
 #include "AZWidget_Login.generated.h"
 
+class UButton;
+class UEditableTextBox;
+
 /**
  *
  */
@@ -40,10 +43,10 @@ private:
 
 public:
 	UPROPERTY() UWidget* panel_state_[(int32)EPanelState::Max];
-	UPROPERTY(meta = (BindWidget)) class UButton* c_btn_login_;
-	UPROPERTY(meta = (BindWidget)) class UButton* c_btn_any_press_;
-	UPROPERTY(meta = (BindWidget)) class UButton* c_btn_close_;
-	UPROPERTY(meta = (BindWidget)) class UButton* c_btn_sign_up_;
-	UPROPERTY(meta = (BindWidget)) class UEditableTextBox* c_id_;
-	UPROPERTY(meta = (BindWidget)) class UEditableTextBox* c_pass_;
+	UPROPERTY(meta = (BindWidget)) UButton* c_btn_login_;
+	UPROPERTY(meta = (BindWidget)) UButton* c_btn_any_press_;
+	UPROPERTY(meta = (BindWidget)) UButton* c_btn_close_;
+	UPROPERTY(meta = (BindWidget)) UButton* c_btn_sign_up_;
+	UPROPERTY(meta = (BindWidget)) UEditableTextBox* c_id_;
+	UPROPERTY(meta = (BindWidget)) UEditableTextBox* c_pass_;
 };

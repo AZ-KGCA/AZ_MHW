@@ -10,9 +10,9 @@
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include <Components/SkeletalMeshComponent.h>
 
-#include "AnimInstance/AZAnimInstance_Player.h"
+#include "CommonSource/Define/GameDefine.h"
+#include "Components/CapsuleComponent.h"
 #include "GameInstance/AZGameInstance.h"
-#include "Net/UnrealNetwork.h"
 
 //#include "AZ_MHW/Manager/AZTableMgr.h"
 //#include <Components/CapsuleComponent.h>
@@ -22,7 +22,10 @@ AAZPlayer::AAZPlayer()
 {
     // Generic Team Agent Interface
     SetGenericTeamId(uint8(EObjectType::Player));
-    
+
+	// Set object collision settings
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("AZPlayer"), true);
+	
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	//캡슐 크기조정
 	//GetCapsuleComponent()->InitCapsuleSize();
@@ -251,35 +254,25 @@ void AAZPlayer::ChangeSocketSlot(FName socket_actor_name, FName in_socket_name)
 	}
 }
 
-
-
-
-//Damage call
-float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info)
+float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
 	// TEMP
-	float base_damage = attack_info.base_damage;
-	float applied_damage = base_damage * 1;
 
 	// Process Damage on damaged actor
 	AAZMonster* monster = Cast<AAZMonster>(damaged_actor);
-	return monster->ProcessDamage(hit_result, instigator, attack_info, applied_damage);
+	return monster->ProcessDamage(this, hit_result, attack_info);
 }
 
-float AAZPlayer::ProcessDamage(const FHitResult& hit_result, AController* instigator, const FAttackInfo& attack_info, float applied_damage)
+float AAZPlayer::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
-	float final_damage = applied_damage;
-	// TODO 여기서 받은 데미지 값에서 캐릭터의 장비, 능력치 등 고려하셔서 최종 데미지 인자값으로 넘기시면 됩니다
-	// Super함수 호출은 이 함수 포함 다른 함수에서도 안 해도 되는데 ProcessDamage에서 안할 경우에는 OnTakeDamage.BroadCast 해주셔야합니다
-
-	return Super::ProcessDamage(hit_result, instigator, attack_info, final_damage);
+	return Super::ProcessDamage(damage_instigator, hit_result, attack_info);
 }
 
-void AAZPlayer::PostProcessDamage(float total_damage, const FAttackInfo& attack_info, AController* instigator)
+void AAZPlayer::PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
 //Origin과 Playable
 	
-	AAZMonster* instigator_monster = Cast<AAZMonster>(instigator->GetPawn());
+	AAZMonster* instigator_monster = Cast<AAZMonster>(damage_instigator);
 	if (!instigator_monster)
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[AAZPlayer] Damage dealt by non-AZMonster actor %s"), *instigator_monster->GetName());
@@ -323,7 +316,8 @@ void AAZPlayer::PostProcessDamage(float total_damage, const FAttackInfo& attack_
 	
 	if(const auto player_state = GetPlayerState<AAZPlayerState>())
 	{
-		player_state->character_state_.current_health_point -= total_damage;
+	    // TODO 공격타입별로 데미지 계산, attack_info.damage_array에 TTuple<EDamageType, int32> 꼴로 있습니다
+		player_state->character_state_.current_health_point -= attack_info.GetDamageTotal();
 		if(player_state->character_state_.current_health_point <= 0)
 		{
 			player_state->character_state_.current_health_point = 0;

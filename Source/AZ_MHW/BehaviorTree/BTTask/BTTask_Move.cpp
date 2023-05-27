@@ -100,8 +100,8 @@ EBTNodeResult::Type UBTTask_Move::ExecuteTask(UBehaviorTreeComponent& owner_comp
 			{
 #if WITH_EDITOR
 				UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [PathPoint %d] %s"), point_iter, *(nav_path->PathPoints[point_iter].ToString()));
-				DrawDebugSphere(GetWorld(), nav_path->PathPoints[point_iter], 5.0f, 16, FColor::Red, false, 10.0f, 0U, 20.f);
-				DrawDebugLine(GetWorld(), nav_path->PathPoints[point_iter - 1], nav_path->PathPoints[point_iter], FColor::Red, false, 10.0f, 0U, 5.f);
+				//DrawDebugSphere(GetWorld(), nav_path->PathPoints[point_iter], 5.0f, 16, FColor::Red, false, 10.0f, 0U, 20.f);
+				//DrawDebugLine(GetWorld(), nav_path->PathPoints[point_iter - 1], nav_path->PathPoints[point_iter], FColor::Red, false, 10.0f, 0U, 5.f);
 #endif
 			}
 		}
@@ -127,8 +127,7 @@ EBTNodeResult::Type UBTTask_Move::MoveBegin(UBehaviorTreeComponent& owner_comp)
 	}
 
 	// Request movement
-	AAZAIController* controller = Cast<AAZAIController>(owner_->GetController());
-	FPathFollowingRequestResult move_req_result = controller->MoveToLocation(path_points_[path_index_]);
+	FPathFollowingRequestResult move_req_result = owner_->GetController()->MoveToLocation(path_points_[path_index_]);
 	UE_LOG(AZMonster, Log, TEXT("[UBTTask_Move] [ID%s] Requested move to pathpoint#%d"), *(move_req_result.MoveId.ToString()), path_index_);
 
 	// Check request result

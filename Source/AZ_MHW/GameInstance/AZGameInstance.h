@@ -80,7 +80,7 @@ public:
 
 public:
 	FClient_Connect Fclient_connect_;
-
+	
 public:
 
 	void PacketInit(const UINT32 max_client);
@@ -192,7 +192,7 @@ public:
 	UPROPERTY() class UAZSaveData* save_data;
 	UPROPERTY() class UAZMsgHandler* msg_handler;
 	UPROPERTY() class UAZLoginMgr* login_mgr;
-	UPROPERTY() class UAZMapMgr* map_mgr;
+	UPROPERTY(BlueprintReadOnly) class UAZMapMgr* map_mgr;
 	UPROPERTY() class UAZHUDDataMgr* hud_data_mgr;
 	UPROPERTY() class UAZGameOption* game_option;
 	UPROPERTY() class UAZInventoryManager* inventory_mgr;
@@ -222,6 +222,11 @@ public:
 	bool IsWaitingProtocolEmpty();
 	TArray<FString> GetWaitingPorotocolNames() const;
 
+	// level load / remove handlers
+	void BindLevelAddRemoveEvents();
+	void OnLevelRemovedFromWorld(ULevel* in_level, UWorld* in_world);
+	void OnLevelAddedToWorld(ULevel* in_level, UWorld* in_world);
+	void OnLevelLoaded();
 
 	UFUNCTION(BlueprintCallable, Category = "AZ") 
 	class AAZHUD* GetHUD();

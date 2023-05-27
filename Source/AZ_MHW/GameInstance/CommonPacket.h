@@ -34,7 +34,32 @@ enum class PACKET_ID : UINT16
 	CS_ITEM_CREATE_RES = 1109,
 	CS_ITEM_USE_REQ = 1110,
 	CS_ITEM_USE_RES = 1111,
-	SC_ITEM_INFO_CMD = 1112
+	SC_ITEM_INFO_CMD = 1112,
+
+	// Map----------------------------
+	// Client -> Server
+	CS_COMBAT_MAP_ENTER_REQ = 2000, 
+	CS_COMBAT_MAP_LOAD_FINISH_CMD = 2001,
+	
+	// End of Map---------------------
+
+	// Monster------------------------
+	// Server -> Client
+	SC_MONSTER_SPAWN_CMD = 7001,
+	SC_MONSTER_SPAWN_END_CMD = 7002,
+	SC_MONSTER_TRANSFORM_CMD = 7010,
+	SC_MONSTER_BODY_STATE_CMD = 7011,
+	SC_MONSTER_ACTION_START_CMD = 7100,
+	SC_MONSTER_ACTION_END_CMD = 7101,
+	SC_MONSTER_ENTER_COMBAT_CMD = 7200,
+	SC_MONSTER_PART_CHANGE_CMD = 7201,
+	SC_MONSTER_HIT_CMD = 7202,
+	SC_MONSTER_DIE_CMD = 7203,
+
+	// Client -> Server
+	CS_MONSTER_UPDATE_REQ = 7500,
+	
+	// End of Monster-----------------
 };
 
 template<>
@@ -44,7 +69,7 @@ struct magic_enum::customize::enum_range<PACKET_ID>
 	static constexpr int max = 10000;
 };
 
-#pragma pack(push,1)
+//#pragma pack(push,1)
 struct PACKET_HEADER
 {
 	UINT16 packet_length;
@@ -56,4 +81,5 @@ struct PACKET_HEADER
 #include "AZ_MHW/SocketHolder/Chat/ChatPacket.h"
 #include "AZ_MHW/SocketHolder/Login/LoginPacket.h"
 #include "AZ_MHW/SocketHolder/Map/MapPacket.h"
-#pragma pack(pop) //위에 설정된 패킹설정이 사라짐
+#include "AZ_MHW/SocketHolder/Monster/MonsterPacket.h"
+// pack(pop) //위에 설정된 패킹설정이 사라짐

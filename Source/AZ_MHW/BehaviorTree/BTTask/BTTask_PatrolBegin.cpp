@@ -46,12 +46,12 @@ EBTNodeResult::Type UBTTask_PatrolBegin::ExecuteTask(UBehaviorTreeComponent& own
 		return EBTNodeResult::Failed;	
 	}
 
-	UWorld* world = owner_comp.GetWorld();
+	UWorld* world = ai_pawn->GetWorld();
 	if (!world)
 		return EBTNodeResult::Failed;
 
-	UNavigationSystemV1* nav_system = UNavigationSystemV1::GetCurrent(GetWorld());
-	if (!IsValid(nav_system))
+	UNavigationSystemV1* nav_system = UNavigationSystemV1::GetCurrent(world);
+	if (!nav_system)
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[BTTask_PatrolBegin] Navigation volume is not found."));
 		return EBTNodeResult::Failed;	
@@ -61,8 +61,8 @@ EBTNodeResult::Type UBTTask_PatrolBegin::ExecuteTask(UBehaviorTreeComponent& own
 	//TODO: 스폰지점보다 멀면 스폰지점으로 이동
 
 	FVector curr_position = ai_pawn->GetActorLocation();
-	FVector dest_position;
-	FNavLocation found_position;
+	FVector dest_position = FVector::ZeroVector;
+	FNavLocation found_position = FNavLocation();
 
 	if (nav_system->GetRandomPointInNavigableRadius(curr_position, patrol_range, found_position))
 	{

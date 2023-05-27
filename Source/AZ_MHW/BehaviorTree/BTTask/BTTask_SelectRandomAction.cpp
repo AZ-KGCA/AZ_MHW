@@ -13,6 +13,7 @@ UBTTask_SelectRandomAction::UBTTask_SelectRandomAction(const FObjectInitializer&
 	key_is_triggered_by_sight_.AddBoolFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_is_triggered_by_sight_));
 	key_action_mode_.AddEnumFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_action_mode_), StaticEnum<EMonsterActionMode>());
 	key_target_character_.AddObjectFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_target_character_), AActor::StaticClass());
+	key_action_delay_.AddFloatFilter(this, GET_MEMBER_NAME_CHECKED(UBTTask_SelectRandomAction, key_action_delay_));
 }
 
 void UBTTask_SelectRandomAction::InitializeFromAsset(UBehaviorTree& asset)
@@ -24,6 +25,7 @@ void UBTTask_SelectRandomAction::InitializeFromAsset(UBehaviorTree& asset)
 		key_is_triggered_by_sight_.ResolveSelectedKey(*bb_asset);
 		key_action_mode_.ResolveSelectedKey(*bb_asset);
 		key_target_character_.ResolveSelectedKey(*bb_asset);
+		key_action_delay_.ResolveSelectedKey(*bb_asset);
 	}
 }
 
@@ -80,10 +82,14 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectNonCombatAction(AAZMonster
 
 	// If there is no available action, return fail
 	if (available_action_ids.IsEmpty())
+	{
+		UE_LOG(AZMonster, Warning, TEXT("BT: NO ACTION"));
 		return EBTNodeResult::Failed;
+	}
 	
 	// Select random action from available actions
 	const int idx = FMath::RandRange(0, available_action_ids.Num()-1);
+	UE_LOG(AZMonster, Warning, TEXT("BT: Action index selected: %d"), available_action_ids[idx]);
 	owner->SetActionState(available_action_ids[idx]);
 	return EBTNodeResult::Succeeded;
 }
@@ -127,6 +133,11 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectTransitionAction(AAZMonste
 	// Select random action from available actions
 	const int idx = FMath::RandRange(0, available_action_ids.Num()-1);
 	owner->SetActionState(available_action_ids[idx]);
+
+	// Set action delay
+	float attack_delay = owner->combat_action_map_.Find(available_action_ids[idx])->attack_delay;
+	blackboard->SetValueAsFloat(key_action_delay_.SelectedKeyName, attack_delay);
+	
 	return EBTNodeResult::Succeeded;
 }
 
@@ -183,5 +194,10 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* o
 	// Select random action from available actions
 	const int idx = FMath::RandRange(0, available_action_ids.Num()-1);
 	owner->SetActionState(available_action_ids[idx]);
+
+	// Set action delay
+	float attack_delay = owner->combat_action_map_.Find(available_action_ids[idx])->attack_delay;
+	blackboard->SetValueAsFloat(key_action_delay_.SelectedKeyName, attack_delay);
+	
 	return EBTNodeResult::Succeeded;
 }

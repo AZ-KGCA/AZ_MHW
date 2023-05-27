@@ -23,20 +23,30 @@ void UMonsterCombatActionData::Load(TMap<FString, FString>& data)
 	{
 		montage_section_name = **value_ptr;
 	}
-	value_ptr = data.Find("attack_effect");
+	value_ptr = data.Find("effect");
 	if (value_ptr != nullptr)
 	{
-		attack_effect = **value_ptr;
+		effect = **value_ptr;
 	}
-	value_ptr = data.Find("damage_base");
+	value_ptr = data.Find("damage_types");
 	if (value_ptr != nullptr)
 	{
-		damage_base = FCString::Atoi(**value_ptr);
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			damage_types.Add(str);
+		}
 	}
-	value_ptr = data.Find("damage_poison");
+	value_ptr = data.Find("damage_amounts");
 	if (value_ptr != nullptr)
 	{
-		damage_poison = FCString::Atoi(**value_ptr);
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			damage_amounts.Add(FCString::Atoi(*str));
+		}
 	}
 	value_ptr = data.Find("triggers");
 	if (value_ptr != nullptr)
@@ -67,5 +77,10 @@ void UMonsterCombatActionData::Load(TMap<FString, FString>& data)
 	if (value_ptr != nullptr)
 	{
 		condition_max_distance_from_target = FCString::Atoi(**value_ptr);
+	}
+	value_ptr = data.Find("attack_delay");
+	if (value_ptr != nullptr)
+	{
+		attack_delay = FCString::Atoi(**value_ptr);
 	}
 }

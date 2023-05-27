@@ -8,6 +8,7 @@ AAZCharacter::AAZCharacter()
 {
 	//PrimaryActorTick.bCanEverTick = true;
 	SetGenericTeamId(uint8(EObjectType::None));
+	object_serial_ = -1;
 }
 
 void AAZCharacter::BeginPlay()
