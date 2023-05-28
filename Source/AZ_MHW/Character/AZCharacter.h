@@ -45,4 +45,9 @@ public:
 	// Others
 	float GetRelativeAngleToLocation(const FVector& target_location) const;
 	float GetDistance2DToLocation(const FVector& target_location) const;
+
+	// Damage Interface
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
+	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
 };

@@ -103,9 +103,10 @@ private:
 	void CombineSKMeshParts(bool is_force_update = true);
 	
 #pragma region Damage Interface
+public:
+	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
 protected:
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
-	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
 	/** 다이나믹 델리게이트에서 처리되기 때문에 UFUNCTION 처리*/
 	UFUNCTION() virtual void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
 #pragma endregion

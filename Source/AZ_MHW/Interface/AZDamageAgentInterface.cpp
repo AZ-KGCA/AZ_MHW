@@ -3,9 +3,17 @@
 #include "AZ_MHW/Interface/AZDamageAgentInterface.h"
 #include "AZ_MHW/Character/AZCharacter.h"
 #include "AZ_MHW/Util/AZUtility.h"
+#include "GameInstance/AZGameInstance.h"
+#include "GameMode/AZGameMode_Server.h"
 
 float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
+	// return if client
+	if (!Cast<AAZGameMode_Server>(Cast<UAZGameInstance>(damaged_actor->GetWorld()->GetGameInstance())->GetGameMode()))
+	{
+		return 0.0f;
+	}
+	
 	// Validity Checks
 	if (!damaged_actor)
 	{
@@ -40,6 +48,12 @@ float IAZDamageAgentInterface::ApplyDamage_Implementation(AActor* damaged_actor,
 
 float IAZDamageAgentInterface::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
+	// return if client
+	if (!Cast<AAZGameMode_Server>(Cast<UAZGameInstance>(damage_instigator->GetWorld()->GetGameInstance())->GetGameMode()))
+	{
+		return 0.0f;
+	}
+	
 	// Validity checks
 	if (!damage_instigator)
 	{

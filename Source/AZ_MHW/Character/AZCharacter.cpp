@@ -62,3 +62,14 @@ float AAZCharacter::GetDistance2DToLocation(const FVector& target_location) cons
 {
 	return FVector2D::Distance(FVector2D(GetActorLocation()), FVector2D(target_location));
 }
+
+float AAZCharacter::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result,
+	FAttackInfo attack_info)
+{
+	return IAZDamageAgentInterface::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
+}
+
+float AAZCharacter::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
+{
+	return IAZDamageAgentInterface::ProcessDamage(damage_instigator, hit_result, attack_info);
+}

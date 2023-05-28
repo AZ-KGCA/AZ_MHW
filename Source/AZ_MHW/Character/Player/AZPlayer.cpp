@@ -431,7 +431,6 @@ float AAZPlayer::ApplyDamage_Implementation(AActor* damaged_actor, const FHitRes
 float AAZPlayer::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
 	return Super::ProcessDamage(damage_instigator, hit_result, attack_info);
-	
 }
 
 //TODO 데미지처리 오리진으로 옮기기 방향계산 (서버의 애니메이션쪽에서 하기->SC_UPDATE_STATE_CMD로 강제변경하기)
