@@ -156,7 +156,7 @@ public:
 	USpringArmComponent* spring_arm_comp_;//CameraControll
 	UPROPERTY(VisibleInstanceOnly)
 	UCameraComponent* temp_camera_comp_;//Camera
-	bool is_event_input_mode_;//tickmode(나중에 timer?), eventmode,
+	bool is_event_input_mode_ = true;//tickmode(나중에 timer?), eventmode,
 	float final_input_angle = 0;
 	int32 final_input_bitmask = 0;
 	
