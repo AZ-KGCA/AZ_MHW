@@ -234,6 +234,11 @@ void AAZMonster::ResetTargetAngle()
 	action_state_info_.target_angle = 0.0f;
 }
 
+void AAZMonster::SetEnraged(bool is_enraged)
+{
+	is_enraged_ = is_enraged;
+}
+
 void AAZMonster::SetDead()
 {
 	// Stop all processes

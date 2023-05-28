@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "AZ_MHW/CommonSource/AZStruct.h"
 #include "AZMonsterPacketHandlerComponent.generated.h"
 
 class AAZMonster;
 class UAZGameInstance;
+class AAZPlayer_Origin;
 enum class EMonsterBodyPart : uint8;
 enum class EMonsterBodyPartChangeType : uint8;
 
@@ -29,7 +31,9 @@ public:
 	void Send_SC_MONSTER_ACTION_START_CMD(float start_position = 0.0f, UINT32 newly_joined_client_idx = 0);
 	void Send_SC_MONSTER_ACTION_END_CMD();
 	void Send_SC_MONSTER_PART_CHANGE_CMD(EMonsterBodyPart body_part, EMonsterBodyPartChangeType change_type);
-	void Send_SC_MONSTER_HIT_CMD(FVector hit_pos, int32 damage_amount, UINT32 attacker_client_idx);
+	void Send_SC_MONSTER_HIT_CMD(AAZPlayer_Origin* attacker, FHitResultInfo hit_info);
+	UFUNCTION() void Send_SC_MONSTER_ENRAGE_BEGIN_CMD();
+	UFUNCTION() void Send_SC_MONSTER_ENRAGE_END_CMD();
 	UFUNCTION() void Send_SC_MONSTER_DIE_CMD();
 
 	// Client to Server

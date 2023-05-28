@@ -1,4 +1,3 @@
-#include "AnimInstance/AZAnimInstance_Monster.h"
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
 #include "AZ_MHW/Character/Monster/AZMonster_Client.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
@@ -106,7 +105,23 @@ void UPacketFunction::Receive_SC_MONSTER_HIT_CMD(const SC_MONSTER_HIT_CMD* packe
 	AAZMonster_Client* target_monster = GetMonster_Client(packet->object_serial);
 	if (!target_monster) return;
 	
-	target_monster->packet_handler_component_->Receive_SC_MONSTER_HIT_CMD(packet->hit_position, packet->damage_amount);
+	target_monster->packet_handler_component_->Receive_SC_MONSTER_HIT_CMD(packet->hit_info);
+}
+
+void UPacketFunction::Receive_SC_MONSTER_ENRAGE_BEGIN_CMD(const SC_MONSTER_ENRAGE_BEGIN_CMD* packet)
+{
+	AAZMonster_Client* target_monster = GetMonster_Client(packet->object_serial);
+	if (!target_monster) return;
+	
+	target_monster->packet_handler_component_->Receive_SC_MONSTER_ENRAGE_BEGIN_CMD();
+}
+
+void UPacketFunction::Receive_SC_MONSTER_ENRAGE_END_CMD(const SC_MONSTER_ENRAGE_END_CMD* packet)
+{
+	AAZMonster_Client* target_monster = GetMonster_Client(packet->object_serial);
+	if (!target_monster) return;
+	
+	target_monster->packet_handler_component_->Receive_SC_MONSTER_ENRAGE_END_CMD();
 }
 
 void UPacketFunction::Receive_SC_MONSTER_DIE_CMD(const SC_MONSTER_DIE_CMD* packet)

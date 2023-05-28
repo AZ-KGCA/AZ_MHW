@@ -60,6 +60,8 @@ void UAZMonsterHealthComponent::BeginPlay()
 	owner_->OnBodyPartWoundHealed.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWoundHealed);
 	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartBroken);
 	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartSevered);
+	owner_->OnEnraged.AddDynamic(this, &UAZMonsterHealthComponent::OnEnraged);
+	owner_->OnEnrageEnded.AddDynamic(this, &UAZMonsterHealthComponent::OnEnrageEnded);
 	owner_->OnDeath.AddDynamic(this, &UAZMonsterHealthComponent::OnDeath);
 }
 
@@ -69,6 +71,7 @@ void UAZMonsterHealthComponent::InitializeRuntimeValues()
 	current_stamina_ = base_stamina_;
 	current_num_escapes_ = 0;
 	wound_duration_ = 20.0f;
+	rage_accumulated_damage_ = 0;
 }
 
 float UAZMonsterHealthComponent::GetHealthRatio() const
@@ -180,7 +183,18 @@ float UAZMonsterHealthComponent::ProcessDamage(AActor* damage_instigator, const 
 
 	// Update aggro information
 	owner_->aggro_component_->IncreaseByDamage(attacker->object_serial_, processed_damage);
+
+	// Update rage information
+	if (!owner_->IsEnraged())
+	{
+		rage_accumulated_damage_ += processed_damage;
+		if (owner_->rage_stats_.required_damage <= rage_accumulated_damage_)
+		{
+			owner_->OnEnraged.Broadcast();
+		}
+	}
 	
+	owner_->OnHit.Broadcast(attacker, FHitResultInfo(processed_damage, hit_result.TraceStart, hit_result.TraceEnd, hit_result.Location));
 	return processed_damage;
 }
 
@@ -294,6 +308,22 @@ void UAZMonsterHealthComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 	auto body_part_info = body_part_states_.Find(body_part);
 	body_part_info->is_severed = true;
 	body_part_info->sever_accumulated_damage = 0;
+}
+
+void UAZMonsterHealthComponent::OnEnraged()
+{
+	rage_accumulated_damage_ = 0;
+	owner_->SetEnraged(true);
+	FTimerHandle rage_timer_handle;
+	owner_->GetWorld()->GetTimerManager().SetTimer(
+		rage_timer_handle, FTimerDelegate::CreateUObject(this, &UAZMonsterHealthComponent::OnEnrageEnded),
+		owner_->rage_stats_.duration, false);
+}
+
+void UAZMonsterHealthComponent::OnEnrageEnded()
+{
+	owner_->SetEnraged(false);
+	owner_->OnEnrageEnded.Broadcast();
 }
 
 void UAZMonsterHealthComponent::ReduceHealth(float amount)

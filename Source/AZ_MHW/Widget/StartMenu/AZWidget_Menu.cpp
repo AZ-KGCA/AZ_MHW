@@ -38,14 +38,6 @@ void UAZWidget_Menu::OnOpen(bool immediately)
 
 void UAZWidget_Menu::OnClicked_Start()
 {
-	//FIXME DEVMODE 각주해제
-	//UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/Extern/PT2_TestMap/Maps/Map_PT2_Test"));
-	//FIXME DEVMODE 삭제할것
-	//UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
-
-	// TEMP MONSTER TEST
-	// game_instance_->BindLevelAddRemoveEvents();
-	//UGameplayStatics::OpenLevel(game_instance_->GetWorld(), FName("/Game/AZ/ServerDebug/ServerDebug_Level"),true,"?game=/Game/AZ/ServerDebug/BP_InGameDebug_GM.BP_InGameDebug_GM_C");
 	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/ServerDebug/ServerDebug_Level"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
 }
 

@@ -13,7 +13,6 @@
 #include "AZ_MHW/GameInstance/AZGameInstanceData.h"
 #include "AZ_MHW/PlayerController/AZPlayerController.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
-#include "Kismet/GameplayStatics.h"
 #include "AZGameInstance.generated.h"
 
 /**

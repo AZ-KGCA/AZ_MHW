@@ -50,10 +50,13 @@ protected:
 	UFUNCTION() void OnBodyPartWoundHealed(EMonsterBodyPart body_part);
 	UFUNCTION() void OnBodyPartBroken(EMonsterBodyPart body_part);
 	UFUNCTION() void OnBodyPartSevered(EMonsterBodyPart body_part);
+	UFUNCTION() void OnEnraged();
+	UFUNCTION() void OnEnrageEnded();
 	UFUNCTION() void OnDeath();
 	
 private:
 	TWeakObjectPtr<AAZMonster> owner_;
+	
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Health") int32 base_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") int32 base_stamina_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") float tired_duration_;
@@ -64,6 +67,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AZ | Damage") float wound_duration_;
 	
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Current State") int32 rage_accumulated_damage_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Current State") int32 current_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_stamina_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Current State") int32 current_num_escapes_;

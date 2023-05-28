@@ -46,7 +46,7 @@ void UAZMonsterMeshComponent_Client::BeginPlay()
 	owner_->OnBodyPartWoundHealed.AddUObject(this, &UAZMonsterMeshComponent_Client::OnBodyPartWoundHealed);
 	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterMeshComponent_Client::OnBodyPartBroken);
 	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterMeshComponent_Client::OnBodyPartSevered);
-	owner_->OnDeath.AddUObject(this, &UAZMonsterMeshComponent_Client::OnDeath);
+	owner_->OnDeath.AddDynamic(this, &UAZMonsterMeshComponent_Client::OnDeath);
 
 	// Eye blink settings
 	// Set up timer handle and delegate

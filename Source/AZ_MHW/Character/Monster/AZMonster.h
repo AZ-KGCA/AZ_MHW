@@ -54,6 +54,7 @@ public:
 	void SetTargetAngle(float angle);
 	void SetActionState(int32 action_id);
 	void ResetTargetAngle();
+	void SetEnraged(bool is_enraged);
 	UFUNCTION() void SetDead();
 
 	// Property Getters
@@ -88,7 +89,11 @@ protected:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundHealedSignature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
-	// TEMP Dynamic for debug
+
+	// Dynamic delegates
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHitSignature, AAZPlayer_Origin*, attacker, FHitResultInfo, hit_result);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnragedSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnrageEndedSignature);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterCombatSignature);
 	
@@ -101,6 +106,11 @@ public:
 	FOnWoundHealedSignature OnBodyPartWoundHealed;
 	FOnBrokenSigature OnBodyPartBroken;
 	FOnSeveredSigature OnBodyPartSevered;
+
+	// Dynamic delegates
+	UPROPERTY(BlueprintAssignable) FOnHitSignature OnHit;
+	UPROPERTY(BlueprintAssignable) FOnEnragedSignature OnEnraged;
+	UPROPERTY(BlueprintAssignable) FOnEnrageEndedSignature OnEnrageEnded;
 	UPROPERTY(BlueprintAssignable) FOnDeathSignature OnDeath;
 	UPROPERTY(BlueprintAssignable) FOnEnterCombatSignature OnEnterCombat;
 	
@@ -134,7 +144,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | Properties") EMonsterBehaviorType behavior_type_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") int32 boss_id_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") bool has_combat_transition_anim_;
-	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") FBossRageStats rage_stats_; // yet to be implemented
+	UPROPERTY(VisibleAnywhere, Category = "AZ | Boss") FBossRageStats rage_stats_; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Others")
 	TArray<TEnumAsByte<EObjectTypeQuery>> hit_object_types_;

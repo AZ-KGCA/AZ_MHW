@@ -17,7 +17,6 @@ AAZMonster_Client::AAZMonster_Client()
 {
 	// Initialise common properties
 	monster_id_ = -1;
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
 	// Disable AI Controller
 	AIControllerClass = AAIController::StaticClass();

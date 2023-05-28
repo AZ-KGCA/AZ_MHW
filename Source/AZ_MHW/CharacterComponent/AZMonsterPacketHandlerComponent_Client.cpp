@@ -6,7 +6,9 @@
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent_Client.h"
 #include "AZ_MHW/Character/Monster/AZMonster_Client.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
+#include "Character/Player/AZPlayer_Origin.h"
 #include "GameInstance/AZGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "SocketHolder/AZSocketHolder.h"
 
 UAZMonsterPacketHandlerComponent_Client::UAZMonsterPacketHandlerComponent_Client()
@@ -48,7 +50,7 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_TRANSFORM_CMD(F
 		owner_->SetActorRotation(rotation);
 	}
 
-	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][%d][Receive_SC_MONSTER_TRANSFORM_CMD] %s, Location: %s, Rotation %s"),
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][%d][Receive_SC_MONSTER_TRANSFORM_CMD] %s, Location: %s, Rotation %s"),
 		owner_->object_serial_, is_forced ? TEXT("FORCED") : TEXT("NOT FORCED"), *location.ToString(), *rotation.ToString());
 }
 
@@ -63,12 +65,12 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_BODY_STATE_CMD(
 	owner_->mesh_component_->SetBodyState(EMonsterBodyPart::RightWing, right_wing_state);
 	owner_->mesh_component_->SetBodyState(EMonsterBodyPart::Tail, tail_state);
 
-	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][#%d][Receive_SC_MONSTER_BODY_STATE_CMD]"), owner_->object_serial_);
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][#%d][Receive_SC_MONSTER_BODY_STATE_CMD]"), owner_->object_serial_);
 }
 
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ENTER_COMBAT_CMD()
 {
-	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][#%d][Receive_SC_MONSTER_ENTER_COMBAT_CMD]"), owner_->object_serial_);
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][#%d][Receive_SC_MONSTER_ENTER_COMBAT_CMD]"), owner_->object_serial_);
 	//owner_->action_state_info_.action_mode = EMonsterActionMode::Combat;
 	//owner_->anim_instance_->UpdateAnimation();
 	owner_->OnEnterCombat.Broadcast();
@@ -95,7 +97,7 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_END_CMD(
 	owner_->action_state_info_.montage_section_name = NAME_None;
 
 	owner_->anim_instance_->UpdateAnimation();
-	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][#%d][Receive_SC_MONSTER_ACTION_END_CMD] Action mode: %s, Location: %s, Rotation: %s"),
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][#%d][Receive_SC_MONSTER_ACTION_END_CMD] Action mode: %s, Location: %s, Rotation: %s"),
 		owner_->object_serial_, *UAZUtility::EnumToString(action_mode), *location.ToString(), *rotation.ToString());
 }
 
@@ -120,19 +122,40 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_PART_CHANGE_CMD
 		}
 	}
 
-	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][#%d][Receive_SC_MONSTER_PART_CHANGE_CMD] %s %s"),
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][#%d][Receive_SC_MONSTER_PART_CHANGE_CMD] %s %s"),
 		owner_->object_serial_, *UAZUtility::EnumToString(body_part), *UAZUtility::EnumToString(change_type));
 }
 
-void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_HIT_CMD(FVector hit_position, int32 damage_amount)
+void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_HIT_CMD(const FHitResultInfo hit_info)
 {
-	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][%d][Receive_SC_MONSTER_HIT_CMD] Damage dealt: %d, Position: %s"),
-			owner_->object_serial_, damage_amount, *hit_position.ToString());
-	//TODO UI 연결
+	if (auto character = UGameplayStatics::GetPlayerCharacter(owner_->GetWorld(), 0))
+	{
+		AAZPlayer_Origin* player = Cast<AAZPlayer_Origin>(character);
+		if (player)
+		{
+			owner_->OnHit.Broadcast(player, hit_info);
+			UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][%d][Receive_SC_MONSTER_HIT_CMD] Damage dealt: %d, Position: %s"),
+				owner_->object_serial_, hit_info.damage_amount, *hit_info.hit_location.ToString());
+		}
+	}
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][%d][Receive_SC_MONSTER_HIT_CMD] Damage dealt: %d, Position: %s"),
+			owner_->object_serial_, hit_info.damage_amount, *hit_info.hit_location.ToString());
+}
+
+void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ENRAGE_BEGIN_CMD()
+{
+	owner_->OnEnraged.Broadcast();
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][%d][Receive_SC_MONSTER_ENRAGE_BEGIN_CMD]"), owner_->object_serial_);
+}
+
+void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ENRAGE_END_CMD()
+{
+	owner_->OnEnrageEnded.Broadcast();
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][%d][Receive_SC_MONSTER_ENRAGE_END_CMD]"), owner_->object_serial_);
 }
 
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_DIE_CMD()
 {
 	owner_->OnDeath.Broadcast();
-	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][Receive_SC_MONSTER_DIE_CMD]"));
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][%d][Receive_SC_MONSTER_DIE_CMD]"), owner_->object_serial_);
 }

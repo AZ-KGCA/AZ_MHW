@@ -9,6 +9,7 @@
 #include "CharacterComponent/AZMonsterPacketHandlerComponent_Client.h"
 #include "GameInstance/AZGameInstance.h"
 #include "GameMode/AZGameMode_InGame.h"
+#include "GameSingleton/AZGameSingleton.h"
 
 UAZObjectMgr_Client::UAZObjectMgr_Client()
 {
@@ -54,36 +55,39 @@ bool UAZObjectMgr_Client::RemoveObject(int32 object_serial)
 
 bool UAZObjectMgr_Client::SpawnMonster(int32 object_serial, int32 monster_id, EBossRank rank, FVector spawn_location, FRotator spawn_rotation)
 {
-	/* legacy: spawn from blueprint asset
-		// Retrieve the blueprint path of the monster to spawn
-		const FName monster_name = UAZGameSingleton::instance()->monster_mgr_->GetMonsterName(monster_id);
-		if (monster_name == NAME_None) return false;
-		const FString bp_path = FString::Printf(TEXT("Blueprint'/Game/AZ/Monsters/%s/Blueprints/BP_%s_Client.BP_%s_Client_C'"),
-			*monster_name.ToString(), *monster_name.ToString(), *monster_name.ToString());
-		
-		// Spawn a monster from the blueprint with the received transform
-		const UBlueprint* monster_bp = Cast<UBlueprint>(StaticLoadObject(UBlueprint::StaticClass(), this, *bp_path));
-		if (UWorld* world = GetOuter()->GetWorld())
+	// Retrieve the blueprint path of the monster to spawn
+	const FName monster_name = UAZGameSingleton::instance()->monster_mgr_->GetMonsterName(monster_id);
+	if (monster_name == NAME_None) return false;
+	const FString bp_path = FString::Printf(TEXT("Blueprint'/Game/AZ/Monsters/%s/Blueprints/BP_%s_Client.BP_%s_Client'"),
+		*monster_name.ToString(), *monster_name.ToString(), *monster_name.ToString());
+	
+	// Spawn a monster from the blueprint with the received transform
+	const UBlueprint* monster_bp = Cast<UBlueprint>(StaticLoadObject(UBlueprint::StaticClass(), this, *bp_path));
+	if (UWorld* world = GetOuter()->GetWorld())
+	{
+		const FTransform spawn_transform(spawn_rotation, spawn_location);
+		AAZMonster_Client* monster = world->SpawnActorDeferred<AAZMonster_Client>(monster_bp->GeneratedClass, spawn_transform);
+		monster->Init(monster_id, rank);
+		monster->FinishSpawning(spawn_transform);
+
+		if (AddObject(object_serial, monster))
 		{
-			AAZMonster_Client* monster = world->SpawnActor<AAZMonster_Client>(monster_bp->GeneratedClass, spawn_location, spawn_rotation); //MONSTER CHECK TODO
-			if (AddObject(object_serial, monster))
-			{
-				return true;
-			}
+			monster->packet_handler_component_->Send_CS_MONSTER_UPDATE_REQ();
+			return true;
 		}
-	*/
+	}
+	return false;
 
-	UWorld* world = GetOuter()->GetWorld();
-	if (!world) return nullptr;
-
-	const FTransform spawn_transform(spawn_rotation, spawn_location);
-	AAZMonster_Client* monster = world->SpawnActorDeferred<AAZMonster_Client>(AAZMonster_Client::StaticClass(), spawn_transform);
-	monster->Init(monster_id, rank);
-	monster->FinishSpawning(spawn_transform);
-	bool result = AddObject(object_serial, monster);
-	if (result) monster->packet_handler_component_->Send_CS_MONSTER_UPDATE_REQ();
-
-	return result;
+	// Method 2: Not using blueprint asset
+	// UWorld* world = GetOuter()->GetWorld();
+	// if (!world) return nullptr;
+	//
+	// const FTransform spawn_transform(spawn_rotation, spawn_location);
+	// AAZMonster_Client* monster = world->SpawnActorDeferred<AAZMonster_Client>(AAZMonster_Client::StaticClass(), spawn_transform);
+	// monster->Init(monster_id, rank);
+	// monster->FinishSpawning(spawn_transform);
+	// bool result = AddObject(object_serial, monster);
+	// if (result) monster->packet_handler_component_->Send_CS_MONSTER_UPDATE_REQ();
 }
 
 AAZCharacter* UAZObjectMgr_Client::GetCharacter(int32 object_serial)

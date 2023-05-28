@@ -55,6 +55,21 @@ struct FAttackInfo
 // Monster
 
 USTRUCT(BlueprintType)
+struct FHitResultInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) int32 damage_amount;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector trace_start;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector trace_end;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FVector hit_location;
+
+	FHitResultInfo() : damage_amount(0), trace_start(FVector::ZeroVector), trace_end(FVector::ZeroVector), hit_location(FVector::ZeroVector) {};
+	FHitResultInfo(int32 damage, FVector start, FVector end, FVector hit) :
+		damage_amount(damage), trace_start(start), trace_end(end), hit_location(hit) {};
+};
+
+USTRUCT(BlueprintType)
 struct FMonsterActionStateInfo
 {
 	GENERATED_BODY()

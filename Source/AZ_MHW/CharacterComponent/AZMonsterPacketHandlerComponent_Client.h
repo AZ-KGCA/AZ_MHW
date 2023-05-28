@@ -32,7 +32,9 @@ public:
 	void Receive_SC_MONSTER_ACTION_START_CMD(const FMonsterActionStateInfo action_info, float start_positon);
 	void Receive_SC_MONSTER_ACTION_END_CMD(FVector location, FRotator rotation, EMonsterActionMode action_mode);
 	void Receive_SC_MONSTER_PART_CHANGE_CMD(EMonsterBodyPart body_part, EMonsterBodyPartChangeType change_type);
-	void Receive_SC_MONSTER_HIT_CMD(FVector hit_position, int32 damage_amount);
+	void Receive_SC_MONSTER_HIT_CMD(const FHitResultInfo hit_info);
+	void Receive_SC_MONSTER_ENRAGE_BEGIN_CMD();
+	void Receive_SC_MONSTER_ENRAGE_END_CMD();
 	void Receive_SC_MONSTER_DIE_CMD();
 
 private:

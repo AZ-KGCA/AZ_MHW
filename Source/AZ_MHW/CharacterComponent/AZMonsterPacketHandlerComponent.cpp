@@ -1,12 +1,13 @@
 ﻿// Copyright Team AZ. All Rights Reserved.
 
 #include "AZMonsterPacketHandlerComponent.h"
-
-#include "AZMonsterHealthComponent.h"
-#include "AnimInstance/AZAnimInstance_Monster.h"
+#include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
+#include "AZ_MHW/AnimInstance/AZAnimInstance_Monster.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Character/Player/AZPlayer_Origin.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 
 
 // Sets default values for this component's properties
@@ -36,6 +37,9 @@ void UAZMonsterPacketHandlerComponent::BeginPlay()
 	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterPacketHandlerComponent::OnBodyPartBroken);
 	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterPacketHandlerComponent::OnBodyPartSevered);
 	owner_->OnEnterCombat.AddDynamic(this, &UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ENTER_COMBAT_CMD);
+	owner_->OnEnraged.AddDynamic(this, &UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ENRAGE_BEGIN_CMD);
+	owner_->OnEnrageEnded.AddDynamic(this, &UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ENRAGE_END_CMD);
+	owner_->OnHit.AddDynamic(this, &UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_HIT_CMD);
 	owner_->OnDeath.AddDynamic(this, &UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_DIE_CMD);
 }
 
@@ -148,17 +152,36 @@ void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_PART_CHANGE_CMD(EMonsterB
 		owner_->object_serial_, *UAZUtility::EnumToString(body_part), *UAZUtility::EnumToString(change_type));
 }
 
-// 플레이어의 공격이 몬스터에 맞았을 때 UI를 업데이트 하기 위해 공격한 플레이어에게 전송된다
-void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_HIT_CMD(FVector hit_pos, int32 damage_amount, UINT32 attacker_client_idx)
+// 플레이어의 공격이 몬스터에 맞았을 때 UI, 이펙트를 업데이트 하기 위해 공격한 플레이어에게 전송된다
+void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_HIT_CMD(AAZPlayer_Origin* attacker, FHitResultInfo hit_info)
 {
 	SC_MONSTER_HIT_CMD packet;
 	packet.object_serial = owner_->object_serial_;
-	packet.hit_position = hit_pos;
-	packet.damage_amount = damage_amount;
+	packet.hit_info = hit_info;
 
+	// retrieve attacker client index
+	UINT32 attacker_client_idx = attacker->player_character_state_->uid_;
 	game_instance_->SendPacketFunc(attacker_client_idx, packet.packet_length, reinterpret_cast<char*>(&packet));
 	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent][#%d][Send_SC_MONSTER_HIT_CMD], From: %d, Damage dealt: %d, Position: %s"),
-		owner_->object_serial_, attacker_client_idx, damage_amount, *hit_pos.ToString());
+		owner_->object_serial_, attacker_client_idx, hit_info.damage_amount, *hit_info.hit_location.ToString());
+}
+
+// 분노상태 돌입
+void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ENRAGE_BEGIN_CMD()
+{
+	SC_MONSTER_ENRAGE_BEGIN_CMD packet;
+	packet.object_serial = owner_->object_serial_;
+	game_instance_->BroadCastSendPacketFunc(-1, packet.packet_length, reinterpret_cast<char*>(&packet));
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent][#%d][Send_SC_MONSTER_ENRAGE_BEGIN_CMD]"), owner_->object_serial_);
+}
+
+// 분노상태 해제
+void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ENRAGE_END_CMD()
+{
+	SC_MONSTER_ENRAGE_END_CMD packet;
+	packet.object_serial = owner_->object_serial_;
+	game_instance_->BroadCastSendPacketFunc(-1, packet.packet_length, reinterpret_cast<char*>(&packet));
+	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent][#%d][Send_SC_MONSTER_ENRAGE_END_CMD]"), owner_->object_serial_);
 }
 
 // 몬스터가 사망했을 때 노래/UI등의 업데이트를 위해 모든 플레이어에게 전송된다
@@ -166,7 +189,6 @@ void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_DIE_CMD()
 {
 	SC_MONSTER_DIE_CMD packet;
 	packet.object_serial = owner_->object_serial_;
-	
 	game_instance_->BroadCastSendPacketFunc(-1, packet.packet_length, reinterpret_cast<char*>(&packet));
 	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent][#%d][Send_SC_MONSTER_DIE_CMD]"), owner_->object_serial_);
 }

@@ -136,16 +136,34 @@ struct SC_MONSTER_PART_CHANGE_CMD : FMonsterBasePacket
 	};
 };
 
+// S->C Packet to inform enrage begin event
+struct SC_MONSTER_ENRAGE_BEGIN_CMD : FMonsterBasePacket
+{
+	SC_MONSTER_ENRAGE_BEGIN_CMD()
+	{
+		packet_id = static_cast<UINT16>(PACKET_ID::SC_MONSTER_ENRAGE_BEGIN_CMD);
+		packet_length = sizeof(SC_MONSTER_ENRAGE_BEGIN_CMD);
+	};
+};
+
+// S->C Packet to inform enrage end event
+struct SC_MONSTER_ENRAGE_END_CMD : FMonsterBasePacket
+{
+	SC_MONSTER_ENRAGE_END_CMD()
+	{
+		packet_id = static_cast<UINT16>(PACKET_ID::SC_MONSTER_ENRAGE_END_CMD);
+		packet_length = sizeof(SC_MONSTER_ENRAGE_END_CMD);
+	};
+};
+
 // S->C Packet to inform the success of player's attack to a monster
 struct SC_MONSTER_HIT_CMD : FMonsterBasePacket
 {
-	FVector hit_position;
-	int32 damage_amount;
+	FHitResultInfo hit_info;
 
 	SC_MONSTER_HIT_CMD()
 	{
-		hit_position = FVector::ZeroVector;
-		damage_amount = 0.0f;
+		hit_info = FHitResultInfo();
 		packet_id = static_cast<UINT16>(PACKET_ID::SC_MONSTER_HIT_CMD);
 		packet_length = sizeof(SC_MONSTER_HIT_CMD);
 	};

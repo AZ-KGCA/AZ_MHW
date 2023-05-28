@@ -5,6 +5,7 @@
 #include "AZ_MHW/CommonSource/AZStruct.h"
 #include "AZMonster_Client.generated.h"
 
+class AAZPlayer_Origin;
 // Forward declaration of classes
 class UAZAnimInstance_Monster;
 class UAZMonsterMeshComponent_Client;
@@ -31,12 +32,17 @@ public:
 	bool IsABoss() const;
 	
 	// Delegates
-	DECLARE_MULTICAST_DELEGATE(FOnEnterCombatSignature);
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundedSignature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWoundHealedSignature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnBrokenSigature, EMonsterBodyPart)
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnSeveredSigature, EMonsterBodyPart)
-	DECLARE_MULTICAST_DELEGATE(FOnDeathSignature);
+
+	// Dynamic delegates
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnragedSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHitSignature, AAZPlayer_Origin*, player, FHitResultInfo, hit_result);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnrageEndedSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterCombatSignature);
 
 public:	
 	// Components
@@ -56,10 +62,15 @@ public:
 
 public:
 	// Delegates
-	FOnEnterCombatSignature OnEnterCombat;
 	FOnWoundedSignature OnBodyPartWounded;
 	FOnWoundHealedSignature OnBodyPartWoundHealed;
 	FOnBrokenSigature OnBodyPartBroken;
 	FOnSeveredSigature OnBodyPartSevered;
-	FOnDeathSignature OnDeath;	
+
+	// Dynamic delegates
+	UPROPERTY(BlueprintAssignable) FOnHitSignature OnHit;
+	UPROPERTY(BlueprintAssignable) FOnEnragedSignature OnEnraged;
+	UPROPERTY(BlueprintAssignable) FOnEnrageEndedSignature OnEnrageEnded;
+	UPROPERTY(BlueprintAssignable) FOnDeathSignature OnDeath;
+	UPROPERTY(BlueprintAssignable) FOnEnterCombatSignature OnEnterCombat;
 };

@@ -351,60 +351,71 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		break;
 #pragma endregion
 #pragma region Monster_PART
-	// Monster related packets
 	case PACKET_ID::SC_MONSTER_SPAWN_CMD:
 		{
-		const SC_MONSTER_SPAWN_CMD* packet = reinterpret_cast<SC_MONSTER_SPAWN_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_SPAWN_CMD(packet);
+			const SC_MONSTER_SPAWN_CMD* packet = reinterpret_cast<SC_MONSTER_SPAWN_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_SPAWN_CMD(packet);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_SPAWN_END_CMD:
 		{
-		const SC_MONSTER_SPAWN_END_CMD* packet = reinterpret_cast<SC_MONSTER_SPAWN_END_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_SPAWN_END_CMD(packet);
-		game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::CS_COMBAT_MAP_ENTER_REQ, out_request_protocol);
+			const SC_MONSTER_SPAWN_END_CMD* packet = reinterpret_cast<SC_MONSTER_SPAWN_END_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_SPAWN_END_CMD(packet);
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(PACKET_ID::CS_COMBAT_MAP_ENTER_REQ, out_request_protocol);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_TRANSFORM_CMD:
 		{
-		const SC_MONSTER_TRANSFORM_CMD* packet = reinterpret_cast<SC_MONSTER_TRANSFORM_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_TRANSFORM_CMD(packet);
+			const SC_MONSTER_TRANSFORM_CMD* packet = reinterpret_cast<SC_MONSTER_TRANSFORM_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_TRANSFORM_CMD(packet);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_BODY_STATE_CMD:
 		{
-		const SC_MONSTER_BODY_STATE_CMD* packet = reinterpret_cast<SC_MONSTER_BODY_STATE_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_BODY_STATE_CMD(packet);
+			const SC_MONSTER_BODY_STATE_CMD* packet = reinterpret_cast<SC_MONSTER_BODY_STATE_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_BODY_STATE_CMD(packet);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_ENTER_COMBAT_CMD:
 		{
-		const SC_MONSTER_ENTER_COMBAT_CMD* packet = reinterpret_cast<SC_MONSTER_ENTER_COMBAT_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_ENTER_COMBAT_CMD(packet);
+			const SC_MONSTER_ENTER_COMBAT_CMD* packet = reinterpret_cast<SC_MONSTER_ENTER_COMBAT_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_ENTER_COMBAT_CMD(packet);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_ACTION_START_CMD:
 		{
-		const SC_MONSTER_ACTION_START_CMD* packet = reinterpret_cast<SC_MONSTER_ACTION_START_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_ACTION_START_CMD(packet);
+			const SC_MONSTER_ACTION_START_CMD* packet = reinterpret_cast<SC_MONSTER_ACTION_START_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_ACTION_START_CMD(packet);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_ACTION_END_CMD:
 		{
-		const SC_MONSTER_ACTION_END_CMD* packet = reinterpret_cast<SC_MONSTER_ACTION_END_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_ACTION_END_CMD(packet);
+			const SC_MONSTER_ACTION_END_CMD* packet = reinterpret_cast<SC_MONSTER_ACTION_END_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_ACTION_END_CMD(packet);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_PART_CHANGE_CMD:
 		{
-		const SC_MONSTER_PART_CHANGE_CMD* packet = reinterpret_cast<SC_MONSTER_PART_CHANGE_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_PART_CHANGE_CMD(packet);
+			const SC_MONSTER_PART_CHANGE_CMD* packet = reinterpret_cast<SC_MONSTER_PART_CHANGE_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_PART_CHANGE_CMD(packet);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_HIT_CMD:
 		{
-		const SC_MONSTER_HIT_CMD* packet = reinterpret_cast<SC_MONSTER_HIT_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_HIT_CMD(packet);
+			const SC_MONSTER_HIT_CMD* packet = reinterpret_cast<SC_MONSTER_HIT_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_HIT_CMD(packet);
+		}
+		break;
+	case PACKET_ID::SC_MONSTER_ENRAGE_BEGIN_CMD:
+		{
+			const SC_MONSTER_ENRAGE_BEGIN_CMD* packet = reinterpret_cast<SC_MONSTER_ENRAGE_BEGIN_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_ENRAGE_BEGIN_CMD(packet);
+		}
+		break;
+	case PACKET_ID::SC_MONSTER_ENRAGE_END_CMD:
+		{
+			const SC_MONSTER_ENRAGE_END_CMD* packet = reinterpret_cast<SC_MONSTER_ENRAGE_END_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_ENRAGE_END_CMD(packet);
 		}
 		break;
 	case PACKET_ID::SC_MONSTER_DIE_CMD:

@@ -64,7 +64,9 @@ public:
 	void Receive_SC_MONSTER_ACTION_START_CMD(const SC_MONSTER_ACTION_START_CMD* packet);
 	void Receive_SC_MONSTER_ACTION_END_CMD(const SC_MONSTER_ACTION_END_CMD* packet);
 	void Receive_SC_MONSTER_PART_CHANGE_CMD(const SC_MONSTER_PART_CHANGE_CMD* packet);
-	void Receive_SC_MONSTER_HIT_CMD(const SC_MONSTER_HIT_CMD* packet); 
+	void Receive_SC_MONSTER_HIT_CMD(const SC_MONSTER_HIT_CMD* packet);
+	void Receive_SC_MONSTER_ENRAGE_BEGIN_CMD(const SC_MONSTER_ENRAGE_BEGIN_CMD* packet);
+	void Receive_SC_MONSTER_ENRAGE_END_CMD(const SC_MONSTER_ENRAGE_END_CMD* packet);
 	void Receive_SC_MONSTER_DIE_CMD(const SC_MONSTER_DIE_CMD* packet);
 
 	AAZMonster* GetMonster_Server(int32 object_serial);
