@@ -104,23 +104,32 @@ struct FAZPlayerCharacterState
 	//전투
 	//벞//디벞목록?(Enum?)
 
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_hit:1;//피격상태
+	uint32 bit_can_battle:1;//전투 가능상태인지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_ground:1;//지면상태인지(얼마나 떨어졋는지?)
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//uint32 bAirborne:1;//절벽인지
+	uint32 bit_hit:1;//현재 피격상태인지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	uint32 bit_slide:1;//미끄러지는 중인지
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//uint32 bClimb:1;//등반액션인지
+	uint32 bit_airborne:1;//현재 체공상태인지
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bit_climb:1;//현재 등반액션중인지
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//uint32 bSwing:1;//스윙액션인지
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//uint32 bSwim:1;//수영액션인지
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//uint32 bMount:1;//마운트상태
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bit_can_airborne:1;//낭떠러지인지(발 앞이)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bit_can_slide:1;//경사인지(발 앞이)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bit_can_vault:1;//상태인지(전방에)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bit_can_climb:1;//벽인지(전방에)
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bit_slide:1;//미끄러지는 중인지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bit_common:1;//일반상태인지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -131,15 +140,14 @@ struct FAZPlayerCharacterState
 	uint32 bit_guard:1;//회피중인지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bit_action:1;//액션상태
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bit_hit_guard:1;//피격 방어상태
+
+
 	
 	FAZPlayerCharacterState()
 	{
-		character_position = FVector::ZeroVector;
-		character_direction = FRotator::ZeroRotator;
-
-		character_action_mask =0;
-		character_action_priority =-1;
-		
+		//Character Statics State
 		max_health_point = 100;
 		current_health_point = 100;
 		max_stamina = 100;
@@ -150,17 +158,25 @@ struct FAZPlayerCharacterState
 		critical_rate = 0;//10000배
 		speed_rate = 20000;//10000배
 		armor = 1;
-		
-		bit_common = true;//-1무엇이든 가능한 상태
-		bit_action = false;
-		bit_ground = true;
-		bit_slide = false;
-		bit_crouch = false;
-		bit_evade = false;
-		bit_guard = false;
-		bit_hit = false;
-		//bit_hit_guard
-		
+
+		//Character Animation State
+		character_position = FVector::ZeroVector;
+		character_direction = FRotator::ZeroRotator;
+
+		character_action_mask = 0;//현재 애니메이션(몽타주+섹션)
+		character_action_priority = -1;//현재 애니메이션 우선도
+
+		//상태 플래그
+		bit_can_battle = false;//전투 가능상태
+		bit_common = true;//아무런 상태가 아닌 상태
+		bit_action = false;//플레이어 액션중
+		//bit_ground = true;//지면에 닿아잇는중
+		bit_slide = false;//슬라이드상태
+		bit_crouch = false;//웅크리기상태
+		bit_evade = false;//회피상태
+		bit_guard = false;//방어상태
+		bit_hit = false;//피격상태
+		bit_hit_guard = false;//피격 방어상태
 	}
 };
 /** 플레이어 캐릭터의 장비 상태<-서버가 갱신

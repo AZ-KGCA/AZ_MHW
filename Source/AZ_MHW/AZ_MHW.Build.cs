@@ -29,6 +29,7 @@ public class AZ_MHW : ModuleRules
                 "RenderCore",
                 "Projects",
                 "GameplayTasks",
+                "Niagara",
 
                 "MovieScene",
                 "LevelSequence",

@@ -25,7 +25,13 @@ void AAZPlayer_Remotable::BeginDestroy()
 float AAZPlayer_Remotable::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result,
 	FAttackInfo attack_info)
 {
-	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
+	return 0.f;
+}
+
+float AAZPlayer_Remotable::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result,
+	FAttackInfo attack_info)
+{
+	return 0.f;
 }
 
 

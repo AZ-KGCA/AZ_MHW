@@ -25,6 +25,7 @@ AAZPlayer_Playable::AAZPlayer_Playable()
 void AAZPlayer_Playable::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 void AAZPlayer_Playable::Tick(float delta_seconds)
@@ -67,10 +68,15 @@ void AAZPlayer_Playable::PossessedBy(AController* new_controller)
  
 float AAZPlayer_Playable::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
-	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
+	return 0.f;
 	
 }
- 
+
+float AAZPlayer_Playable::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
+{
+	return 0.f;
+}
+
 //서버처리
 void AAZPlayer_Playable::AnimNotify_OnUseItem()
 {
