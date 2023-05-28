@@ -5,7 +5,8 @@
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Manager/AZPlayerMgr.h"
 #include "Character/AZCharacter.h"
-#include "PlayerState/AZPlayerState.h"
+#include "Character/Player/AZPlayer.h"
+#include "PlayerState/AZPlayerState_Client.h"
 
 UAZAnimInstance_Player::UAZAnimInstance_Player()
 {
@@ -33,35 +34,35 @@ void UAZAnimInstance_Player::NativeInitializeAnimation()
 void UAZAnimInstance_Player::NativeUpdateAnimation(float delta_seconds)
 {
 	Super::NativeUpdateAnimation(delta_seconds);
-	//if(TryGetPawnOwner()->GetPlayerState()) playable? remotable?
+	const auto player = Cast<AAZPlayer>(owner_);
+	if(player == nullptr) return;
+	if(player->player_character_state_ == nullptr) return;
+	if(player->player_character_state_->character_state_.bit_action == false)
+	{
+		is_rotation_ = true;
+	}
 	if(owner_ != nullptr)
 	{
-
 		//Playable과 Remotable 공통사항
 		current_forward_direction_ = owner_->GetRootComponent()->GetComponentRotation();
-
+		next_forward_direction_ = player->player_character_state_->action_state_.input_direction;
 		//playable
-		//next_forward_direction = player controller
+		//next_forward_direction = player -> player controller
 
+		//origin
+		//next_forward_direction = client -> server controller
+		
 		//remotable
-		//next_forward_direction = server 
+		//next_forward_direction = server -> player controller
 
 		if(is_rotation_)//애니메이션이 회전보간을 사용할때(이동, 정지회전)
 		{
-			// if(auto player_state = owner_->GetPlayerState())
-			// {
-			// 	if(auto az_player_state = Cast<AAZPlayerState>(player_state))
-			// 	{
-			// 		FRotator owner_forward_direction = az_player_state->action_state_.input_direction.ToOrientationRotator();
-			// 	}
-			// }
-
 			const FQuat next_quaternion(next_forward_direction_);
-			const FQuat current_quaternion(current_forward_direction_);
+			const FQuat current_quaternion(current_forward_direction_);//player class
 			owner_->GetRootComponent()->SetWorldRotation( FQuat::Slerp(next_quaternion, current_quaternion,0.9).Rotator());
 
 			//회전 보간 종료
-			if(FMath::Abs(next_forward_direction_.Yaw) -  FMath::Abs(current_forward_direction_.Yaw) < 0.1f)
+			if(FMath::Abs(next_forward_direction_.Yaw) - FMath::Abs(current_forward_direction_.Yaw) < 0.1f)
 			{
 				is_rotation_ = false;
 			}
@@ -211,7 +212,6 @@ void UAZAnimInstance_Player::PauseAnimation()
 		//TODO: 이전 스피드 저장하여 사용하기
 	}
 }
-
 void UAZAnimInstance_Player::ResumeAnimation()
 {
 	if(is_montage_)
@@ -225,7 +225,6 @@ void UAZAnimInstance_Player::ResumeAnimation()
 		//TODO: 이전 스피드 저장하여 사용하기
 	}
 }
-
 void UAZAnimInstance_Player::SetAnimPlayRate(int32 play_rate)
 {
 	float play_rate_permyriad;

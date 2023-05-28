@@ -23,5 +23,4 @@ protected:
 	virtual void BeginDestroy() override;
 
 public:
-	virtual void Tick(float DeltaTime) override;
 };

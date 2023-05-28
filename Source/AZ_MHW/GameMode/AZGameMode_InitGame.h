@@ -15,17 +15,17 @@ class AZ_MHW_API AAZGameMode_InitGame : public AAZGameMode
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AAZGameMode_InitGame();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void InitGame(const FString& map_name, const FString& options, FString& error_message) override;
 
+	/** 명령줄 인수로 분기실행*/
 	UFUNCTION(BlueprintCallable)
 	void PlayServerMode();
+	/** 명령줄 인수로 분기실행*/
 	UFUNCTION(BlueprintCallable)
 	void PlayClientMode();
 };

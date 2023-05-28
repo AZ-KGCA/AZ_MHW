@@ -1,25 +1,22 @@
 ﻿// Copyright Team AZ. All Rights Reserved.
 
 #include "AZ_MHW/Character/AZCharacter.h"
+
+#include "GameFrameWork/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 
 AAZCharacter::AAZCharacter()
 {
 	//PrimaryActorTick.bCanEverTick = true;
-	SetGenericTeamId(uint8(EObjectType::None));
+	SetGenericTeamId(static_cast<uint8>(EObjectType::None));
 	object_serial_ = -1;
 }
 
 void AAZCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-}
-
-void AAZCharacter::SetupPlayerInputComponent(UInputComponent* player_input_component)
-{
-	Super::SetupPlayerInputComponent(player_input_component);
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
 
 void AAZCharacter::SetGenericTeamId(const FGenericTeamId& team_id)

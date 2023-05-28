@@ -9,7 +9,6 @@
 
 AAZPlayer_Origin::AAZPlayer_Origin()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -29,18 +28,19 @@ void AAZPlayer_Origin::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-// 현수오빠 수정전까지 주석처리
-// float AAZPlayer_Origin::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult& hit_result,
-// 	AController* event_instigator, const FAttackInfo& attack_info)
-// {
-// 	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, event_instigator, attack_info);
-// }
-//
-// float AAZPlayer_Origin::ProcessDamage(const FHitResult& hit_result, AController* event_instigator,
-// 	const FAttackInfo& attack_info, float applied_damage)
-// {
-// 	return Super::ProcessDamage(hit_result, event_instigator, attack_info, applied_damage);
-// }
+float AAZPlayer_Origin::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
+{
+	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
+}
+
+float AAZPlayer_Origin::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
+{
+	return Super::ProcessDamage(damage_instigator, hit_result, attack_info);
+}
+
+
+
+
 
 
 

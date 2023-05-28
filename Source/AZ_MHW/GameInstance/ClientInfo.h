@@ -1,8 +1,6 @@
 #pragma once
 #include "Define.h"
-#include <stdio.h>
-#include <mutex>
-#include <queue>
+#include "AZWindows.h"
 
 const int RECV_BUFFER_SIZE = 20000;
 class ClientInfo

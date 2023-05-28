@@ -33,7 +33,6 @@ public:
 	 * 인풋액션바인딩 초기화구문이 있으니 컨트롤러의 액션바인딩보다 나중에 호출하지 마세요.
 	 */
 	void SetupDefaultBindAction(UInputComponent* player_input_component,const ULocalPlayer* local_player);
-
 	/** */
 	UFUNCTION() void AddInputMappingContext(const FName& name); 
 	/** */
@@ -44,8 +43,9 @@ public:
 	UFUNCTION() UInputAction* GetInputAction(const FName& name);
 
 private:
+	/** */
 	UInputMappingContext* GetInputMappingContext(const FName& name);
-	
+	/** */
 	int32* GetInputMappingContextPriority(const FName& name);
 	
 	/** 데이터에셋 맵(키: 접두사 제거 네임)*/

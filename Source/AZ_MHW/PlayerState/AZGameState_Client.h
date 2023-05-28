@@ -3,22 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerState.h"
-#include "AZPlayerState_Server.generated.h"
+#include "GameFramework/GameState.h"
+#include "AZGameState_Client.generated.h"
 
-/**
- * 서버 설정용
- */
 UCLASS()
-class AZ_MHW_API AAZPlayerState_Server : public APlayerState
+class AZ_MHW_API AAZGameState_Client : public AGameStateBase
 {
 	GENERATED_BODY()
 
 public:
-	AAZPlayerState_Server();
+	AAZGameState_Client();
 
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void BeginDestroy() override;
+public:
 };

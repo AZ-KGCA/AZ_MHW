@@ -610,6 +610,7 @@ EUIName AAZHUD::GetCurSceneNameEnum()
 
 FAZWidgetData* AAZHUD::GetWidgetData(EUIName widget_name_enum)
 {
+	//얘가 문제인지 뭔지 아무튼 메모리 잘못읽음.
 	if(game_instance_)
 	{
 		//맵전환할때 호출하면 못찾아는거 같음 확인바람

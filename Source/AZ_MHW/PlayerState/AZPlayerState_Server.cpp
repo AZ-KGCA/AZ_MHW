@@ -7,7 +7,6 @@
 AAZPlayerState_Server::AAZPlayerState_Server()
 {
 	
-	PrimaryActorTick.bCanEverTick = false;
 }
 
 void AAZPlayerState_Server::BeginPlay()
@@ -21,8 +20,5 @@ void AAZPlayerState_Server::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-void AAZPlayerState_Server::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+
 

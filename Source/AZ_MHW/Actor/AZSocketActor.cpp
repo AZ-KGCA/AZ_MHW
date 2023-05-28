@@ -6,10 +6,13 @@
 AAZSocketActor::AAZSocketActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	
 	socket_mesh_asset_ = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SocketItem"));
-	SetRootComponent(socket_mesh_asset_);
-
 	socket_mesh_asset_->SetCollisionProfileName(TEXT("NoCollision"));
+	SetRootComponent(socket_mesh_asset_);
+	socket_fx_mesh_asset_ = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Socket_Item_FX"));
+	socket_fx_mesh_asset_->SetCollisionProfileName(TEXT("NoCollision"));
+	socket_fx_mesh_asset_->SetupAttachment(socket_mesh_asset_);
 }
 
 void AAZSocketActor::BeginPlay()

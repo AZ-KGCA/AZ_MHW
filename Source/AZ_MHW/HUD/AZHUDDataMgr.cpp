@@ -7,10 +7,10 @@
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "Blueprint/UserWidget.h"
 #include "AZ_MHW/Util/AZUtility.h"
-
 #include "Kismet/GameplayStatics.h"
 #undef MessageBox
 #undef MessageBoxW
+
 
 void UAZHUDDataMgr::Init()
 {

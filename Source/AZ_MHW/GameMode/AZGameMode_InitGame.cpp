@@ -2,29 +2,35 @@
 
 
 #include "AZGameMode_InitGame.h"
+#include <GameFramework/DefaultPawn.h>
+#include <GameFramework/GameStateBase.h>
+#include <Kismet/GameplayStatics.h>
 
-#include "AZGameMode_Server.h"
-#include "GameFramework/DefaultPawn.h"
-#include "GameFramework/GameStateBase.h"
+#include "GameFramework/GameState.h"
 #include "GameFramework/HUD.h"
 #include "GameFramework/PlayerState.h"
-#include "Kismet/GameplayStatics.h"
+#include "GameInstance/AZGameInstance.h"
+#include "HUD/AZHUD.h"
 
 
 AAZGameMode_InitGame::AAZGameMode_InitGame()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	
+	bStartPlayersAsSpectators = false;
 	bNetLoadOnClient = false;
 	bPauseable = true;
-	bStartPlayersAsSpectators = false;
 
-	DefaultPawnClass = ADefaultPawn::StaticClass();
-	PlayerControllerClass = APlayerController::StaticClass();
+	DefaultPawnClass = ADefaultPawn::StaticClass();//기본
+	PlayerControllerClass = APlayerController::StaticClass();//기본
+
+	PlayerStateClass = APlayerState::StaticClass();
+	//GameStateClass = AGameState::StaticClass();
+	HUDClass = AHUD::StaticClass();
 	
-	PlayerStateClass = nullptr;
-	GameStateClass = nullptr;
-	HUDClass = nullptr;
+	// PlayerStateClass = APlayerState::StaticClass();//분기
+	// GameStateClass = AGameState::StaticClass();//AGameState::StaticClass();//분기
+	// HUDClass = AAZHUD::StaticClass();//AHUD::StaticClass();//분기
+	//
 	//GameSessionClass = AGameSession::StaticClass();
 	//SpectatorClass = ASpectatorPawn::StaticClass();
 
@@ -32,10 +38,15 @@ AAZGameMode_InitGame::AAZGameMode_InitGame()
 	//ServerStatReplicatorClass = AServerStatReplicator::StaticClass();
 }
 
-// Called when the game starts or when spawned
 void AAZGameMode_InitGame::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/*
+	const FString mode_string = FCommandLine::Get();
+	if(mode_string == "") PlayServerMode();
+	else PlayClientMode();
+	*/
 }
 
 void AAZGameMode_InitGame::InitGame(const FString& map_name, const FString& options, FString& error_message)
@@ -46,9 +57,7 @@ void AAZGameMode_InitGame::InitGame(const FString& map_name, const FString& opti
 
 void AAZGameMode_InitGame::PlayServerMode()
 {
-	//UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/Map/PCUnitTestMap"),true,"?game=/Game/AZ/GameMode/BP_Server.BP_Server_C");
-	// TEMP MONSTER TEST
-	UGameplayStatics::OpenLevel(GetWorld(),FName("/Game/AZ/ServerDebug/ServerDebug_Level"),true,"?game=/Game/AZ/ServerDebug/BP_ServerDebug_GM.BP_ServerDebug_GM_C");
+	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/ServerDebug/ServerDebug_Level"),true,"?game=/Game/AZ/GameMode/BP_Server.BP_Server_C");//BP_ServerDebug_GM.BP_ServerDebug_GM_C");
 }
 
 void AAZGameMode_InitGame::PlayClientMode()

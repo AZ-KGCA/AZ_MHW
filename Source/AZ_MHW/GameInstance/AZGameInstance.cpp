@@ -1,7 +1,6 @@
 // Copyright Team AZ. All Rights Reserved.
 
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
-#include <Kismet/GameplayStatics.h>
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/ClientMsg/AZMsgHandler.h"
 #include "AZ_MHW/CommonSource/AZLog.h"
@@ -9,7 +8,6 @@
 #include "AZ_MHW/Manager/AZGameConfig.h"
 #include "AZ_MHW/Manager/AZGameOption.h"
 #include "AZ_MHW/Manager/AZSaveData.h"
-#include "AZ_MHW/Manager/SaveData/GameOptionSaveData.h"
 #include "AZ_MHW/HUD/AZHUDDataMgr.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
 #include "AZ_MHW/Login/AZLoginMgr.h"
@@ -17,11 +15,9 @@
 #include "AZ_MHW/HUD/AZHUD_InGame.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
-#include "..\Manager\AZInventoryManager.h"
-#include  "Engine/GameInstance.h"
-//FIXME merged need del
+#include "AZ_MHW/Manager/AZInventoryManager.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
-#include "..\Manager\AZPlayerMgr.h"
+#include "AZ_MHW/Manager/SaveData/GameOptionSaveData.h"
 //FIXME merged need del
 #include <GameFramework/Character.h>
 
@@ -32,15 +28,10 @@
 #include "TimerManager.h"
 #include "UserManager.h"
 #include "Manager/AZMonsterMgr.h"
-#include "PlayerController/AZPlayerController_Server.h"
 
 UAZGameInstance::UAZGameInstance()
 {
 
-}
-UAZGameInstance::~UAZGameInstance()
-{
-	
 }
 
 void UAZGameInstance::Init()
@@ -92,17 +83,17 @@ void UAZGameInstance::Init()
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UAZGameInstance::BeginLoadingScreen);
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UAZGameInstance::EndLoadingScreen);
 
-	float TimerRate = 1.0f / 30.0f;  // 초당 30회
+	float TimerRate = 1.0f / 60.0f;  // 초당 60회
+	//1player tick = 1초 60회 미만
 
 	if (iocp_net_server_ == nullptr)
 	{
 		iocp_net_server_ = NewObject<UApp_Server>(this, TEXT("iocp_net_server_"));
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Start Client!"));
+	UE_LOG(LogTemp, Warning, TEXT("Start Server!"));
 	// 서버 패킷 큐 타이머
 	GetWorld()->GetTimerManager().SetTimer(server_timer_handle_, this, &UAZGameInstance::TimerProcessPacket, TimerRate, true);
-
+	UE_LOG(LogTemp, Warning, TEXT("Start Client!"));
 	// 클라이언트 패킷 큐 타이머
 	GetWorld()->GetTimerManager().SetTimer(client_timer_handle_, this, &UAZGameInstance::ClientTimerProcessPacket, TimerRate, true);
 
@@ -416,7 +407,7 @@ void UAZGameInstance::TimerProcessPacket()
 
 void UAZGameInstance::PacketInit(const UINT32 max_client)
 {
-	CreateCompent(max_client);
+	CreateComponent(max_client);
 }
 
 void UAZGameInstance::PacketEnd()
@@ -432,7 +423,7 @@ void UAZGameInstance::PacketEnd()
 void UAZGameInstance::DbRun()
 {
 	odbc->Init();
-	odbc->ConnetMssql(L"odbc_test.dsn");
+	odbc->ConnectMssql(L"odbc_test.dsn");
 	odbc->Load();
 }
 
@@ -468,7 +459,7 @@ SQLTCHAR* UAZGameInstance::ConvertCharToSqlTCHAR(const char* charArray)
 	return sqlTCharArray;
 }
 
-void UAZGameInstance::CreateCompent(const UINT32 max_client)
+void UAZGameInstance::CreateComponent(const UINT32 max_client)
 {
 	user_manager_ = new UserManager;
 	user_manager_->Init(max_client);
@@ -726,7 +717,8 @@ void UAZGameInstance::ClientTimerProcessPacket()
 	std::lock_guard<std::mutex> lock(received_data_mutex);
 
 	// 큐에 받은 데이터가 있는지 확인
-	if (!receive_data_queue_.empty()) {
+	if (!receive_data_queue_.empty())
+	{
 		// 대기열에서 처음 받은 데이터 가져오기
 		PACKET_HEADER* base_packet = receive_data_queue_.front();
 		if (call_recv_packet_.IsBound())

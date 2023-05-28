@@ -13,7 +13,7 @@
 
 #pragma endregion 
 #pragma region ForwardDeclaration
-class AAZPlayerState;
+class AAZPlayerState_Client;
 class AAZSocketActor;
 class UAZAnimInstance_Player;
 #pragma endregion
@@ -42,16 +42,21 @@ protected:
 	/** */
 	virtual void BeginPlay() override;
 	/** */
-	virtual void Tick(float delta_seconds) override;
-	/** */
-	virtual  void BeginDestroy() override;
-	/** */
 	//virtual void PossessedBy(AController* new_controller) override;
 	/** */
 	//virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
-	
+	/** */
+	virtual void Tick(float delta_seconds) override;
+	/** */
+	virtual  void BeginDestroy() override;
 #pragma endregion
 public:
+	//각 Player_... Origin, Playable, Remotable 초기화 시점이 다르다.
+	//Playable->빙의시 컨트롤러에서 초기화
+	//Origin->생성시 컨르롤러에서 T맵에서 초기화
+	//Remotable->생성시 컨르롤러에서 T맵에서 초기화
+	UPROPERTY() AAZPlayerState_Client* player_character_state_;
+	
 	//UPROPERTY() TMap<FName, USkeletalMeshComponent*> character_parts_map_;
 	UPROPERTY() USkeletalMeshComponent* face_mesh_;
 	UPROPERTY() USkeletalMeshComponent* head_mesh_;
@@ -60,35 +65,57 @@ public:
 	UPROPERTY() USkeletalMeshComponent* arm_mesh_;
 	UPROPERTY() USkeletalMeshComponent* waist_mesh_;
 	UPROPERTY() USkeletalMeshComponent* leg_mesh_;
+	
 	UPROPERTY() TMap<FName, AAZSocketActor*> character_sockets_map_;
+	//playable, remotable만 필요한 것이지만 시간이 없다.
+	UPROPERTY() USkeletalMeshComponent* face_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* head_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* hair_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* body_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* arm_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* waist_fx_mesh_;
+	UPROPERTY() USkeletalMeshComponent* leg_fx_mesh_;
 	
-	//메시/////////////////////////////////////////////////////
-	/** playerState의 CharacterEquipState 변경후 호출하여 갱신*/
-	UFUNCTION() void SetSKMeshParts();
+	/** 메시 파츠 갱신처리시 호출*/
+	void SetSKMeshParts();
+	/** 무기 소켓 갱신처리시 호출*/
+	void SetSKMeshSocket();
+	/** 바디 이펙트용 메시의 머테리얼 설정(TODO: 임시 고정 이펙트)*/
+	//void SetMeshEfxMaterial(FString material_name_path);
+	void SetSKMeshEfxMaterial();
+	/** 바디 이펙트 온 오프*/
+	UFUNCTION(BlueprintCallable)
+	void SetEnableSKMeshEfx(bool on_off);
+	
+	/** 소켓액터 추가 */
+	void CreateSocketActor(FName new_socket_actor_name, FName in_socket_name);
+	/** AnimNotify 호출. 소켓위치 변경 */
+	void ChangeSocketSlot(FName socket_actor_name, FName in_socket_name);
+	/** 컨트롤러 대리 호출. 소켓장비(메시) 변경 */
+	void ChangeSocketMesh(FName socket_actor_name, int32 item_id);
+	/** 컨트롤러 대리 호출. 장비타입, 아이템아이디 부위별 변경기능 */
+	void ChangeEquipment(int32 item_id);
+
+private:
 	/** bForceUpdate: 이미 붙어 있는 컴포넌트도 또 호출할 것인가*/
-	UFUNCTION() void CombineSKMeshParts(bool is_force_update = true);
-	/** playerState의 CharacterEquipState 변경후 호출하여 갱신*/
-	UFUNCTION() void SetSKMeshSocket();
-	/** 장비타입, 아이템아이디 부위별 변경기능*/
-	UFUNCTION() void ChangeEquipmentMesh(int32 item_id);
-
-	//소켓/////////////////////////////////////////////////////
-	/** 소켓액터 추가*/
-	UFUNCTION() void CreateSocketActor(FName new_socket_actor_name, FName in_socket_name);
-	/** 소켓위치 변경*/
-	UFUNCTION() void ChangeSocketSlot(FName socket_actor_name, FName in_socket_name);
-	/** 소켓장비(메시) 변경*/
-	UFUNCTION() void ChangeSocketMesh(FName socket_actor_name, int32 item_id);
-	
-
+	void CombineSKMeshParts(bool is_force_update = true);
 	
 #pragma region Damage Interface
 protected:
-	// Damage Processing
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
-	UFUNCTION() void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
+	/** 다이나믹 델리게이트에서 처리되기 때문에 UFUNCTION 처리*/
+	UFUNCTION() virtual void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
+#pragma endregion
+#pragma region 추후 추가해야할 Interface?
+
+	//OnUseItem
+	//OnGetItem
+	//OnInteraction
+	//OnChangeEquipment
+	//OnCostState
+	
+#pragma endregion 
 
 	UPROPERTY() class UAZGameInstance* game_instance_;
 };

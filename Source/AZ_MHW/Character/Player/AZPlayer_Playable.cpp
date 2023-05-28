@@ -5,15 +5,10 @@
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
 #include "AZ_MHW/PlayerController/AZPlayerController_InGame.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/Manager/AZInventoryManager.h"
 #include "AZ_MHW/Item/AZItemData.h"
-
-#include <Camera/CameraComponent.h>
-#include <GameFramework/SpringArmComponent.h>
 #include <Components/CapsuleComponent.h>
-#include <EnhancedInputComponent.h>
-#include <EnhancedInputSubsystems.h>
 
 
 
@@ -25,16 +20,6 @@ AAZPlayer_Playable::AAZPlayer_Playable()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-
-	spring_arm_comp_ = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	temp_camera_comp_ = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-
-	spring_arm_comp_->SetupAttachment(GetCapsuleComponent());
-	temp_camera_comp_->SetupAttachment(spring_arm_comp_);
-
-	spring_arm_comp_->TargetArmLength = 400.f;
-	spring_arm_comp_->bUsePawnControlRotation = true;
-	temp_camera_comp_->bUsePawnControlRotation = false;
 }
 
 void AAZPlayer_Playable::BeginPlay()
@@ -69,58 +54,23 @@ void AAZPlayer_Playable::BeginDestroy()
 }
 
 
-//TODO: CameraManager 만들어서 플레이어 캐릭터와 입력처리 완전히 분리하기?
 void AAZPlayer_Playable::SetupPlayerInputComponent(UInputComponent* player_input_component)
 {
 	Super::SetupPlayerInputComponent(player_input_component);
-	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
-	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<
-		UEnhancedInputComponent>(player_input_component))
-	{
-		enhanced_input_component->BindAction(game_instance_->input_mgr_->GetInputAction("Look"),
-		                                     ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionLook);
-		enhanced_input_component->BindAction(game_instance_->input_mgr_->GetInputAction("Zoom"),
-		                                     ETriggerEvent::Triggered, this, &AAZPlayer_Playable::ActionZoom);
-		//...
-	}
+	
 }
 
 void AAZPlayer_Playable::PossessedBy(AController* new_controller)
 {
 	Super::PossessedBy(new_controller);
-
-	playable_player_state_ = Cast<AAZPlayerState>(GetPlayerState());
 }
-
-
-void AAZPlayer_Playable::ActionLook(const FInputActionValue& value)
+ 
+float AAZPlayer_Playable::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
-	const FVector2D look_axis_vector = value.Get<FVector2D>();
-	if (Controller != nullptr)
-	{
-		AddControllerYawInput(look_axis_vector.X);
-		AddControllerPitchInput(look_axis_vector.Y);
-	}
+	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
+	
 }
-void AAZPlayer_Playable::ActionZoom(const FInputActionValue& value)
-{
-	float zoom_axis_float = value.Get<float>();
-	zoom_axis_float *= 10.f;
-
-	if (spring_arm_comp_->TargetArmLength < 100 && zoom_axis_float < 0)
-	{
-		return;
-	}
-	if (spring_arm_comp_->TargetArmLength > 400 && zoom_axis_float > 0)
-	{
-		return;
-	}
-	spring_arm_comp_->TargetArmLength += zoom_axis_float;
-}
-
-
-
-
+ 
 //서버처리
 void AAZPlayer_Playable::AnimNotify_OnUseItem()
 {
@@ -131,7 +81,7 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 	switch (buff.target)
 	{
 	case EItemTarget::health:
-		if(auto player_state = GetPlayerState<AAZPlayerState>())
+		if(auto player_state = GetPlayerState<AAZPlayerState_Client>())
 		{
 				int32 result_health_point = 0;
 				switch (buff.calc)
@@ -154,9 +104,9 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 		}
 		break;
 	case EItemTarget::damage:
-		if(auto player_state = GetPlayerState<AAZPlayerState>())
+		if(auto player_state = GetPlayerState<AAZPlayerState_Client>())
 		{
-			if(auto az_player_state = Cast<AAZPlayerState>(player_state))
+			if(auto az_player_state = Cast<AAZPlayerState_Client>(player_state))
 			{
 				switch (buff.calc)
 				{

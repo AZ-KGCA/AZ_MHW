@@ -22,8 +22,7 @@ AAZGameMode_Server::AAZGameMode_Server()
 	bStartPlayersAsSpectators = false;
 
 	DefaultPawnClass = ADefaultPawn::StaticClass();
-	
-	//PlayerControllerClass = AAZPlayerController_Server::StaticClass();
+	PlayerControllerClass = AAZPlayerController_Server::StaticClass();
 	
 	//Player처리하기
 	//연결된 클라이언트의 플레이어 컨트롤러로 부터 입력값을 전송받는다.

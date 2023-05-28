@@ -81,7 +81,6 @@ public:
 protected:
 	// Damage
 	void DoDamage(AActor* damaged_actor, const FHitResult hit_result);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 
 	// Delegates

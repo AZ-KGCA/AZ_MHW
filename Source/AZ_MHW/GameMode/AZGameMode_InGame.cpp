@@ -2,6 +2,8 @@
 
 
 #include "GameMode/AZGameMode_InGame.h"
+
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/Map/AZWorldMap.h"
 #include "AZ_MHW/Manager/AZMapMgr.h"
@@ -9,16 +11,15 @@
 #include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
 #include "AZ_MHW/Manager/AZObjectMgr_Client.h"
 #include "AZ_MHW/PlayerController/AZPlayerController_InGame.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "SocketHolder/AZSocketHolder.h"
 
 AAZGameMode_InGame::AAZGameMode_InGame()
 {
 	game_mode_flag_ = EGameModeFlag::InGame;
-	DefaultPawnClass = AAZPlayer_Playable::StaticClass();
 	PlayerControllerClass = AAZPlayerController_InGame::StaticClass();
-	PlayerStateClass = AAZPlayerState::StaticClass();
+	PlayerStateClass = AAZPlayerState_Client::StaticClass();
+	DefaultPawnClass = AAZPlayer_Playable::StaticClass();
 }
 
 void AAZGameMode_InGame::Tick(float delta_seconds)

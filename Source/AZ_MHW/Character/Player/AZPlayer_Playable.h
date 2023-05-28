@@ -8,12 +8,9 @@
 #include "AZ_MHW/Character/Player/AZPlayer.h"
 #include "AZPlayer_Playable.generated.h"
 
-class USpringArmComponent;
-class UCameraComponent;
-class AAZPlayerController_InGame;
-class AAZPlayerState;
 
-struct FInputActionValue;
+class AAZPlayerState_Client;
+
 
 /**
  * 
@@ -34,29 +31,13 @@ protected:
 	virtual void Tick(float delta_seconds) override;
 	/** */
 	virtual void BeginDestroy() override;
-	
 	/** */
 	virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
 	/** */
 	virtual void PossessedBy(AController* new_controller) override;
 #pragma endregion
 public:
-	UPROPERTY() AAZPlayerState* playable_player_state_;
-
-	//TODO: 카메라 매니저 만들기?
-	UPROPERTY(VisibleDefaultsOnly, Category=Camera)
-	USpringArmComponent* spring_arm_comp_;//CameraControll
-	UPROPERTY(VisibleDefaultsOnly, Category = Camera)
-	UCameraComponent* temp_camera_comp_;//Camera
-
 	
-	UFUNCTION() void AnimNotify_OnUseItem();
-
-	/** */
-	void ActionLook(const FInputActionValue& value);
-	/** */
-	void ActionZoom(const FInputActionValue& value);
- 
 	//환경 감지하기?
 	//피격당함
 	//지면없음
@@ -64,4 +45,8 @@ public:
 	//인터렉션가능
 	//벽타기가능 등
 	//박스 이용?(밀기,들기,당기기) 어떻게 해
+	
+	UFUNCTION() void AnimNotify_OnUseItem();
+
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 };

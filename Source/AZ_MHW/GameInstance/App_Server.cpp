@@ -1,14 +1,10 @@
 // Copyright Team AZ. All Rights Reserved.
 
 
-#include "GameInstance/App_Server.h"
+#include "App_Server.h"
 #include "AZGameInstance.h"
 
 UApp_Server::UApp_Server()
-{
-}
-
-UApp_Server::~UApp_Server()
 {
 }
 

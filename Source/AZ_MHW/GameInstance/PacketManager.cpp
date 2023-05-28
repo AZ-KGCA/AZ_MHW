@@ -89,7 +89,7 @@ void PacketManager::PushSystemPacket(PacketInfo packet)
 void PacketManager::DbRun()
 {
 	odbc.Init();
-	odbc.ConnetMssql(L"odbc_test.dsn");
+	odbc.ConnectMssql(L"odbc_test.dsn");
 	odbc.Load();
 }
 

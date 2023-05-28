@@ -1,17 +1,6 @@
 #pragma once
-#include "Windows/AllowWindowsPlatformTypes.h"
-#include <windows.h>
-#include "Windows/HideWindowsPlatformTypes.h"
-#include <sqltypes.h>
-#include <sql.h>
-#include <sqlext.h>
-#include <tchar.h>
-#include <string>
-#include <time.h>
-#include <ctime>
-#include <vector>
-#include <string>
-#include <iostream>
+#include "AZWindows.h"
+
 
 //#pragma comment(lib, "legacy_stdio_definitions.lib")
 //참고 Roaming::RoamingNotInitializedException C++ 예외 발생시 accessdatabaseengine_X64.exe 설치
@@ -99,7 +88,7 @@ public:
 	bool CreatePrepare();
 	void ErrorMsg(SQLHSTMT  stmt);
 	void Connect(std::wstring dbName);
-	void ConnetMssql(std::wstring dbName);
+	void ConnectMssql(std::wstring dbName);
 	void DisConnect();
 	bool AddSQL(dbitem& record);
 	bool UpdateSQL(dbitem& record, std::wstring selectName);

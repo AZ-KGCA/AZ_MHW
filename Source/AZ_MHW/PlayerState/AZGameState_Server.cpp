@@ -19,8 +19,3 @@ void AAZGameState_Server::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-void AAZGameState_Server::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-

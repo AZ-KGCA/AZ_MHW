@@ -4,6 +4,7 @@
 
 enum class PACKET_ID : UINT16
 {
+	MIN_PACKET_ID = 1,
 	// TODO 오늘 수정해야함
 
 	//SYSTEM
@@ -55,11 +56,71 @@ enum class PACKET_ID : UINT16
 	SC_MONSTER_PART_CHANGE_CMD = 7201,
 	SC_MONSTER_HIT_CMD = 7202,
 	SC_MONSTER_DIE_CMD = 7203,
-
+	
 	// Client -> Server
 	CS_MONSTER_UPDATE_REQ = 7500,
 	
 	// End of Monster-----------------
+
+#pragma region Character
+	//CLIENT(UI)
+	//LOGIN SCREEN(UI)
+	//로그인시
+	CS_PLAYER_PLAYABLE_GUID_REQ=9000,//아이디번호 요청(플레이어 번호? GUID)
+
+	//CHARACTER SELECT SCREEN(메인메뉴에서 받아서 가지고 있다가 선택창에서 마네퀸 플레이어 액터생성후)
+	CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ = 9001,//아이디 번호로 플레이어 캐릭터데이터(생김새만) 요청
+	//DB에서 캐릭터 데이터 가져와서 보유상태로 넘겨줌
+	SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES = 9002,//플레이어 캐릭터데이터(생김새만) 응답
+
+	//CHARACTER SELECT CREATE & DESTROY(UI)
+	CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ = 9003,//캐릭터창에서 캐릭터 정보 생성 요청
+	//생성후 결과(캐릭터 데이터 = 캐릭터 번호)넘겨줌
+	SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES = 9004,//캐릭터창에서 캐릭터 정보 생성 응답
+	CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ = 9005,//캐릭터창에서 캐릭터 정보 제거 요청
+	//제거후 결과 넘겨줌
+	SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES = 9006,//캐릭터창에서 캐릭터 정보 제거 응답
+	
+	//CHARACTER SELECT IN GAME(UI)
+	CS_PLAYER_CHARACTER_SELECT_REQ = 9007,//캐릭터 선택함.->해당 캐릭터 데이터(인벤까지) 요청
+	//->캐릭터 정보전체 DB로 정보 획득후, 남은 정보는 날리기
+	SC_PLAYER_CHARACTER_SELECT_RES = 9008,//캐릭터 선택함.->해당 캐릭터 데이터(인벤까지) 응답
+	//->데이터패킷 받아서 클라의 플레이어 스테이트의 캐릭터 정보 초기화 및 월드변경
+	
+	//CLIENT
+	//INGAME SCREEN
+	CS_PLAYER_ORIGIN_CREATE_REQ=9101,//원본생성 요청 -> 원래는 응답받고 성공햇는지 체크해야하지만...
+	CS_PLAYER_ORIGIN_DESTROY_REQ=9102,//원본제거 요청
+	CS_PLAYER_ORIGIN_ACTION_REQ=9103,//원본액션 요청
+	CS_PLAYER_ORIGIN_EQUIP_REQ=9104,//원본장비교체 요청
+	CS_PLAYER_ORIGIN_CHECK_REQ=9105,//원본확인 요청
+	//CS_PLAYER_ORIGIN_BUY_REQ=9105,//상점 구매 요청
+	//CS_PLAYER_ORIGIN_SELL_REQ=9106,//상점 판매 요청
+
+	//SERVER
+	//INGAME SCREEN
+	SC_PLAYER_STATE_REMOTABLE_CREATE_CMD=9500,//원격 플레이어 상태 전파
+	SC_PLAYER_REMOTABLE_CREATE_CMD=9501,//원격 플레이어 생성 전파
+	//(새로접속한 유저는 접속중인 유저를)+(접속중인 유저에게 새로 접속한 유저를)
+	SC_PLAYER_REMOTABLE_DESTROY_CMD=9502,//원격 플레이어 제거 전파
+	SC_PLAYER_REMOTABLE_ACTION_CMD=9503,//원격 플레이어 액션 전파
+	SC_PLAYER_REMOTABLE_EQUIP_CMD=9504,//원격 플레이어 장비 전파
+	SC_PLAYER_REMOTABLE_UPDATE_CMD=9505,//원격 플레이어 갱신 전파
+	//INGAME REQUEST ORIGIN PLAYER
+	SC_PLAYER_PLAYABLE_UPDATE_CMD=9506,//로컬 플레이어 상태갱신 명령
+	
+	//INVENTORY
+	CS_PLAYER_PLAYABLE_INVENTORY_DATA_REQ = 9601,//인벤토리 데이터 요청
+	SC_PLAYER_PLAYABLE_INVENTORY_START_RES = 9602,//인벤토리 데이터 시작 알림
+	SC_PLAYER_PLAYABLE_INVENTORY_DATA_RES = 9603,//인벤토리 데이터패킷
+	SC_PLAYER_PLAYABLE_INVENTORY_END_RES = 9604,//인벤토리 데이터 끝 알림
+
+	//
+	SC_ENVIRONMENT_UPDATE_MERCHANT_CMD = 9901,//상점 정보 갱신 전파(구매, 판매시)
+	SC_ENVIRONMENT_UPDATE_FIELD_CMD=9902,//필드 정보 갱신 전파(수집, 파괴 등)
+#pragma endregion
+	//
+	MAX_PACKET_ID = 9999,
 };
 
 template<>
@@ -77,9 +138,11 @@ struct PACKET_HEADER
 	INT32 success = 0;
 };
 
+#include "AZ_MHW/SocketHolder/Character/CharacterPacket.h"
 #include "AZ_MHW/SocketHolder/Item/ItemPacket.h"
 #include "AZ_MHW/SocketHolder/Chat/ChatPacket.h"
 #include "AZ_MHW/SocketHolder/Login/LoginPacket.h"
 #include "AZ_MHW/SocketHolder/Map/MapPacket.h"
+
 #include "AZ_MHW/SocketHolder/Monster/MonsterPacket.h"
 // pack(pop) //위에 설정된 패킹설정이 사라짐

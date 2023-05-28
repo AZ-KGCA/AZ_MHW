@@ -73,6 +73,36 @@ public:
 	void TimerLoop_Send_SC_MONSTER_SPAWN_CMD(UINT32 client_idx, int32 num_to_spawn);
 	void Receive_CS_MONSTER_UPDATE_REQ(UINT32 client_idx, CS_MONSTER_UPDATE_REQ* packet);
 
+#pragma region PlayerCharacterParts
+public:
+#pragma region Client->Server
+	void CreatePlayerCharacterRequest(UINT32 client_index);
+	void DestroyPlayerCharacterRequest(UINT32 client_index);
+	
+	void CreatePlayerOriginRequest(UINT32 client_index);
+	void DestroyPlayerOriginRequest(UINT32 client_index);
+	void ActionPlayerOriginRequest(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
+	void EquipPlayerOriginRequest(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
+
+	
+#pragma endregion
+#pragma region Server->Client
+	void CreatePlayerCharacterRespone();//플레이어 생성후 데이터받기
+	void DestroyPlayerCharacterRespone();//플레이어 제거후 데이터받기
+	
+	void DisplayPlayerDemageRequest();//플레이어가 준 데미지 표시
+	
+	void ProcessCreatePlayer_Playable();
+	void ProcessCreatePlayer_Remotable(INITIALIZE_PLAYER_STATE_PACKET* packet);
+	void UpdatePlayerStateCommand(UPDATE_PLAYER_STATE_PACKET* packet);
+	
+	void CreatePlayerRemotableCommand(CREATE_PLAYER_CHARACTER_PACKET* packet);
+	void DestroyPlayerRemotableCommand(DESTROY_PLAYER_CHARACTER_PACKET* packet);
+	void ActionPlayerRemotableCommand(ACTION_PLAYER_PACKET* packet);
+	void EquipPlayerRemotableCommand(EQUIPMENT_PLAYER_PACKET* packet);
+	void UpdatePlayerStateRemotableCommand(UPDATE_PLAYER_STATE_PACKET* packet);
+#pragma endregion 
+
 private:
 	UPROPERTY() TWeakObjectPtr<class UAZGameInstance> game_instance_;
 	FTimerHandle test_timer;

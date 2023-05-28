@@ -19,7 +19,7 @@ void UAZSocketHolder::Init(ESocketHolderType holder_type)
 	socket_holder_type_ = holder_type;
 	game_instance_ = Cast<UAZGameInstance>(GetOuter());
 	InitIsShowWaitWidgetException();
-	InitSendLoger();
+	InitSendLogger();
 }
 
 void UAZSocketHolder::Disconnect()
@@ -117,7 +117,7 @@ void UAZSocketHolder::InitIsShowWaitWidgetException()
 	is_show_wait_widget_exception_protocols_.Emplace((unsigned short)PACKET_ID::CS_MONSTER_UPDATE_REQ);
 }
 
-void UAZSocketHolder::InitSendLoger()
+void UAZSocketHolder::InitSendLogger()
 {
 	// 추가하기
 	//_RegistLoger<FCG_ATTACK_SKILL_SHOOT_SYN>()

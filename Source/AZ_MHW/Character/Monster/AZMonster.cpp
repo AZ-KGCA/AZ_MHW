@@ -208,7 +208,7 @@ void AAZMonster::EnterCombat(AActor* combat_instigator, bool is_triggered_by_sig
 void AAZMonster::SetActionMode(EMonsterActionMode action_mode)
 {
 	action_state_info_.action_mode = action_mode;
-	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::action_mode, uint8(action_mode));
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::action_mode, static_cast<uint8>(action_mode));
 }
 
 void AAZMonster::SetMoveState(EMoveState move_state)
@@ -219,8 +219,8 @@ void AAZMonster::SetMoveState(EMoveState move_state)
 	action_state_info_.montage_section_name = NAME_None;
 	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
 
-	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::move_state, uint8(move_state));
-	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, uint8(ECharacterState::Locomotion));
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::move_state, static_cast<uint8>(move_state));
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, static_cast<uint8>(ECharacterState::Locomotion));
 }
 
 void AAZMonster::SetTargetAngle(float angle)
@@ -298,7 +298,7 @@ void AAZMonster::SetActionState(int32 action_id)
 	// Update state if there is an available action
 	// Update common data
 	action_state_info_.priority_score = EMonsterActionPriority::Action;
-	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, uint8(ECharacterState::Action));
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, static_cast<uint8>(ECharacterState::Action));
 	anim_instance_->is_doing_action_ = false;
 
 	// TODO this only covers combat mode; cannot process non-combat player conscious actions

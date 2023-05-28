@@ -4,56 +4,270 @@
 #include "AZPlayerController_InGame.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
-#include "AZ_MHW/PlayerState/AZPlayerState.h"
+#include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Playable.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Remotable.h"
+#include "AZ_MHW//SocketHolder/AZSocketHolder.h"
+#include "AZ_MHW/Util/AZUtility.h"
 
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
-
+#include <Camera/CameraComponent.h>
+#include <GameFramework/SpringArmComponent.h>
 //#include <Components/SkinnedMeshComponent.h>
 
 AAZPlayerController_InGame::AAZPlayerController_InGame()
 {
-	//PrimaryActorTick.bStartWithTickEnabled = true;
-	//InternalConstructor
+	spring_arm_comp_ = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	temp_camera_comp_ = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	spring_arm_comp_->SetupAttachment(GetRootComponent());
+	temp_camera_comp_->SetupAttachment(spring_arm_comp_);
+	spring_arm_comp_->bUsePawnControlRotation = true;
+	temp_camera_comp_->bUsePawnControlRotation = false;
+
+	bit_move_forward=false;
+	bit_move_left=false;
+	bit_move_back=false;
+	bit_move_right=false;
+
+	bit_normal_action=false;
+	bit_special_action=false;
+
+	bit_unique_action=false;
+	bit_dash_action=false;
+
+	bit_interaction=false;
+	bit_evade_action=false;
+	bit_use_item=false;
 }
 
+void AAZPlayerController_InGame::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+//PlayerState Cache
+//TempAddPlayer_Origin();
+void AAZPlayerController_InGame::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	playable_player_state_ = GetPlayerState<AAZPlayerState_Client>();
+	if(playable_player_state_  == nullptr) UE_LOG(AZ_PLAYER, Warning, TEXT("PlayerController_InGame: Cast Failed Player State"));
+	
+	//TODO 임시 캐릭터 샐럭트 창에서 호출햇어야함.
+	TempSendAddPlayer_Origin();
+	
+	game_instance_->input_mgr_->AddInputMappingContext(TEXT("InGame"));
+	SetupWeaponInputMappingContext(playable_player_state_->equipment_state_.weapon_type);
+
+	if (UEnhancedInputComponent* enhanced_input_component = CastChecked<UEnhancedInputComponent>(InputComponent))
+	{
+		UAZInputMgr* input_mgr = game_instance_->input_mgr_;
+		//Mouse
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("Look"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionInputLook);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("Zoom"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionInputZoom);
+
+		//W
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("MoveForward"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveForward_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("MoveForward"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveForward_End);
+		//S
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("MoveBack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveBack_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("MoveBack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveBack_End);
+		//A
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("MoveLeft"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveLeft_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("MoveLeft"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveLeft_End);
+		//D
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("MoveRight"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveRight_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("MoveRight"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveRight_End);
+		
+		//MLB
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("NormalAttack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionNormalAttack_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("NormalAttack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionNormalAttack_End);
+		//MRB
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("SpecialAttack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionSpecialAttack_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("SpecialAttack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionSpecialAttack_End);
+
+		//LCtrl
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("UniqueAction"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUniqueAction_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("UniqueAction"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUniqueAction_End);
+		//LShift
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("DashHold"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDashHold_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("DashHold"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDashHold_End);
+		
+		//Space
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("Dodge"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDodge_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("Dodge"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDodge_End);
+		//E
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("UseItem"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUseItem_Start);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("UseItem"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUseItem_End);
+	}
+}
+
+//Player Cache
 void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
-	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
-	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
-	playable_player_state_ = GetPlayerState<AAZPlayerState>();
-
-	PACKET_HEADER input_packet;
-	// //strcpy_s(input_packet.input_position, sizeof(FVector),FV );
-	// //strcpy_s(input_packet.input_direction, sizeof(FRotator), );
-	input_packet.packet_id = 401;
-	input_packet.packet_length = sizeof(PACKET_HEADER);
 	
-	//
-	game_instance_->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
+	if(playable_player_ == nullptr) UE_LOG(AZ_PLAYER, Warning, TEXT("PlayerController_InGame: Cast Failed Player Character"));
+	playable_player_->player_character_state_ = playable_player_state_;
+	
+	//빙의시 초기화시작
+	pawn->GetRootComponent()->SetWorldLocation(playable_player_state_->character_state_.character_position);
+	pawn->GetRootComponent()->SetWorldRotation(playable_player_state_->character_state_.character_direction);
+	
+	//폰에게 카메라 할당
+	SetupFollowCameraOwnPawn(true);
+}
+
+void AAZPlayerController_InGame::OnUnPossess()
+{
+	playable_player_ = nullptr;
+	SetupFollowCameraOwnPawn(false);
+	Super::OnUnPossess();
 }
 
 void AAZPlayerController_InGame::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
-	
-	//Input_Packet input_packet;
-	
-	//strcpy_s(input_packet.current_position, sizeof(FVector),FV );
-	//strcpy_s(input_packet.current_direction, sizeof(FVector), FR );
+	if((playable_player_&& playable_player_state_) == false) return;
 
-	//strcpy_s(input_packet.input_direction, sizeof(FRotator), FR);
-	//input_packet.input_data = GetCommandBitMask();
-	//AZGameInstance->client_connect->Server_Packet_Send((char*)&input_packet, input_packet.packet_length);
+	float angle = GetInputAngle();
+	int32 bitmask = GetInputBitMask();
+	playable_player_state_->action_state_.input_bitmask = bitmask;
+	playable_player_state_->action_state_.input_direction.Yaw = angle;
+
+	ACTION_PLAYER_PACKET packet;
+	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ;
+	
+	packet.current_position = GetRootComponent()->GetComponentLocation();
+	packet.current_direction = GetRootComponent()->GetComponentRotation().Yaw;
+	
+	packet.input_direction = angle;
+	packet.input_data = bitmask;
+	
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet,packet.packet_length);
 }
 
-void AAZPlayerController_InGame::InitializePlayer(FAZPlayerCharacterState character_state,
-	FAZPlayerEquipmentState equipment_state)
+void AAZPlayerController_InGame::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void AAZPlayerController_InGame::TempSendAddPlayer_Origin()
+{
+	//TODO 이미 인게임에 들어가기전에 접속을 했을때 서버에 보냇어야 함.
+	//UI에서 처리하도록 변경하기
+	//CS_PLAYER_CHARACTER_SELECT_REQ->Server
+	CREATE_PLAYER_CHARACTER_PACKET packet;
+	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_CREATE_REQ;
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet, packet.packet_length);
+
+	//Server->SC_PLAYER_CHARACTER_SELECT_RES
+
+	//SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES
+}
+
+void AAZPlayerController_InGame::AddPlayer_Playable()
+{
+	if(playable_player_ == nullptr)
+	{
+		UE_LOG(AZ_PLAYER,Warning,TEXT("Server에서 로컬 플레이어 생성 명령"));
+		auto player_character = GetWorld()->SpawnActor<AAZPlayer_Playable>();
+		playable_player_ = player_character;
+		Possess(player_character);
+	}
+}
+
+void AAZPlayerController_InGame::RemovePlayer_Playable()
+{
+	if(playable_player_ != nullptr)
+	{
+		UE_LOG(AZ_PLAYER,Warning,TEXT("Server에서 로컬 플레이어 제거 명령"));
+		playable_player_->Destroy();
+		playable_player_= nullptr;
+		playable_player_state_->Destroy();
+		playable_player_state_ = nullptr;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+float AAZPlayerController_InGame::GetInputAngle()
+{
+	//현재 입력방향
+	int movement_x = (static_cast<int>(bit_move_right) - static_cast<int>(bit_move_left));//입력 좌우
+	int movement_y = (static_cast<int>(bit_move_forward) - static_cast<int>(bit_move_back));//입력 전후
+	FVector2D movement_vector(movement_x, movement_y);
+	
+	//현재 카메라방향
+	FRotator yaw_rotation(0, GetControlRotation().Yaw, 0);
+	//UE_LOG(AZ_TEST,Warning,TEXT("%f"), yaw_rotation.Yaw);
+	FVector forward_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::X);//월드의 전후벡터
+	FVector right_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::Y);//월드의 좌우벡터
+	
+	//카메라 방향에 대한 입력방향(플레이어가 인지하는 방향)
+	FVector movement_direction = (right_direction * movement_vector.X + forward_direction * movement_vector.Y).GetSafeNormal();
+	return movement_direction.ToOrientationRotator().Yaw;
+}
+
+int32 AAZPlayerController_InGame::GetInputBitMask()
+{
+	int32 result = 0;//None
+	
+	if(bit_move_forward) result |=(1<<0);//W 1
+	if(bit_move_left) result |=(1<<1);//A 2
+	if(bit_move_back) result |=(1<<2);//S 4
+	if(bit_move_right) result |=(1<<3);//D 8
+
+	if(bit_normal_action) result |=(1<<4);//MLB 16
+	if(bit_special_action) result |=(1<<5);//MRB 32
+	if(bit_evade_action) result |=(1<<6);//Space 64
+	if(bit_dash_action) result |=(1<<7);//LeftShift 128
+	if(bit_unique_action) result |=(1<<8);//LeftCtrl 256
+
+	if(bit_use_item) result |=(1<<9);//E 512
+	//if(bit_use_item_) result |=(1<<10);//V
+	//if(bit_use_item_) result |=(1<<11);//F
+	//if(bit_use_item_) result |=(1<<12);//R
+	//if(bit_use_item_) result |=(1<<13);//C
+	//if(bit_use_item_) result |=(1<<14);//M
+	
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void AAZPlayerController_InGame::ChangeEquipment(int32 item_id)
+{
+	playable_player_->ChangeEquipment(item_id);
+
+	//Packet
+}
+
+void AAZPlayerController_InGame::BuyItem(int32 item_id, int32 item_count)
+{
+	//game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket();
+}
+
+void AAZPlayerController_InGame::SellItem(int32 item_id, int32 item_count)
+{
+	
+}
+
+void AAZPlayerController_InGame::GetItem(int32 item_id, int32 item_count)
 {
 }
+
+void AAZPlayerController_InGame::UseItem(int32 item_id, int32 item_count)
+{
+	//playable_player_->
+	//Packet
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AAZPlayerController_InGame::SetupWeaponInputMappingContext(int32 weapon_type)
 {
@@ -69,243 +283,235 @@ void AAZPlayerController_InGame::SetupWeaponInputMappingContext(int32 weapon_typ
 	}
 }
 
-void AAZPlayerController_InGame::ForceInterpolation(FVector position, FRotator direction)
+void AAZPlayerController_InGame::SetupFollowCameraOwnPawn(bool on_off)
+{
+	if(on_off)
+	{
+		if(const auto pawn = GetPawn())
+		{
+			spring_arm_comp_->Rename(nullptr, pawn);
+			spring_arm_comp_->AttachToComponent(pawn->GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
+			temp_camera_comp_->Rename(nullptr, pawn);
+			temp_camera_comp_->AttachToComponent(spring_arm_comp_, FAttachmentTransformRules::KeepRelativeTransform);
+			spring_arm_comp_->TargetArmLength = 400.f;
+		}
+	}
+	else
+	{
+		spring_arm_comp_->Rename(nullptr,this);
+		spring_arm_comp_->AttachToComponent(this->GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
+		temp_camera_comp_->Rename(nullptr,this);
+		temp_camera_comp_->AttachToComponent(spring_arm_comp_, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void AAZPlayerController_InGame::FerpPlayer_Playable(FVector position, FRotator direction)
 {
 	playable_player_->SetActorLocation(position);
 	playable_player_->SetActorRotation(direction);
 }
 
-int32 AAZPlayerController_InGame::GetCommandBitMask()
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void AAZPlayerController_InGame::AddPlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state,
+	const FAZPlayerEquipmentState& equipment_state)
 {
-	int32 result = 0;//None
-
-	if(playable_player_state_->action_state_.bit_move_forward) result |=(1<<0);//W 1
-	if(playable_player_state_->action_state_.bit_move_left) result |=(1<<1);//A 2
-	if(playable_player_state_->action_state_.bit_move_back) result |=(1<<2);//S 4
-	if(playable_player_state_->action_state_.bit_move_right) result |=(1<<3);//D 8
-
-	if(playable_player_state_->action_state_.bit_normal_action) result |=(1<<4);//MLB 16
-	if(playable_player_state_->action_state_.bit_special_action) result |=(1<<5);//MRB 32
-	if(playable_player_state_->action_state_.bit_evade_action) result |=(1<<6);//Space 64
-	if(playable_player_state_->action_state_.bit_dash_action) result |=(1<<7);//LeftShift 128
-	if(playable_player_state_->action_state_.bit_unique_action) result |=(1<<8);//LeftCtrl 256
-
-	if(playable_player_state_->action_state_.bit_use_item) result |=(1<<9);//E 512
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<10);//V
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<11);//F
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<12);//R
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<13);//C
-	//if(player_state_cache_->action_state_.bit_use_item_) result |=(1<<14);//M
-
-	return result;
+	const auto remotable_player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
+	remotable_player_state_map_.Add(guid, remotable_player_state);
+	remotable_player_state->character_state_ = character_state;
+	remotable_player_state->equipment_state_ = equipment_state;
 }
 
-void AAZPlayerController_InGame::ChangeEquipment(int32 itemID)
+void AAZPlayerController_InGame::AddPlayer_Remotable(int32 guid)
 {
-	//State에서 현재 장착아이템 아이디가져왓
-	//DB에서 아이템 정보가져와서
-	//state에서 빼고
+	const auto& remotable_player = GetWorld()->SpawnActor<AAZPlayer_Remotable>();
+	remotable_player_map_.Add(guid, remotable_player);
 	
-	//DB에서 새로장착할 아이템 정보값가져와 적용하고
-
-	//메시 변경
-	playable_player_->ChangeSocketMesh(TEXT("SourceHandle"),itemID);
-	playable_player_->ChangeEquipmentMesh(itemID);
-
-	//서버에 전송(바꿀께요)
-}
-
-
-void AAZPlayerController_InGame::AddRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state,
-                                                    FAZPlayerEquipmentState equipment_state)
-{
-	//GetWorld()->SpawnActor<AAZPlayer_Remotable>();
-	//remotable_player_map_.Add(guid,)
-	
-	//GetWorld()->SpawnActor<AAZPlayerState>();
-	//remotable_player_state_map_.Add(guid,)
-
-	//Initialize position, rotation
-}
-
-void AAZPlayerController_InGame::ControlRemotablePlayer(int32 guid, FAZPlayerCharacterState character_state,
-	FRotator result_direction, int32 command_bitmask)
-{
-	if(auto player_clone = remotable_player_map_.Find(guid))
+	if(const auto& found_player_state = remotable_player_state_map_.Find(guid))
 	{
-		//(*player_clone)->
+		const auto& remotable_player_state = (*found_player_state);
+		remotable_player->SetPlayerState(remotable_player_state);
+		remotable_player->GetRootComponent()->SetWorldLocation(remotable_player_state->character_state_.character_position);
+		remotable_player->GetRootComponent()->SetWorldRotation(remotable_player_state->character_state_.character_direction);
 	}
 }
 
-void AAZPlayerController_InGame::RemoveRemotablePlayer(int32 guid)
+void AAZPlayerController_InGame::RemovePlayer_Remotable(int32 guid)
 {
-	remotable_player_state_map_.Remove(guid);
-	remotable_player_map_.Remove(guid);
-	
-	//state액터 제거하기
-	//character액터 제거하기
+	if(const auto& found_player_state = remotable_player_state_map_.Find(guid))
+	{
+		(*found_player_state)->Destroy();
+		remotable_player_state_map_.Remove(guid);
+	}
+	if(const auto& found_player = remotable_player_map_.Find(guid))
+	{
+		(*found_player)->Destroy();
+		remotable_player_map_.Remove(guid);
+	}
 }
 
+void AAZPlayerController_InGame::ActionPlayer_Remotable(int32 guid, FVector cur_pos, float cur_dir, float input_dir, int32 input_data)
+{
+	if(const auto& found_player = remotable_player_map_.Find(guid))
+	{
+		(*found_player)->GetRootComponent()->SetWorldLocation(cur_pos);
+		(*found_player)->GetRootComponent()->SetWorldRotation(FRotator(0,cur_dir, 0));
+
+		if((*found_player)->player_character_state_ != nullptr)
+		{
+			(*found_player)->player_character_state_->action_state_.input_direction.Yaw = input_dir;
+			(*found_player)->player_character_state_->action_state_.input_bitmask = input_data;
+		}
+	}
+}
+
+void AAZPlayerController_InGame::EquipPlayer_Remotable(int32 guid, int32 item_id)
+{
+	if(const auto& found_player = remotable_player_map_.Find(guid))
+	{
+		const auto& remotable_player = (*found_player);
+
+		remotable_player->ChangeEquipment(item_id);
+	}
+}
+
+void AAZPlayerController_InGame::UpdatePlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state)
+{
+	if(const auto& found_player = remotable_player_map_.Find(guid))
+	{
+		const auto& remotable_player= (*found_player);
+
+		//Character Class에서 캐릭터상태 전환하기
+		remotable_player->player_character_state_->character_state_ = character_state;
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //input_action
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-void AAZPlayerController_InGame::SetupInputComponent()
+void AAZPlayerController_InGame::ActionInputLook(const FInputActionValue& value)
 {
-	Super::SetupInputComponent();
-	game_instance_->input_mgr_->ClearInputMappingContext();
-	//AZGameInstance->input_mgr->AddInputMappingContext(TEXT("UI"));
-
-	//Camera Rotate Action + Base Move Action
-	game_instance_->input_mgr_->AddInputMappingContext(TEXT("InGame"));
-	SetupWeaponInputMappingContext(GetPlayerState<AAZPlayerState>()->equipment_state_.weapon_type);
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
+	const FVector2D look_axis_vector = value.Get<FVector2D>();
+	if (this != nullptr)
 	{
-		UAZInputMgr* input_mgr = game_instance_->input_mgr_;
-		//W
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveForward"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveForward_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveForward"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveForward_End);
-		//S
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveBack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveBack_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveBack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveBack_End);
-		//A
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveLeft"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveLeft_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveLeft"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveLeft_End);
-		//D
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveRight"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionMoveRight_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("MoveRight"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionMoveRight_End);
-		//WASD Direction
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("InputDirection"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionInputDirection);
-		
-		//MLB
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("NormalAttack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionNormalAttack_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("NormalAttack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionNormalAttack_End);
-		//MRB
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("SpecialAttack"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionSpecialAttack_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("SpecialAttack"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionSpecialAttack_End);
-
-		//LCtrl
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("UniqueAction"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUniqueAction_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("UniqueAction"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUniqueAction_End);
-		//LShift
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("DashHold"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDashHold_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("DashHold"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDashHold_End);
-		
-		//Space
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("Dodge"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionDodge_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("Dodge"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionDodge_End);
-		//E
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("UseItem"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUseItem_Start);
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("UseItem"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUseItem_End);
+		AddYawInput(look_axis_vector.X);
+		AddPitchInput(look_axis_vector.Y);
+	}
+}
+void AAZPlayerController_InGame::ActionInputZoom(const FInputActionValue& value)
+{
+	float zoom_axis_float = value.Get<float>();
+	zoom_axis_float *= 10.f;
+	if(spring_arm_comp_)
+	{
+		if (spring_arm_comp_->TargetArmLength < 100 && zoom_axis_float < 0)
+		{
+			return;
+		}
+		if (spring_arm_comp_->TargetArmLength > 400 && zoom_axis_float > 0)
+		{
+			return;
+		}
+		spring_arm_comp_->TargetArmLength += zoom_axis_float;
 	}
 }
 
-void AAZPlayerController_InGame::ActionInputDirection()
-{
-	//키입력방향
-	int movement_x = (static_cast<int>(playable_player_state_->action_state_.bit_move_right) - static_cast<int>(playable_player_state_->action_state_.bit_move_left));
-	int movement_y = (static_cast<int>(playable_player_state_->action_state_.bit_move_back) - static_cast<int>(playable_player_state_->action_state_.bit_move_forward));
-	FVector2D movement_vector(movement_x, movement_y);
-
-	//현재 카메라방향
-	FRotator control_rotation = GetControlRotation();
-	FRotator yaw_rotation(0, control_rotation.Yaw, 0);
-	FVector forward_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::X);
-	FVector right_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::Y);
-	
-	//카메라 방향에 대한 입력방향(플레이어가 인지하는 방향)
-	FVector movement_direction = (right_direction * movement_vector.Y + forward_direction * movement_vector.X).GetSafeNormal();
-	playable_player_state_->action_state_.input_direction = movement_direction;
-}
+//TODO 키를 누르고 땔때마다 이벤트형식 액션패킷 보내기
+//TODO Direction(WASD만) 체크해서 틱 액션패킷보내기
+//TODO 틱 액션패킷모드 <-> 이벤트 액션패킷모드
 void AAZPlayerController_InGame::ActionMoveForward_Start()
 {
-	playable_player_state_->action_state_.bit_move_forward = true;
+	bit_move_forward = true;
 	
 }
 void AAZPlayerController_InGame::ActionMoveForward_End()
 {
-	playable_player_state_->action_state_.bit_move_forward = false;
+	bit_move_forward = false;
 	
 }
 void AAZPlayerController_InGame::ActionMoveLeft_Start()
 {
-	playable_player_state_->action_state_.bit_move_left = true;
+	bit_move_left = true;
 	
 }
 void AAZPlayerController_InGame::ActionMoveLeft_End()
 {
-	playable_player_state_->action_state_.bit_move_left = false;
+	bit_move_left = false;
 	
 }
 void AAZPlayerController_InGame::ActionMoveRight_Start()
 {
-	playable_player_state_->action_state_.bit_move_right = true;
+	bit_move_right = true;
 }
 void AAZPlayerController_InGame::ActionMoveRight_End()
 {
-	playable_player_state_->action_state_.bit_move_right = false;
+	bit_move_right = false;
 }
 void AAZPlayerController_InGame::ActionMoveBack_Start()
 {
-	playable_player_state_->action_state_.bit_move_back = true;
+	bit_move_back = true;
 }
 void AAZPlayerController_InGame::ActionMoveBack_End()
 {
-	playable_player_state_->action_state_.bit_move_back = false;
+	bit_move_back = false;
 }
 void AAZPlayerController_InGame::ActionUniqueAction_Start()
 {
-	playable_player_state_->action_state_.bit_unique_action = true;
+	bit_unique_action = true;
 }
 void AAZPlayerController_InGame::ActionUniqueAction_End()
 {
-	playable_player_state_->action_state_.bit_unique_action = false;
+	bit_unique_action = false;
 }
 void AAZPlayerController_InGame::ActionNormalAttack_Start()
 {
-	playable_player_state_->action_state_.bit_normal_action = true;
+	bit_normal_action = true;
 }
 void AAZPlayerController_InGame::ActionNormalAttack_End()
 {
-	playable_player_state_->action_state_.bit_normal_action = false;
+	bit_normal_action = false;
 }
 void AAZPlayerController_InGame::ActionSpecialAttack_Start()
 {
-	playable_player_state_->action_state_.bit_special_action = true;
+	bit_special_action = true;
 }
 void AAZPlayerController_InGame::ActionSpecialAttack_End()
 {
-	playable_player_state_->action_state_.bit_special_action = false;
+	bit_special_action = false;
 }
 void AAZPlayerController_InGame::ActionDashHold_Start()
 {
-	playable_player_state_->action_state_.bit_dash_action = true;
+	bit_dash_action = true;
 }
 void AAZPlayerController_InGame::ActionDashHold_End()
 {
-	playable_player_state_->action_state_.bit_dash_action = false;
+	bit_dash_action = false;
 }
 void AAZPlayerController_InGame::ActionDodge_Start()
 {
-	playable_player_state_->action_state_.bit_evade_action = true;
+	bit_evade_action = true;
 }
 void AAZPlayerController_InGame::ActionDodge_End()
 {
-	playable_player_state_->action_state_.bit_evade_action = false;
+	bit_evade_action = false;
 }
 void AAZPlayerController_InGame::ActionUseItem_Start()
 {
-	playable_player_state_->action_state_.bit_use_item = true;
+	bit_use_item = true;
 }
 void AAZPlayerController_InGame::ActionUseItem_End()
 {
-	playable_player_state_->action_state_.bit_use_item = false;
+	bit_use_item = false;
 }
 void AAZPlayerController_InGame::ActionInteract_Start()
 {
-	playable_player_state_->action_state_.bit_interaction = true;
+	bit_interaction = true;
 }
 void AAZPlayerController_InGame::ActionInteract_End()
 {
-	playable_player_state_->action_state_.bit_interaction = false;
+	bit_interaction = false;
 }
+
+//void PacketMode
