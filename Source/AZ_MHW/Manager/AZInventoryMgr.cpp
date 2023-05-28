@@ -468,12 +468,7 @@ void UAZInventoryManager::ResetPotionSlot()
 		potion_slot_.Remove(potion);
 	}
 	buff = *buff_data_map_.Find(potion->GetItemInfo().item_key);
-	UAZPotionItem** temp =  potion_pocket_.Find(buff.id);
-	if(temp != nullptr)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,  FString::Printf(TEXT("item : %s , count : %d"),
-			*((*temp)->GetItemInfo().item_name),(*temp)->GetItemInfo().item_count));
-	}
+	
 	return buff;
 }
 
