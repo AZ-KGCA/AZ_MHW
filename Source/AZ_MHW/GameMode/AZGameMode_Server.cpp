@@ -16,10 +16,9 @@
 AAZGameMode_Server::AAZGameMode_Server()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	bNetLoadOnClient = false;
-	bPauseable = true;
-	bStartPlayersAsSpectators = false;
+	//bNetLoadOnClient = false;
+	//bPauseable = true;
+	//bStartPlayersAsSpectators = false;
 
 	DefaultPawnClass = ADefaultPawn::StaticClass();
 	PlayerControllerClass = AAZPlayerController_Server::StaticClass();

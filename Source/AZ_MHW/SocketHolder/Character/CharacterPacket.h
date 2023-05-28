@@ -78,7 +78,7 @@ struct EQUIPMENT_PLAYER_PACKET : public PACKET_HEADER
 		item_id = -1;
 	}
 };
-//SC전용
+//SC전용//DB처리를 클라에서 하면
 struct INVENTORY_PLAYER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
@@ -100,7 +100,7 @@ struct INVENTORY_PLAYER_PACKET : public PACKET_HEADER
 		item_pos = -1;
 	}
 };
-
+//초기 상태초기전달용 패킷
 struct INITIALIZE_PLAYER_STATE_PACKET : public PACKET_HEADER
 {
 	int32 guid;

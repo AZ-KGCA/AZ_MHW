@@ -57,12 +57,11 @@ protected:
 #pragma endregion
 	
 public:
-	
-	UFUNCTION(BlueprintCallable)
-	float GetInputAngle();
-	UFUNCTION(BlueprintCallable)
-	int32 GetInputBitMask();
 
+	/** 조작변경에 의한 입력 각도 갱신 */
+	float GetInputAngle();
+	/** 조작변경에 의한 입력 비트마스크 갱신 */
+	int32 GetInputBitMask();
 	/** 장비변경에 의한 근거리, 원거리 조작 매핑 변경 */
 	void SetupWeaponInputMappingContext(int32 weapon_type);
 	/** 소유 폰에 대한 팔로우 카메라 설정 */
@@ -88,7 +87,10 @@ public:
 	 * 원래는 캐릭터 샐럭트 창에서 호출햇어야함, 현재는 BeginPlay에서 호출한다.
 	 * 원래는 캐릭터 샐럭트 창에서 캐릭터 상태를 초기화해야 한다. */
 	void TempSendAddPlayer_Origin();
-
+	/** TODO 임시함수
+	 * 원래는 클라에서 로딩이 끝난후에 서버에서 패킷전송후,
+	 * Origin을 움직인후에 서버에서 패킷을 받아서 Update패킷으로 처리되어야 한다. */
+	void TempSendForceUpdatePlayer_Origin();
 	
 	/** 소유 플레이어 캐릭터 */
 	UPROPERTY(VisibleInstanceOnly)
@@ -154,9 +156,12 @@ public:
 	USpringArmComponent* spring_arm_comp_;//CameraControll
 	UPROPERTY(VisibleInstanceOnly)
 	UCameraComponent* temp_camera_comp_;//Camera
-	bool is_event_input_mode_;//tickmode, eventmode
+	bool is_event_input_mode_;//tickmode(나중에 timer?), eventmode,
 	float final_input_angle = 0;
 	int32 final_input_bitmask = 0;
+	
+	void UpdateInputPacket();
+	void ActionTestFunction();
 	
 	void ActionInputLook(const FInputActionValue& value);
 	void ActionInputZoom(const FInputActionValue& value);
@@ -190,8 +195,7 @@ public:
 
 	// TEMP
 	void OpenQuestTemp();			//Q
-
-	void UpdateInputPacket();
+	
 #pragma region 추후구현_밀리추가+원거리전체
 	/*
 	//나중에 구현하기
@@ -253,5 +257,3 @@ public:
 	bool is_questbox_open_;
 	UAZWidget_MsgBoxBasic* quest_msgbox_;
 };
-
-

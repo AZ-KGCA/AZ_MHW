@@ -41,13 +41,12 @@ public:
 	UFUNCTION() void ClearInputMappingContext() const;
 	/** */
 	UFUNCTION() UInputAction* GetInputAction(const FName& name);
-
-private:
 	/** */
-	UInputMappingContext* GetInputMappingContext(const FName& name);
+	UFUNCTION() UInputMappingContext* GetInputMappingContext(const FName& name);
 	/** */
 	int32* GetInputMappingContextPriority(const FName& name);
 	
+private:
 	/** 데이터에셋 맵(키: 접두사 제거 네임)*/
 	UPROPERTY() TMap<FName, UInputMappingContext*> input_mapping_context_map_;
 	/** 적용우선도 맵(키: 접두사 제거 네임)*/

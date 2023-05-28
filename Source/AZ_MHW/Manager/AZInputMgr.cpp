@@ -55,9 +55,7 @@ UAZInputMgr::UAZInputMgr()
 #pragma region InputAction_로드
 	{
 		const FString input_action_directory = TEXT("/Game/AZ/DataAsset/Input/InputAction");
-		// 에셋 레지스트리 모듈을 얻음
 		
-	
 		// 디렉토리 내의 모든 에셋을 가져옴
 		TArray<FAssetData> asset_data_list;
 		asset_registry_module.Get().GetAssetsByPath(*input_action_directory, asset_data_list, true);

@@ -118,6 +118,9 @@ enum class PACKET_ID : UINT16
 	//
 	SC_ENVIRONMENT_UPDATE_MERCHANT_CMD = 9901,//상점 정보 갱신 전파(구매, 판매시)
 	SC_ENVIRONMENT_UPDATE_FIELD_CMD=9902,//필드 정보 갱신 전파(수집, 파괴 등)
+
+	//TEMP
+	CS_DEVELOP_PLAYER_FORCE_UPDATE_CMD = 9998,//클라에서 캐릭터 강제이동 임시
 #pragma endregion
 	//
 	MAX_PACKET_ID = 9999,

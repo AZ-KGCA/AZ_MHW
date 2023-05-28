@@ -27,13 +27,13 @@ void AAZPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());
 	
-	game_instance_->input_mgr_->SetupDefaultBindAction(InputComponent, GetLocalPlayer());
-	game_instance_->input_mgr_->AddInputMappingContext(TEXT("UI"));
+	UAZInputMgr* input_mgr = game_instance_->input_mgr_;
+	input_mgr->SetupDefaultBindAction(InputComponent, GetLocalPlayer());
+	input_mgr->AddInputMappingContext(TEXT("UI"));
 	
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
-		UAZInputMgr* input_mgr = game_instance_->input_mgr_;
-		//ESC
+		//TAP
 		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("ChangeControlMode"), ETriggerEvent::Triggered, this, &AAZPlayerController:: ActionChangeControlMode);
 	}
 }

@@ -7,6 +7,7 @@
 #include "AZ_MHW/Manager/AZObjectMgr_Client.h"
 #include "CharacterComponent/AZMonsterPacketHandlerComponent_Client.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "PlayerController/AZPlayerController_InGame.h"
 
 
 AAZMonster_Client* UPacketFunction::GetMonster_Client(int32 object_serial)
@@ -34,7 +35,11 @@ void UPacketFunction::Receive_SC_MONSTER_SPAWN_END_CMD(const SC_MONSTER_SPAWN_EN
 	gamemode->combat_level_->SetShouldBeVisible(true);
 
 	// TODO TEMP 플레이어로직, 플레이어 안의 함수로 빼기 / 실제로는 시네마틱 끝나고 이동해야할듯
-	game_instance_->GetWorld()->GetFirstPlayerController()->GetPawnOrSpectator()->SetActorLocation(FVector(-190,9000,270));
+	const auto& player_controller =Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
+
+	player_controller->playable_player_->SetActorLocation(FVector(-190,9000,270));
+	player_controller->TempSendForceUpdatePlayer_Origin();
+	
 	// TODO Warp 서버에 패킷 보내서 강제 이동 브로드캐스트 or 서버에서 이동 요청 
 }
 

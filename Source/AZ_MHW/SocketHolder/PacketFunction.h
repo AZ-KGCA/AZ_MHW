@@ -84,7 +84,7 @@ public:
 	void ActionPlayerOriginRequest(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
 	void EquipPlayerOriginRequest(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
 
-	
+	void DevelopPlayerForceUpdateCommand(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
 #pragma endregion
 #pragma region Server->Client
 	void CreatePlayerCharacterRespone();//플레이어 생성후 데이터받기

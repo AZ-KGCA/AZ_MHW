@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AZPlayerController.h"
+#include "InputActionValue.h"
 #include "AZPlayerController_Server.generated.h"
 
 
@@ -34,6 +35,10 @@ protected:
 	/** */
 	virtual void BeginDestroy() override;
 #pragma endregion
+public:
+	void ActionInputLook(const FInputActionValue& value);
+	void ActionSpectatorMode();
+	void TempDevelopForceUpdatePlayer_Origin(int32 client_index, FVector pos);
 	
 #pragma region login & select function(UI -> DB Call)
 public:
@@ -101,19 +106,17 @@ public:
 	//접속한 유저에 대하여 접송중인 유저 리모터블 추가하기
 	//이미 접속중인 유저에 대하여 리모터블 추가하기
 private:
+	void BroadCast_AddPlayerState_Remotable(int32 client_index);
 	
-	void AddPlayerState_Remotable(int32 client_index);
+	void BroadCast_RemovePlayerState_Remotable(int32 client_index);
 	
-	void RemovePlayerState_Remotable(int32 client_index);
-	
-	void AddPlayer_Remotable(int32 client_index);
-	void RemovePlayer_Remotable(int32 client_index);
+	void BroadCast_AddPlayer_Remotable(int32 client_index);
+	void BroadCast_RemovePlayer_Remotable(int32 client_index);
 
-	void ActionPlayer_Remotable(int32 client_index);
-	void EquipPlayer_Remotable(int32 client_index);
-	void UpdatePlayerState_Remotable(int32 client_index);
+	void BroadCast_ActionPlayer_Remotable(int32 client_index);
+	void BroadCast_EquipPlayer_Remotable(int32 client_index, int32 item_id);
+	void BroadCast_UpdatePlayerState_Remotable(int32 client_index);
 	
 	void SendPlayerSimulationResult(int32 client_index);
-
-#pragma endregion 
+#pragma endregion
 };

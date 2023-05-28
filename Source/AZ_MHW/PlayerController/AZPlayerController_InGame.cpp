@@ -108,6 +108,7 @@ void AAZPlayerController_InGame::SetupInputComponent()
 
 		//Q
 		enhanced_input_component->BindAction(input_mgr->GetInputAction("QuestTemp"), ETriggerEvent::Started, this, &AAZPlayerController_InGame::OpenQuestTemp);
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("TestFunction"),ETriggerEvent::Triggered,this,&AAZPlayerController_InGame::ActionTestFunction);
 	}
 }
 
@@ -117,7 +118,11 @@ void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 	Super::OnPossess(pawn);
 	
 	playable_player_ = Cast<AAZPlayer_Playable>(pawn);
-	if(playable_player_ == nullptr) UE_LOG(AZ_PLAYER, Warning, TEXT("PlayerController_InGame: Cast Failed Player Character"));
+	if(playable_player_ == nullptr)
+	{
+		UE_LOG(AZ_PLAYER, Warning, TEXT("PlayerController_InGame: Cast Failed Player Character"));
+		return;
+	}
 	playable_player_->player_character_state_ = playable_player_state_;
 	
 	//빙의시 초기화시작
@@ -167,6 +172,15 @@ void AAZPlayerController_InGame::TempSendAddPlayer_Origin()
 	//Server->SC_PLAYER_CHARACTER_SELECT_RES
 
 	//SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES
+}
+
+void AAZPlayerController_InGame::TempSendForceUpdatePlayer_Origin()
+{
+	ACTION_PLAYER_PACKET packet;
+	packet.packet_id = (int)PACKET_ID::CS_DEVELOP_PLAYER_FORCE_UPDATE_CMD;
+	packet.current_position = playable_player_->GetRootComponent()->GetComponentLocation();
+	
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet,packet.packet_length);
 }
 
 void AAZPlayerController_InGame::AddPlayer_Playable()
@@ -355,6 +369,7 @@ void AAZPlayerController_InGame::ActionPlayer_Remotable(int32 guid, FVector cur_
 {
 	if(const auto& found_player = remotable_player_map_.Find(guid))
 	{
+		//원본 객체에 있는 위치, 회전값 강제보간
 		(*found_player)->GetRootComponent()->SetWorldLocation(cur_pos);
 		(*found_player)->GetRootComponent()->SetWorldRotation(FRotator(0,cur_dir, 0));
 
@@ -372,6 +387,7 @@ void AAZPlayerController_InGame::EquipPlayer_Remotable(int32 guid, int32 item_id
 	{
 		const auto& remotable_player = (*found_player);
 
+		//상태처리와 캐릭터메시 처리를 분리하고 싶지만 시간이 없다...
 		remotable_player->ChangeEquipment(item_id);
 	}
 }
@@ -387,17 +403,66 @@ void AAZPlayerController_InGame::UpdatePlayerState_Remotable(int32 guid, const F
 	}
 }
 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//temp test_function
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+void AAZPlayerController_InGame::OpenQuestTemp()
+{
+	if (quest_msgbox_) return;
+	SetShowMouseCursor(true);
+	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("이미 화면 클릭해서 마우스 포인터 못찾으시겠으면 ctrl+tab"), EUIMsgBoxBtnType::Confirm,
+		this, TEXT(""), L"", L"", L"확인");
+
+	if (msgbox)
+	{
+		quest_msgbox_ = Cast<UAZWidget_MsgBoxBasic>(msgbox);
+		if (quest_msgbox_)
+		{
+			quest_msgbox_->SetTitle("Quest 임시");
+			quest_msgbox_->AddHandler(EMsgEventButtonType::Left, Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()), FName(TEXT("RequestWarpCombatLevel")));
+		}
+	}
+}
+
+void AAZPlayerController_InGame::ActionTestFunction()
+{
+	
+}
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //input_action
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+void AAZPlayerController_InGame::UpdateInputPacket()
+{
+	if((playable_player_state_ == nullptr) || (playable_player_ == nullptr)) return;
+
+	final_input_bitmask = GetInputBitMask();
+	if(final_input_bitmask & 15)//WASD값일시에만
+		{
+		final_input_angle = GetInputAngle();
+		}
+	
+	ACTION_PLAYER_PACKET packet;
+	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ;
+
+	packet.current_position = GetRootComponent()->GetComponentLocation();
+	packet.current_direction = GetRootComponent()->GetComponentRotation().Yaw;
+	packet.input_direction = final_input_angle;
+	packet.input_data = final_input_bitmask;
+	
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet,packet.packet_length);
+}
+
 void AAZPlayerController_InGame::ActionInputLook(const FInputActionValue& value)
 {
 	const FVector2D look_axis_vector = value.Get<FVector2D>();
-	if (this != nullptr)
-	{
-		AddYawInput(look_axis_vector.X);
-		AddPitchInput(look_axis_vector.Y);
-	}
+
+	AddYawInput(look_axis_vector.X);
+	AddPitchInput(look_axis_vector.Y);
 }
 void AAZPlayerController_InGame::ActionInputZoom(const FInputActionValue& value)
 {
@@ -574,43 +639,3 @@ void AAZPlayerController_InGame::ActionInteract_End()
 	}
 }
 
-void AAZPlayerController_InGame::OpenQuestTemp()
-{
-	if (quest_msgbox_) return;
-	SetShowMouseCursor(true);
-	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("이미 화면 클릭해서 마우스 포인터 못찾으시겠으면 ctrl+tab"), EUIMsgBoxBtnType::Confirm,
-	this, TEXT(""), L"", L"", L"확인");
-
-	if (msgbox)
-	{
-		quest_msgbox_ = Cast<UAZWidget_MsgBoxBasic>(msgbox);
-		if (quest_msgbox_)
-		{
-			quest_msgbox_->SetTitle("Quest 임시");
-			quest_msgbox_->AddHandler(EMsgEventButtonType::Left, Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()), FName(TEXT("RequestWarpCombatLevel")));
-		}
-	}
-}
-
-void AAZPlayerController_InGame::UpdateInputPacket()
-{
-	if((playable_player_state_ == nullptr) || (playable_player_ == nullptr)) return;
-
-	final_input_bitmask = GetInputBitMask();
-	if(final_input_bitmask & 15)//WASD값일시에만
-	{
-		final_input_angle = GetInputAngle();
-	}
-	
-	ACTION_PLAYER_PACKET packet;
-	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ;
-
-	packet.current_position = GetRootComponent()->GetComponentLocation();
-	packet.current_direction = GetRootComponent()->GetComponentRotation().Yaw;
-	packet.input_direction = final_input_angle;
-	packet.input_data = final_input_bitmask;
-	
-	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet,packet.packet_length);
-}
-
-//void PacketMode
