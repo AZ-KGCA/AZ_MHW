@@ -8,6 +8,8 @@
 #include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include <Components/SkeletalMeshComponent.h>
 #include <Components/CapsuleComponent.h>
 
@@ -221,6 +223,7 @@ void AAZPlayer::SetSKMeshSocket()
 	}
 }
 
+//TEMP 상수경로
 //void AAZPlayer::SetMeshEfxMaterial(FString material_name_path)
 void AAZPlayer::SetSKMeshEfxMaterial()
 {
@@ -253,6 +256,24 @@ void AAZPlayer::SetSKMeshEfxMaterial()
 	}
 }
 
+//TEMP 상수경로
+void AAZPlayer::SetNiagaraEfx()
+{
+	auto niagara_asset =LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/AZ/BodyAura/NS_AZCharge"));
+
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		niagara_asset,
+		GetActorLocation()+FVector(0,0,20),
+		FRotator::ZeroRotator,
+		FVector::OneVector,
+		false,
+		true,
+		ENCPoolMethod::None,
+		true);
+	
+}
+
 void AAZPlayer::SetEnableSKMeshEfx(bool on_off)
 {
 	face_fx_mesh_->SetVisibility(on_off);
@@ -278,14 +299,15 @@ void AAZPlayer::SetEnableSKMeshEfx(bool on_off)
 			(*socket_actor)->socket_fx_mesh_asset_->SetVisibility(on_off);
 		}
 	}
+	SetNiagaraEfx();
 }
 
 void AAZPlayer::ChangeEquipment(int32 item_id)
 {
-	auto material_asset =LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/AZ/BodyAura/M_BodyAura"));
+	auto material_asset =LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/AZ/BodyAura/MI_BodyAura"));
 	if(material_asset == nullptr) return;
 
-	//TODO ItemId= WeaponType가져오기
+	//TODO item_id = weapon_type가져오기
 	if(1000 < item_id && item_id < 8001)
 	{
 		ChangeSocketMesh(TEXT("MainHand"),item_id);

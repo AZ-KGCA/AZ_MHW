@@ -49,6 +49,7 @@ AAZPlayerController_InGame::AAZPlayerController_InGame()
 void AAZPlayerController_InGame::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 
 //PlayerState Cache
@@ -131,12 +132,15 @@ void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 	
 	//폰에게 카메라 할당
 	SetupFollowCameraOwnPawn(true);
+	//타이머 인풋패킷
+	GetWorld()->GetTimerManager().SetTimer(packet_timer_handle_, this, &AAZPlayerController_InGame::TimerUpdateInputPacket, 1/10.f, true);
 }
 
 void AAZPlayerController_InGame::OnUnPossess()
 {
-	playable_player_ = nullptr;
+	GetWorld()->GetTimerManager().ClearTimer(packet_timer_handle_);
 	SetupFollowCameraOwnPawn(false);
+	playable_player_ = nullptr;
 	Super::OnUnPossess();
 }
 
@@ -144,9 +148,11 @@ void AAZPlayerController_InGame::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
 	
-	if(is_event_input_mode_ == false)
+	final_input_bitmask = GetInputBitMask();
+	//WASD값일시에만
+	if(final_input_bitmask & 15)
 	{
-		UpdateInputPacket();
+		final_input_angle = GetInputAngle();
 	}
 	
 	playable_player_state_->action_state_.input_bitmask = final_input_bitmask;
@@ -320,16 +326,14 @@ void AAZPlayerController_InGame::SetupFollowCameraOwnPawn(bool on_off)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AAZPlayerController_InGame::FerpPlayer_Playable(FVector position, FRotator direction)
+void AAZPlayerController_InGame::ForceInterpolationPlayer_Playable(FVector position)
 {
 	playable_player_->SetActorLocation(position);
-	playable_player_->SetActorRotation(direction);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AAZPlayerController_InGame::AddPlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state,
-	const FAZPlayerEquipmentState& equipment_state)
+void AAZPlayerController_InGame::AddPlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state, const FAZPlayerEquipmentState& equipment_state)
 {
 	const auto remotable_player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
 	remotable_player_state_map_.Add(guid, remotable_player_state);
@@ -392,18 +396,25 @@ void AAZPlayerController_InGame::EquipPlayer_Remotable(int32 guid, int32 item_id
 	}
 }
 
-void AAZPlayerController_InGame::UpdatePlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state)
+void AAZPlayerController_InGame::UpdatePlayerState_Remotable(int32 guid, int32 state_type, int32 state_value, int32 anim_bitmask)
 {
 	if(const auto& found_player = remotable_player_map_.Find(guid))
 	{
 		const auto& remotable_player= (*found_player);
 
-		//Character Class에서 캐릭터상태 전환하기
-		remotable_player->player_character_state_->character_state_ = character_state;
+		//캐릭터 상태 전환하기
+		//remotable_player->player_character_state_->character_state_ = character_state;
 	}
 }
 
-
+void AAZPlayerController_InGame::UpdatePlayerState_Playable(int32 state_type, int32 state_value, int32 anim_bitmask)
+{
+	if(playable_player_)
+	{
+		//캐릭터 상태 전환하기
+		//playable_player_->player_character_state_->character_state_ = character_state;
+	}
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //temp test_function
@@ -424,32 +435,35 @@ void AAZPlayerController_InGame::OpenQuestTemp()
 		}
 	}
 }
-
 void AAZPlayerController_InGame::ActionTestFunction()
 {
 	
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //input_action
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-void AAZPlayerController_InGame::UpdateInputPacket()
+void AAZPlayerController_InGame::TimerUpdateInputPacket()
+{
+	if(is_event_input_mode_) return;
+	EventUpdateInputPacket();
+}
+void AAZPlayerController_InGame::EventUpdateInputPacket()
 {
 	if((playable_player_state_ == nullptr) || (playable_player_ == nullptr)) return;
 
 	final_input_bitmask = GetInputBitMask();
-	if(final_input_bitmask & 15)//WASD값일시에만
-		{
+	//WASD값일시에만
+	if(final_input_bitmask & 15)
+	{
 		final_input_angle = GetInputAngle();
-		}
+	}
 	
 	ACTION_PLAYER_PACKET packet;
 	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ;
 
-	packet.current_position = GetRootComponent()->GetComponentLocation();
-	packet.current_direction = GetRootComponent()->GetComponentRotation().Yaw;
+	packet.current_position = playable_player_->GetRootComponent()->GetComponentLocation();
+	packet.current_direction = playable_player_->GetRootComponent()->GetComponentRotation().Yaw;
 	packet.input_direction = final_input_angle;
 	packet.input_data = final_input_bitmask;
 	
@@ -489,8 +503,11 @@ void AAZPlayerController_InGame::ActionMoveForward_Start()
 void AAZPlayerController_InGame::ActionMoveForward_End()
 {
 	bit_move_forward = false;
-	is_event_input_mode_ = true;
-	UpdateInputPacket();
+	if((GetInputBitMask() & 15) == false)
+	{
+		is_event_input_mode_ = true;
+		EventUpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionMoveLeft_Start()
 {
@@ -500,8 +517,11 @@ void AAZPlayerController_InGame::ActionMoveLeft_Start()
 void AAZPlayerController_InGame::ActionMoveLeft_End()
 {
 	bit_move_left = false;
-	is_event_input_mode_ = true;
-	UpdateInputPacket();
+	if((GetInputBitMask() & 15) == false)
+	{
+		is_event_input_mode_ = true;
+		EventUpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionMoveRight_Start()
 {
@@ -511,8 +531,11 @@ void AAZPlayerController_InGame::ActionMoveRight_Start()
 void AAZPlayerController_InGame::ActionMoveRight_End()
 {
 	bit_move_right = false;
-	is_event_input_mode_ = true;
-	UpdateInputPacket();
+	if((GetInputBitMask() & 15) == false)
+	{
+		is_event_input_mode_ = true;
+		EventUpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionMoveBack_Start()
 {
@@ -522,15 +545,19 @@ void AAZPlayerController_InGame::ActionMoveBack_Start()
 void AAZPlayerController_InGame::ActionMoveBack_End()
 {
 	bit_move_back = false;
-	is_event_input_mode_ = true;
-	UpdateInputPacket();
+	if((GetInputBitMask() & 15) == false)
+	{
+		is_event_input_mode_ = true;
+		EventUpdateInputPacket();
+	}
 }
+
 void AAZPlayerController_InGame::ActionUniqueAction_Start()
 {
 	bit_unique_action = true;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionUniqueAction_End()
@@ -538,7 +565,7 @@ void AAZPlayerController_InGame::ActionUniqueAction_End()
 	bit_unique_action = false;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionNormalAttack_Start()
@@ -546,7 +573,7 @@ void AAZPlayerController_InGame::ActionNormalAttack_Start()
 	bit_normal_action = true;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionNormalAttack_End()
@@ -554,7 +581,7 @@ void AAZPlayerController_InGame::ActionNormalAttack_End()
 	bit_normal_action = false;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionSpecialAttack_Start()
@@ -562,7 +589,7 @@ void AAZPlayerController_InGame::ActionSpecialAttack_Start()
 	bit_special_action = true;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionSpecialAttack_End()
@@ -570,7 +597,7 @@ void AAZPlayerController_InGame::ActionSpecialAttack_End()
 	bit_special_action = false;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionDashHold_Start()
@@ -578,7 +605,7 @@ void AAZPlayerController_InGame::ActionDashHold_Start()
 	bit_dash_action = true;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionDashHold_End()
@@ -586,7 +613,7 @@ void AAZPlayerController_InGame::ActionDashHold_End()
 	bit_dash_action = false;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionDodge_Start()
@@ -594,7 +621,7 @@ void AAZPlayerController_InGame::ActionDodge_Start()
 	bit_evade_action = true;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionDodge_End()
@@ -602,7 +629,7 @@ void AAZPlayerController_InGame::ActionDodge_End()
 	bit_evade_action = false;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionUseItem_Start()
@@ -610,7 +637,7 @@ void AAZPlayerController_InGame::ActionUseItem_Start()
 	bit_use_item = true;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionUseItem_End()
@@ -618,7 +645,7 @@ void AAZPlayerController_InGame::ActionUseItem_End()
 	bit_use_item = false;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionInteract_Start()
@@ -626,7 +653,7 @@ void AAZPlayerController_InGame::ActionInteract_Start()
 	bit_interaction = true;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 void AAZPlayerController_InGame::ActionInteract_End()
@@ -634,7 +661,7 @@ void AAZPlayerController_InGame::ActionInteract_End()
 	bit_interaction = false;
 	if(is_event_input_mode_)
 	{
-		UpdateInputPacket();
+		EventUpdateInputPacket();
 	}
 }
 

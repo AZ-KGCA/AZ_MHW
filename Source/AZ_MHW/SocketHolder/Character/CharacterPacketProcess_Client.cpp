@@ -37,14 +37,16 @@ void UPacketFunction::CreatePlayerRemotableCommand(CREATE_PLAYER_CHARACTER_PACKE
 {
 	auto player_controller = Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
 	
-	player_controller->AddPlayer_Remotable(packet->guid);
+	player_controller->AddPlayer_Remotable(
+		packet->guid);
 }
 
 void UPacketFunction::DestroyPlayerRemotableCommand(DESTROY_PLAYER_CHARACTER_PACKET* packet)
 {
 	auto player_controller = Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
 
-	player_controller->RemovePlayer_Remotable(packet->guid);
+	player_controller->RemovePlayer_Remotable(
+		packet->guid);
 }
 
 void UPacketFunction::ActionPlayerRemotableCommand(ACTION_PLAYER_PACKET* packet)
@@ -59,15 +61,39 @@ void UPacketFunction::ActionPlayerRemotableCommand(ACTION_PLAYER_PACKET* packet)
 	packet->input_data);
 }
 
-void UPacketFunction::EquipPlayerRemotableCommand( EQUIPMENT_PLAYER_PACKET* packet)
+void UPacketFunction::EquipPlayerRemotableCommand(EQUIPMENT_PLAYER_PACKET* packet)
 {
 	auto player_controller = Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
-	
+
+	player_controller->EquipPlayer_Remotable(
+		packet->guid,
+		packet->item_id);
 }
 
-void UPacketFunction::UpdatePlayerStateRemotableCommand( UPDATE_PLAYER_STATE_PACKET* packet)
+void UPacketFunction::UpdatePlayerStateRemotableCommand(UPDATE_PLAYER_STATE_PACKET* packet)
 {
 	auto player_controller = Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
-	
+
+	player_controller->UpdatePlayerState_Remotable(
+		packet->guid,
+		packet->state_type,
+		packet->state_value,
+		packet->state_bitmask);
 }
 
+void UPacketFunction::UpdatePlayerStateCommand(UPDATE_PLAYER_STATE_PACKET* packet)
+{
+	auto player_controller = Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
+
+	player_controller->UpdatePlayerState_Playable(
+		packet->state_type,
+		packet->state_value,
+		packet->state_bitmask);
+}
+
+void UPacketFunction::InterpolationPlayerPositionCommand(ACTION_PLAYER_PACKET* packet)
+{
+	auto player_controller = Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
+
+	player_controller->ForceInterpolationPlayer_Playable(packet->current_position);
+}

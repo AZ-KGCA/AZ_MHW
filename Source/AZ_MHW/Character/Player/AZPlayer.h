@@ -83,6 +83,8 @@ public:
 	/** 바디 이펙트용 메시의 머테리얼 설정(TODO: 임시 고정 이펙트)*/
 	//void SetMeshEfxMaterial(FString material_name_path);
 	void SetSKMeshEfxMaterial();
+	/** */
+	void SetNiagaraEfx();
 	/** 바디 이펙트 온 오프*/
 	UFUNCTION(BlueprintCallable)
 	void SetEnableSKMeshEfx(bool on_off);
