@@ -12,7 +12,10 @@
 #include "AZ_MHW/Manager/AZObjectMgr_Client.h"
 #include "AZ_MHW/PlayerController/AZPlayerController_InGame.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "HUD/AZHUD.h"
+#include "HUD/AZHUDDefine.h"
 #include "SocketHolder/AZSocketHolder.h"
+#include "Widget/MsgBox/AZWidget_MsgBoxBasic.h"
 
 AAZGameMode_InGame::AAZGameMode_InGame()
 {
@@ -409,7 +412,6 @@ void AAZGameMode_InGame::ForEachBossMonsters(OnForEachCharacterDelegate func)
 // TODO 캐릭터/위젯 로직으로 옮기기. 맵이동 TEST용
 void AAZGameMode_InGame::OpenQuestWidget()
 {
-	/*
 	// playercontroller 없어서 테스트 불가
 	auto msg_box = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("QuestTemp"), EUIMsgBoxBtnType::Confirm,
 	this, TEXT(""), L"", L"", L"확인");
@@ -423,8 +425,6 @@ void AAZGameMode_InGame::OpenQuestWidget()
 			msg_box_basic->AddHandler(EMsgEventButtonType::Left, this, FName(TEXT("RequestWarpCombatLevel")));
 		}
 	}
-	*/
-	game_instance_->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &AAZGameMode_InGame::RequestWarpCombatLevel));
 }
 
 void AAZGameMode_InGame::RequestWarpCombatLevel()

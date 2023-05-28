@@ -16,4 +16,5 @@
 // Collision trace channels defines
 #define ECC_PLAYER ECollisionChannel::ECC_GameTraceChannel1
 #define ECC_MONSTER ECollisionChannel::ECC_GameTraceChannel2
-#define ECC_PLAYERATTACK ECollisionChannel::ECC_GameTraceChannel1
+#define ECC_PLAYER_ATTACK ECollisionChannel::ECC_GameTraceChannel3
+#define ECC_MONSTER_CAPSULE ECollisionChannel::ECC_GameTraceChannel4

@@ -69,7 +69,7 @@ public:
 
 	// TEMP
 	UFUNCTION(BlueprintCallable) void OpenQuestWidget(); 
-	void RequestWarpCombatLevel();
+	UFUNCTION() void RequestWarpCombatLevel();
 	void OnCombatLevelLoaded(ULevel* in_level, UWorld* in_world);
 
 public:

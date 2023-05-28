@@ -7,6 +7,7 @@
 #include "AZ_MHW/PlayerController/AZPlayerController.h"//상속
 #include "AZPlayerController_InGame.generated.h"
 
+class UAZWidget_MsgBoxBasic;
 struct FInputActionValue;
 struct FAZPlayerEquipmentState;
 struct FAZPlayerCharacterState;
@@ -187,6 +188,9 @@ public:
 	void ActionInteract_Start();	//F		(Interact, Speak, Gather, Carve)
 	void ActionInteract_End();		//F		(Interact, Speak, Gather, Carve)
 
+	// TEMP
+	void OpenQuestTemp();			//Q
+
 	void UpdateInputPacket();
 #pragma region 추후구현_밀리추가+원거리전체
 	/*
@@ -243,7 +247,11 @@ public:
 	
 	//활 R3 모드변경후 L2 동글
 #pragma endregion
-#pragma endregion 
+#pragma endregion
+
+	//TEMP
+	bool is_questbox_open_;
+	UAZWidget_MsgBoxBasic* quest_msgbox_;
 };
 
 

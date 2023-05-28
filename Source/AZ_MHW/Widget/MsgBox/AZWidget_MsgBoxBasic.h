@@ -56,7 +56,8 @@ public:
 
 public:
 	UFUNCTION() void OnTapClose_FromOutside();
-
+	void CloseMsgBox();
+	
 protected:
 	virtual FReply NativeOnKeyDown(const FGeometry& in_geometry, const FKeyEvent& in_key_event) override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& in_geometry, const FPointerEvent& in_mouse_event) override;
@@ -70,8 +71,6 @@ protected:
 	UPROPERTY() TArray<UTextBlock*> button_text_;
 
 	UPROPERTY(meta = (BindWidget)) class UHorizontalBox* c_full_screen_box_;
-
-	void CloseMsgBox();
 
 protected:
 	EUIMsgBoxBtnType button_type_;

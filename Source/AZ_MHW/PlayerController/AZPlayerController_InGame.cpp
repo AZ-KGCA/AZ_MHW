@@ -14,6 +14,11 @@
 #include <EnhancedInputSubsystems.h>
 #include <Camera/CameraComponent.h>
 #include <GameFramework/SpringArmComponent.h>
+
+#include "GameMode/AZGameMode_InGame.h"
+#include "HUD/AZHUD.h"
+#include "HUD/AZHUDDefine.h"
+#include "Widget/MsgBox/AZWidget_MsgBoxBasic.h"
 //#include <Components/SkinnedMeshComponent.h>
 
 AAZPlayerController_InGame::AAZPlayerController_InGame()
@@ -100,6 +105,9 @@ void AAZPlayerController_InGame::SetupInputComponent()
 		//E
 		enhanced_input_component->BindAction(input_mgr->GetInputAction("UseItem"), ETriggerEvent::Ongoing, this, &AAZPlayerController_InGame::ActionUseItem_Start);
 		enhanced_input_component->BindAction(input_mgr->GetInputAction("UseItem"), ETriggerEvent::Triggered, this, &AAZPlayerController_InGame::ActionUseItem_End);
+
+		//Q
+		enhanced_input_component->BindAction(input_mgr->GetInputAction("QuestTemp"), ETriggerEvent::Started, this, &AAZPlayerController_InGame::OpenQuestTemp);
 	}
 }
 
@@ -563,6 +571,24 @@ void AAZPlayerController_InGame::ActionInteract_End()
 	if(is_event_input_mode_)
 	{
 		UpdateInputPacket();
+	}
+}
+
+void AAZPlayerController_InGame::OpenQuestTemp()
+{
+	if (quest_msgbox_) return;
+	SetShowMouseCursor(true);
+	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("이미 화면 클릭해서 마우스 포인터 못찾으시겠으면 ctrl+tab"), EUIMsgBoxBtnType::Confirm,
+	this, TEXT(""), L"", L"", L"확인");
+
+	if (msgbox)
+	{
+		quest_msgbox_ = Cast<UAZWidget_MsgBoxBasic>(msgbox);
+		if (quest_msgbox_)
+		{
+			quest_msgbox_->SetTitle("Quest 임시");
+			quest_msgbox_->AddHandler(EMsgEventButtonType::Left, Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()), FName(TEXT("RequestWarpCombatLevel")));
+		}
 	}
 }
 

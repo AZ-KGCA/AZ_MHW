@@ -31,10 +31,11 @@ void UPacketFunction::Receive_SC_MONSTER_SPAWN_END_CMD(const SC_MONSTER_SPAWN_EN
 	UE_LOG(AZMonster_Network, Warning, TEXT("Receive_SC_MONSTER_SPAWN_END_CMD"));
 	auto gamemode = Cast<AAZGameMode_InGame>(game_instance_->GetGameMode());
 	gamemode->object_mgr_->SpawnAllMonsters();
-	
-	// TODO TEMP 플레이어로직 / 실제로는 시네마틱 끝나고 이동
 	gamemode->combat_level_->SetShouldBeVisible(true);
+
+	// TODO TEMP 플레이어로직, 플레이어 안의 함수로 빼기 / 실제로는 시네마틱 끝나고 이동해야할듯
 	game_instance_->GetWorld()->GetFirstPlayerController()->GetPawnOrSpectator()->SetActorLocation(FVector(-190,9000,270));
+	// TODO Warp 서버에 패킷 보내서 강제 이동 브로드캐스트 or 서버에서 이동 요청 
 }
 
 void UPacketFunction::Receive_SC_MONSTER_TRANSFORM_CMD(const SC_MONSTER_TRANSFORM_CMD* packet)
