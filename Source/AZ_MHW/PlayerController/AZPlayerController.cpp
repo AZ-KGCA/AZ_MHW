@@ -55,22 +55,22 @@ void AAZPlayerController::ActionChangeControlMode()
 {
 	//TODO: UIMode <-> InGameMode
 	FViewport* viewport = GetLocalPlayer()->ViewportClient->Viewport;
-	bool is_mouse_capture = viewport->HasMouseCapture();
-	if(is_mouse_capture)
-	{
-		bShowMouseCursor = true;
-		bEnableClickEvents = true;
-		bEnableMouseOverEvents = true;
-		
-		viewport->CaptureMouse(false);
-	}
-	else
+	
+	if(bShowMouseCursor)
 	{
 		bShowMouseCursor = false;
 		bEnableClickEvents = false;
 		bEnableMouseOverEvents = false;
 
 		viewport->CaptureMouse(true);
+	}
+	else
+	{
+		bShowMouseCursor = true;
+		bEnableClickEvents = true;
+		bEnableMouseOverEvents = true;
+		
+		viewport->CaptureMouse(false);
 	}
 }
 

@@ -129,8 +129,10 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UPacketFunction::ActionPlayerOriginRequest(client_index, packet);
 		}
 		break;
+		
 	case PACKET_ID::CS_DEVELOP_PLAYER_FORCE_UPDATE_CMD:
 		{
+			//개발자용 클라 투 서버 동기화 패킷
 			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_DEVELOP_PLAYER_FORCE_UPDATE_CMD"));
 			ACTION_PLAYER_PACKET* packet = (ACTION_PLAYER_PACKET*)recv_packet;
 			UPacketFunction::DevelopPlayerForceUpdateCommand(client_index, packet);
@@ -310,10 +312,17 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		}
 	case PACKET_ID::SC_PLAYER_PLAYABLE_UPDATE_CMD:
 		{
-			//플레이어 보간명령
+			//플레이어 갱신명령
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_UPDATE_CMD"));
 			UPDATE_PLAYER_STATE_PACKET* packet = (UPDATE_PLAYER_STATE_PACKET*) recv_packet;
 			UPacketFunction::UpdatePlayerStateCommand(packet);
+		}
+		break;
+	case PACKET_ID::SC_PLAYER_PLAYABLE_INTERPOLATION_CMD:
+		{
+			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_INTERPOLATION_CMD"));
+			ACTION_PLAYER_PACKET* packet = (ACTION_PLAYER_PACKET*) recv_packet;
+			UPacketFunction::InterpolationPlayerPositionCommand(packet);
 		}
 		break;
 	

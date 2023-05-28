@@ -104,10 +104,8 @@ public:
 	/** 제거한다.*/
 	void RemovePlayer_Playable();
 	/** 강제 보간적용 */
-	void FerpPlayer_Playable(FVector position, FRotator direction);
-	/** 서버 상태갱신*/
-	void UpdatePlayerState_Playable(const FAZPlayerCharacterState& character_state);
-
+	void ForceInterpolationPlayer_Playable(FVector position);
+	
 #pragma endregion
 
 #pragma region InGame Remotable Control(Process)
@@ -128,7 +126,10 @@ public:
 	/** */
 	void EquipPlayer_Remotable(int32 guid, int32 item_id);
 	/** 서버에서 호출하여, 상태 갱신*/
-	void UpdatePlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state);
+	void UpdatePlayerState_Remotable(int32 guid, int32 state_type, int32 state_value, int32 anim_bitmask);
+	/** 서버 상태갱신*/
+	void UpdatePlayerState_Playable(int32 state_type, int32 state_value, int32 anim_bitmask);
+
 #pragma endregion
 	
 #pragma region Input Event function
@@ -159,10 +160,12 @@ public:
 	bool is_event_input_mode_ = true;//tickmode(나중에 timer?), eventmode,
 	float final_input_angle = 0;
 	int32 final_input_bitmask = 0;
+	FTimerHandle packet_timer_handle_;
 	
-	void UpdateInputPacket();
+	void TimerUpdateInputPacket();
+	void EventUpdateInputPacket();
 	void ActionTestFunction();
-	
+
 	void ActionInputLook(const FInputActionValue& value);
 	void ActionInputZoom(const FInputActionValue& value);
 	

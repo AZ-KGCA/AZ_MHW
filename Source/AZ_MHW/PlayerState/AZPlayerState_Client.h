@@ -7,6 +7,34 @@
 #include "AZ_MHW/Item/AZItemData.h"
 #include "AZPlayerState_Client.generated.h"
 
+/** UpdatePlayerState Helper*/
+enum class ECharacterStateType
+{
+	//statics
+	health = 0,
+	stamina = 1,
+	sharpness = 2,
+	critical = 3,
+	speed = 4,
+	armor = 5,
+	//elemental_bonus_type
+	//elemental_bonus_type
+	//elemental_bonus_type
+	//elemental_bonus_type
+	//elemental_bonus_type
+	//elemental_bonus_type
+	//elemental_resistance_type
+	//elemental_resistance_type
+	//elemental_resistance_type
+	//elemental_resistance_type
+	//elemental_resistance_type
+	//elemental_resistance_type
+
+	//animation
+	anim_mask = 50,
+	priority = 51,
+	anim_state = 52,
+};
 
 /** 플레이어 액션(인풋) 상태 <-플레이어 컨트롤러가 갱신
  * 이외에도 추가할 것,
@@ -63,8 +91,10 @@ struct FAZPlayerCharacterState
 	int32 speed_rate;//스피드 10000배 (Cast<float>)
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int32 critical_rate;//회심율? 치명타인가 10000배 (Cast<float>)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int32 armor;//방어도
+	
 	//무기속성
-	//방어도?
 	//속성별저항력?
 	//회피도
 
@@ -106,6 +136,7 @@ struct FAZPlayerCharacterState
 	{
 		character_position = FVector::ZeroVector;
 		character_direction = FRotator::ZeroRotator;
+
 		character_action_mask =0;
 		character_action_priority =-1;
 		
@@ -118,16 +149,18 @@ struct FAZPlayerCharacterState
 
 		critical_rate = 0;//10000배
 		speed_rate = 20000;//10000배
-
+		armor = 1;
+		
+		bit_common = true;//-1무엇이든 가능한 상태
+		bit_action = false;
 		bit_ground = true;
-		bit_hit = false;
 		bit_slide = false;
-
-		bit_common = true;
 		bit_crouch = false;
 		bit_evade = false;
-		bit_action = false;
 		bit_guard = false;
+		bit_hit = false;
+		//bit_hit_guard
+		
 	}
 };
 /** 플레이어 캐릭터의 장비 상태<-서버가 갱신

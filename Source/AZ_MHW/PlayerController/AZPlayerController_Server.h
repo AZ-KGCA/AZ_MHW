@@ -36,8 +36,6 @@ protected:
 	virtual void BeginDestroy() override;
 #pragma endregion
 public:
-	void ActionInputLook(const FInputActionValue& value);
-	void ActionSpectatorMode();
 	void TempDevelopForceUpdatePlayer_Origin(int32 client_index, FVector pos);
 	
 #pragma region login & select function(UI -> DB Call)
@@ -99,15 +97,12 @@ public:
 
 
 	
-#pragma region Receive Remotable Part(server->client)
+#pragma region Send Remotable Part(server->client)
 	/**
-	 *오리진의 액션이 실행후에 결과를 전파처리가 CMD로 처리된다.
+	 *오리진의 액션이 실행후에 결과를 전파처리한다.
 	 */
-	//접속한 유저에 대하여 접송중인 유저 리모터블 추가하기
-	//이미 접속중인 유저에 대하여 리모터블 추가하기
 private:
 	void BroadCast_AddPlayerState_Remotable(int32 client_index);
-	
 	void BroadCast_RemovePlayerState_Remotable(int32 client_index);
 	
 	void BroadCast_AddPlayer_Remotable(int32 client_index);
@@ -115,8 +110,8 @@ private:
 
 	void BroadCast_ActionPlayer_Remotable(int32 client_index);
 	void BroadCast_EquipPlayer_Remotable(int32 client_index, int32 item_id);
-	void BroadCast_UpdatePlayerState_Remotable(int32 client_index);
-	
-	void SendPlayerSimulationResult(int32 client_index);
+
+	void BroadCast_UpdatePlayerState_Remotable(int32 client_index, int32 capture_type, int32 capture_value);
+	void Send_UpdatePlayerState_Playable(int32 client_index, int32 capture_type, int32 capture_value);
 #pragma endregion
 };
