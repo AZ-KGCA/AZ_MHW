@@ -25,6 +25,7 @@ public:
 	void Init(int32 monster_id, EBossRank rank);
 	void SetMeshAndColliders();
 	void SetActionStateInfo(const FMonsterActionStateInfo action_state_info);
+	void AnimNotify_SetMovementMode(EMovementMode movement_mode);
 
 	// Getters
 	bool IsABoss() const;

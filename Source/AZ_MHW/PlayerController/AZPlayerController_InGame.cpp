@@ -411,16 +411,15 @@ void AAZPlayerController_InGame::UpdatePlayerState_Remotable(int32 guid, const F
 void AAZPlayerController_InGame::OpenQuestTemp()
 {
 	if (quest_msgbox_) return;
-	SetShowMouseCursor(true);
-	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("이미 화면 클릭해서 마우스 포인터 못찾으시겠으면 ctrl+tab"), EUIMsgBoxBtnType::Confirm,
-		this, TEXT(""), L"", L"", L"확인");
+	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("화이팅"), EUIMsgBoxBtnType::Confirm,
+		this, TEXT(""), L"", L"", L"넹");
 
 	if (msgbox)
 	{
 		quest_msgbox_ = Cast<UAZWidget_MsgBoxBasic>(msgbox);
 		if (quest_msgbox_)
 		{
-			quest_msgbox_->SetTitle("Quest 임시");
+			quest_msgbox_->SetTitle("Quest");
 			quest_msgbox_->AddHandler(EMsgEventButtonType::Left, Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()), FName(TEXT("RequestWarpCombatLevel")));
 		}
 	}

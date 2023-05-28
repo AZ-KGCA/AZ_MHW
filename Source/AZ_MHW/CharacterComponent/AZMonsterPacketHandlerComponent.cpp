@@ -30,7 +30,13 @@ void UAZMonsterPacketHandlerComponent::Init()
 void UAZMonsterPacketHandlerComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// bind delegate functions
+	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterPacketHandlerComponent::OnBodyPartWounded);
+	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterPacketHandlerComponent::OnBodyPartBroken);
 	owner_->OnBodyPartSevered.AddUObject(this, &UAZMonsterPacketHandlerComponent::OnBodyPartSevered);
+	owner_->OnEnterCombat.AddDynamic(this, &UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ENTER_COMBAT_CMD);
+	owner_->OnDeath.AddDynamic(this, &UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_DIE_CMD);
 }
 
 // 플레이어 인게임 조인 패킷이 들어왔을때 몬스터를 스폰한 이후 호출되며 새로 들어온 클라이언트에 몬스터를 배치할 것을 명령한다
@@ -85,7 +91,6 @@ void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_BODY_STATE_CMD(UINT32 new
 }
 
 // 몬스터가 전투모드에 돌입할 때 노래 재생/UI등 업데이트를 위해 인게임 접속자 모두에게 전송된다
-// 액션 정보로도 해결 가능 ? 굳이 없어도 되긴 할듯
 void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ENTER_COMBAT_CMD()
 {
 	SC_MONSTER_ENTER_COMBAT_CMD packet;
@@ -171,6 +176,16 @@ void UAZMonsterPacketHandlerComponent::Receive_CS_MONSTER_UPDATE_REQ(UINT32 clie
 	Send_SC_MONSTER_ACTION_START_CMD(owner_->anim_instance_->GetSkelMeshComponent()->GetPosition(), client_index);
 	Send_SC_MONSTER_TRANSFORM_CMD(true, client_index);
 	Send_SC_MONSTER_BODY_STATE_CMD(client_index);
+}
+
+void UAZMonsterPacketHandlerComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
+{
+	Send_SC_MONSTER_PART_CHANGE_CMD(body_part, EMonsterBodyPartChangeType::Wound);
+}
+
+void UAZMonsterPacketHandlerComponent::OnBodyPartBroken(EMonsterBodyPart body_part)
+{
+	Send_SC_MONSTER_PART_CHANGE_CMD(body_part, EMonsterBodyPartChangeType::Break);
 }
 
 void UAZMonsterPacketHandlerComponent::OnBodyPartSevered(EMonsterBodyPart body_part)

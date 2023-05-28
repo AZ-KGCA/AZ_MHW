@@ -201,7 +201,7 @@ void AAZMonster::EnterCombat(AActor* combat_instigator, bool is_triggered_by_sig
 		SetActionMode(EMonsterActionMode::Transition);
 	else
 		SetActionMode(EMonsterActionMode::Combat);
-	
+
 	OnEnterCombat.Broadcast();
 }
 

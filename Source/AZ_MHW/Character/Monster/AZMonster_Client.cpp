@@ -90,3 +90,8 @@ void AAZMonster_Client::SetActionStateInfo(const FMonsterActionStateInfo action_
 {
 	action_state_info_ = action_state_info;
 }
+
+void AAZMonster_Client::AnimNotify_SetMovementMode(EMovementMode movement_mode)
+{
+	GetCharacterMovement()->SetMovementMode(movement_mode);
+}

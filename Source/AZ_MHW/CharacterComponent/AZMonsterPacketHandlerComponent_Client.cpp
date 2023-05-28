@@ -69,8 +69,8 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_BODY_STATE_CMD(
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ENTER_COMBAT_CMD()
 {
 	UE_LOG(AZMonster_Network, Log, TEXT("[UPacketFunction][#%d][Receive_SC_MONSTER_ENTER_COMBAT_CMD]"), owner_->object_serial_);
-	owner_->action_state_info_.action_mode = EMonsterActionMode::Combat;
-	owner_->anim_instance_->UpdateAnimation();
+	//owner_->action_state_info_.action_mode = EMonsterActionMode::Combat;
+	//owner_->anim_instance_->UpdateAnimation();
 	owner_->OnEnterCombat.Broadcast();
 }
 
