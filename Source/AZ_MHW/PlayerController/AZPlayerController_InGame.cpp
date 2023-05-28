@@ -130,23 +130,14 @@ void AAZPlayerController_InGame::OnUnPossess()
 void AAZPlayerController_InGame::Tick(float delta_time)
 {
 	Super::Tick(delta_time);
-	if((playable_player_&& playable_player_state_) == false) return;
-
-	float angle = GetInputAngle();
-	int32 bitmask = GetInputBitMask();
-	playable_player_state_->action_state_.input_bitmask = bitmask;
-	playable_player_state_->action_state_.input_direction.Yaw = angle;
-
-	ACTION_PLAYER_PACKET packet;
-	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ;
 	
-	packet.current_position = GetRootComponent()->GetComponentLocation();
-	packet.current_direction = GetRootComponent()->GetComponentRotation().Yaw;
+	if(is_event_input_mode_ == false)
+	{
+		UpdateInputPacket();
+	}
 	
-	packet.input_direction = angle;
-	packet.input_data = bitmask;
-	
-	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet,packet.packet_length);
+	playable_player_state_->action_state_.input_bitmask = final_input_bitmask;
+	playable_player_state_->action_state_.input_direction.Yaw = final_input_angle;
 }
 
 void AAZPlayerController_InGame::BeginDestroy()
@@ -418,100 +409,182 @@ void AAZPlayerController_InGame::ActionInputZoom(const FInputActionValue& value)
 	}
 }
 
-//TODO 키를 누르고 땔때마다 이벤트형식 액션패킷 보내기
-//TODO Direction(WASD만) 체크해서 틱 액션패킷보내기
-//TODO 틱 액션패킷모드 <-> 이벤트 액션패킷모드
 void AAZPlayerController_InGame::ActionMoveForward_Start()
 {
 	bit_move_forward = true;
-	
+	is_event_input_mode_ = false;
 }
 void AAZPlayerController_InGame::ActionMoveForward_End()
 {
 	bit_move_forward = false;
-	
+	is_event_input_mode_ = true;
+	UpdateInputPacket();
 }
 void AAZPlayerController_InGame::ActionMoveLeft_Start()
 {
 	bit_move_left = true;
-	
+	is_event_input_mode_ = false;
 }
 void AAZPlayerController_InGame::ActionMoveLeft_End()
 {
 	bit_move_left = false;
-	
+	is_event_input_mode_ = true;
+	UpdateInputPacket();
 }
 void AAZPlayerController_InGame::ActionMoveRight_Start()
 {
 	bit_move_right = true;
+	is_event_input_mode_ = false;
 }
 void AAZPlayerController_InGame::ActionMoveRight_End()
 {
 	bit_move_right = false;
+	is_event_input_mode_ = true;
+	UpdateInputPacket();
 }
 void AAZPlayerController_InGame::ActionMoveBack_Start()
 {
 	bit_move_back = true;
+	is_event_input_mode_ = false;
 }
 void AAZPlayerController_InGame::ActionMoveBack_End()
 {
 	bit_move_back = false;
+	is_event_input_mode_ = true;
+	UpdateInputPacket();
 }
 void AAZPlayerController_InGame::ActionUniqueAction_Start()
 {
 	bit_unique_action = true;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionUniqueAction_End()
 {
 	bit_unique_action = false;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionNormalAttack_Start()
 {
 	bit_normal_action = true;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionNormalAttack_End()
 {
 	bit_normal_action = false;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionSpecialAttack_Start()
 {
 	bit_special_action = true;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionSpecialAttack_End()
 {
 	bit_special_action = false;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionDashHold_Start()
 {
 	bit_dash_action = true;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionDashHold_End()
 {
 	bit_dash_action = false;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionDodge_Start()
 {
 	bit_evade_action = true;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionDodge_End()
 {
 	bit_evade_action = false;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionUseItem_Start()
 {
 	bit_use_item = true;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionUseItem_End()
 {
 	bit_use_item = false;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionInteract_Start()
 {
 	bit_interaction = true;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
 }
 void AAZPlayerController_InGame::ActionInteract_End()
 {
 	bit_interaction = false;
+	if(is_event_input_mode_)
+	{
+		UpdateInputPacket();
+	}
+}
+
+void AAZPlayerController_InGame::UpdateInputPacket()
+{
+	if((playable_player_state_ == nullptr) || (playable_player_ == nullptr)) return;
+
+	final_input_bitmask = GetInputBitMask();
+	if(final_input_bitmask & 15)//WASD값일시에만
+	{
+		final_input_angle = GetInputAngle();
+	}
+	
+	ACTION_PLAYER_PACKET packet;
+	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ;
+
+	packet.current_position = GetRootComponent()->GetComponentLocation();
+	packet.current_direction = GetRootComponent()->GetComponentRotation().Yaw;
+	packet.input_direction = final_input_angle;
+	packet.input_data = final_input_bitmask;
+	
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet,packet.packet_length);
 }
 
 //void PacketMode

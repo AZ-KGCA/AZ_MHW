@@ -56,6 +56,7 @@ protected:
 #pragma endregion
 	
 public:
+	
 	UFUNCTION(BlueprintCallable)
 	float GetInputAngle();
 	UFUNCTION(BlueprintCallable)
@@ -89,10 +90,10 @@ public:
 
 	
 	/** 소유 플레이어 캐릭터 */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	UPROPERTY(VisibleInstanceOnly)
 	AAZPlayer_Playable* playable_player_;
 	/** 소유 플레이어 정보 */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleInstanceOnly)
 	AAZPlayerState_Client* playable_player_state_;
 	
 	/** 생성한다.*/
@@ -108,10 +109,10 @@ public:
 
 #pragma region InGame Remotable Control(Process)
 	/** 원격 플레이어 캐릭터 맵*/
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	UPROPERTY(VisibleInstanceOnly)
 	TMap<int32, AAZPlayer_Remotable*> remotable_player_map_;
 	/** 액터의 제거를 쉽게 하기 위해서 소유 */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleInstanceOnly)
 	TMap<int32, AAZPlayerState_Client*> remotable_player_state_map_;
 
 	void AddPlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state, const FAZPlayerEquipmentState& equipment_state);
@@ -146,13 +147,15 @@ public:
 	uint32 bit_use_item:1;
 	uint32 bit_map_action:1;
 
-	
 #pragma endregion 
 public:
 	UPROPERTY(VisibleInstanceOnly)
 	USpringArmComponent* spring_arm_comp_;//CameraControll
 	UPROPERTY(VisibleInstanceOnly)
 	UCameraComponent* temp_camera_comp_;//Camera
+	bool is_event_input_mode_;//tickmode, eventmode
+	float final_input_angle = 0;
+	int32 final_input_bitmask = 0;
 	
 	void ActionInputLook(const FInputActionValue& value);
 	void ActionInputZoom(const FInputActionValue& value);
@@ -183,7 +186,8 @@ public:
 
 	void ActionInteract_Start();	//F		(Interact, Speak, Gather, Carve)
 	void ActionInteract_End();		//F		(Interact, Speak, Gather, Carve)
-	
+
+	void UpdateInputPacket();
 #pragma region 추후구현_밀리추가+원거리전체
 	/*
 	//나중에 구현하기

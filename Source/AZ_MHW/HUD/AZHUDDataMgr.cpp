@@ -12,6 +12,7 @@
 #undef MessageBoxW
 
 
+
 void UAZHUDDataMgr::Init()
 {
 	game_instance_ = Cast<UAZGameInstance>(GetWorld()->GetGameInstance());

@@ -6,7 +6,7 @@
 #include <GameFramework/GameStateBase.h>
 #include <Kismet/GameplayStatics.h>
 
-#include "GameFramework/GameState.h"
+#include "GameFramework/GameStateBase.h"
 #include "GameFramework/HUD.h"
 #include "GameFramework/PlayerState.h"
 #include "GameInstance/AZGameInstance.h"
@@ -20,12 +20,12 @@ AAZGameMode_InitGame::AAZGameMode_InitGame()
 	bNetLoadOnClient = false;
 	bPauseable = true;
 
-	DefaultPawnClass = ADefaultPawn::StaticClass();//기본
+	DefaultPawnClass = nullptr;//
+	HUDClass = nullptr;//
+	
 	PlayerControllerClass = APlayerController::StaticClass();//기본
-
-	PlayerStateClass = APlayerState::StaticClass();
-	//GameStateClass = AGameState::StaticClass();
-	HUDClass = AHUD::StaticClass();
+	PlayerStateClass = APlayerState::StaticClass();//분기
+	GameStateClass = AGameStateBase::StaticClass();//분기
 	
 	// PlayerStateClass = APlayerState::StaticClass();//분기
 	// GameStateClass = AGameState::StaticClass();//AGameState::StaticClass();//분기

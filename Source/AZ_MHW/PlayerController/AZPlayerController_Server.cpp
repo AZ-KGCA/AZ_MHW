@@ -23,12 +23,14 @@ void AAZPlayerController_Server::BeginPlay()
 
 void AAZPlayerController_Server::SetupInputComponent()
 {
-	Super::SetupInputComponent();	
+	Super::SetupInputComponent();
+	
 }
 
 void AAZPlayerController_Server::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
+	
 }
 
 void AAZPlayerController_Server::BeginDestroy()

@@ -29,7 +29,6 @@ protected:
 	//virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
 	/** */
 	//virtual void PossessedBy(AController* new_controller) override;
-	
 	// Damage Processing
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 };

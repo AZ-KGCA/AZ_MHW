@@ -19,7 +19,7 @@ AAZGameMode_InGame::AAZGameMode_InGame()
 	game_mode_flag_ = EGameModeFlag::InGame;
 	PlayerControllerClass = AAZPlayerController_InGame::StaticClass();
 	PlayerStateClass = AAZPlayerState_Client::StaticClass();
-	DefaultPawnClass = AAZPlayer_Playable::StaticClass();
+	DefaultPawnClass = nullptr;
 }
 
 void AAZGameMode_InGame::Tick(float delta_seconds)
