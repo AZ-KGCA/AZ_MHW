@@ -5,7 +5,6 @@
 #include "AZ_MHW/Manager/AZMonsterMgr.h"
 #include "AZ_MHW/Character/AZCharacter.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
-#include "AZ_MHW/GameSingleton/AZGameSingleton.h"
 #include "AZ_MHW/Character/Player/AZPlayer_Origin.h"
 
 UAZObjectMgr_Server::UAZObjectMgr_Server()
@@ -52,21 +51,6 @@ bool UAZObjectMgr_Server::RemoveObject(int32 object_serial)
 
 AAZMonster* UAZObjectMgr_Server::SpawnMonster(int32 monster_id, EBossRank rank, FVector spawn_location, FRotator spawn_rotation)
 {
-	/* legacy: spawn from blueprint asset
-		// Retrieve the blueprint path of the monster to spawn
-		const FName monster_name = UAZGameSingleton::instance()->monster_mgr_->GetMonsterName(monster_id);
-		if (monster_name == NAME_None) return false;
-		const FString bp_path = FString::Printf(TEXT("/Script/Engine.Blueprint'/Game/AZ/Monsters/%s/Blueprints/BP_%s.BP_%s'"),
-			*monster_name.ToString(), *monster_name.ToString(), *monster_name.ToString());
-		
-		UWorld* world = GetOuter()->GetWorld();
-		if (!world) return nullptr;
-		
-		// Spawn a monster from the blueprint with the received transform
-		const UBlueprint* monster_bp = Cast<UBlueprint>(StaticLoadObject(UBlueprint::StaticClass(), this, *bp_path));
-		AAZMonster* monster = world->SpawnActor<AAZMonster>(monster_bp->GeneratedClass, spawn_location, spawn_rotation);
-	*/
-
 	UWorld* world = GetOuter()->GetWorld();
 	if (!world) return nullptr;
 
@@ -128,8 +112,7 @@ void UAZObjectMgr_Server::SpawnAllMonsters()
 	if (spawn_finished_) return;
 	for (auto info : spawn_array_)
 	{
-		AAZMonster* new_monster = SpawnMonster(
-			info.monster_id, info.rank, info.location, info.rotation);
+		SpawnMonster(info.monster_id, info.rank, info.location, info.rotation);
 	}
 	spawn_finished_ = true;	
 }

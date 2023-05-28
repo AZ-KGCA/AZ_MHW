@@ -35,7 +35,7 @@ void UPacketFunction::Receive_SC_MONSTER_SPAWN_END_CMD(const SC_MONSTER_SPAWN_EN
 	gamemode->combat_level_->SetShouldBeVisible(true);
 
 	// TODO TEMP 플레이어로직, 플레이어 안의 함수로 빼기 / 실제로는 시네마틱 끝나고 이동해야할듯
-	const auto& player_controller =Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
+	const auto& player_controller = Cast<AAZPlayerController_InGame>(game_instance_->GetPlayerController());
 
 	//player_controller->playable_player_->SetActorLocation(FVector(-190,9000,270));
 	player_controller->playable_player_->SetActorLocation(FVector(-190,400,270));

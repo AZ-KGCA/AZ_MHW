@@ -27,7 +27,7 @@ void UApp_Server::OnClose(const UINT32 client_index_)
 
 void UApp_Server::OnReceive(const UINT32 client_index, const UINT32 size, char* P_recv_data)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[OnReceive_App_Server] Client : Index(%d), dataSize(%d), recvData : %s\n"), client_index, size, P_recv_data);
+	UE_LOG(LogTemp, Warning, TEXT("[OnReceive_App_Server] Client : Index(%d), dataSize(%d), recvData : %hs\n"), client_index, size, P_recv_data);
 
 	P_packet_manager_->ReceivePacketData(client_index, size, P_recv_data);
 }

@@ -628,7 +628,7 @@ void UAZGameInstance::Client_Shutdown()
 
 int UAZGameInstance::Server_Packet_Send(const char* packet, int packet_size)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[Server_Packet_Send] sendData : %s size : %d\n"), packet, packet_size);
+	UE_LOG(LogTemp, Warning, TEXT("[Server_Packet_Send] sendData : %hs size : %d\n"), packet, packet_size);
 
 	int len = send(sock, packet, packet_size, 0);
 	return len;

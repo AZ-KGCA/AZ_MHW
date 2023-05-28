@@ -134,6 +134,7 @@ void UAZMonsterAggroComponent::UpdateBestTarget()
 		}
 	}
 
+	int32 prev_best_target = target_serial_;
 	if (best_target_serials.Num() == 1)
 	{
 		target_serial_ = best_target_serials[0];
@@ -142,9 +143,11 @@ void UAZMonsterAggroComponent::UpdateBestTarget()
 	{
 		target_serial_ = best_target_serials[FMath::RandRange(0, best_target_serials.Num()-1)];
 	}
+
 	target_ref_ = Cast<AAZGameMode_Server>(Cast<UAZGameInstance>(owner_->GetWorld()->GetGameInstance())->GetGameMode())
 		->object_mgr_->GetPlayer(target_serial_);
-	UE_LOG(AZMonster_Aggro, Log, TEXT("[UAZMonsterAggroComponent][%d] Best aggro target updated to player %d"),	owner_->object_serial_, target_serial_);
+	if (prev_best_target != target_serial_)
+		UE_LOG(AZMonster_Aggro, Log, TEXT("[UAZMonsterAggroComponent][%d] Best aggro target updated to player %d"),	owner_->object_serial_, target_serial_);
 }
 
 void UAZMonsterAggroComponent::UpdateAggroSpecific(int32 player_serial, int32 aggro_point, FString update_reason)
