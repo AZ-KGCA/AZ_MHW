@@ -143,6 +143,11 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectTransitionAction(AAZMonste
 
 EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* owner, UBlackboardComponent* blackboard)
 {
+	if (!Cast<AActor>(blackboard->GetValueAsObject(key_target_character_.SelectedKeyName)))
+	{
+		return EBTNodeResult::Failed;
+	}
+	
 	TArray<int32> available_action_ids;
 	for (auto action_info : owner->combat_action_map_)
 	{

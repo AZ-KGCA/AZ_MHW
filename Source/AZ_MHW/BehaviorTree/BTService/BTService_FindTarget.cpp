@@ -33,10 +33,8 @@ void UBTService_FindTarget::TickNode(UBehaviorTreeComponent& owner_comp, uint8* 
 
 	AAZMonster* owner = Cast<AAZMonster>(owner_comp.GetAIOwner()->GetPawn());
 	if (!owner) return;
-	
-	int32 target_serial = owner->aggro_component_->GetTargetSerial();
-	if (target_serial == INDEX_NONE) return;
 
-	auto target_character = owner->aggro_component_->GetTargetRef();
+	owner->aggro_component_->UpdateBestTarget();
+	auto target_character = owner->aggro_component_->GetTargetRef();	
 	owner_comp.GetBlackboardComponent()->SetValueAsObject(blackboard_key.SelectedKeyName, target_character);
 }

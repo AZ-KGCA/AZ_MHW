@@ -12,7 +12,9 @@
 UAZMonsterAggroComponent::UAZMonsterAggroComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	update_rate_ = 2.0f;
+	inrange_update_rate_ = 20.0f;
+	target_serial_ = INDEX_NONE;
+	target_ref_ = nullptr;
 }
 
 void UAZMonsterAggroComponent::Init()
@@ -30,16 +32,16 @@ void UAZMonsterAggroComponent::ActivateSystem()
 {
 	UE_LOG(AZMonster_Aggro, Warning, TEXT("[AZMonsterAggroComponent] Activated"));
 	FTimerDelegate timer_delegate;
-	timer_delegate.BindUObject(this, &UAZMonsterAggroComponent::UpdateAggro);
-	owner_->GetWorld()->GetTimerManager().SetTimer(update_timer_handle_, timer_delegate, update_rate_, true);
+	timer_delegate.BindUObject(this, &UAZMonsterAggroComponent::UpdateByRange);
+	owner_->GetWorld()->GetTimerManager().SetTimer(inrange_update_timer_handle_, timer_delegate, inrange_update_rate_, true);
 }
 
 void UAZMonsterAggroComponent::InactivateSystem()
 {
 	UE_LOG(AZMonster_Aggro, Warning, TEXT("[AZMonsterAggroComponent] Inactivated"));
-	if (owner_->GetWorld()->GetTimerManager().IsTimerActive(update_timer_handle_))
+	if (owner_->GetWorld()->GetTimerManager().IsTimerActive(inrange_update_timer_handle_))
 	{
-		owner_->GetWorld()->GetTimerManager().ClearTimer(update_timer_handle_);
+		owner_->GetWorld()->GetTimerManager().ClearTimer(inrange_update_timer_handle_);
 	}
 }
 
@@ -47,25 +49,26 @@ void UAZMonsterAggroComponent::ActivateByEnterCombat(int32 player_serial)
 {
 	ActivateSystem();
 	UpdateAggroSpecific(player_serial, 70, "EnterCombat");
+	UpdateBestTarget();
 }
 
 void UAZMonsterAggroComponent::Reset()
 {
 	target_serial_ = INDEX_NONE;
 	target_ref_ = nullptr;
-	aggro_info_.Empty();
+	aggro_map_.Empty();
 	InactivateSystem();
 }
 
 void UAZMonsterAggroComponent::ForceSetBestTarget(AAZPlayer_Origin* character)
 {
 	target_serial_ = character->object_serial_;
+	target_ref_ = character;
 }
 
 int32 UAZMonsterAggroComponent::GetTargetSerial()
 {
-	if (aggro_info_.IsEmpty()) return INDEX_NONE;
-	SortAggroInfo();
+	if (aggro_map_.IsEmpty()) return INDEX_NONE;
 	return target_serial_;
 }
 
@@ -84,9 +87,10 @@ FVector UAZMonsterAggroComponent::GetTargetLocation()
 
 FVector UAZMonsterAggroComponent::GetRandomTargetLocation()
 {
-	const int rand_idx = FMath::RandRange(0, aggro_info_.Num()-1);
+	const int rand_idx = FMath::RandRange(0, aggro_map_.Num()-1);
 	auto object_mgr = Cast<AAZGameMode_Server>(Cast<UAZGameInstance>(owner_->GetWorld()->GetGameInstance())->GetGameMode())->object_mgr_;
-	return object_mgr->GetPlayer(aggro_info_[rand_idx].Key)->GetActorLocation();
+	int32 rand_player_idx = aggro_map_.Array()[rand_idx].Key;
+	return object_mgr->GetPlayer(rand_player_idx)->GetActorLocation();
 }
 
 float UAZMonsterAggroComponent::GetDistance2DToTarget() 
@@ -105,56 +109,64 @@ float UAZMonsterAggroComponent::GetAngle2DToTarget()
 		return owner_->GetRelativeAngleToLocation(GetTargetLocation());
 }
 
-void UAZMonsterAggroComponent::SortAggroInfo()
+void UAZMonsterAggroComponent::UpdateBestTarget()
 {
-	if (aggro_info_.IsEmpty())
+	if (aggro_map_.IsEmpty())
 	{
 		target_serial_ = INDEX_NONE;
 		target_ref_ = nullptr;
+		return;
 	}
-	// 순서 need check
-	aggro_info_.Sort([](TPair<int32, int32> player_A, TPair<int32, int32> player_B) {
-		return player_A.Value < player_B.Value;
-	});
-	target_serial_ = aggro_info_.Top().Key;
+
+	TArray<int32> best_target_serials;
+	int32 highest_aggro_point = -1;
+	for (auto pair : aggro_map_)
+	{
+		if (pair.Value > highest_aggro_point)
+		{
+			best_target_serials.Empty();
+			best_target_serials.Add(pair.Key);
+			highest_aggro_point = pair.Value;
+		}
+		else if (pair.Value == highest_aggro_point)
+		{
+			best_target_serials.Add(pair.Key);
+		}
+	}
+
+	if (best_target_serials.Num() == 1)
+	{
+		target_serial_ = best_target_serials[0];
+	}
+	else if (best_target_serials.Num() > 1)
+	{
+		target_serial_ = best_target_serials[FMath::RandRange(0, best_target_serials.Num()-1)];
+	}
 	target_ref_ = Cast<AAZGameMode_Server>(Cast<UAZGameInstance>(owner_->GetWorld()->GetGameInstance())->GetGameMode())
 		->object_mgr_->GetPlayer(target_serial_);
-}
-
-void UAZMonsterAggroComponent::UpdateAggro()
-{
-	SortAggroInfo();
-	UpdateByRange();
-}
-
-TPair<int32, int32>* UAZMonsterAggroComponent::FindByKey(int32 player_serial)
-{
-	for (auto &info : aggro_info_)
-	{
-		if (info.Key == player_serial) return &info;
-	}
-	return nullptr;
+	UE_LOG(AZMonster_Aggro, Log, TEXT("[UAZMonsterAggroComponent][%d] Best aggro target updated to player %d"),	owner_->object_serial_, target_serial_);
 }
 
 void UAZMonsterAggroComponent::UpdateAggroSpecific(int32 player_serial, int32 aggro_point, FString update_reason)
 {
-	if (auto info = FindByKey(player_serial))
+	if (auto current_point = aggro_map_.Find(player_serial))
 	{
-		info->Value += aggro_point;
-		if (info->Value <= 0)
+		int32 new_point = *current_point += aggro_point;
+		if (new_point <= 0)
 		{
-			RemoveTarget(info->Key);
+			RemoveTarget(player_serial);
 		}
 		else
 		{
+			aggro_map_.Emplace(player_serial, new_point);
 			UE_LOG(AZMonster_Aggro, Log, TEXT("[UAZMonsterAggroComponent][%d] Player %d aggro updated by %d due to [%s]. Current point: %d"),
-				owner_->object_serial_, player_serial, aggro_point, *update_reason, info->Value);
+				owner_->object_serial_, player_serial, aggro_point, *update_reason, *current_point);
 		}
 	}
 	else
 	{
 		if (aggro_point <= 0) return;
-		aggro_info_.Add(MakeTuple(player_serial, aggro_point));
+		aggro_map_.Emplace(player_serial, aggro_point);
 		UE_LOG(AZMonster_Aggro, Warning, TEXT("[UAZMonsterAggroComponent][%d] Player %d added to aggro list due to [%s]. Current point: %d"),
 			owner_->object_serial_, player_serial, *update_reason, aggro_point);
 	}
@@ -162,16 +174,11 @@ void UAZMonsterAggroComponent::UpdateAggroSpecific(int32 player_serial, int32 ag
 
 void UAZMonsterAggroComponent::RemoveTarget(int32 player_serial)
 {
-	for (int32 i = 0; i < aggro_info_.Num(); i++)
-	{
-		if (aggro_info_[i].Key == player_serial)
-		{
-			aggro_info_.RemoveAt(i);
-			UE_LOG(AZMonster_Aggro, Log, TEXT("[UAZMonsterAggroComponent][%d] Player %d removed from the aggro list!"),
-				owner_->object_serial_, player_serial);
-			break;
-		}
-	}
+	if (!aggro_map_.Find(player_serial)) return;
+	aggro_map_.Remove(player_serial);
+	UE_LOG(AZMonster_Aggro, Log, TEXT("[UAZMonsterAggroComponent][%d] Player %d removed from the aggro list!"),
+		owner_->object_serial_, player_serial);
+	if (aggro_map_.IsEmpty()) UpdateBestTarget();
 }
 
 void UAZMonsterAggroComponent::IncreaseByDamage(int32 attacker_serial, int32 damage)
@@ -187,6 +194,8 @@ void UAZMonsterAggroComponent::UpdateByRange()
 	ignore_actors.Add(owner_.Get());
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), owner_->GetActorLocation(), percept_range_,
 		owner_->hit_object_types_, AAZPlayer_Origin::StaticClass(), ignore_actors, actors_in_range);
+	UKismetSystemLibrary::DrawDebugSphere(owner_.Get(), owner_->GetActorLocation(), percept_range_, 24, FLinearColor::Gray,
+		1.0f, 4.0f);
 
 	// Get serial number of actors in range
 	// Increase aggro point for players in range
@@ -196,12 +205,13 @@ void UAZMonsterAggroComponent::UpdateByRange()
 		if (auto player = Cast<AAZPlayer_Origin>(actor))
 		{
 			serials_in_range.Add(player->object_serial_);
-			UpdateAggroSpecific(player->object_serial_, 10, "InRange");
+			UpdateAggroSpecific(player->object_serial_, 5, "InRange");
 		}
 	}
+	if (serials_in_range.IsEmpty()) return;
 
 	// Decrease aggro point for players not in range
-	for (auto info : aggro_info_)
+	for (auto info : aggro_map_)
 	{
 		if (!serials_in_range.Contains(info.Key))
 		{
@@ -231,3 +241,5 @@ void UAZMonsterAggroComponent::IncreaseByPartChange(int32 attacker_serial, EMons
 		}
 	}
 }
+
+// TODO Remove player on leave combat map

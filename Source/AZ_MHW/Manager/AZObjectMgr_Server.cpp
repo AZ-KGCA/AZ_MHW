@@ -13,7 +13,8 @@ UAZObjectMgr_Server::UAZObjectMgr_Server()
 	object_serial_ = -1;
 	
 	// TEMP
-	spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(-100,11000,200), FRotator::ZeroRotator));
+	//spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(-100,11000,200), FRotator::ZeroRotator));
+	spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(2010,-110,200), FRotator(0,180,0)));
 	//spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(-1200,7000,200), FRotator::ZeroRotator));
 	//spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(3000,7000,200), FRotator::ZeroRotator));
 }
@@ -94,7 +95,7 @@ AAZCharacter* UAZObjectMgr_Server::GetObject(int32 object_serial)
 
 AAZMonster* UAZObjectMgr_Server::GetMonster(int32 object_serial)
 {
-	if (const auto monster = GetObject(object_serial_))
+	if (const auto monster = GetObject(object_serial))
 	{
 		return static_cast<AAZMonster*>(monster);
 	}
@@ -106,7 +107,7 @@ AAZMonster* UAZObjectMgr_Server::GetMonster(int32 object_serial)
 
 AAZPlayer_Origin* UAZObjectMgr_Server::GetPlayer(int32 object_serial)
 {
-	if (const auto player = GetObject(object_serial_))
+	if (const auto player = GetObject(object_serial))
 	{
 		return static_cast<AAZPlayer_Origin*>(player);
 	}

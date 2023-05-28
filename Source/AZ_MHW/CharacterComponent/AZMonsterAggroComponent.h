@@ -25,6 +25,7 @@ public:
 	// Setters
 	void ForceSetBestTarget(AAZPlayer_Origin* character);
 	void RemoveTarget(int32 player_serial);
+	void UpdateBestTarget();
 	
 	// Getters
 	int32 GetTargetSerial();
@@ -37,15 +38,12 @@ public:
 	// Updaters
 	void IncreaseByDamage(int32 attacker_serial, int32 damage);
 	void IncreaseByPartChange(int32 attacker_serial, EMonsterBodyPartChangeType change_type);
-	void UpdateByRange();
 	void ActivateByEnterCombat(int32 player_serial);
 	
 private:
 	// Update aggro information
-	void SortAggroInfo();
-	void UpdateAggro();
+	void UpdateByRange();
 	void UpdateAggroSpecific(int32 player_serial, int32 aggro_point, FString update_reason);
-	TPair<int32, int32>* FindByKey(int32 player_serial);
 	
 private:
 	TWeakObjectPtr<AAZMonster> owner_;
@@ -53,10 +51,10 @@ private:
 	int32 target_serial_;
 	TWeakObjectPtr<AAZPlayer_Origin> target_ref_;
 
-	FTimerHandle update_timer_handle_;
-	float update_rate_;
+	FTimerHandle inrange_update_timer_handle_;
+	FTimerHandle target_update_timer_handle_;
+	float inrange_update_rate_;
 	float percept_range_;
 
-	// Aggro information storing <object_serial/aggro_point>
-	TArray<TPair<int32, int32>> aggro_info_;
+	UPROPERTY() TMap<int32, int32> aggro_map_;
 };

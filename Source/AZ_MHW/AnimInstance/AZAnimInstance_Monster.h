@@ -42,7 +42,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | State") FMonsterActionStateInfo active_action_state_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AZ | State") FMonsterActionStateInfo new_action_state_;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AZ | State") FBossBodyCondition body_condition_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AZ | State") bool is_low_stamina_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AZ | State") bool is_rage_mode_;
 };
