@@ -284,10 +284,10 @@ void AAZMonster::SetDead()
 void AAZMonster::SetActionState(int32 action_id)
 {
 	// // if current action has higher priority than next action, do not update
-	//ㅈif (action_state_info_.priority_score > EMonsterActionPriority::Action)
-	//ㅈ{
-	//ㅈ	return;
-	//ㅈ}
+	//if (action_state_info_.priority_score > EMonsterActionPriority::Action)
+	//{
+	//	return;
+	//}
 	bool is_found = false;
 
 	// find the action data from table according to current action mode
@@ -427,7 +427,11 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 
 	// Get the location to trace at
 	FVector trace_start_loc = GetMesh()->GetSocketLocation(socket_name);
-	if (socket_name.IsEqual(FName("LeftFootSocket")) || socket_name.IsEqual(FName("RightFootSocket")))
+	if (socket_name.IsEqual(FName("None")) || socket_name.IsEqual(FName("Root")))
+	{
+		trace_start_loc = (GetMesh()->GetSocketLocation(FName("LeftFootSocket")) + GetMesh()->GetSocketLocation(FName("RightFootSocket"))) / 2.0f;
+	}
+	else if (socket_name.IsEqual(FName("LeftFootSocket")) || socket_name.IsEqual(FName("RightFootSocket")))
 	{
 		trace_start_loc.Z -= 100.0f;
 	}
