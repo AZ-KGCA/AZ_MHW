@@ -3,6 +3,7 @@
 
 #include "AZ_MHW/GameMode/AZGameMode_CharacterSelect.h"
 
+#include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/HUD/AZHUD_CharacterSelect.h"
 
 AAZGameMode_CharacterSelect::AAZGameMode_CharacterSelect()
@@ -19,4 +20,8 @@ void AAZGameMode_CharacterSelect::InitGame(const FString& map_name, const FStrin
 void AAZGameMode_CharacterSelect::BeginPlay()
 {
 	Super::BeginPlay();
+	if (game_instance_->GetPlayerController() != nullptr)
+	{
+		game_instance_->GetPlayerController()->SetShowMouseCursor(true);
+	}
 }
