@@ -8,6 +8,7 @@
 #include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/Manager/AZInventoryManager.h"
 #include "AZ_MHW/Item/AZItemData.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 #include <Components/CapsuleComponent.h>
 
 
@@ -82,7 +83,7 @@ void AAZPlayer_Playable::AnimNotify_OnUseItem()
 {
 	//on_use_item_.Broadcast();
 	//const auto& item_index;// ui manager한테서 가져오기
-	const auto& buff = game_instance_->inventory_mgr->UsePotion(0);
+	const auto& buff = game_instance_->game_cache_info_->GetInventoryManager(character_index_)->UsePotion(0);
 
 	switch (buff.target)
 	{

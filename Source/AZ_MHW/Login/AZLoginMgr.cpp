@@ -81,8 +81,8 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 	case ESequence::ConnectGameServer:
 	{
 		ChangeSequence(ESequence::ConnectGameServerReady);
-		//text용 꼭 주석 풀기
-		/*if (game_instance_->GetHUD())
+
+		if (game_instance_->GetHUD())
 		{
 			if (auto waiting_widget = game_instance_->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true))
 			{
@@ -120,7 +120,7 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 					game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("게임서버 접속을 실패하였습니다."), EUIMsgBoxBtnType::Confirm,
 						this, TEXT("RetryReconnectRequired"), L"", L"", L"확인");
 				}
-			});*/
+			});
 	}break;
 	case ESequence::AuthGameServer:
 	{

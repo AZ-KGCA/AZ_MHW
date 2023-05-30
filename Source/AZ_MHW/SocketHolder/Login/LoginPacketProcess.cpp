@@ -3,6 +3,7 @@
 #include "AZ_MHW/Login/AZLoginMgr.h"
 #include "AZ_MHW/HUD/AZHUD.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 
 // server(Login)
 void UPacketFunction::LoginSigninRequest(UINT32 client_index, CS_LOGIN_SIGNIN_REQ* packet)
@@ -51,6 +52,12 @@ void UPacketFunction::LoginSignupRequest(UINT32 client_index, CS_LOGIN_SIGNUP_RE
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
+		login_res_packet.success = 1;
+	}
+
+	FString id(packet->user_id);
+	if (game_instance_->game_cache_info_->SignupRequest(id) != false)
+	{
 		login_res_packet.success = 1;
 	}
 	game_instance_->SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);

@@ -18,6 +18,7 @@
 #include "AZ_MHW/Manager/AZInventoryManager.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
 #include "AZ_MHW/Manager/SaveData/GameOptionSaveData.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 //FIXME merged need del
 #include <GameFramework/Character.h>
 
@@ -69,8 +70,11 @@ void UAZGameInstance::Init()
 	login_mgr = NewObject<UAZLoginMgr>(this);
 	login_mgr->Init();
 
-	inventory_mgr = NewObject<UAZInventoryManager>(this);
-	inventory_mgr->Init();
+	game_cache_info_ = NewObject<UAZGameCacheInfo>(this);
+	game_cache_info_->Init();
+
+	//inventory_mgr = NewObject<UAZInventoryManager>(this);
+	//inventory_mgr->Init();
 	
 	input_mgr_ = NewObject<UAZInputMgr>(this);
 	input_mgr_->Init();
