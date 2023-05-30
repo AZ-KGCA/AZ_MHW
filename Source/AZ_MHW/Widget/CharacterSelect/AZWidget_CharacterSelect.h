@@ -13,5 +13,17 @@ UCLASS()
 class AZ_MHW_API UAZWidget_CharacterSelect : public UAZWidget
 {
 	GENERATED_BODY()
-	
+
+public:
+	virtual void Init() override;
+	virtual void OnOpen(bool immediately = false) override;
+
+public:
+	UPROPERTY(meta = (BindWidget)) class UWidget* new_game_0_;
+	UPROPERTY(meta = (BIndWidget)) class UWidget* new_game_1_;
+	UPROPERTY(meta = (BindWidget)) class UWidget* new_game_2_;
+	UPROPERTY(meta = (BindWidget)) class UWidget* character_slot_0_;
+	UPROPERTY(meta = (BindWidget)) class UWidget* character_slot_1_;
+	UPROPERTY(meta = (BindWidget)) class UWidget* character_slot_2_;
+
 };

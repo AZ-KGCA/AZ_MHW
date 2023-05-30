@@ -171,17 +171,17 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	switch ((PACKET_ID)recv_packet->packet_id)
 	{
 #pragma region UI_PART
-	case PACKET_ID::CS_LOGIN_SIGNIN_RES:
+	case PACKET_ID::SC_LOGIN_SIGNIN_RES:
 		{
-			CS_LOGIN_SIGNIN_RES* packet = (CS_LOGIN_SIGNIN_RES*)recv_packet;
+			SC_LOGIN_SIGNIN_RES* packet = (SC_LOGIN_SIGNIN_RES*)recv_packet;
 			UPacketFunction::LoginSigninResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_LOGIN_SIGNIN_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_LOGIN_SIGNUP_RES:
+	case PACKET_ID::SC_LOGIN_SIGNUP_RES:
 		{
-			CS_LOGIN_SIGNUP_RES* packet = (CS_LOGIN_SIGNUP_RES*)recv_packet;
+			SC_LOGIN_SIGNUP_RES* packet = (SC_LOGIN_SIGNUP_RES*)recv_packet;
 			UPacketFunction::LoginSignupResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_LOGIN_SIGNUP_REQ, out_request_protocol);
@@ -193,49 +193,49 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UPacketFunction::ChatMsgCommand(packet);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_TOTAL_INFO_RES:
+	case PACKET_ID::SC_ITEM_TOTAL_INFO_RES:
 		{
-			CS_ITEM_TOTAL_INFO_RES* packet = (CS_ITEM_TOTAL_INFO_RES*)recv_packet;
+			SC_ITEM_TOTAL_INFO_RES* packet = (SC_ITEM_TOTAL_INFO_RES*)recv_packet;
 			UPacketFunction::ItemTotalInfoResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_TOTAL_INFO_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_UNEQUIP_RES:
+	case PACKET_ID::SC_ITEM_UNEQUIP_RES:
 		{
-			CS_ITEM_UNEQUIP_RES* packet = (CS_ITEM_UNEQUIP_RES*)recv_packet;
+			SC_ITEM_UNEQUIP_RES* packet = (SC_ITEM_UNEQUIP_RES*)recv_packet;
 			UPacketFunction::ItemUnEquipResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_UNEQUIP_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_EQUIP_RES:
+	case PACKET_ID::SC_ITEM_EQUIP_RES:
 		{
-			CS_ITEM_EQUIP_RES* packet = (CS_ITEM_EQUIP_RES*)recv_packet;
+			SC_ITEM_EQUIP_RES* packet = (SC_ITEM_EQUIP_RES*)recv_packet;
 			UPacketFunction::ItemEquipResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_EQUIP_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_MOVE_RES:
+	case PACKET_ID::SC_ITEM_MOVE_RES:
 		{
-			CS_ITEM_MOVE_RES* packet = (CS_ITEM_MOVE_RES*)recv_packet;
+			SC_ITEM_MOVE_RES* packet = (SC_ITEM_MOVE_RES*)recv_packet;
 			UPacketFunction::ItemMoveResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_MOVE_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_CREATE_RES:
+	case PACKET_ID::SC_ITEM_CREATE_RES:
 		{
-			CS_ITEM_CREATE_RES* packet = (CS_ITEM_CREATE_RES*)recv_packet;
+			SC_ITEM_CREATE_RES* packet = (SC_ITEM_CREATE_RES*)recv_packet;
 			UPacketFunction::ItemCreateResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_CREATE_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_USE_RES:
+	case PACKET_ID::SC_ITEM_USE_RES:
 		{
-			CS_ITEM_USE_RES* packet = (CS_ITEM_USE_RES*)recv_packet;
+			SC_ITEM_USE_RES* packet = (SC_ITEM_USE_RES*)recv_packet;
 			UPacketFunction::ItemUseResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_USE_REQ, out_request_protocol);

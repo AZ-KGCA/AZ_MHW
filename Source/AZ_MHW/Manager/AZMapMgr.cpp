@@ -220,7 +220,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 				//{
 				//	if (ALHGameMode_InGame* gm = Cast<ALHGameMode_InGame>(LHGameInstance->GetGameMode()))
 				//	{
-				//		if (ALHPlayer_Playable* player = LHGameInstance->GetPlayer())
+				//		if (AAZPlayer_Playable* player = AZGameInstance->GetPlayer())
 				//		{
 				//			if (player->GetNpcTalkComponent()->IsTalk())
 				//				player->EndNpcTalk();
@@ -249,7 +249,7 @@ void UAZMapMgr::MapEnter(uint32 map_index, FVector enter_pos, float enter_angle)
 				//	}
 				//}
 
-				//if (ULHWidget_InGame* ui = LHGameInstance->GetHUD()->GetUI<ULHWidget_InGame>(EUIName::LHWidget_InGame))
+				//if (UAZWidget_InGame* ui = LHGameInstance->GetHUD()->GetUI<ULHWidget_InGame>(EUIName::LHWidget_InGame))
 				//{
 				//	ui->ChangeExitSwitcher(false);
 				//}
@@ -1218,7 +1218,7 @@ void UAZMapMgr::OnRecvWarpRequest(bool is_teleport)
 		}*/
 
 		//FixMe 워프 End 메시지
-		/*if (ULHSocketHolder* socketHolder = LHGameInstance->GetSocketHolder(ESocketHolderType::Gate))
+		/*if (UAZSocketHolder* socketHolder = AZGameInstance->GetSocketHolder(ESocketHolderType::Gate))
 		{
 			FCG_MAP_WARP_ENTER_SYN msg;
 			socketHolder->SendPacket(&msg);
@@ -1541,7 +1541,7 @@ void UAZMapMgr::AddSubLevelFromPackageName(const FName& package_name, UPackage* 
 bool UAZMapMgr::HasFloor(AAZCharacter* character)
 {
 	// FIXME 병합시 바닥체크 넣기
-	/*float traceZ = character->GetLHCharacterMovement()->ClinetZ_TraceStartZ;
+	/*float traceZ = character->GetAZCharacterMovement()->ClinetZ_TraceStartZ;
 	FVector location = character->GetActorServerLocation();
 	FVector start = location + FVector::UpVector * traceZ;
 	FVector end = location - FVector::UpVector * traceZ;

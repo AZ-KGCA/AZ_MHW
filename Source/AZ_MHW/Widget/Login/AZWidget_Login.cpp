@@ -90,7 +90,9 @@ void UAZWidget_Login::OnTouchAnyPress()
 
 void UAZWidget_Login::OnClicked_Login()
 {
-	FString id = c_id_->GetText().ToString();
+	game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::AuthGameServer);
+	// 주석 풀기
+	/*FString id = c_id_->GetText().ToString();
 	FString password = c_pass_->GetText().ToString();
 
 	UE_LOG(LogTemp, Warning, TEXT("로그인 체크 id : %s / pw :%s\n"), *c_id_->GetText().ToString(), *c_pass_->GetText().ToString());
@@ -100,7 +102,7 @@ void UAZWidget_Login::OnClicked_Login()
 	FCStringAnsi::Strncpy(login_send_packet.user_id, TCHAR_TO_ANSI(*id), sizeof(login_send_packet.user_id) - 1);
 	FCStringAnsi::Strncpy(login_send_packet.user_pw, TCHAR_TO_ANSI(*password), sizeof(login_send_packet.user_pw) - 1);
 	login_send_packet.packet_length = sizeof(login_send_packet);
-	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&login_send_packet, login_send_packet.packet_length);
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&login_send_packet, login_send_packet.packet_length);*/
 }
 
 void UAZWidget_Login::OnClicked_Close()

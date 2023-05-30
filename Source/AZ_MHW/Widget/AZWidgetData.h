@@ -23,7 +23,7 @@ enum class ETouchMaskSearchType : uint8
 };
 
 UENUM(BlueprintType)
-enum class ELHButtonLockOption : uint8
+enum class EAZButtonLockOption : uint8
 {
 	Dimmed		UMETA(DisplayName = "Lock with Dimmed"),
 	Invisible	UMETA(DisplayName = "Lock with Invisible"),
@@ -46,7 +46,7 @@ enum class EAZTouchMaskShape : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FLHTouchMaskSettings
+struct FAZTouchMaskSettings
 {
 	GENERATED_BODY()
 
@@ -64,7 +64,7 @@ struct FAZLockOptionSettings
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere) ELHButtonLockOption button_lock_option;
+	UPROPERTY(EditAnywhere) EAZButtonLockOption button_lock_option;
 	UPROPERTY(EditAnywhere) int32 unlock_quest_index;
 	uint8 locked : 1;
 };

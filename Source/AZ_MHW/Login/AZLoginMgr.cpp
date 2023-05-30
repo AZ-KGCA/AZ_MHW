@@ -80,7 +80,9 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 	}break;
 	case ESequence::ConnectGameServer:
 	{
-		if (game_instance_->GetHUD())
+		ChangeSequence(ESequence::ConnectGameServerReady);
+		//text용 꼭 주석 풀기
+		/*if (game_instance_->GetHUD())
 		{
 			if (auto waiting_widget = game_instance_->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true))
 			{
@@ -103,6 +105,7 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 
 		UAZUtility::ShippingLog(FString::Printf(TEXT("[UAZLoginMgr::ChangeSequence] login_server connect(ip=%s, port=%d)"), *server_ip, server_port));
 
+		// 
 		socket_holder->Connect(server_ip, server_port, [&](ESocketResult socket_result)
 			{
 				UAZWidget_Waiting::ClearForceWaiting();
@@ -117,12 +120,10 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 					game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("게임서버 접속을 실패하였습니다."), EUIMsgBoxBtnType::Confirm,
 						this, TEXT("RetryReconnectRequired"), L"", L"", L"확인");
 				}
-			});
+			});*/
 	}break;
 	case ESequence::AuthGameServer:
 	{
-		// FIXME Sever
-		// 패킷 보내기(인증 되었다고 생각하고 넘기기)
 		game_instance_->GetHUD()->CloseAllUI();
 		game_instance_->GetHUD()->OpenScene<UAZWidget_Menu>(EUIName::AZWidget_Menu);
 	}break;

@@ -44,6 +44,8 @@ enum class EGameModeFlag : uint8
 	Launcher,
 	Login,
 	Lobby,
+	CharacterCreate,
+	CharacterSelect,
 	InGame
 };
 

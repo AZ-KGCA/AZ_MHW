@@ -11,8 +11,8 @@ void UPacketFunction::LoginSigninRequest(UINT32 client_index, CS_LOGIN_SIGNIN_RE
 	auto P_user_pw = game_instance_->ConvertCharToSqlTCHAR(packet->user_pw);
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-	CS_LOGIN_SIGNIN_RES login_res_packet;
-	login_res_packet.packet_id = (short)PACKET_ID::CS_LOGIN_SIGNIN_RES;
+	SC_LOGIN_SIGNIN_RES login_res_packet;
+	login_res_packet.packet_id = (short)PACKET_ID::SC_LOGIN_SIGNIN_RES;
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	if (game_instance_->odbc->LoginCheckSQL(P_user_id, P_user_pw))
 	{
@@ -39,8 +39,8 @@ void UPacketFunction::LoginSignupRequest(UINT32 client_index, CS_LOGIN_SIGNUP_RE
 	record.name = P_user_id;
 	record.pass = P_user_pw;
 
-	CS_LOGIN_SIGNUP_RES login_res_packet;
-	login_res_packet.packet_id = (short)PACKET_ID::CS_LOGIN_SIGNUP_RES;
+	SC_LOGIN_SIGNUP_RES login_res_packet;
+	login_res_packet.packet_id = (short)PACKET_ID::SC_LOGIN_SIGNUP_RES;
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	if (game_instance_->Fclient_connect_.IsBound() == true)	game_instance_->Fclient_connect_.Execute();
 	if (game_instance_->odbc->AddSQL(record))
@@ -57,7 +57,7 @@ void UPacketFunction::LoginSignupRequest(UINT32 client_index, CS_LOGIN_SIGNUP_RE
 }
 
 // client(Login)
-void UPacketFunction::LoginSigninResponse(CS_LOGIN_SIGNIN_RES* packet)
+void UPacketFunction::LoginSigninResponse(SC_LOGIN_SIGNIN_RES* packet)
 {
 	if (packet->success != 0)
 	{
@@ -71,7 +71,7 @@ void UPacketFunction::LoginSigninResponse(CS_LOGIN_SIGNIN_RES* packet)
 	}
 }
 
-void UPacketFunction::LoginSignupResponse(CS_LOGIN_SIGNUP_RES* packet)
+void UPacketFunction::LoginSignupResponse(SC_LOGIN_SIGNUP_RES* packet)
 {
 	if (packet->success != 0)
 	{
