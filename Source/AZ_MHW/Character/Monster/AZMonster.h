@@ -55,6 +55,8 @@ public:
 	void SetActionState(int32 action_id);
 	void ResetTargetAngle();
 	void SetEnraged(bool is_enraged);
+	void BeginFly();
+	void EndFly();
 	UFUNCTION() void SetDead();
 
 	// Property Getters
@@ -71,7 +73,7 @@ public:
 	
 	// AnimNotifyHandlers
 	virtual void AnimNotify_EndOfAction() override;
-	virtual void AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name) override;
+	virtual void AnimNotify_JumpToAnimation(FString next_animation_name, FString next_montage_section_name) override;
 	virtual void AnimNotify_SetMovementMode(EMovementMode movement_mode) override;
 	virtual void AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration) override;
 
@@ -148,10 +150,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Others")
 	TArray<TEnumAsByte<EObjectTypeQuery>> hit_object_types_;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Monster | States") bool is_flying_;
 	
 protected:
 	// Properties: Defined runtime
-	UPROPERTY(EditAnywhere, Category = "AZ | Monster | States") bool is_flying_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster | States") bool is_enraged_;
 	bool is_dead_;
 	

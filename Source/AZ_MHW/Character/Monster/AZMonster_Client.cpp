@@ -33,6 +33,7 @@ void AAZMonster_Client::Init(int32 monster_id, EBossRank rank)
 
 	monster_id_ = monster_id;
 	rank_ = rank;
+	name_ = UAZGameSingleton::instance()->monster_mgr_->GetMonsterName(monster_id_);
 	SetMeshAndColliders();
 	mesh_component_->Init();
 	packet_handler_component_->Init();
@@ -40,7 +41,7 @@ void AAZMonster_Client::Init(int32 monster_id, EBossRank rank)
 
 void AAZMonster_Client::SetMeshAndColliders()
 {
-	FString name = UAZGameSingleton::instance()->monster_mgr_->GetMonsterName(monster_id_).ToString();
+	FString name = name_.ToString();
 	
 	// Set capsule collider
 	GetCapsuleComponent()->SetCapsuleRadius(127.0f);
@@ -62,12 +63,13 @@ void AAZMonster_Client::SetMeshAndColliders()
 	}
 
 	// Set animation class
-	FString anim_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Animations/ABP_%s_Client"), *name, *name);
+	FString anim_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Animations/ABP_%s"), *name, *name);
 	if (UClass* anim_asset = AZResourceHelper::LoadClass<UAnimInstance>(anim_path))
 	{
 		GetMesh()->SetAnimInstanceClass(anim_asset);
 		anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
 		anim_instance_->owner_monster_client_ = this;
+		anim_instance_->is_server_ = false;
 	}
 	else
 	{

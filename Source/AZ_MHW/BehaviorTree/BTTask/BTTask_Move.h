@@ -31,7 +31,7 @@ private:
 	UPROPERTY(VisibleAnywhere) int32 path_index_;
 	UPROPERTY(VisibleAnywhere) TArray<FVector> path_points_;
 
-	TWeakObjectPtr<class AAZMonster> owner_;
+	TObjectPtr<class AAZMonster> owner_;
 
 private:
 	FAIRequestID move_request_id_;

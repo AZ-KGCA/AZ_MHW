@@ -20,7 +20,7 @@ void UAZMonsterPacketHandlerComponent::Init()
 {
 	// Set owner as monster
 	owner_ = Cast<AAZMonster>(GetOwner());
-	if (!owner_.IsValid())
+	if (owner_)
 	{
 		UE_LOG(AZMonster, Error, TEXT("[UAZMonsterPacketHandlerComponent] Invalid owner actor!"));
 	}
@@ -58,8 +58,7 @@ void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_SPAWN_CMD(UINT32 newly_jo
 		owner_->object_serial_, packet.monster_id, *packet.location.ToString(), *packet.rotation.ToString());
 }
 
-// 1. 플레이어의 인게임 로딩이 끝난 뒤 몬스터의 최종 트랜스폼 설정을 명령할 때 새로 접속한 플레이어에게 전송된다 (is_forced = true)
-// 2. 몬스터의 액션이 끝난 뒤 동기화를 위해 인게임 접속자 모두에게 전송된다 (is_forced = false)
+// 플레이어의 인게임 로딩이 끝난 뒤 몬스터의 최종 트랜스폼 설정을 명령할 때 새로 접속한 플레이어에게 전송된다 (is_forced = true)
 void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_TRANSFORM_CMD(bool is_forced, UINT32 newly_joined_client_idx)
 {
 	SC_MONSTER_TRANSFORM_CMD packet;
@@ -119,12 +118,16 @@ void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ACTION_START_CMD(float st
 		game_instance_->BroadCastSendPacketFunc(-1, packet.packet_length, reinterpret_cast<char*>(&packet));
 	else
 		game_instance_->SendPacketFunc(newly_joined_client_idx, packet.packet_length, reinterpret_cast<char*>(&packet));
-	
-	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent][#%d][Send_SC_MONSTER_ACTION_START_CMD] %s, Action name: %s, Montage section: %s, Start from: %f"),
-		owner_->object_serial_, newly_joined_client_idx == 0 ? TEXT("BROADCASTED") : TEXT(""), *owner_->action_state_info_.animation_name.ToString(),
-		*owner_->action_state_info_.montage_section_name.ToString(), start_position);
+
+	UE_LOG(AZMonster_Network, Log, TEXT("\n[UAZMonsterPacketHandlerComponent][#%d][Send_SC_MONSTER_ACTION_START_CMD] %s, %s, %s, Action name: %s, Montage section: %s"),
+		owner_->object_serial_, newly_joined_client_idx == 0 ? TEXT("BROADCASTED") : TEXT(""),
+		*UAZUtility::EnumToString(owner_->action_state_info_.priority_score),
+		*UAZUtility::EnumToString(owner_->action_state_info_.move_state),
+		*owner_->action_state_info_.animation_name.ToString(),
+		*owner_->action_state_info_.montage_section_name.ToString());
 }
 
+// 몬스터의 액션이 끝난 뒤 동기화를 위해 인게임 접속자 모두에게 전송된다
 void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_ACTION_END_CMD()
 {
 	SC_MONSTER_ACTION_END_CMD packet;
@@ -193,6 +196,7 @@ void UAZMonsterPacketHandlerComponent::Send_SC_MONSTER_DIE_CMD()
 	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent][#%d][Send_SC_MONSTER_DIE_CMD]"), owner_->object_serial_);
 }
 
+// 클라이언트에서 몬스터 스폰에 성공했을 때 서버에게 몬스터 상태의 업데이트를 요청한다
 void UAZMonsterPacketHandlerComponent::Receive_CS_MONSTER_UPDATE_REQ(UINT32 client_index)
 {
 	Send_SC_MONSTER_ACTION_START_CMD(owner_->anim_instance_->GetSkelMeshComponent()->GetPosition(), client_index);

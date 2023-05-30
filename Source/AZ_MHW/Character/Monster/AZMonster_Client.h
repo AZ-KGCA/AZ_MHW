@@ -56,6 +56,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "AZ") EBossRank rank_;
 
 public:
+	UPROPERTY(VisibleAnywhere, Category = "AZ") FName name_;
+	
 	// States
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) FMonsterActionStateInfo action_state_info_;
 	UPROPERTY(VisibleAnywhere) bool is_dead_;

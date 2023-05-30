@@ -15,7 +15,7 @@ void UAZMonsterMeshComponent::Init()
 {
 	// Set owner as monster
 	owner_ = Cast<AAZMonster>(GetOwner());
-	if (!owner_.IsValid())
+	if (!owner_)
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] Invalid owner actor!"));
 	}
@@ -36,7 +36,7 @@ void UAZMonsterMeshComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// Validity checks
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	if (owner_->IsABoss() && mesh_material_indices_default_.IsEmpty())
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[AZMonsterMeshComponent] Mesh material indices not set for a boss monster!"));
@@ -99,7 +99,7 @@ void UAZMonsterMeshComponent::SetUpBodyPartMaterialMaps()
 
 void UAZMonsterMeshComponent::InitializeMeshVisibilities()
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	// Set up initial material opacities
 	// Hide all damaged meshes
@@ -146,7 +146,7 @@ void UAZMonsterMeshComponent::SetMaterialVisibility(FName slot_name, bool is_vis
 
 void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), false);
 	SetMaterialVisibility(*mesh_material_indices_wounded_.Find(body_part), true);
@@ -155,7 +155,7 @@ void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
 
 void UAZMonsterMeshComponent::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	SetMaterialVisibility(*mesh_material_indices_wounded_.Find(body_part), false);
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), true);
@@ -163,7 +163,7 @@ void UAZMonsterMeshComponent::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
 
 void UAZMonsterMeshComponent::OnBodyPartBroken(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	//TEMP
 	if (body_part == EMonsterBodyPart::Back) return;
 
@@ -186,6 +186,7 @@ void UAZMonsterMeshComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 
 void UAZMonsterMeshComponent::OnDeath()
 {
+	CloseEyes(true);
 	GetWorld()->GetTimerManager().ClearTimer(blink_eye_timer_handle_);
 }
 
@@ -195,7 +196,7 @@ void UAZMonsterMeshComponent::CloseEyes(bool should_close)
 	SetMaterialVisibility(FName("Eyelid_Default"), should_close);
 }
 
-// Close eyes, wait for 0.2 seconds, the open 
+// Close eyes, wait, then open 
 void UAZMonsterMeshComponent::BlinkEyes()
 {
 	// do not blink if blinded

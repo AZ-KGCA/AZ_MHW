@@ -7,6 +7,7 @@
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/GameMode/AZGameMode_Server.h"
 #include "AZ_MHW/Manager/AZObjectMgr_Server.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 UAZMonsterAggroComponent::UAZMonsterAggroComponent()
@@ -21,7 +22,7 @@ void UAZMonsterAggroComponent::Init()
 {
 	// Set owner as monster
 	owner_ = Cast<AAZMonster>(GetOwner());
-	if (!owner_.IsValid())
+	if (!owner_)
 	{
 		UE_LOG(AZMonster_Aggro, Error, TEXT("[AZMonsterAggroComponent] Invalid owner actor!"));
 	}
@@ -48,7 +49,7 @@ void UAZMonsterAggroComponent::InactivateSystem()
 void UAZMonsterAggroComponent::ActivateByEnterCombat(int32 player_serial)
 {
 	ActivateSystem();
-	UpdateAggroSpecific(player_serial, 70, "EnterCombat");
+	UpdateAggroSpecific(player_serial, 30, "EnterCombat");
 	UpdateBestTarget();
 }
 
@@ -79,7 +80,7 @@ AAZPlayer_Origin* UAZMonsterAggroComponent::GetTargetRef()
 
 FVector UAZMonsterAggroComponent::GetTargetLocation()  
 {
-	if (!target_ref_.IsValid())
+	if (!target_ref_)
 		return FVector::ZeroVector;
 	else
 		return target_ref_->GetActorLocation();
@@ -95,7 +96,7 @@ FVector UAZMonsterAggroComponent::GetRandomTargetLocation()
 
 float UAZMonsterAggroComponent::GetDistance2DToTarget() 
 {
-	if (!target_ref_.IsValid())
+	if (!target_ref_)
 		return 0.0f;
 	else
 		return FVector::Dist2D(owner_->GetActorLocation(), GetTargetLocation());
@@ -103,7 +104,7 @@ float UAZMonsterAggroComponent::GetDistance2DToTarget()
 
 float UAZMonsterAggroComponent::GetAngle2DToTarget() 
 {
-	if (!target_ref_.IsValid())
+	if (!target_ref_)
 		return 0.0f;
 	else
 		return owner_->GetRelativeAngleToLocation(GetTargetLocation());
@@ -195,11 +196,14 @@ void UAZMonsterAggroComponent::UpdateByRange()
 	TArray<AActor*, FDefaultAllocator> ignore_actors;
 	TArray<AActor*> actors_in_range;
 	ignore_actors.Add(owner_.Get());
+
+#ifdef WITH_EDITOR
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), owner_->GetActorLocation(), percept_range_,
 		owner_->hit_object_types_, AAZPlayer_Origin::StaticClass(), ignore_actors, actors_in_range);
 	UKismetSystemLibrary::DrawDebugSphere(owner_.Get(), owner_->GetActorLocation(), percept_range_, 24, FLinearColor::Gray,
 		1.0f, 4.0f);
-
+#endif
+	
 	// Get serial number of actors in range
 	// Increase aggro point for players in range
 	TArray<int32> serials_in_range;
@@ -229,7 +233,7 @@ void UAZMonsterAggroComponent::IncreaseByPartChange(int32 attacker_serial, EMons
 	{
 		case (EMonsterBodyPartChangeType::Wound) :
 		{
-			UpdateAggroSpecific(attacker_serial, 30, "PartWound");
+			UpdateAggroSpecific(attacker_serial, 20, "PartWound");
 			break;
 		}
 		case (EMonsterBodyPartChangeType::Break) :
@@ -239,7 +243,7 @@ void UAZMonsterAggroComponent::IncreaseByPartChange(int32 attacker_serial, EMons
 		}
 		case (EMonsterBodyPartChangeType::Sever) :
 		{
-			UpdateAggroSpecific(attacker_serial, 100, "PartSever");
+			UpdateAggroSpecific(attacker_serial, 70, "PartSever");
 			break;
 		}
 	}

@@ -14,7 +14,7 @@ void UAZMonsterMeshComponent_Client::Init()
 {
 	// Set owner as monster_client
 	owner_ = Cast<AAZMonster_Client>(GetOwner());
-	if (!owner_.IsValid())
+	if (!owner_)
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] Invalid owner actor!"));
 	}
@@ -35,7 +35,7 @@ void UAZMonsterMeshComponent_Client::BeginPlay()
 	Super::BeginPlay();
 
 	// Validity checks
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	if (owner_->IsABoss() && mesh_material_indices_default_.IsEmpty())
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[UAZMonsterMeshComponent_Client] Mesh material indices not set for a boss monster!"));
@@ -105,7 +105,7 @@ void UAZMonsterMeshComponent_Client::SetUpBodyPartMaterialMaps()
 
 void UAZMonsterMeshComponent_Client::InitializeMeshVisibilities()
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	// Set up initial material opacities
 	// Hide all damaged meshes
@@ -152,7 +152,7 @@ void UAZMonsterMeshComponent_Client::SetMaterialVisibility(FName slot_name, bool
 
 void UAZMonsterMeshComponent_Client::OnBodyPartWounded(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), false);
 	SetMaterialVisibility(*mesh_material_indices_wounded_.Find(body_part), true);
@@ -161,7 +161,7 @@ void UAZMonsterMeshComponent_Client::OnBodyPartWounded(EMonsterBodyPart body_par
 
 void UAZMonsterMeshComponent_Client::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	SetMaterialVisibility(*mesh_material_indices_wounded_.Find(body_part), false);
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), true);
@@ -169,7 +169,7 @@ void UAZMonsterMeshComponent_Client::OnBodyPartWoundHealed(EMonsterBodyPart body
 
 void UAZMonsterMeshComponent_Client::OnBodyPartBroken(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	//TEMP
 	if (body_part == EMonsterBodyPart::Back) return;
 
@@ -196,6 +196,7 @@ void UAZMonsterMeshComponent_Client::OnBodyPartSevered(EMonsterBodyPart body_par
 
 void UAZMonsterMeshComponent_Client::OnDeath()
 {
+	CloseEyes(true);
 	GetWorld()->GetTimerManager().ClearTimer(blink_eye_timer_handle_);
 }
 

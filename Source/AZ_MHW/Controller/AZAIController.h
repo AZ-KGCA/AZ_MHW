@@ -57,7 +57,7 @@ public:
 	bool HasReachedLocation(const FVector& location) const;
 	
 protected:
-	TWeakObjectPtr<AAZMonster> owner_;
+	TObjectPtr<AAZMonster> owner_;
 	TObjectPtr<UAISenseConfig_Sight> sight_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ") TObjectPtr<UBehaviorTree> behavior_tree_;
 	

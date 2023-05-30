@@ -92,6 +92,7 @@ void AAZMonster::SetMeshAndColliders()
 		GetMesh()->SetAnimInstanceClass(anim_asset);
 		anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
 		anim_instance_->owner_monster_ = this;
+		anim_instance_->is_server_ = true;
 	}
 	else
 	{
@@ -239,11 +240,42 @@ void AAZMonster::SetEnraged(bool is_enraged)
 	is_enraged_ = is_enraged;
 }
 
+void AAZMonster::BeginFly()
+{
+	is_flying_ = true;
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::move_state, static_cast<uint8>(EMoveState::Fly));
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, static_cast<uint8>(ECharacterState::Locomotion));
+
+	action_state_info_.move_state = EMoveState::Fly;
+	action_state_info_.priority_score = EMonsterActionPriority::MoveModeChange;
+	float angle = GetRelativeAngleToLocation(aggro_component_->GetTargetLocation());
+	SetTargetAngle(angle);
+
+	UE_LOG(AZMonster, Warning, TEXT("Begin fly"));
+	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
+}
+
+void AAZMonster::EndFly()
+{
+	is_flying_ = false;
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::move_state, static_cast<uint8>(EMoveState::Walk));
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, static_cast<uint8>(ECharacterState::Locomotion));
+
+	action_state_info_.move_state = EMoveState::Walk;
+	action_state_info_.priority_score = EMonsterActionPriority::MoveModeChange;
+	float angle = GetRelativeAngleToLocation(aggro_component_->GetTargetLocation());
+	SetTargetAngle(angle);
+
+	UE_LOG(AZMonster, Warning, TEXT("End fly"));
+	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
+}
+
 void AAZMonster::SetDead()
 {
 	// Stop all processes
 	GetController()->BrainComponent->StopLogic(TEXT("Death"));
-	
+
+	action_state_info_.priority_score = EMonsterActionPriority::Death;
 	OnDeath.Broadcast();
 	
 	// TODO Play death animation
@@ -251,11 +283,11 @@ void AAZMonster::SetDead()
 
 void AAZMonster::SetActionState(int32 action_id)
 {
-	// if current action has higher priority than next action, do not update
-	if (action_state_info_.priority_score > EMonsterActionPriority::Action)
-	{
-		return;
-	}
+	// // if current action has higher priority than next action, do not update
+	//ㅈif (action_state_info_.priority_score > EMonsterActionPriority::Action)
+	//ㅈ{
+	//ㅈ	return;
+	//ㅈ}
 	bool is_found = false;
 
 	// find the action data from table according to current action mode
@@ -269,14 +301,9 @@ void AAZMonster::SetActionState(int32 action_id)
 				action_state_info_.montage_section_name = action_data->montage_section_name;
 				is_found = true;
 			}
-			else
-			{
-				int i = 0;
-			}
 			break;
 		}
 	case EMonsterActionMode::Transition:
-		anim_instance_->is_doing_action_ = false;
 	case EMonsterActionMode::Combat:
 		{
 			if (const FMonsterCombatActionInfo* action_data = combat_action_map_.Find(action_id))
@@ -365,29 +392,31 @@ void AAZMonster::AnimNotify_EndOfAction()
 	// restore movement mode
 	if (!is_flying_ && GetCharacterMovement()->MovementMode == MOVE_Flying)
 	{
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 	}
 	// return to normal action state
 	anim_instance_->is_doing_action_ = false;
 	active_action_id_ = -1;
-	SetMoveState(EMoveState::None);
+
+	if (!is_flying_) SetMoveState(EMoveState::None);
+	else SetMoveState(EMoveState::Fly);
 	
 	packet_handler_component_->Send_SC_MONSTER_ACTION_END_CMD();
 }
 
-void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name)
+void AAZMonster::AnimNotify_JumpToAnimation(FString next_animation_name, FString next_montage_section_name)
 {
-	action_state_info_.animation_name = next_animation_name;
-	action_state_info_.montage_section_name = next_montage_section_name;
+	action_state_info_.animation_name = FName(next_animation_name);
+	action_state_info_.montage_section_name = FName(next_montage_section_name);
 	SetTargetAngle(aggro_component_->GetAngle2DToTarget());
 	anim_instance_->is_doing_action_ = false;
-
 	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
 }
 
 void AAZMonster::AnimNotify_SetMovementMode(EMovementMode movement_mode)
 {
 	GetCharacterMovement()->SetMovementMode(movement_mode);
+	if (is_flying_ && movement_mode != MOVE_Flying) is_flying_ = false; 
 }
 
 void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration)

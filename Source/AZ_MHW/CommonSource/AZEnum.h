@@ -146,6 +146,7 @@ enum class EMonsterActionPriority : uint8
 	None,
 	Locomotion,
 	Action,
+	MoveModeChange,
 	Hit,
 	Debuff,
 	Death,

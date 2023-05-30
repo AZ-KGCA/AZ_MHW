@@ -65,6 +65,11 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectNonCombatAction(AAZMonster
 			// Unacceptable if the owner should be flying but is not
 			if (!owner->IsFlying()) continue;
 		}
+		else
+		{
+			// Unacceptable if the owner should not be flying but is
+			if (owner->IsFlying()) continue;
+		}
 		if ((conditions & EMonsterActionConditionType::InRange) == EMonsterActionConditionType::InRange)
 		{
 			// Unacceptable if a player should be in the perceivable distance but is not
@@ -122,6 +127,11 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectTransitionAction(AAZMonste
 			// Unacceptable if the owner should be flying but is not
 			if (!owner->IsFlying()) continue;
 		}
+		else
+		{
+			// Unacceptable if the owner should not be flying but is
+			if (owner->IsFlying()) continue;
+		}
 		// acceptable if all conditions are met
 		available_action_ids.Add(action_info.Key);
 	}
@@ -167,6 +177,11 @@ EBTNodeResult::Type UBTTask_SelectRandomAction::SelectCombatAction(AAZMonster* o
 		{
 			// Unacceptable if the owner should be flying but is not
 			if (!owner->IsFlying()) continue;
+		}
+		else
+		{
+			// Unacceptable if the owner should not be flying but is
+			if (owner->IsFlying()) continue;
 		}
 		if ((conditions & EMonsterActionConditionType::InRange) == EMonsterActionConditionType::InRange)
 		{

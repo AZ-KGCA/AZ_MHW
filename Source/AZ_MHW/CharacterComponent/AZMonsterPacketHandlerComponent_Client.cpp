@@ -20,7 +20,7 @@ void UAZMonsterPacketHandlerComponent_Client::Init()
 {
 	// Set owner as monster_client
 	owner_ = Cast<AAZMonster_Client>(GetOwner());
-	if (!owner_.IsValid())
+	if (!owner_)
 	{
 		UE_LOG(AZMonster, Error, TEXT("[UAZMonsterPacketHandlerComponent_Client] Invalid owner actor!"));
 	}
@@ -71,8 +71,6 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_BODY_STATE_CMD(
 void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ENTER_COMBAT_CMD()
 {
 	UE_LOG(AZMonster_Network, Log, TEXT("[UAZMonsterPacketHandlerComponent_Client][#%d][Receive_SC_MONSTER_ENTER_COMBAT_CMD]"), owner_->object_serial_);
-	//owner_->action_state_info_.action_mode = EMonsterActionMode::Combat;
-	//owner_->anim_instance_->UpdateAnimation();
 	owner_->OnEnterCombat.Broadcast();
 }
 
@@ -92,7 +90,6 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_ACTION_END_CMD(
 	owner_->action_state_info_.action_mode = action_mode;
 	owner_->anim_instance_->is_doing_action_ = false;
 	owner_->action_state_info_.priority_score = EMonsterActionPriority::Locomotion;
-	owner_->action_state_info_.move_state = EMoveState::None;
 	owner_->action_state_info_.animation_name = NAME_None;
 	owner_->action_state_info_.montage_section_name = NAME_None;
 

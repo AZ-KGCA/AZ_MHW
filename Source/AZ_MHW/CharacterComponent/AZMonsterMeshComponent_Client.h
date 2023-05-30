@@ -43,8 +43,8 @@ protected:
 	UFUNCTION() void BlinkEyes();
 	
 private:
-	TWeakObjectPtr<AAZMonster_Client> owner_;
-	TWeakObjectPtr<USkeletalMeshComponent> mesh_;
+	TObjectPtr<AAZMonster_Client> owner_;
+	TObjectPtr<USkeletalMeshComponent> mesh_;
 	UPROPERTY(VisibleAnywhere) TMap<EMonsterBodyPart, bool> wound_map_;
 
 	// material maps

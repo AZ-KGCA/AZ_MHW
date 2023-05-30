@@ -41,7 +41,7 @@ void AAZAIController::OnPossess(APawn* const pawn)
 
 	// Cast and save its owner
 	owner_ = Cast<AAZMonster>(GetPawn());
-	if (!owner_.IsValid())
+	if (!owner_)
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZAIController] Non-AZMonster is possessing an AZAIController!"));
 		return;

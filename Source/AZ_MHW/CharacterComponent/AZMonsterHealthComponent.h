@@ -55,7 +55,7 @@ protected:
 	UFUNCTION() void OnDeath();
 	
 private:
-	TWeakObjectPtr<AAZMonster> owner_;
+	TObjectPtr<AAZMonster> owner_;
 	
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Health") int32 base_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") int32 base_stamina_;

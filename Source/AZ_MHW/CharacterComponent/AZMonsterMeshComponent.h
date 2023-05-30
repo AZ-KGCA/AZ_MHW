@@ -41,8 +41,8 @@ protected:
 	UFUNCTION() void BlinkEyes();
 	
 private:
-	TWeakObjectPtr<class AAZMonster> owner_;
-	TWeakObjectPtr<USkeletalMeshComponent> mesh_;
+	TObjectPtr<class AAZMonster> owner_;
+	TObjectPtr<USkeletalMeshComponent> mesh_;
 
 	// material maps
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Material")

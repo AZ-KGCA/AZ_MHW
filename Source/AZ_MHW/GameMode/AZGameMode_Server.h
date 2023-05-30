@@ -31,7 +31,7 @@ protected:
 public:
 	// 디버깅용 blueprintReadWrite TEMP
 	UPROPERTY(BlueprintReadWrite) TObjectPtr<UAZObjectMgr_Server> object_mgr_;
-	TWeakObjectPtr<ULevelStreamingDynamic> combat_level_;
+	TObjectPtr<ULevelStreamingDynamic> combat_level_;
 	
 	//TQueue<> login_queue_;?
 	//TQueue<> input_queue_;? 이런식으로 하는게 맞나...
