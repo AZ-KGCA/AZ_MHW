@@ -19,6 +19,8 @@ void UPacketFunction::LoginSigninRequest(UINT32 client_index, CS_LOGIN_SIGNIN_RE
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 		login_res_packet.success = 0;
+		FString id(packet->user_id);
+		game_instance_->game_cache_info_->LoginRequest(client_index, id);
 	}
 	else
 	{

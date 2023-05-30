@@ -29,5 +29,11 @@ void UAZWidget_CharacterSelect::Init()
 void UAZWidget_CharacterSelect::OnOpen(bool immediately)
 {
 	Super::OnOpen(immediately);
-	//game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket()
+	CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ packet;
+	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet, packet.packet_length);
+}
+
+void UAZWidget_CharacterSelect::Update()
+{
+	//TODO
 }

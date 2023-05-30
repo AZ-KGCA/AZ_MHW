@@ -104,7 +104,7 @@ void UAZWidget_Login::OnClicked_Login()
 	FCStringAnsi::Strncpy(login_send_packet.user_pw, TCHAR_TO_ANSI(*password), sizeof(login_send_packet.user_pw) - 1);
 	login_send_packet.packet_length = sizeof(login_send_packet);
 
-	game_instance_->game_cache_info_->id_ = id;
+	game_instance_->game_cache_info_->SetClientId(id);
 	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&login_send_packet, login_send_packet.packet_length);
 }
 

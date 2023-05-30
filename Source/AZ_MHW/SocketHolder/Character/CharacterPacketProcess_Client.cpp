@@ -1,7 +1,38 @@
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
 #include "GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 #include "PlayerController/AZPlayerController_InGame.h"
+#include "AZ_MHW/Widget/CharacterSelect/AZWidget_CharacterSelect.h"
+#include "AZ_MHW/HUD/AZHUD.h"
 #include "PlayerState/AZPlayerState_Client.h"
+
+void UPacketFunction::PlayableCharacterDataResponse(SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet)
+{
+	
+	for (int i = 0; i < packet->count; ++i)
+	{
+		if (i == 0)
+		{
+			game_instance_->game_cache_info_->AddCharacterSimpleInfo(packet->info_0);
+		}
+		if (i == 1)
+		{
+			game_instance_->game_cache_info_->AddCharacterSimpleInfo(packet->info_1);
+		}
+		if (i == 2)
+		{
+			game_instance_->game_cache_info_->AddCharacterSimpleInfo(packet->info_2);
+		}
+	}
+
+	if (game_instance_->GetHUD()->IsCurScene(EUIName::AZWidget_CharacterSelect))
+	{
+		if (UAZWidget_CharacterSelect* ui =  game_instance_->GetHUD()->GetUI<UAZWidget_CharacterSelect>(EUIName::AZWidget_CharacterSelect))
+		{
+			ui->Update();
+		}
+	}
+}
 
 void UPacketFunction::ProcessCreatePlayer_Playable()
 {

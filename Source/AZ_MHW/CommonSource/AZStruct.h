@@ -8,6 +8,24 @@
 //============================================
 // Character Common
 
+USTRUCT(BlueprintType)
+struct FCharacterSimpleInfo
+{
+	GENERATED_BODY()
+
+	int32 character_index_;
+	char character_nick_[33];
+	UPROPERTY() int32 hair_color_id_;
+	UPROPERTY() int32 hair_id_;
+	FCharacterSimpleInfo()
+	{
+		character_index_;
+		memset(character_nick_, 0, sizeof(character_nick_));
+		hair_color_id_ = 0;
+		hair_id_ = 0;
+	}
+};
+
 // for blueprint usages
 USTRUCT(BlueprintType)
 struct FDamageInfo

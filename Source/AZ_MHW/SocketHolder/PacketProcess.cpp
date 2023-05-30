@@ -80,6 +80,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ:
 		{
 			//플레이어 캐릭터 데이터 주세요.
+			UPacketFunction::PlayerPlayableCharacterDataRequest(client_index);
 			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ"));
 		}
 		break;
@@ -339,6 +340,8 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES:
 		{
 			//캐릭터 선택한 데이터 받기
+			SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet = (SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES*)recv_packet;
+			UPacketFunction::PlayableCharacterDataResponse(packet);
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES"));
 			
 		}

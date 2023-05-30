@@ -17,6 +17,9 @@ class AZ_MHW_API UAZWidget_CharacterSelect : public UAZWidget
 public:
 	virtual void Init() override;
 	virtual void OnOpen(bool immediately = false) override;
+	virtual void Update() override;
+public:
+	void SetInfo();
 
 public:
 	UPROPERTY(meta = (BindWidget)) class UWidget* new_game_0_;

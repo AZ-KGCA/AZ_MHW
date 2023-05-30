@@ -1,6 +1,12 @@
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
 #include "GameInstance/AZGameInstance.h"
 #include "PlayerController/AZPlayerController_Server.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
+
+void UPacketFunction::PlayerPlayableCharacterDataRequest(UINT32 client_index)
+{
+	game_instance_->game_cache_info_->PlayableCharacterDataRequest(client_index);
+}
 
 void UPacketFunction::CreatePlayerOriginRequest(UINT32 client_index)
 {
