@@ -334,6 +334,8 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		{
 			//캐릭터 생성 데이터 받기
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES"));
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ, out_request_protocol);
 		
 		}
 		break;
@@ -343,6 +345,8 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet = (SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES*)recv_packet;
 			UPacketFunction::PlayableCharacterDataResponse(packet);
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES"));
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ, out_request_protocol);
 			
 		}
 		break;
@@ -350,7 +354,8 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		{
 			//캐릭터 파괴 데이터 받기
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES"));
-			//UPacketFunction::
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ, out_request_protocol);
 		}
 		break;
 	case PACKET_ID::SC_PLAYER_CHARACTER_SELECT_RES:
@@ -359,6 +364,8 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			//캐릭터 선택을 했으니 로컬에 생성하라
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_CHARACTER_SELECT_RES"));
 			UPacketFunction::ProcessCreatePlayer_Playable();
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_CHARACTER_SELECT_REQ, out_request_protocol);
 		}
 		break;
 #pragma endregion
