@@ -15,6 +15,7 @@ void UPacketFunction::LoginSigninRequest(UINT32 client_index, CS_LOGIN_SIGNIN_RE
 	SC_LOGIN_SIGNIN_RES login_res_packet;
 	login_res_packet.packet_id = (short)PACKET_ID::SC_LOGIN_SIGNIN_RES;
 	login_res_packet.packet_length = sizeof(login_res_packet);
+	login_res_packet.client_index = client_index;
 	if (game_instance_->odbc->LoginCheckSQL(P_user_id, P_user_pw))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
@@ -76,6 +77,7 @@ void UPacketFunction::LoginSigninResponse(SC_LOGIN_SIGNIN_RES* packet)
 	}
 	else
 	{
+		game_instance_->game_cache_info_->LoginResponse(packet->client_index);
 		game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::AuthGameServer);
 	}
 }

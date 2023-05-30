@@ -13,6 +13,7 @@ struct CS_LOGIN_SIGNIN_REQ : public PACKET_HEADER
 
 struct SC_LOGIN_SIGNIN_RES : public PACKET_HEADER
 {
+	UINT32 client_index;
 	SC_LOGIN_SIGNIN_RES()
 	{
 		packet_id = (UINT16)PACKET_ID::SC_LOGIN_SIGNIN_RES;

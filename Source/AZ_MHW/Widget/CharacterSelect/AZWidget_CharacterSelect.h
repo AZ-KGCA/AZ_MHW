@@ -18,8 +18,6 @@ public:
 	virtual void Init() override;
 	virtual void OnOpen(bool immediately = false) override;
 	virtual void Update() override;
-public:
-	void SetInfo();
 
 public:
 	UPROPERTY(meta = (BindWidget)) class UWidget* new_game_0_;
@@ -28,5 +26,19 @@ public:
 	UPROPERTY(meta = (BindWidget)) class UWidget* character_slot_0_;
 	UPROPERTY(meta = (BindWidget)) class UWidget* character_slot_1_;
 	UPROPERTY(meta = (BindWidget)) class UWidget* character_slot_2_;
+	UPROPERTY(meta = (BindWidget)) class UTextBlock* character_nick_name_0_;
+	UPROPERTY(meta = (BindWidget)) class UTextBlock* character_nick_name_1_;
+	UPROPERTY(meta = (BindWidget)) class UTextBlock* character_nick_name_2_;
+	UPROPERTY(meta = (BindWidget)) class UAZButton* select_button_0_;
+	UPROPERTY(meta = (BindWidget)) class UAZButton* select_button_1_;
+	UPROPERTY(meta = (BindWidget)) class UAZButton* select_button_2_;
 
+public:
+	UFUNCTION() void OnNewGame();
+	UFUNCTION() void OnSelectCharacter_0();
+	UFUNCTION() void OnSelectCharacter_1();
+	UFUNCTION() void OnSelectCharacter_2();
+	UFUNCTION() void OnHoverCharacter_0();
+	UFUNCTION() void OnHoverCharacter_1();
+	UFUNCTION() void OnHoverCharacter_2();
 };

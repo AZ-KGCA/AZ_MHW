@@ -528,17 +528,18 @@ void UAZGameInstance::ProcessRecvPacket(const UINT32 client_index, const UINT16 
 
 void UAZGameInstance::ProcessuserConnect(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
-	game_cache_info_->RemoveClientIndexToIdHashCode(client_index);
 	// 새로 연결 받기
 	printf("[ProcessUserConnect_Gameinstance] clientIndex: %d\n", client_index);
 	// 하나의 user_manger 객체 할당
 	auto P_user = user_manager_->GetUserByConnIdx(client_index);
 	// 객체 초기화
 	P_user->Clear();
+	game_cache_info_->client_index_ = client_index;
 }
 
 void UAZGameInstance::ProcessUserDisConnect(UINT32 client_index, UINT16 packet_size, char* P_packet)
 {
+	game_cache_info_->RemoveClientIndexToIdHashCode(client_index);
 	printf("[ProcessUserDisConnect_Gameinstance] clientIndex: %d\n", client_index);
 	// 연결이 끊어진 경우 user 반환
 	ClearConnectionInfo(client_index);

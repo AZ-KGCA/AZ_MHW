@@ -34,17 +34,20 @@ public:
 	// 공용 함수
 	uint32 GetIDHashCode(FString& id);
 	bool GetID(int32 id_hash, FString& out_id);
-	TArray<FCharacterSimpleInfo> GetCharacterSimpleInfo(uint32 id);
+	TArray<FCharacterSimpleInfo> GetCharacterSimpleInfo(uint32 client_index);
 	UAZInventoryManager* GetInventoryManager(int32 character_index);
 
 	// 클라 전용
 public:
 	FString id_;
 	uint32 id_hash_;
+	uint32 client_index_;
 	int32 current_character_index_;
 	FString current_character_nickname_;
 	void SetClientId(FString& id);
 	void AddCharacterSimpleInfo(FCharacterSimpleInfo& character_info);
+	TArray<FCharacterSimpleInfo> GetCurrentCharacterSimpleInfoArray();
+	bool LoginResponse(uint32 client_index);
 
 	// 서버
 public:
@@ -52,6 +55,7 @@ public:
 
 	bool SignupRequest(FString& id);
 	bool LoginRequest(uint32 client_index, FString& id);
+	
 	bool RemoveClientIndexToIdHashCode(uint32 client_index);
 
 	void PlayableCharacterDataRequest(UINT32 client_index);

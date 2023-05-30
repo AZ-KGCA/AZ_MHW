@@ -41,8 +41,8 @@ bool UAZGameCacheInfo::GetID(int32 id_hash, FString& out_id)
 TArray<FCharacterSimpleInfo> UAZGameCacheInfo::GetCharacterSimpleInfo(uint32 client_index)
 {
 	uint32 id_hash = GetIdHashCodeFromClientIndex(client_index);
-	auto character_infos = character_infos_.Find(id_hash);
-	return *character_infos;
+	auto character_infos = character_infos_.FindOrAdd(id_hash);
+	return character_infos;
 }
 
 UAZInventoryManager* UAZGameCacheInfo::GetInventoryManager(int32 character_index)
@@ -64,6 +64,11 @@ void UAZGameCacheInfo::SetClientId(FString& id)
 void UAZGameCacheInfo::AddCharacterSimpleInfo(FCharacterSimpleInfo& character_info)
 {
 	character_infos_.FindOrAdd(id_hash_).Add(character_info);
+}
+
+TArray<FCharacterSimpleInfo> UAZGameCacheInfo::GetCurrentCharacterSimpleInfoArray()
+{
+	return GetCharacterSimpleInfo(client_index_);
 }
 
 uint32 UAZGameCacheInfo::GetIdHashCodeFromClientIndex(uint32 client_index)
@@ -93,7 +98,15 @@ bool UAZGameCacheInfo::SignupRequest(FString& id)
 
 bool UAZGameCacheInfo::LoginRequest(uint32 client_index, FString& id)
 {
-	auto hash_code = TextKeyUtil::HashString(*id);
+	auto hash_code = GetIDHashCode(id);
+	client_index_to_id_hash_code_.Add(client_index, hash_code);
+	return true;
+}
+
+bool UAZGameCacheInfo::LoginResponse(uint32 client_index)
+{
+	auto hash_code = GetIDHashCode(id_);
+	client_index_ = client_index;
 	client_index_to_id_hash_code_.Add(client_index, hash_code);
 	return true;
 }

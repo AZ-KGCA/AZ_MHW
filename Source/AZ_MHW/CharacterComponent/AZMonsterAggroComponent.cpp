@@ -7,7 +7,7 @@
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/GameMode/AZGameMode_Server.h"
 #include "AZ_MHW/Manager/AZObjectMgr_Server.h"
-
+#include "Kismet/KismetSystemLibrary.h"
 
 UAZMonsterAggroComponent::UAZMonsterAggroComponent()
 {

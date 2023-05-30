@@ -6,7 +6,11 @@
 #include "AZ_MHW/CommonSource/AZLog.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
+#include "AZ_MHW/Widget/System/AZButton.h"
+#include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 void UAZWidget_CharacterSelect::Init()
 {
@@ -35,5 +39,85 @@ void UAZWidget_CharacterSelect::OnOpen(bool immediately)
 
 void UAZWidget_CharacterSelect::Update()
 {
-	//TODO
+	auto character_array = game_instance_->game_cache_info_->GetCurrentCharacterSimpleInfoArray();
+	if (character_array.Num() == 0)
+	{
+		new_game_0_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		new_game_1_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		new_game_2_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		select_button_0_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnNewGame);
+		select_button_1_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnNewGame);
+		select_button_2_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnNewGame);
+	}
+	if (character_array.Num() == 1)
+	{
+		character_slot_0_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		character_nick_name_0_->SetText(FText::FromString(ANSI_TO_TCHAR(character_array[0].character_nick_)));
+		select_button_0_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnSelectCharacter_0);
+		select_button_0_->OnHovered.AddDynamic(this, &UAZWidget_CharacterSelect::OnHoverCharacter_0);
+
+		new_game_1_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		new_game_2_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		select_button_1_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnNewGame);
+		select_button_2_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnNewGame);
+	}
+	if (character_array.Num() == 2)
+	{
+		character_slot_0_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		character_nick_name_0_->SetText(FText::FromString(ANSI_TO_TCHAR(character_array[0].character_nick_)));
+		character_slot_1_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		character_nick_name_1_->SetText(FText::FromString(ANSI_TO_TCHAR(character_array[1].character_nick_)));
+		select_button_0_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnSelectCharacter_0);
+		select_button_0_->OnHovered.AddDynamic(this, &UAZWidget_CharacterSelect::OnHoverCharacter_0);
+		select_button_1_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnSelectCharacter_1);
+		select_button_1_->OnHovered.AddDynamic(this, &UAZWidget_CharacterSelect::OnHoverCharacter_1);
+
+		new_game_2_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		select_button_2_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnNewGame);
+	}
+	if (character_array.Num() == 3)
+	{
+		character_slot_0_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		character_nick_name_0_->SetText(FText::FromString(ANSI_TO_TCHAR(character_array[0].character_nick_)));
+		character_slot_1_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		character_nick_name_1_->SetText(FText::FromString(ANSI_TO_TCHAR(character_array[1].character_nick_)));
+		character_slot_2_->SetVisibility(ESlateVisibility::HitTestInvisible);
+		character_nick_name_2_->SetText(FText::FromString(ANSI_TO_TCHAR(character_array[2].character_nick_)));
+		select_button_0_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnSelectCharacter_0);
+		select_button_0_->OnHovered.AddDynamic(this, &UAZWidget_CharacterSelect::OnHoverCharacter_0);
+		select_button_1_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnSelectCharacter_1);
+		select_button_1_->OnHovered.AddDynamic(this, &UAZWidget_CharacterSelect::OnHoverCharacter_1);
+		select_button_2_->OnClicked.AddDynamic(this, &UAZWidget_CharacterSelect::OnSelectCharacter_2);
+		select_button_2_->OnHovered.AddDynamic(this, &UAZWidget_CharacterSelect::OnHoverCharacter_2);
+	}
+
+}
+
+void UAZWidget_CharacterSelect::OnNewGame()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/Map/Map_CharacterCreate"));
+}
+
+void UAZWidget_CharacterSelect::OnSelectCharacter_0()
+{
+}
+
+void UAZWidget_CharacterSelect::OnSelectCharacter_1()
+{
+}
+
+void UAZWidget_CharacterSelect::OnSelectCharacter_2()
+{
+}
+
+void UAZWidget_CharacterSelect::OnHoverCharacter_0()
+{
+}
+
+void UAZWidget_CharacterSelect::OnHoverCharacter_1()
+{
+}
+
+void UAZWidget_CharacterSelect::OnHoverCharacter_2()
+{
 }
