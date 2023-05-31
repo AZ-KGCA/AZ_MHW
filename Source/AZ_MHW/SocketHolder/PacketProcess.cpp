@@ -84,13 +84,21 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ"));
 		}
 		break;
-	case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ:
+	case PACKET_ID::CS_PLAYER_CHARACTER_CREATE_REQ:
+	{
+		CS_PLAYER_CHARACTER_CREATE_REQ* packet = (CS_PLAYER_CHARACTER_CREATE_REQ*)recv_packet;
+		UPacketFunction::PlayerCharacterCreateRequest(client_index, packet);
+	}
+	break;
+
+	// 일단 패킷 이름 바꿈 남겨는 놓음
+	/*case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ:
 		{
 			//플레이어 캐릭터 데이터를 생성해주세요.
 			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ"));
 			//UPacketFunction::
 		}
-		break;
+		break;*/
 	case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ:
 		{
 			//플레이어 캐릭터 데이터를 제거해주세요.
@@ -330,13 +338,21 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 /////////////////////////////////////////////////////////////////////////////////////////
 /// 캐릭터 데이터 (로그인 창)
 /////////////////////////////////////////////////////////////////////////////////////////
-	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES:
+	/*case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES:
 		{
 			//캐릭터 생성 데이터 받기
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES"));
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ, out_request_protocol);
 		
+		}
+		break;*/
+	case PACKET_ID::SC_PLAYER_CHARACTER_CREATE_RES:
+		{
+			SC_PLAYER_CHARACTER_CREATE_RES* packet = (SC_PLAYER_CHARACTER_CREATE_RES*)recv_packet;
+			UPacketFunction::PlayerCharacterCreateResponse(packet);
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_CHARACTER_CREATE_REQ, out_request_protocol);
 		}
 		break;
 	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES:

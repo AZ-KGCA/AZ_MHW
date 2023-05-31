@@ -74,6 +74,10 @@ enum class PACKET_ID : UINT16
 	//DB에서 캐릭터 데이터 가져와서 보유상태로 넘겨줌
 	SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES = 9002,//플레이어 캐릭터데이터(생김새만) 응답
 
+	// 권성호 추가
+	CS_PLAYER_CHARACTER_CREATE_REQ = 9201, // 캐릭터 생성 추가
+	SC_PLAYER_CHARACTER_CREATE_RES = 9202, // 캐릭터 생성 응답
+
 	//CHARACTER SELECT CREATE & DESTROY(UI)
 	CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ = 9003,//캐릭터창에서 캐릭터 정보 생성 요청
 	//생성후 결과(캐릭터 데이터 = 캐릭터 번호)넘겨줌

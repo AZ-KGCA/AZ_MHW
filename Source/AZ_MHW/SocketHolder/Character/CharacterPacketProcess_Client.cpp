@@ -5,10 +5,12 @@
 #include "AZ_MHW/Widget/CharacterSelect/AZWidget_CharacterSelect.h"
 #include "AZ_MHW/HUD/AZHUD.h"
 #include "PlayerState/AZPlayerState_Client.h"
+#include <Kismet/GameplayStatics.h>
 
 void UPacketFunction::PlayableCharacterDataResponse(SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet)
 {
-	
+	// 덮어 씌어야 하기 때문에 캐릭터 정보를 리셋한다.
+	game_instance_->game_cache_info_->ResetCharacterInfo();
 	for (int i = 0; i < packet->count; ++i)
 	{
 		if (i == 0)
@@ -32,6 +34,17 @@ void UPacketFunction::PlayableCharacterDataResponse(SC_PLAYER_PLAYABLE_CHARACTER
 			ui->Update();
 		}
 	}
+}
+
+void UPacketFunction::PlayerCharacterCreateResponse(SC_PLAYER_CHARACTER_CREATE_RES* packet)
+{
+	if (packet->success > 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("캐릭터 생성 실패"));
+		return;
+	}
+
+	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/Map/Map_CharacterSelect"));
 }
 
 void UPacketFunction::ProcessCreatePlayer_Playable()

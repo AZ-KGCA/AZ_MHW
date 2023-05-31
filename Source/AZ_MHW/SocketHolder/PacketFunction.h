@@ -79,6 +79,7 @@ public:
 public:
 #pragma region Client->Server
 	void PlayerPlayableCharacterDataRequest(UINT32 client_index);
+	void PlayerCharacterCreateRequest(UINT32 client_index, CS_PLAYER_CHARACTER_CREATE_REQ* packet);
 
 	void CreatePlayerCharacterRequest(UINT32 client_index);
 	void DestroyPlayerCharacterRequest(UINT32 client_index);
@@ -93,6 +94,8 @@ public:
 #pragma endregion
 #pragma region Server->Client
 	void PlayableCharacterDataResponse(SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet);
+	void PlayerCharacterCreateResponse(SC_PLAYER_CHARACTER_CREATE_RES* packet);
+
 	void CreatePlayerCharacterRespone();//플레이어 생성후 데이터받기
 	void DestroyPlayerCharacterRespone();//플레이어 제거후 데이터받기
 	

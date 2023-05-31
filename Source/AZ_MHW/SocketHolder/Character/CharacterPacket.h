@@ -26,6 +26,27 @@ struct SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES : public PACKET_HEADER
 	}
 };
 
+// 캐릭터 생성 창 캐릭터 생성
+struct CS_PLAYER_CHARACTER_CREATE_REQ : public PACKET_HEADER
+{
+	FCharacterSimpleInfo create_info;
+	CS_PLAYER_CHARACTER_CREATE_REQ()
+	{
+		packet_length = sizeof(CS_PLAYER_CHARACTER_CREATE_REQ);
+		packet_id = (UINT16)(PACKET_ID::CS_PLAYER_CHARACTER_CREATE_REQ);
+	}
+};
+
+struct SC_PLAYER_CHARACTER_CREATE_RES : public PACKET_HEADER
+{
+	FCharacterSimpleInfo create_info;
+	SC_PLAYER_CHARACTER_CREATE_RES()
+	{
+		packet_length = sizeof(SC_PLAYER_CHARACTER_CREATE_RES);
+		packet_id = (UINT16)(PACKET_ID::SC_PLAYER_CHARACTER_CREATE_RES);
+	}
+};
+
 //캐릭터 생성패킷
 struct CREATE_PLAYER_CHARACTER_PACKET : public PACKET_HEADER
 {

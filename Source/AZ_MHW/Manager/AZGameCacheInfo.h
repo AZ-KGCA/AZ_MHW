@@ -26,16 +26,19 @@ private:
 	TMap<uint32/*client_index*/, uint32/*id_hash*/> client_index_to_id_hash_code_;
 	static int32 alloc_character_index_;
 	TMap<uint32/*id_hash*/, FString> id_check_;//해시코드 일치 시 중복아이디로 체크하기
+
 	TMap<uint32/*id_hash*/, TArray<FCharacterSimpleInfo>> character_infos_; // 캐릭터 정보
 	TMap<int32/*character_index*/, FCharacterSimpleInfo> character_info_;
+
 	UPROPERTY() TMap<int32/*character_index*/, class UAZInventoryManager*> character_inventory_;
 
 public:
 	// 공용 함수
 	uint32 GetIDHashCode(FString& id);
 	bool GetID(int32 id_hash, FString& out_id);
-	TArray<FCharacterSimpleInfo> GetCharacterSimpleInfo(uint32 client_index);
+	TArray<FCharacterSimpleInfo> GetCharacterSimpleInfoArray(uint32 client_index);
 	UAZInventoryManager* GetInventoryManager(int32 character_index);
+	FCharacterSimpleInfo GetCharacterSimpleInfo(int32 character_index);
 
 	// 클라 전용
 public:
@@ -48,6 +51,7 @@ public:
 	void AddCharacterSimpleInfo(FCharacterSimpleInfo& character_info);
 	TArray<FCharacterSimpleInfo> GetCurrentCharacterSimpleInfoArray();
 	bool LoginResponse(uint32 client_index);
+	void ResetCharacterInfo();
 
 	// 서버
 public:
@@ -59,6 +63,10 @@ public:
 	bool RemoveClientIndexToIdHashCode(uint32 client_index);
 
 	void PlayableCharacterDataRequest(UINT32 client_index);
+	void PlayerCharacterCreateRequest(UINT32 client_index, FCharacterSimpleInfo& simple_info_);
+
+	uint32 AllocCharacterIndex();
+	uint32 CreateCharacterSimpleInfo(uint32 id_hash, const FCharacterSimpleInfo& simple_info);
 
 private:
 	UPROPERTY() class UAZGameInstance* game_instance_;

@@ -9,6 +9,8 @@
 #include "AZ_MHW/Manager/AZGameCacheInfo.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
 #include "AZ_MHW/Widget/System/AZButton.h"
+#include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -100,14 +102,26 @@ void UAZWidget_CharacterSelect::OnNewGame()
 
 void UAZWidget_CharacterSelect::OnSelectCharacter_0()
 {
+	auto array = game_instance_->game_cache_info_->GetCurrentCharacterSimpleInfoArray();
+	array[0];
+	//TODO
+	// CharacterIndex 담아서 로그인 및 맵 이동(현수 부탁함)
 }
 
 void UAZWidget_CharacterSelect::OnSelectCharacter_1()
 {
+	auto array = game_instance_->game_cache_info_->GetCurrentCharacterSimpleInfoArray();
+	array[1];
+	//TODO
+// CharacterIndex 담아서 로그인 및 맵 이동(현수 부탁함)
 }
 
 void UAZWidget_CharacterSelect::OnSelectCharacter_2()
 {
+	auto array = game_instance_->game_cache_info_->GetCurrentCharacterSimpleInfoArray();
+	array[2];
+	//TODO
+// CharacterIndex 담아서 로그인 및 맵 이동(현수 부탁함)
 }
 
 void UAZWidget_CharacterSelect::OnHoverCharacter_0()

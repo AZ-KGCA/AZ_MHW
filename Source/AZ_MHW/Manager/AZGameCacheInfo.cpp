@@ -38,11 +38,26 @@ bool UAZGameCacheInfo::GetID(int32 id_hash, FString& out_id)
 	return true;
 }
 
-TArray<FCharacterSimpleInfo> UAZGameCacheInfo::GetCharacterSimpleInfo(uint32 client_index)
+TArray<FCharacterSimpleInfo> UAZGameCacheInfo::GetCharacterSimpleInfoArray(uint32 client_index)
 {
 	uint32 id_hash = GetIdHashCodeFromClientIndex(client_index);
 	auto character_infos = character_infos_.FindOrAdd(id_hash);
 	return character_infos;
+}
+
+uint32 UAZGameCacheInfo::AllocCharacterIndex()
+{
+	return ++alloc_character_index_;
+}
+
+uint32 UAZGameCacheInfo::CreateCharacterSimpleInfo(uint32 id_hash, const FCharacterSimpleInfo& simple_info)
+{
+	FCharacterSimpleInfo set_simple_info;
+	set_simple_info = simple_info;
+	set_simple_info.character_index_ = AllocCharacterIndex();
+	character_infos_.FindOrAdd(id_hash).Add(set_simple_info);
+	character_info_.Add(set_simple_info.character_index_, set_simple_info);
+	return set_simple_info.character_index_;
 }
 
 UAZInventoryManager* UAZGameCacheInfo::GetInventoryManager(int32 character_index)
@@ -55,6 +70,18 @@ UAZInventoryManager* UAZGameCacheInfo::GetInventoryManager(int32 character_index
 	return *character_info;
 }
 
+FCharacterSimpleInfo UAZGameCacheInfo::GetCharacterSimpleInfo(int32 character_index)
+{
+	auto simple_info = character_info_.Find(character_index);
+	if (simple_info == nullptr)
+	{
+		AZ_PRINT_LOG_IF_FALSE(simple_info, "[GetCharacterSimpleInfo simple_info is nullptr]");
+		return FCharacterSimpleInfo();
+	}
+
+	return *simple_info;
+}
+
 void UAZGameCacheInfo::SetClientId(FString& id)
 {
 	id_ = id;
@@ -64,11 +91,15 @@ void UAZGameCacheInfo::SetClientId(FString& id)
 void UAZGameCacheInfo::AddCharacterSimpleInfo(FCharacterSimpleInfo& character_info)
 {
 	character_infos_.FindOrAdd(id_hash_).Add(character_info);
+	character_info_.FindOrAdd(character_info.character_index_) = character_info;
+	// 일방통행이므로 아이템 생성해줌
+	character_inventory_.Add(character_info.character_index_, NewObject<UAZInventoryManager>(this));
+	character_inventory_[character_info.character_index_]->Init();
 }
 
 TArray<FCharacterSimpleInfo> UAZGameCacheInfo::GetCurrentCharacterSimpleInfoArray()
 {
-	return GetCharacterSimpleInfo(client_index_);
+	return GetCharacterSimpleInfoArray(client_index_);
 }
 
 uint32 UAZGameCacheInfo::GetIdHashCodeFromClientIndex(uint32 client_index)
@@ -111,6 +142,12 @@ bool UAZGameCacheInfo::LoginResponse(uint32 client_index)
 	return true;
 }
 
+void UAZGameCacheInfo::ResetCharacterInfo()
+{
+	character_infos_.Empty();
+	character_info_.Empty();
+}
+
 bool UAZGameCacheInfo::RemoveClientIndexToIdHashCode(uint32 client_index)
 {
 	client_index_to_id_hash_code_.Remove(client_index);
@@ -145,5 +182,26 @@ void UAZGameCacheInfo::PlayableCharacterDataRequest(UINT32 client_index)
 		}
 		packet.count++;
 	}
+	game_instance_->SendPacketFunc(client_index, sizeof(packet), (char*)&packet);
+}
+
+void UAZGameCacheInfo::PlayerCharacterCreateRequest(UINT32 client_index, FCharacterSimpleInfo& simple_info)
+{
+	auto* hash_code = client_index_to_id_hash_code_.Find(client_index);
+	if (hash_code == nullptr)
+	{
+		AZ_PRINT_LOG_IF_FALSE(hash_code, "[PlayerCharacterCreateRequest hash_code_nullptr]");
+		return;
+	}
+
+	// 오류검사 안함 일단 생성해줌
+	int32 charcter_index = CreateCharacterSimpleInfo(*hash_code, simple_info);
+	auto create_simple_info = GetCharacterSimpleInfo(charcter_index);
+	// 그냥 기본아이템 로직은 동일하니 생성후 패킷은 안보냄(클라에서도 동일하게 만들 것임)
+	character_inventory_.Add(charcter_index, NewObject<UAZInventoryManager>(this));
+	character_inventory_[charcter_index]->Init();
+
+	SC_PLAYER_CHARACTER_CREATE_RES packet;
+	packet.create_info = create_simple_info;
 	game_instance_->SendPacketFunc(client_index, sizeof(packet), (char*)&packet);
 }
