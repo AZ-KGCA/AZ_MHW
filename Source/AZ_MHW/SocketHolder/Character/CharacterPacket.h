@@ -1,5 +1,53 @@
-﻿#pragma once
+#pragma once
 //guid번호는 SC에서만 유효하도록
+#pragma once
+#include "AZ_MHW/CommonSource/AZStruct.h"
+
+// 전체 캐릭터 정보 얻기
+struct CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ : public PACKET_HEADER
+{
+	CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ()
+	{
+		packet_length = sizeof(CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ);
+		packet_id = (UINT16)(PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ);
+	}
+};
+
+// 전체 캐릭터 정보 얻기 응답
+struct SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES : public PACKET_HEADER
+{
+	int count = 0;
+	FCharacterSimpleInfo info_0;
+	FCharacterSimpleInfo info_1;
+	FCharacterSimpleInfo info_2;
+
+	SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES()
+	{
+		packet_length = sizeof(SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES);
+		packet_id = (UINT16)(PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES);
+	}
+};
+
+// 캐릭터 생성 창 캐릭터 생성
+struct CS_PLAYER_CHARACTER_CREATE_REQ : public PACKET_HEADER
+{
+	FCharacterSimpleInfo create_info;
+	CS_PLAYER_CHARACTER_CREATE_REQ()
+	{
+		packet_length = sizeof(CS_PLAYER_CHARACTER_CREATE_REQ);
+		packet_id = (UINT16)(PACKET_ID::CS_PLAYER_CHARACTER_CREATE_REQ);
+	}
+};
+
+struct SC_PLAYER_CHARACTER_CREATE_RES : public PACKET_HEADER
+{
+	FCharacterSimpleInfo create_info;
+	SC_PLAYER_CHARACTER_CREATE_RES()
+	{
+		packet_length = sizeof(SC_PLAYER_CHARACTER_CREATE_RES);
+		packet_id = (UINT16)(PACKET_ID::SC_PLAYER_CHARACTER_CREATE_RES);
+	}
+};
 
 //캐릭터 생성패킷
 struct CREATE_PLAYER_CHARACTER_PACKET : public PACKET_HEADER

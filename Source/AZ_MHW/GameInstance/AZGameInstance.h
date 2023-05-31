@@ -182,9 +182,10 @@ public:
 	UPROPERTY(BlueprintReadOnly) class UAZMapMgr* map_mgr;
 	UPROPERTY() class UAZHUDDataMgr* hud_data_mgr;
 	UPROPERTY() class UAZGameOption* game_option;
-	UPROPERTY() class UAZInventoryManager* inventory_mgr;
+	//UPROPERTY() class UAZInventoryManager* inventory_mgr;
 	UPROPERTY() class UAZInputMgr* input_mgr_;
 	UPROPERTY() class UPacketFunction* packet_function_;
+	UPROPERTY() class UAZGameCacheInfo* game_cache_info_;
 	UPROPERTY() FMapChannelInfo map_channel_info;
 
 private:

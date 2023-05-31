@@ -38,7 +38,8 @@ void UAZWidget_Menu::OnOpen(bool immediately)
 
 void UAZWidget_Menu::OnClicked_Start()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/ServerDebug/ServerDebug_Level"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
+	//UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/ServerDebug/ServerDebug_Level"),true,"?game=/Game/AZ/GameMode/BP_InGame.BP_InGame_C");
+	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/Map/Map_CharacterSelect"));
 }
 
 void UAZWidget_Menu::OnClicked_Option()

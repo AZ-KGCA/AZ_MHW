@@ -1,4 +1,4 @@
-﻿// Copyright Team AZ. All Rights Reserved.
+// Copyright Team AZ. All Rights Reserved.
 
 #pragma once
 
@@ -39,5 +39,6 @@ public:
 	UFUNCTION() void AnimNotify_OnUseItem();
 	
 	UFUNCTION() void AnimNotify_OnGetItem();
+	int32 character_index_;
 #pragma endregion 
 };

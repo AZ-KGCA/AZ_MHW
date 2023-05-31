@@ -1,4 +1,4 @@
-﻿// Copyright Team AZ. All Rights Reserved.
+// Copyright Team AZ. All Rights Reserved.
 
 
 #include "AZPlayer_Origin.h"
@@ -7,6 +7,7 @@
 #include "AZ_MHW/Manager/AZObjectMgr_Server.h"
 #include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/Manager/AZInventoryManager.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 #include "AZ_MHW/Item/AZItemData.h"
 #include <Components/CapsuleComponent.h>
 
@@ -126,7 +127,7 @@ void AAZPlayer_Origin::AnimNotify_OnUseItem()
 	//서버처리
 	//on_use_item_.Broadcast();
 	//const auto& item_index;// ui manager한테서 가져오기
-	const auto& buff = game_instance_->inventory_mgr->UsePotion(0);
+	const auto& buff = game_instance_->game_cache_info_->GetCurrentCharacterItem()->UsePotion(0);
 
 	switch (buff.target)
 	{

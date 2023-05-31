@@ -27,8 +27,8 @@ public:
 	void LoginSigninRequest(UINT32 client_index, CS_LOGIN_SIGNIN_REQ* packet);
 	void LoginSignupRequest(UINT32 client_index, CS_LOGIN_SIGNUP_REQ* packet);
 	// client(Login)
-	void LoginSigninResponse(CS_LOGIN_SIGNIN_RES* packet);
-	void LoginSignupResponse(CS_LOGIN_SIGNUP_RES* packet);
+	void LoginSigninResponse(SC_LOGIN_SIGNIN_RES* packet);
+	void LoginSignupResponse(SC_LOGIN_SIGNUP_RES* packet);
 
 public:
 	// server(chat)
@@ -46,12 +46,12 @@ public:
 	void ItemUseRequest(UINT32 client_index, CS_ITEM_USE_REQ* packet);
 
 	// client(item)
-	void ItemTotalInfoResponse(CS_ITEM_TOTAL_INFO_RES* packet);
-	void ItemUnEquipResponse(CS_ITEM_UNEQUIP_RES* packet);
-	void ItemEquipResponse(CS_ITEM_EQUIP_RES* packet);
-	void ItemMoveResponse(CS_ITEM_MOVE_RES* packet);
-	void ItemCreateResponse(CS_ITEM_CREATE_RES* packet);
-	void ItemUseResponse(CS_ITEM_USE_RES* packet);
+	void ItemTotalInfoResponse(SC_ITEM_TOTAL_INFO_RES* packet);
+	void ItemUnEquipResponse(SC_ITEM_UNEQUIP_RES* packet);
+	void ItemEquipResponse(SC_ITEM_EQUIP_RES* packet);
+	void ItemMoveResponse(SC_ITEM_MOVE_RES* packet);
+	void ItemCreateResponse(SC_ITEM_CREATE_RES* packet);
+	void ItemUseResponse(SC_ITEM_USE_RES* packet);
 	void ItemInfoCommand(SC_ITEM_INFO_CMD* packet);
 
 	// Monster
@@ -78,6 +78,9 @@ public:
 #pragma region PlayerCharacterParts
 public:
 #pragma region Client->Server
+	void PlayerPlayableCharacterDataRequest(UINT32 client_index);
+	void PlayerCharacterCreateRequest(UINT32 client_index, CS_PLAYER_CHARACTER_CREATE_REQ* packet);
+
 	void CreatePlayerCharacterRequest(UINT32 client_index);
 	void DestroyPlayerCharacterRequest(UINT32 client_index);
 	
@@ -91,6 +94,9 @@ public:
 	void DevelopPlayerForceUpdateCommand(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
 #pragma endregion
 #pragma region Server->Client
+	void PlayableCharacterDataResponse(SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet);
+	void PlayerCharacterCreateResponse(SC_PLAYER_CHARACTER_CREATE_RES* packet);
+
 	void CreatePlayerCharacterRespone();//플레이어 생성후 데이터받기
 	void DestroyPlayerCharacterRespone();//플레이어 제거후 데이터받기
 	

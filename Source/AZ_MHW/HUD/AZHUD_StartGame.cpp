@@ -9,11 +9,7 @@ void AAZHUD_StartGame::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// FIXME ���ս� ����
-	// CloseUI(EUIName::LHWidget_CheatCommand);
-
 	UAZWidget_Splash* splash = OpenScene<UAZWidget_Splash>(EUIName::AZWidget_Splash);
-	// �ڷΰ��� ��ư ����
 	splash->SetIsDisableBackBtnExit(false);
 }
 

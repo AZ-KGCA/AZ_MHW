@@ -100,5 +100,20 @@ enum class EUIName : uint16
 	AZWidget_Fade,
 
 	// 메시지 박스 추가
-	AZWidget_MessageBoxBasic
+	AZWidget_MessageBoxBasic,
+
+	AZWidget_CharacterCreate,
+	AZWidget_CharacterSelect,
+	AZWidget_Equipment,
+	AZWidget_Equipment_Change,
+	AZWidget_Equipment_Slot,
+	AZWidget_HearthBars,
+	AZWidget_Inventory,
+	AZWidget_Inventory_Change,
+	AZWidget_Inventory_Container,
+	AZWidget_Inventory_Slot,
+	AZWidget_Minimap,
+	AZWidget_PopupDamageInfo,
+	AZWidget_Quick_Slot,
+	AZWidget_Quick_Slot_Item
 };

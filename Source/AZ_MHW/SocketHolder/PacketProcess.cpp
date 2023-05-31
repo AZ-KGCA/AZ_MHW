@@ -80,16 +80,25 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ:
 		{
 			//플레이어 캐릭터 데이터 주세요.
+			UPacketFunction::PlayerPlayableCharacterDataRequest(client_index);
 			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ"));
 		}
 		break;
-	case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ:
+	case PACKET_ID::CS_PLAYER_CHARACTER_CREATE_REQ:
+	{
+		CS_PLAYER_CHARACTER_CREATE_REQ* packet = (CS_PLAYER_CHARACTER_CREATE_REQ*)recv_packet;
+		UPacketFunction::PlayerCharacterCreateRequest(client_index, packet);
+	}
+	break;
+
+	// 일단 패킷 이름 바꿈 남겨는 놓음
+	/*case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ:
 		{
 			//플레이어 캐릭터 데이터를 생성해주세요.
 			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ"));
 			//UPacketFunction::
 		}
-		break;
+		break;*/
 	case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ:
 		{
 			//플레이어 캐릭터 데이터를 제거해주세요.
@@ -179,17 +188,17 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	switch ((PACKET_ID)recv_packet->packet_id)
 	{
 #pragma region UI_PART
-	case PACKET_ID::CS_LOGIN_SIGNIN_RES:
+	case PACKET_ID::SC_LOGIN_SIGNIN_RES:
 		{
-			CS_LOGIN_SIGNIN_RES* packet = (CS_LOGIN_SIGNIN_RES*)recv_packet;
+			SC_LOGIN_SIGNIN_RES* packet = (SC_LOGIN_SIGNIN_RES*)recv_packet;
 			UPacketFunction::LoginSigninResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_LOGIN_SIGNIN_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_LOGIN_SIGNUP_RES:
+	case PACKET_ID::SC_LOGIN_SIGNUP_RES:
 		{
-			CS_LOGIN_SIGNUP_RES* packet = (CS_LOGIN_SIGNUP_RES*)recv_packet;
+			SC_LOGIN_SIGNUP_RES* packet = (SC_LOGIN_SIGNUP_RES*)recv_packet;
 			UPacketFunction::LoginSignupResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_LOGIN_SIGNUP_REQ, out_request_protocol);
@@ -201,49 +210,49 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UPacketFunction::ChatMsgCommand(packet);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_TOTAL_INFO_RES:
+	case PACKET_ID::SC_ITEM_TOTAL_INFO_RES:
 		{
-			CS_ITEM_TOTAL_INFO_RES* packet = (CS_ITEM_TOTAL_INFO_RES*)recv_packet;
+			SC_ITEM_TOTAL_INFO_RES* packet = (SC_ITEM_TOTAL_INFO_RES*)recv_packet;
 			UPacketFunction::ItemTotalInfoResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_TOTAL_INFO_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_UNEQUIP_RES:
+	case PACKET_ID::SC_ITEM_UNEQUIP_RES:
 		{
-			CS_ITEM_UNEQUIP_RES* packet = (CS_ITEM_UNEQUIP_RES*)recv_packet;
+			SC_ITEM_UNEQUIP_RES* packet = (SC_ITEM_UNEQUIP_RES*)recv_packet;
 			UPacketFunction::ItemUnEquipResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_UNEQUIP_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_EQUIP_RES:
+	case PACKET_ID::SC_ITEM_EQUIP_RES:
 		{
-			CS_ITEM_EQUIP_RES* packet = (CS_ITEM_EQUIP_RES*)recv_packet;
+			SC_ITEM_EQUIP_RES* packet = (SC_ITEM_EQUIP_RES*)recv_packet;
 			UPacketFunction::ItemEquipResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_EQUIP_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_MOVE_RES:
+	case PACKET_ID::SC_ITEM_MOVE_RES:
 		{
-			CS_ITEM_MOVE_RES* packet = (CS_ITEM_MOVE_RES*)recv_packet;
+			SC_ITEM_MOVE_RES* packet = (SC_ITEM_MOVE_RES*)recv_packet;
 			UPacketFunction::ItemMoveResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_MOVE_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_CREATE_RES:
+	case PACKET_ID::SC_ITEM_CREATE_RES:
 		{
-			CS_ITEM_CREATE_RES* packet = (CS_ITEM_CREATE_RES*)recv_packet;
+			SC_ITEM_CREATE_RES* packet = (SC_ITEM_CREATE_RES*)recv_packet;
 			UPacketFunction::ItemCreateResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_CREATE_REQ, out_request_protocol);
 		}
 		break;
-	case PACKET_ID::CS_ITEM_USE_RES:
+	case PACKET_ID::SC_ITEM_USE_RES:
 		{
-			CS_ITEM_USE_RES* packet = (CS_ITEM_USE_RES*)recv_packet;
+			SC_ITEM_USE_RES* packet = (SC_ITEM_USE_RES*)recv_packet;
 			UPacketFunction::ItemUseResponse(packet);
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_ITEM_USE_REQ, out_request_protocol);
@@ -357,25 +366,37 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 /////////////////////////////////////////////////////////////////////////////////////////
 /// 캐릭터 데이터 (로그인 창)
 /////////////////////////////////////////////////////////////////////////////////////////
-	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES:
+	/*case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES:
 		{
 			//캐릭터 생성 데이터 받기
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES"));
-			//UPacketFunction::
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ, out_request_protocol);
 		}
+		break;*/
+	case PACKET_ID::SC_PLAYER_CHARACTER_CREATE_RES:
+		{
+			SC_PLAYER_CHARACTER_CREATE_RES* packet = (SC_PLAYER_CHARACTER_CREATE_RES*)recv_packet;
+			UPacketFunction::PlayerCharacterCreateResponse(packet);
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_CHARACTER_CREATE_REQ, out_request_protocol);		}
 		break;
 	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES:
 		{
 			//캐릭터 선택한 데이터 받기
+			SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet = (SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES*)recv_packet;
+			UPacketFunction::PlayableCharacterDataResponse(packet);
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES"));
-			//UPacketFunction::
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ, out_request_protocol);
 		}
 		break;
 	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES:
 		{
 			//캐릭터 파괴 데이터 받기
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES"));
-			//UPacketFunction::
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ, out_request_protocol);
 		}
 		break;
 	case PACKET_ID::SC_PLAYER_CHARACTER_SELECT_RES:

@@ -28,7 +28,7 @@ void UAZTextBlock::SynchronizeProperties()
 	//TODO 텍스트 테이블 필요시 넣기
 	/*
 	if (init_text_table_id_ != 0 && GetGameSingleton()->TableMgr)
-		SetText(FText::FromString(*LH_GetString(init_text_table_id_)));
+		SetText(FText::FromString(*AZ_GetString(init_text_table_id_)));
 		*/
 }
 

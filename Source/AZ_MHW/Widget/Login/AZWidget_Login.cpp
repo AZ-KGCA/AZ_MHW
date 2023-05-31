@@ -11,6 +11,7 @@
 #include "AZ_MHW/Widget/AZWidget_Waiting.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "AZ_MHW/HUD/AZHUD.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 #include "Misc/CString.h"
 
 //#include "AZ_MHW/CommonSource/Define/"
@@ -90,6 +91,8 @@ void UAZWidget_Login::OnTouchAnyPress()
 
 void UAZWidget_Login::OnClicked_Login()
 {
+	game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::AuthGameServer);
+
 	FString id = c_id_->GetText().ToString();
 	FString password = c_pass_->GetText().ToString();
 
@@ -100,6 +103,8 @@ void UAZWidget_Login::OnClicked_Login()
 	FCStringAnsi::Strncpy(login_send_packet.user_id, TCHAR_TO_ANSI(*id), sizeof(login_send_packet.user_id) - 1);
 	FCStringAnsi::Strncpy(login_send_packet.user_pw, TCHAR_TO_ANSI(*password), sizeof(login_send_packet.user_pw) - 1);
 	login_send_packet.packet_length = sizeof(login_send_packet);
+
+	game_instance_->game_cache_info_->SetClientId(id);
 	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&login_send_packet, login_send_packet.packet_length);
 }
 

@@ -24,6 +24,22 @@ void UAZHUDDataMgr::Init()
 	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Login, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Login.BP_Widget_Login_C"));
 	// default back bg
 	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Menu, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Menu.BP_Widget_Menu_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_CharacterCreate, false, false, TEXT("/Game/AZ/Widget/BP_Widget_CharacterCreate.BP_Widget_CharacterCreate_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_CharacterSelect, false, false, TEXT("/Game/AZ/Widget/BP_Widget_CharacterSelect.BP_Widget_CharacterSelect_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Equipment, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Equipment.BP_Widget_Equipment_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Equipment_Change, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Equipment_Change.BP_Widget_Equipment_Change_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Equipment_Slot, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Equipment_Slot.BP_Widget_Equipment_Slot_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_HearthBars, false, false, TEXT("/Game/AZ/Widget/BP_Widget_HearthBars.BP_Widget_HearthBars_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_InGame, false, false, TEXT("/Game/AZ/Widget/BP_Widget_InGame.BP_Widget_InGame_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Inventory, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Inventory.BP_Widget_Inventory_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Inventory_Change, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Inventory_Change.BP_Widget_Inventory_Change_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Inventory_Container, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Inventory_Container.BP_Widget_Inventory_Container_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Inventory_Slot, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Inventory_Slot.BP_Widget_Inventory_Slot_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Minimap, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Minimap.BP_Widget_Minimap_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_PopupDamageInfo, false, false, TEXT("/Game/AZ/Widget/BP_Widget_PopupDamageInfo.BP_Widget_PopupDamageInfo_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Quick_Slot, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Quick_Slot.BP_Widget_Quick_Slot_C"));
+	InitWidgetData(EUILayer::Scene, EUIName::AZWidget_Quick_Slot_Item, false, false, TEXT("/Game/AZ/Widget/BP_Widget_Quick_Slot_Item.BP_Widget_Quick_Slot_Item_C"));
+
 	// WaitingWidget
 	InitWidgetData(EUILayer::WaitingWidget, EUIName::AZWidget_Waiting, true, false, TEXT("/Game/AZ/Widget/BP_Widget_Waiting.BP_Widget_Waiting_C"));
 	// Basic Box

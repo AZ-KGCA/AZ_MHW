@@ -3,6 +3,7 @@
 #include "AZ_MHW/Login/AZLoginMgr.h"
 #include "AZ_MHW/HUD/AZHUD.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 
 // server(Login)
 void UPacketFunction::LoginSigninRequest(UINT32 client_index, CS_LOGIN_SIGNIN_REQ* packet)
@@ -11,13 +12,16 @@ void UPacketFunction::LoginSigninRequest(UINT32 client_index, CS_LOGIN_SIGNIN_RE
 	auto P_user_pw = game_instance_->ConvertCharToSqlTCHAR(packet->user_pw);
 	UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 
-	CS_LOGIN_SIGNIN_RES login_res_packet;
-	login_res_packet.packet_id = (short)PACKET_ID::CS_LOGIN_SIGNIN_RES;
+	SC_LOGIN_SIGNIN_RES login_res_packet;
+	login_res_packet.packet_id = (short)PACKET_ID::SC_LOGIN_SIGNIN_RES;
 	login_res_packet.packet_length = sizeof(login_res_packet);
+	login_res_packet.client_index = client_index;
 	if (game_instance_->odbc->LoginCheckSQL(P_user_id, P_user_pw))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 		login_res_packet.success = 0;
+		FString id(packet->user_id);
+		game_instance_->game_cache_info_->LoginRequest(client_index, id);
 	}
 	else
 	{
@@ -39,8 +43,8 @@ void UPacketFunction::LoginSignupRequest(UINT32 client_index, CS_LOGIN_SIGNUP_RE
 	record.name = P_user_id;
 	record.pass = P_user_pw;
 
-	CS_LOGIN_SIGNUP_RES login_res_packet;
-	login_res_packet.packet_id = (short)PACKET_ID::CS_LOGIN_SIGNUP_RES;
+	SC_LOGIN_SIGNUP_RES login_res_packet;
+	login_res_packet.packet_id = (short)PACKET_ID::SC_LOGIN_SIGNUP_RES;
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	if (game_instance_->Fclient_connect_.IsBound() == true)	game_instance_->Fclient_connect_.Execute();
 	if (game_instance_->odbc->AddSQL(record))
@@ -53,11 +57,17 @@ void UPacketFunction::LoginSignupRequest(UINT32 client_index, CS_LOGIN_SIGNUP_RE
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 		login_res_packet.success = 1;
 	}
+
+	FString id(packet->user_id);
+	if (game_instance_->game_cache_info_->SignupRequest(id) != false)
+	{
+		login_res_packet.success = 1;
+	}
 	game_instance_->SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 }
 
 // client(Login)
-void UPacketFunction::LoginSigninResponse(CS_LOGIN_SIGNIN_RES* packet)
+void UPacketFunction::LoginSigninResponse(SC_LOGIN_SIGNIN_RES* packet)
 {
 	if (packet->success != 0)
 	{
@@ -67,11 +77,12 @@ void UPacketFunction::LoginSigninResponse(CS_LOGIN_SIGNIN_RES* packet)
 	}
 	else
 	{
+		game_instance_->game_cache_info_->LoginResponse(packet->client_index);
 		game_instance_->login_mgr->ChangeSequence(UAZLoginMgr::ESequence::AuthGameServer);
 	}
 }
 
-void UPacketFunction::LoginSignupResponse(CS_LOGIN_SIGNUP_RES* packet)
+void UPacketFunction::LoginSignupResponse(SC_LOGIN_SIGNUP_RES* packet)
 {
 	if (packet->success != 0)
 	{

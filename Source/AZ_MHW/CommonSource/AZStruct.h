@@ -3,10 +3,38 @@
 #include "CoreMinimal.h"
 #include "AZ_MHW/CommonSource/AZEnum.h"
 #include "AZ_MHW/Util/AZUtility.h"
+#include "VectorTypes.h"
 #include "AZStruct.generated.h"
 
 //============================================
 // Character Common
+
+USTRUCT(BlueprintType)
+struct FCharacterSimpleInfo
+{
+	GENERATED_BODY()
+	
+	int32 character_index_;
+	char character_nick_[33];
+	UPROPERTY() int32 hair_color_id_;
+	UPROPERTY() int32 hair_id_;
+	FCharacterSimpleInfo()
+	{
+		character_index_;
+		memset(character_nick_, 0, sizeof(character_nick_));
+		hair_color_id_ = 0;
+		hair_id_ = 0;
+	}
+
+	FCharacterSimpleInfo& operator=(const FCharacterSimpleInfo& ref)
+	{
+		character_index_ = ref.character_index_;
+		memcpy(character_nick_, ref.character_nick_, sizeof(character_nick_));
+		hair_color_id_ = ref.hair_color_id_;
+		hair_id_ = hair_id_;
+		return *this;
+	}
+};
 
 // for blueprint usages
 USTRUCT(BlueprintType)

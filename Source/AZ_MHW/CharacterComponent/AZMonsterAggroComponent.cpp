@@ -9,7 +9,6 @@
 #include "AZ_MHW/Manager/AZObjectMgr_Server.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-
 UAZMonsterAggroComponent::UAZMonsterAggroComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;

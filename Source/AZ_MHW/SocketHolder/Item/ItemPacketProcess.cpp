@@ -32,32 +32,32 @@ void UPacketFunction::ItemUseRequest(UINT32 client_index, CS_ITEM_USE_REQ* packe
 }
 
 // client(item)
-void UPacketFunction::ItemTotalInfoResponse(CS_ITEM_TOTAL_INFO_RES* packet)
+void UPacketFunction::ItemTotalInfoResponse(SC_ITEM_TOTAL_INFO_RES* packet)
 {
 
 }
 
-void UPacketFunction::ItemUnEquipResponse(CS_ITEM_UNEQUIP_RES* packet)
+void UPacketFunction::ItemUnEquipResponse(SC_ITEM_UNEQUIP_RES* packet)
 {
 
 }
 
-void UPacketFunction::ItemEquipResponse(CS_ITEM_EQUIP_RES* packet)
+void UPacketFunction::ItemEquipResponse(SC_ITEM_EQUIP_RES* packet)
 {
 
 }
 
-void UPacketFunction::ItemMoveResponse(CS_ITEM_MOVE_RES* packet)
+void UPacketFunction::ItemMoveResponse(SC_ITEM_MOVE_RES* packet)
 {
 
 }
 
-void UPacketFunction::ItemCreateResponse(CS_ITEM_CREATE_RES* packet)
+void UPacketFunction::ItemCreateResponse(SC_ITEM_CREATE_RES* packet)
 {
 
 }
 
-void UPacketFunction::ItemUseResponse(CS_ITEM_USE_RES* packet)
+void UPacketFunction::ItemUseResponse(SC_ITEM_USE_RES* packet)
 {
 
 }

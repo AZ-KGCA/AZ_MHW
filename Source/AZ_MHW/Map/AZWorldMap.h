@@ -13,7 +13,7 @@ struct FWorldMapDetail
 	GENERATED_BODY()
 
 public:
-	//UPROPERTY() class ALHCameraActor_WorldMap* CameraActor;
+	//UPROPERTY() class AAZCameraActor_WorldMap* CameraActor;
 	UPROPERTY() class AVolume* AreaVolum;
 	UPROPERTY() class ADirectionalLight* AreaDirectionalLight;
 	UPROPERTY() class ASkyLight* AreaSkyLight;

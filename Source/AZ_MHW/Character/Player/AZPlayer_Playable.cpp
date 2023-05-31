@@ -3,6 +3,7 @@
 
 #include "AZPlayer_Playable.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
+#include "AZ_MHW/Manager/AZGameCacheInfo.h"
 
 AAZPlayer_Playable::AAZPlayer_Playable()
 {
