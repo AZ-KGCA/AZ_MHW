@@ -61,6 +61,12 @@ void UAZMonsterAggroComponent::Reset()
 	InactivateSystem();
 }
 
+void UAZMonsterAggroComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	owner_->OnDeath.AddDynamic(this, &UAZMonsterAggroComponent::InactivateSystem);
+}
+
 void UAZMonsterAggroComponent::ForceSetBestTarget(AAZPlayer_Origin* character)
 {
 	target_serial_ = character->object_serial_;

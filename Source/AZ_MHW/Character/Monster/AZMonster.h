@@ -57,7 +57,7 @@ public:
 	void SetEnraged(bool is_enraged);
 	void BeginFly();
 	void EndFly();
-	UFUNCTION() void SetDead();
+	UFUNCTION() void ProcessDeath();
 
 	// Property Getters
 	int32 GetMonsterID() const;
@@ -72,18 +72,23 @@ public:
 	bool IsEnraged() const;
 	
 	// AnimNotifyHandlers
+	// TODO as a component?
 	virtual void AnimNotify_EndOfAction() override;
 	virtual void AnimNotify_JumpToAnimation(FString next_animation_name, FString next_montage_section_name) override;
 	virtual void AnimNotify_SetMovementMode(EMovementMode movement_mode) override;
 	virtual void AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration) override;
-
+	virtual void AnimNotifyState_DoBodyOverlap_Begin();
+	UFUNCTION() virtual void AnimNotifyState_DoBodyOverlap_AddOverlappedActor(UPrimitiveComponent* overlapped_component, AActor* other_actor,
+		UPrimitiveComponent* other_comp, int32 other_body_index, bool is_from_sweep, const FHitResult & sweep_result);
+	virtual void AnimNotifyState_DoBodyOverlap_End();
+	
 	// Validity Checkers
 	bool IsABoss() const;
 	bool IsAValidMonster() const;
 
 protected:
 	// Damage
-	void DoDamage(AActor* damaged_actor, const FHitResult hit_result);
+	UFUNCTION(BlueprintCallable) void DoDamage(AActor* damaged_actor, const FHitResult hit_result);
 	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 
 	// Delegates
@@ -120,6 +125,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Monster | States") FMonsterActionStateInfo action_state_info_;
 	
 	// Components
+	UPROPERTY() TObjectPtr<UCapsuleComponent> body_capsule_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterAggroComponent> aggro_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterHealthComponent> health_component_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Monster | Components") TObjectPtr<UAZMonsterMeshComponent> mesh_component_;
@@ -159,4 +165,5 @@ protected:
 	
 	// Other properties
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Monster") int32 active_action_id_;
+	UPROPERTY() TArray<AActor*> overlapped_actors_;
 };

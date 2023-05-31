@@ -182,6 +182,10 @@ void UAZMonsterMeshComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), true);
 	
 	//TODO Add animation
+
+	// Remove collision of the severed part
+	FName bone_name = (body_part == EMonsterBodyPart::Tail) ? FName("BoneFunction_144") : NAME_None; // 원래는 enum 통해서 받아와야 하지만 현재 skeleton 이름이 기본값이라 불가능
+	mesh_->GetBodyInstance(bone_name)->SetShapeCollisionEnabled(0, ECollisionEnabled::NoCollision);
 	
 	// Drop body part mesh
 	FString mesh_filepath = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SM_%s_%s.SM_%s_%s"),
@@ -192,7 +196,6 @@ void UAZMonsterMeshComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 	{
 		FTransform spawn_transform = mesh_->GetSocketTransform(FName(FString::Printf(TEXT("%sSocket"), *UAZUtility::EnumToString(body_part))));
 		AStaticMeshActor* mesh_actor = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), spawn_transform);
-		mesh_actor->SetMobility(EComponentMobility::Stationary);
 		if (UStaticMeshComponent* mesh_comp = mesh_actor->GetStaticMeshComponent())
 		{
 			mesh_comp->SetMobility(EComponentMobility::Movable);

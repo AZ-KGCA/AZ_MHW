@@ -202,7 +202,6 @@ void UAZMonsterMeshComponent_Client::OnBodyPartSevered(EMonsterBodyPart body_par
 	{
 		FTransform spawn_transform = mesh_->GetSocketTransform(FName(FString::Printf(TEXT("%sSocket"), *UAZUtility::EnumToString(body_part))));
 		AStaticMeshActor* mesh_actor = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), spawn_transform);
-		mesh_actor->SetMobility(EComponentMobility::Stationary);
 		if (UStaticMeshComponent* mesh_comp = mesh_actor->GetStaticMeshComponent())
 		{
 			mesh_comp->SetMobility(EComponentMobility::Movable);

@@ -45,6 +45,6 @@ public:
 	UFUNCTION() void OnBodyPartSevered(EMonsterBodyPart body_part);
 	
 private:
-	TObjectPtr<AAZMonster> owner_;
+	TWeakObjectPtr<AAZMonster> owner_;
 	TObjectPtr<UAZGameInstance> game_instance_;
 };

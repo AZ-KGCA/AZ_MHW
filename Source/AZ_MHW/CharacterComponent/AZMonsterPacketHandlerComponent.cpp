@@ -20,7 +20,7 @@ void UAZMonsterPacketHandlerComponent::Init()
 {
 	// Set owner as monster
 	owner_ = Cast<AAZMonster>(GetOwner());
-	if (owner_)
+	if (!owner_.IsValid())
 	{
 		UE_LOG(AZMonster, Error, TEXT("[UAZMonsterPacketHandlerComponent] Invalid owner actor!"));
 	}

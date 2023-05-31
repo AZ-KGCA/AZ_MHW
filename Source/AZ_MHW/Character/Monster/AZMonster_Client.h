@@ -27,7 +27,8 @@ public:
 	void SetMeshAndColliders();
 	void SetActionStateInfo(const FMonsterActionStateInfo action_state_info);
 	void AnimNotify_SetMovementMode(EMovementMode movement_mode);
-
+	UFUNCTION() void ProcessDeath();
+	
 	// Getters
 	bool IsABoss() const;
 	

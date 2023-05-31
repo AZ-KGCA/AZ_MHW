@@ -41,10 +41,18 @@ AAZMonster::AAZMonster()
 	AutoPossessAI = EAutoPossessAI::Disabled;
 		
 	// Create components
+	body_capsule_component_ = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BodyCapsuleComponent"));
 	aggro_component_ = CreateDefaultSubobject<UAZMonsterAggroComponent>(TEXT("AggroComponent"));
 	health_component_ = CreateDefaultSubobject<UAZMonsterHealthComponent>(TEXT("HealthComponent"));
 	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent>(TEXT("MeshComponent"));
 	packet_handler_component_ = CreateDefaultSubobject<UAZMonsterPacketHandlerComponent>(TEXT("PacketHandlerComponent"));
+
+	// Set up properties
+	body_capsule_component_->SetCollisionProfileName(TEXT("AZMonsterBodyCapsule"));
+	body_capsule_component_->CanCharacterStepUpOn = ECB_No;
+	body_capsule_component_->SetGenerateOverlapEvents(false);
+	body_capsule_component_->SetupAttachment(GetCapsuleComponent());
+	GetMesh()->CanCharacterStepUpOn = ECB_No;
 }
 
 void AAZMonster::Init(int32 monster_id, EBossRank rank)
@@ -66,16 +74,20 @@ void AAZMonster::SetMeshAndColliders()
 	FString name = name_.ToString();
 	
 	// Set capsule collider
-	GetCapsuleComponent()->SetCapsuleRadius(127.0f);
-	GetCapsuleComponent()->SetCapsuleHalfHeight(127.0f);
+	GetCapsuleComponent()->SetCapsuleRadius(185.0f);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(150.0f); 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("AZMonsterCapsule"));
+
+	// Body capsule
+	body_capsule_component_->SetCapsuleRadius(260.0f);
+	body_capsule_component_->SetCapsuleHalfHeight(292.0f); 
 	
 	// Set skeletal mesh
-	FString asset_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SK_%s"), *name, *name);
-	if(auto sk_asset = LoadObject<USkeletalMesh>(nullptr,*asset_path))
+	FString sk_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SK_%s"), *name, *name);
+	if(auto sk_asset = LoadObject<USkeletalMesh>(nullptr,*sk_path))
 	{
 		GetMesh()->SetSkeletalMesh(sk_asset);
-		GetMesh()->SetRelativeLocation(FVector(73, 0, -120));
+		GetMesh()->SetRelativeLocation(FVector(73, 0, -180));
 		GetMesh()->SetCollisionProfileName(TEXT("AZMonster"));
 	}
 	else
@@ -188,6 +200,7 @@ void AAZMonster::BeginPlay()
 	Super::BeginPlay();
 	SpawnDefaultController();
 	anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
+	OnDeath.AddDynamic(this, &AAZMonster::ProcessDeath);
 }
 
 void AAZMonster::EnterCombat(AActor* combat_instigator, bool is_triggered_by_sight)
@@ -270,15 +283,12 @@ void AAZMonster::EndFly()
 	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
 }
 
-void AAZMonster::SetDead()
+void AAZMonster::ProcessDeath()
 {
 	// Stop all processes
 	GetController()->BrainComponent->StopLogic(TEXT("Death"));
-
 	action_state_info_.priority_score = EMonsterActionPriority::Death;
-	OnDeath.Broadcast();
-	
-	// TODO Play death animation
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AAZMonster::SetActionState(int32 action_id)
@@ -382,6 +392,7 @@ bool AAZMonster::IsEnraged() const
 	return is_enraged_;
 }
 
+#pragma region AnimNotify Handlers
 void AAZMonster::AnimNotify_EndOfAction()
 {
 	// if the action was a transition action, finish transition
@@ -447,7 +458,7 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 		for (auto actor : overlapped_actors)
 		{
 			UE_LOG(AZMonster, Log, TEXT("[AAZMonster] Sphere trace overlapped %s"), *actor->GetName());
-			AAZPlayer* overlapped_player = Cast<AAZPlayer>(actor);
+			AAZPlayer_Origin* overlapped_player = Cast<AAZPlayer_Origin>(actor);
 			if (overlapped_player->GetClass()->ImplementsInterface(UAZDamageAgentInterface::StaticClass()))
 			{
 				DoDamage(overlapped_player, FHitResult());
@@ -459,6 +470,43 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 		//@TODO
 	}
 }
+
+void AAZMonster::AnimNotifyState_DoBodyOverlap_Begin()
+{
+	overlapped_actors_.Empty();
+	body_capsule_component_->OnComponentBeginOverlap.AddDynamic(this, &AAZMonster::AnimNotifyState_DoBodyOverlap_AddOverlappedActor);
+	body_capsule_component_->SetGenerateOverlapEvents(true);
+}
+
+void AAZMonster::AnimNotifyState_DoBodyOverlap_AddOverlappedActor(UPrimitiveComponent* overlapped_component,
+	AActor* other_actor, UPrimitiveComponent* other_comp, int32 other_body_index, bool is_from_sweep,
+	const FHitResult& sweep_result)
+{
+	if (AAZPlayer_Origin* player = Cast<AAZPlayer_Origin>(other_actor))
+	{
+		if (overlapped_actors_.Find(other_actor) == INDEX_NONE)
+		{
+			overlapped_actors_.Add(other_actor);
+
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("OVERLAP")));
+			}
+			
+			DoDamage(player, FHitResult());
+		}
+	}
+}
+
+void AAZMonster::AnimNotifyState_DoBodyOverlap_End()
+{
+	overlapped_actors_.Empty();
+	body_capsule_component_->OnComponentBeginOverlap.RemoveAll(this);
+	body_capsule_component_->SetGenerateOverlapEvents(false);
+}
+
+#pragma endregion
+
 
 // Damage functions are handled in the health component
 float AAZMonster::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)

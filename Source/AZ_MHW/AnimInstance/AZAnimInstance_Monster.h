@@ -36,6 +36,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") bool is_playing_blendspace_;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") UAnimMontage* fly_start_anim_;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") UAnimMontage* fly_end_anim_;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") UAnimMontage* death_montage_;
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Animation") TMap<FName, UBlendSpace1D*> blendspaces_;

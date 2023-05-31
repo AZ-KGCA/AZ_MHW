@@ -89,6 +89,11 @@ EBTNodeResult::Type UBTTask_Move::ExecuteTask(UBehaviorTreeComponent& owner_comp
 			UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] Request failed"));
 			return EBTNodeResult::Failed;
 		}
+		else if (nav_path->PathPoints.IsEmpty())
+		{
+			UE_LOG(AZMonster, Warning, TEXT("[UBTTask_Move] No valid path found"));
+			return EBTNodeResult::Failed;
+		}
 		else
 		{
 			path_points_.Empty();

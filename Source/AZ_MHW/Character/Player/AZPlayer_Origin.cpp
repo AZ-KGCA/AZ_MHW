@@ -5,6 +5,7 @@
 #include "GameInstance/AZGameInstance.h"
 #include "GameMode/AZGameMode_Server.h"
 #include "AZ_MHW/Manager/AZObjectMgr_Server.h"
+#include "Components/CapsuleComponent.h"
 
 
 AAZPlayer_Origin::AAZPlayer_Origin()
@@ -15,6 +16,7 @@ AAZPlayer_Origin::AAZPlayer_Origin()
 void AAZPlayer_Origin::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 	Cast<AAZGameMode_Server>(game_instance_->GetGameMode())->object_mgr_->AddObject(this);
 }
 

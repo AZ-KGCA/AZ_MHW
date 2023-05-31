@@ -20,6 +20,7 @@ public:
 	void Init();
 	void InitializeRuntimeValues();
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// Property Getters
 	float GetHealthRatio() const;

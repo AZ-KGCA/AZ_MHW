@@ -21,6 +21,7 @@ public:
 	void ActivateSystem();
 	void InactivateSystem();
 	void Reset();
+	virtual void BeginPlay() override;
 	
 	// Setters
 	void ForceSetBestTarget(AAZPlayer_Origin* character);
