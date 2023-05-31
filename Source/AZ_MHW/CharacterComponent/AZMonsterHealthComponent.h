@@ -34,7 +34,6 @@ public:
 	// Damage Agent Overrides
 	float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 	float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
-	UFUNCTION() void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
 	
 protected:
 	// Damage functions

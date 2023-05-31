@@ -55,7 +55,7 @@ void UAZMonsterHealthComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	// Damage Interface
-	owner_->OnTakeDamage.AddDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
+	//owner_->OnTakeDamage.AddDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
 	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWounded);
 	owner_->OnBodyPartWoundHealed.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWoundHealed);
 	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartBroken);
@@ -198,11 +198,6 @@ float UAZMonsterHealthComponent::ProcessDamage(AActor* damage_instigator, const 
 	return processed_damage;
 }
 
-void UAZMonsterHealthComponent::PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
-{
-	if (IsPendingKill()) return;
-}
-
 bool UAZMonsterHealthComponent::IsReceivedAttackValid(EDamageType damage_type, EMonsterBodyPart damaged_part)
 {
 	// Check if valid body part is hit
@@ -339,10 +334,5 @@ void UAZMonsterHealthComponent::ReduceHealth(float amount)
 
 void UAZMonsterHealthComponent::OnDeath()
 {
-	//owner_->GetCharacterMovement()->StopMovementImmediately();
-	// TODO
 	UE_LOG(AZMonster, Warning, TEXT("[UAZMonsterHealthComponent] Kill Called"));
-
-	// Damage Interface
-	//owner_->OnTakeDamage.RemoveDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
 }

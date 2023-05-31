@@ -422,8 +422,8 @@ void AAZPlayerController_InGame::UpdatePlayerState_Playable(int32 state_type, in
 void AAZPlayerController_InGame::OpenQuestTemp()
 {
 	if (quest_msgbox_) return;
-	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("그리고 수아는 KGCA에"), EUIMsgBoxBtnType::Confirm,
-		this, TEXT(""), L"", L"", L"당신도");
+	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT(""), EUIMsgBoxBtnType::Confirm,
+		this, TEXT(""), L"", L"", L"확인");
 
 	if (msgbox)
 	{

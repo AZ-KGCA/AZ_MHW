@@ -3,6 +3,7 @@
 #include "AZ_MHW/CharacterComponent/AZMonsterMeshComponent_Client.h"
 #include "AZ_MHW/Character/Monster/AZMonster_Client.h"
 #include "AZ_MHW/Util/AZUtility.h"
+#include "Engine/StaticMeshActor.h"
 
 // Sets default values for this component's properties
 UAZMonsterMeshComponent_Client::UAZMonsterMeshComponent_Client()
@@ -189,9 +190,31 @@ void UAZMonsterMeshComponent_Client::OnBodyPartSevered(EMonsterBodyPart body_par
 {
 	SetMaterialVisibility(*mesh_material_indices_default_.Find(body_part), false);
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), true);
-	
+
 	//TODO Add animation
-	//TODO Drop tail mesh
+
+	// Drop body part mesh
+	FString mesh_filepath = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SM_%s_%s.SM_%s_%s"),
+		*owner_->name_.ToString(), *owner_->name_.ToString(),
+		*UAZUtility::EnumToString(body_part), *owner_->name_.ToString(), *UAZUtility::EnumToString(body_part));
+	UStaticMesh* mesh = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), owner_, *mesh_filepath));
+	if (mesh)
+	{
+		FTransform spawn_transform = mesh_->GetSocketTransform(FName(FString::Printf(TEXT("%sSocket"), *UAZUtility::EnumToString(body_part))));
+		AStaticMeshActor* mesh_actor = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), spawn_transform);
+		mesh_actor->SetMobility(EComponentMobility::Stationary);
+		if (UStaticMeshComponent* mesh_comp = mesh_actor->GetStaticMeshComponent())
+		{
+			mesh_comp->SetMobility(EComponentMobility::Movable);
+			mesh_comp->SetStaticMesh(mesh);
+			mesh_comp->SetSimulatePhysics(true);
+			mesh_comp->SetEnableGravity(true);
+		}
+	}
+	else
+	{
+		UE_LOG(AZMonster, Error, TEXT("Failed to spawn body part mesh"));
+	}
 }
 
 void UAZMonsterMeshComponent_Client::OnDeath()
