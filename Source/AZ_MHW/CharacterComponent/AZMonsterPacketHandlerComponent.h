@@ -31,7 +31,7 @@ public:
 	void Send_SC_MONSTER_ACTION_START_CMD(float start_position = 0.0f, UINT32 newly_joined_client_idx = 0);
 	void Send_SC_MONSTER_ACTION_END_CMD();
 	void Send_SC_MONSTER_PART_CHANGE_CMD(EMonsterBodyPart body_part, EMonsterBodyPartChangeType change_type);
-	void Send_SC_MONSTER_HIT_CMD(AAZPlayer_Origin* attacker, FHitResultInfo hit_info);
+	UFUNCTION() void Send_SC_MONSTER_HIT_CMD(AAZPlayer_Origin* attacker, FHitResultInfo hit_info);
 	UFUNCTION() void Send_SC_MONSTER_ENRAGE_BEGIN_CMD();
 	UFUNCTION() void Send_SC_MONSTER_ENRAGE_END_CMD();
 	UFUNCTION() void Send_SC_MONSTER_DIE_CMD();
@@ -46,5 +46,5 @@ public:
 	
 private:
 	TWeakObjectPtr<AAZMonster> owner_;
-	TWeakObjectPtr<UAZGameInstance> game_instance_;
+	TObjectPtr<UAZGameInstance> game_instance_;
 };

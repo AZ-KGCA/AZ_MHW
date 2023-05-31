@@ -34,7 +34,7 @@ void AAZCharacter::AnimNotify_EndOfAction()
 	// empty in base class
 }
 
-void AAZCharacter::AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name)
+void AAZCharacter::AnimNotify_JumpToAnimation(FString next_animation_name, FString next_montage_section_name)
 {
 	// empty in base class
 }

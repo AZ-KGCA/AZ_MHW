@@ -21,6 +21,7 @@ public:
 	void ActivateSystem();
 	void InactivateSystem();
 	void Reset();
+	virtual void BeginPlay() override;
 	
 	// Setters
 	void ForceSetBestTarget(AAZPlayer_Origin* character);
@@ -46,10 +47,10 @@ private:
 	void UpdateAggroSpecific(int32 player_serial, int32 aggro_point, FString update_reason);
 	
 private:
-	TWeakObjectPtr<AAZMonster> owner_;
+	TObjectPtr<AAZMonster> owner_;
 
 	int32 target_serial_;
-	TWeakObjectPtr<AAZPlayer_Origin> target_ref_;
+	TObjectPtr<AAZPlayer_Origin> target_ref_;
 
 	FTimerHandle inrange_update_timer_handle_;
 	FTimerHandle target_update_timer_handle_;

@@ -79,7 +79,7 @@ public:
 	FDisappearObject OnDisappearObjectEvent;
 
 	UPROPERTY() TObjectPtr<UAZObjectMgr_Client> object_mgr_;
-	TWeakObjectPtr<ULevelStreamingDynamic> combat_level_;
+	TObjectPtr<ULevelStreamingDynamic> combat_level_;
 	
 protected:
 	UPROPERTY() TMap<int32, class AActor*> appear_actors_;

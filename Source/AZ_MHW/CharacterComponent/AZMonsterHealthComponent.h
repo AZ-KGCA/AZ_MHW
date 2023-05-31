@@ -20,6 +20,7 @@ public:
 	void Init();
 	void InitializeRuntimeValues();
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// Property Getters
 	float GetHealthRatio() const;
@@ -34,7 +35,6 @@ public:
 	// Damage Agent Overrides
 	float ApplyDamage(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info);
 	float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
-	UFUNCTION() void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
 	
 protected:
 	// Damage functions
@@ -55,7 +55,7 @@ protected:
 	UFUNCTION() void OnDeath();
 	
 private:
-	TWeakObjectPtr<AAZMonster> owner_;
+	TObjectPtr<AAZMonster> owner_;
 	
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Health") int32 base_hp_;
 	UPROPERTY(VisibleAnywhere, Category = "AZ | Stamina") int32 base_stamina_;

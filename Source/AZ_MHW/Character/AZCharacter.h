@@ -38,7 +38,7 @@ public:
 	
 	// AnimNotify Handlers
 	virtual void AnimNotify_EndOfAction();
-	virtual void AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name);
+	virtual void AnimNotify_JumpToAnimation(FString next_animation_name, FString next_montage_section_name);
 	virtual void AnimNotify_SetMovementMode(EMovementMode movement_mode);
 	virtual void AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration);
 	

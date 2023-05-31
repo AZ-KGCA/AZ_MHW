@@ -19,12 +19,14 @@ class AZ_MHW_API UAZAnimInstance_Monster : public UAZAnimInstance
 public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float delta_seconds) override;
+	virtual void NativeBeginPlay() override;
 	UFUNCTION(BlueprintImplementableEvent) void UpdateAnimation();
 	UFUNCTION(BlueprintCallable) AAZMonster* GetMonster();
 	UFUNCTION(BlueprintCallable) AAZMonster_Client* GetMonsterClient();
 	UFUNCTION(BlueprintImplementableEvent) float GetCurrentPosition();
 		
 public:
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "AZ") bool is_server_;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "AZ") TWeakObjectPtr<AAZMonster> owner_monster_;
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "AZ") TWeakObjectPtr<AAZMonster_Client> owner_monster_client_;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") bool is_doing_action_;
@@ -32,11 +34,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AZ | Animation") float current_position_;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") bool is_playing_montage_;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") bool is_playing_blendspace_;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") UAnimMontage* fly_start_anim_;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") UAnimMontage* fly_end_anim_;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") UAnimMontage* death_montage_;
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Animation") TMap<FName, UBlendSpace1D*> blendspaces_;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AZ | Animation") TMap<FName, UAnimMontage*> montages_;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AZ | Animation") UBlendSpace1D* active_blendspace_;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AZ | Animation")	float current_play_rate_;
 	

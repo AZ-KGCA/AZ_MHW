@@ -41,10 +41,18 @@ AAZMonster::AAZMonster()
 	AutoPossessAI = EAutoPossessAI::Disabled;
 		
 	// Create components
+	body_capsule_component_ = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BodyCapsuleComponent"));
 	aggro_component_ = CreateDefaultSubobject<UAZMonsterAggroComponent>(TEXT("AggroComponent"));
 	health_component_ = CreateDefaultSubobject<UAZMonsterHealthComponent>(TEXT("HealthComponent"));
 	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent>(TEXT("MeshComponent"));
 	packet_handler_component_ = CreateDefaultSubobject<UAZMonsterPacketHandlerComponent>(TEXT("PacketHandlerComponent"));
+
+	// Set up properties
+	body_capsule_component_->SetCollisionProfileName(TEXT("AZMonsterBodyCapsule"));
+	body_capsule_component_->CanCharacterStepUpOn = ECB_No;
+	body_capsule_component_->SetGenerateOverlapEvents(false);
+	body_capsule_component_->SetupAttachment(GetCapsuleComponent());
+	GetMesh()->CanCharacterStepUpOn = ECB_No;
 }
 
 void AAZMonster::Init(int32 monster_id, EBossRank rank)
@@ -66,16 +74,20 @@ void AAZMonster::SetMeshAndColliders()
 	FString name = name_.ToString();
 	
 	// Set capsule collider
-	GetCapsuleComponent()->SetCapsuleRadius(127.0f);
-	GetCapsuleComponent()->SetCapsuleHalfHeight(127.0f);
+	GetCapsuleComponent()->SetCapsuleRadius(185.0f);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(150.0f); 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("AZMonsterCapsule"));
+
+	// Body capsule
+	body_capsule_component_->SetCapsuleRadius(260.0f);
+	body_capsule_component_->SetCapsuleHalfHeight(292.0f); 
 	
 	// Set skeletal mesh
-	FString asset_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SK_%s"), *name, *name);
-	if(auto sk_asset = LoadObject<USkeletalMesh>(nullptr,*asset_path))
+	FString sk_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SK_%s"), *name, *name);
+	if(auto sk_asset = LoadObject<USkeletalMesh>(nullptr,*sk_path))
 	{
 		GetMesh()->SetSkeletalMesh(sk_asset);
-		GetMesh()->SetRelativeLocation(FVector(73, 0, -120));
+		GetMesh()->SetRelativeLocation(FVector(73, 0, -180));
 		GetMesh()->SetCollisionProfileName(TEXT("AZMonster"));
 	}
 	else
@@ -92,6 +104,7 @@ void AAZMonster::SetMeshAndColliders()
 		GetMesh()->SetAnimInstanceClass(anim_asset);
 		anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
 		anim_instance_->owner_monster_ = this;
+		anim_instance_->is_server_ = true;
 	}
 	else
 	{
@@ -187,6 +200,7 @@ void AAZMonster::BeginPlay()
 	Super::BeginPlay();
 	SpawnDefaultController();
 	anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
+	OnDeath.AddDynamic(this, &AAZMonster::ProcessDeath);
 }
 
 void AAZMonster::EnterCombat(AActor* combat_instigator, bool is_triggered_by_sight)
@@ -239,23 +253,51 @@ void AAZMonster::SetEnraged(bool is_enraged)
 	is_enraged_ = is_enraged;
 }
 
-void AAZMonster::SetDead()
+void AAZMonster::BeginFly()
+{
+	is_flying_ = true;
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::move_state, static_cast<uint8>(EMoveState::Fly));
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, static_cast<uint8>(ECharacterState::Locomotion));
+
+	action_state_info_.move_state = EMoveState::Fly;
+	action_state_info_.priority_score = EMonsterActionPriority::MoveModeChange;
+	float angle = GetRelativeAngleToLocation(aggro_component_->GetTargetLocation());
+	SetTargetAngle(angle);
+
+	UE_LOG(AZMonster, Warning, TEXT("Begin fly"));
+	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
+}
+
+void AAZMonster::EndFly()
+{
+	is_flying_ = false;
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::move_state, static_cast<uint8>(EMoveState::Walk));
+	GetController()->SetBlackboardValueAsEnum(AZBlackboardKey::ai_state, static_cast<uint8>(ECharacterState::Locomotion));
+
+	action_state_info_.move_state = EMoveState::Walk;
+	action_state_info_.priority_score = EMonsterActionPriority::MoveModeChange;
+	float angle = GetRelativeAngleToLocation(aggro_component_->GetTargetLocation());
+	SetTargetAngle(angle);
+
+	UE_LOG(AZMonster, Warning, TEXT("End fly"));
+	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
+}
+
+void AAZMonster::ProcessDeath()
 {
 	// Stop all processes
 	GetController()->BrainComponent->StopLogic(TEXT("Death"));
-	
-	OnDeath.Broadcast();
-	
-	// TODO Play death animation
+	action_state_info_.priority_score = EMonsterActionPriority::Death;
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AAZMonster::SetActionState(int32 action_id)
 {
-	// if current action has higher priority than next action, do not update
-	if (action_state_info_.priority_score > EMonsterActionPriority::Action)
-	{
-		return;
-	}
+	// // if current action has higher priority than next action, do not update
+	//if (action_state_info_.priority_score > EMonsterActionPriority::Action)
+	//{
+	//	return;
+	//}
 	bool is_found = false;
 
 	// find the action data from table according to current action mode
@@ -269,14 +311,9 @@ void AAZMonster::SetActionState(int32 action_id)
 				action_state_info_.montage_section_name = action_data->montage_section_name;
 				is_found = true;
 			}
-			else
-			{
-				int i = 0;
-			}
 			break;
 		}
 	case EMonsterActionMode::Transition:
-		anim_instance_->is_doing_action_ = false;
 	case EMonsterActionMode::Combat:
 		{
 			if (const FMonsterCombatActionInfo* action_data = combat_action_map_.Find(action_id))
@@ -355,6 +392,7 @@ bool AAZMonster::IsEnraged() const
 	return is_enraged_;
 }
 
+#pragma region AnimNotify Handlers
 void AAZMonster::AnimNotify_EndOfAction()
 {
 	// if the action was a transition action, finish transition
@@ -365,29 +403,31 @@ void AAZMonster::AnimNotify_EndOfAction()
 	// restore movement mode
 	if (!is_flying_ && GetCharacterMovement()->MovementMode == MOVE_Flying)
 	{
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 	}
 	// return to normal action state
 	anim_instance_->is_doing_action_ = false;
 	active_action_id_ = -1;
-	SetMoveState(EMoveState::None);
+
+	if (!is_flying_) SetMoveState(EMoveState::None);
+	else SetMoveState(EMoveState::Fly);
 	
 	packet_handler_component_->Send_SC_MONSTER_ACTION_END_CMD();
 }
 
-void AAZMonster::AnimNotify_JumpToAnimation(FName next_animation_name, FName next_montage_section_name)
+void AAZMonster::AnimNotify_JumpToAnimation(FString next_animation_name, FString next_montage_section_name)
 {
-	action_state_info_.animation_name = next_animation_name;
-	action_state_info_.montage_section_name = next_montage_section_name;
+	action_state_info_.animation_name = FName(next_animation_name);
+	action_state_info_.montage_section_name = FName(next_montage_section_name);
 	SetTargetAngle(aggro_component_->GetAngle2DToTarget());
 	anim_instance_->is_doing_action_ = false;
-
 	packet_handler_component_->Send_SC_MONSTER_ACTION_START_CMD();
 }
 
 void AAZMonster::AnimNotify_SetMovementMode(EMovementMode movement_mode)
 {
 	GetCharacterMovement()->SetMovementMode(movement_mode);
+	if (is_flying_ && movement_mode != MOVE_Flying) is_flying_ = false; 
 }
 
 void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration)
@@ -398,7 +438,11 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 
 	// Get the location to trace at
 	FVector trace_start_loc = GetMesh()->GetSocketLocation(socket_name);
-	if (socket_name.IsEqual(FName("LeftFootSocket")) || socket_name.IsEqual(FName("RightFootSocket")))
+	if (socket_name.IsEqual(FName("None")) || socket_name.IsEqual(FName("Root")))
+	{
+		trace_start_loc = (GetMesh()->GetSocketLocation(FName("LeftFootSocket")) + GetMesh()->GetSocketLocation(FName("RightFootSocket"))) / 2.0f;
+	}
+	else if (socket_name.IsEqual(FName("LeftFootSocket")) || socket_name.IsEqual(FName("RightFootSocket")))
 	{
 		trace_start_loc.Z -= 100.0f;
 	}
@@ -414,7 +458,7 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 		for (auto actor : overlapped_actors)
 		{
 			UE_LOG(AZMonster, Log, TEXT("[AAZMonster] Sphere trace overlapped %s"), *actor->GetName());
-			AAZPlayer* overlapped_player = Cast<AAZPlayer>(actor);
+			AAZPlayer_Origin* overlapped_player = Cast<AAZPlayer_Origin>(actor);
 			if (overlapped_player->GetClass()->ImplementsInterface(UAZDamageAgentInterface::StaticClass()))
 			{
 				DoDamage(overlapped_player, FHitResult());
@@ -426,6 +470,43 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 		//@TODO
 	}
 }
+
+void AAZMonster::AnimNotifyState_DoBodyOverlap_Begin()
+{
+	overlapped_actors_.Empty();
+	body_capsule_component_->OnComponentBeginOverlap.AddDynamic(this, &AAZMonster::AnimNotifyState_DoBodyOverlap_AddOverlappedActor);
+	body_capsule_component_->SetGenerateOverlapEvents(true);
+}
+
+void AAZMonster::AnimNotifyState_DoBodyOverlap_AddOverlappedActor(UPrimitiveComponent* overlapped_component,
+	AActor* other_actor, UPrimitiveComponent* other_comp, int32 other_body_index, bool is_from_sweep,
+	const FHitResult& sweep_result)
+{
+	if (AAZPlayer_Origin* player = Cast<AAZPlayer_Origin>(other_actor))
+	{
+		if (overlapped_actors_.Find(other_actor) == INDEX_NONE)
+		{
+			overlapped_actors_.Add(other_actor);
+
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("OVERLAP")));
+			}
+			
+			DoDamage(player, FHitResult());
+		}
+	}
+}
+
+void AAZMonster::AnimNotifyState_DoBodyOverlap_End()
+{
+	overlapped_actors_.Empty();
+	body_capsule_component_->OnComponentBeginOverlap.RemoveAll(this);
+	body_capsule_component_->SetGenerateOverlapEvents(false);
+}
+
+#pragma endregion
+
 
 // Damage functions are handled in the health component
 float AAZMonster::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)

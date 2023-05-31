@@ -33,6 +33,7 @@ void AAZMonster_Client::Init(int32 monster_id, EBossRank rank)
 
 	monster_id_ = monster_id;
 	rank_ = rank;
+	name_ = UAZGameSingleton::instance()->monster_mgr_->GetMonsterName(monster_id_);
 	SetMeshAndColliders();
 	mesh_component_->Init();
 	packet_handler_component_->Init();
@@ -40,11 +41,11 @@ void AAZMonster_Client::Init(int32 monster_id, EBossRank rank)
 
 void AAZMonster_Client::SetMeshAndColliders()
 {
-	FString name = UAZGameSingleton::instance()->monster_mgr_->GetMonsterName(monster_id_).ToString();
+	FString name = name_.ToString();
 	
 	// Set capsule collider
-	GetCapsuleComponent()->SetCapsuleRadius(127.0f);
-	GetCapsuleComponent()->SetCapsuleHalfHeight(127.0f); 
+	GetCapsuleComponent()->SetCapsuleRadius(185.0f);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(150.0f); 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("AZMonsterCapsule"));
 	
 	// Set skeletal mesh
@@ -52,7 +53,7 @@ void AAZMonster_Client::SetMeshAndColliders()
 	if(auto sk_asset = LoadObject<USkeletalMesh>(nullptr,*sk_path))
 	{
 		GetMesh()->SetSkeletalMesh(sk_asset);
-		GetMesh()->SetRelativeLocation(FVector(73, 0, -120));
+		GetMesh()->SetRelativeLocation(FVector(73, 0, -180));
 		GetMesh()->SetCollisionProfileName(TEXT("AZMonster"));
 	}
 	else
@@ -62,12 +63,13 @@ void AAZMonster_Client::SetMeshAndColliders()
 	}
 
 	// Set animation class
-	FString anim_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Animations/ABP_%s_Client"), *name, *name);
+	FString anim_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Animations/ABP_%s"), *name, *name);
 	if (UClass* anim_asset = AZResourceHelper::LoadClass<UAnimInstance>(anim_path))
 	{
 		GetMesh()->SetAnimInstanceClass(anim_asset);
 		anim_instance_ = Cast<UAZAnimInstance_Monster>(GetMesh()->GetAnimInstance());
 		anim_instance_->owner_monster_client_ = this;
+		anim_instance_->is_server_ = false;
 	}
 	else
 	{
@@ -78,6 +80,7 @@ void AAZMonster_Client::SetMeshAndColliders()
 void AAZMonster_Client::BeginPlay()
 {
 	Super::BeginPlay();
+	OnDeath.AddDynamic(this, &AAZMonster_Client::ProcessDeath);
 }
 
 bool AAZMonster_Client::IsABoss() const
@@ -93,4 +96,11 @@ void AAZMonster_Client::SetActionStateInfo(const FMonsterActionStateInfo action_
 void AAZMonster_Client::AnimNotify_SetMovementMode(EMovementMode movement_mode)
 {
 	GetCharacterMovement()->SetMovementMode(movement_mode);
+}
+
+void AAZMonster_Client::ProcessDeath()
+{
+	action_state_info_.priority_score = EMonsterActionPriority::Death;
+	anim_instance_->UpdateAnimation();
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

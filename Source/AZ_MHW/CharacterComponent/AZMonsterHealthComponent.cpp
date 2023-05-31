@@ -13,14 +13,14 @@
 
 UAZMonsterHealthComponent::UAZMonsterHealthComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UAZMonsterHealthComponent::Init()
 {
 	// Set owner as monster
 	owner_ = Cast<AAZMonster>(GetOwner());
-	if (!owner_.IsValid())
+	if (!owner_)
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterHealthComponent] Invalid owner actor!"));
 	}
@@ -55,7 +55,7 @@ void UAZMonsterHealthComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	// Damage Interface
-	owner_->OnTakeDamage.AddDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
+	//owner_->OnTakeDamage.AddDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
 	owner_->OnBodyPartWounded.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWounded);
 	owner_->OnBodyPartWoundHealed.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartWoundHealed);
 	owner_->OnBodyPartBroken.AddUObject(this, &UAZMonsterHealthComponent::OnBodyPartBroken);
@@ -63,6 +63,16 @@ void UAZMonsterHealthComponent::BeginPlay()
 	owner_->OnEnraged.AddDynamic(this, &UAZMonsterHealthComponent::OnEnraged);
 	owner_->OnEnrageEnded.AddDynamic(this, &UAZMonsterHealthComponent::OnEnrageEnded);
 	owner_->OnDeath.AddDynamic(this, &UAZMonsterHealthComponent::OnDeath);
+}
+
+void UAZMonsterHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, owner_->GetWorld()->GetDeltaSeconds(), FColor::Black, FString::Printf(TEXT("Monster HP: %d"), current_hp_));
+	}
 }
 
 void UAZMonsterHealthComponent::InitializeRuntimeValues()
@@ -125,6 +135,19 @@ float UAZMonsterHealthComponent::ApplyDamage(AActor* damaged_actor, const FHitRe
 
 	// Do damage
 	damaged_agent->ProcessDamage(Cast<AActor>(owner_), hit_result, attack_info);
+
+	// Log
+#ifdef WITH_EDITOR
+	FString damage_types, damage_amounts;
+	for (auto info : attack_info.damage_array)
+	{
+		damage_types += UAZUtility::EnumToString(info.type) + " ";
+		damage_amounts += FString::FromInt(info.amount) + " ";
+	}
+	UE_LOG(AZMonster, Warning, TEXT("[UAZMonsterHealthComponent] Damage applied to %s. Type: %s, Amount: %s, Effect: %s"),
+		*damaged_actor->GetName(), *damage_types, *damage_amounts, *UAZUtility::EnumToString(attack_info.attack_effect));
+#endif
+	
 	return attack_info.GetDamageTotal();
 }
 
@@ -196,11 +219,6 @@ float UAZMonsterHealthComponent::ProcessDamage(AActor* damage_instigator, const 
 	
 	owner_->OnHit.Broadcast(attacker, FHitResultInfo(processed_damage, hit_result.TraceStart, hit_result.TraceEnd, hit_result.Location));
 	return processed_damage;
-}
-
-void UAZMonsterHealthComponent::PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
-{
-	if (IsPendingKill()) return;
 }
 
 bool UAZMonsterHealthComponent::IsReceivedAttackValid(EDamageType damage_type, EMonsterBodyPart damaged_part)
@@ -333,16 +351,11 @@ void UAZMonsterHealthComponent::ReduceHealth(float amount)
 	current_hp_ = FMath::Clamp(current_hp_ -= amount, 0, base_hp_);
 	if (current_hp_ <= 0)
 	{
-		owner_->SetDead();
+		owner_->OnDeath.Broadcast();
 	};
 }
 
 void UAZMonsterHealthComponent::OnDeath()
 {
-	//owner_->GetCharacterMovement()->StopMovementImmediately();
-	// TODO
 	UE_LOG(AZMonster, Warning, TEXT("[UAZMonsterHealthComponent] Kill Called"));
-
-	// Damage Interface
-	//owner_->OnTakeDamage.RemoveDynamic(this, &UAZMonsterHealthComponent::PostProcessDamage);
 }

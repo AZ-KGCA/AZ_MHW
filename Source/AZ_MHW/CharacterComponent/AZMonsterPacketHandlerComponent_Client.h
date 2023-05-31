@@ -38,6 +38,6 @@ public:
 	void Receive_SC_MONSTER_DIE_CMD();
 
 private:
-	TWeakObjectPtr<AAZMonster_Client> owner_;
-	TWeakObjectPtr<UAZGameInstance> game_instance_;
+	TObjectPtr<AAZMonster_Client> owner_;
+	TObjectPtr<UAZGameInstance> game_instance_;
 };

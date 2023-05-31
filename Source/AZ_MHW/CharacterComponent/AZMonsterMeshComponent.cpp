@@ -4,6 +4,7 @@
 #include "AZ_MHW/CharacterComponent/AZMonsterHealthComponent.h"
 #include "AZ_MHW/Character/Monster/AZMonster.h"
 #include "AZ_MHW/Util/AZUtility.h"
+#include "Engine/StaticMeshActor.h"
 
 // Sets default values for this component's properties
 UAZMonsterMeshComponent::UAZMonsterMeshComponent()
@@ -15,7 +16,7 @@ void UAZMonsterMeshComponent::Init()
 {
 	// Set owner as monster
 	owner_ = Cast<AAZMonster>(GetOwner());
-	if (!owner_.IsValid())
+	if (!owner_)
 	{
 		UE_LOG(AZMonster, Error, TEXT("[AZMonsterMeshComponent] Invalid owner actor!"));
 	}
@@ -36,7 +37,7 @@ void UAZMonsterMeshComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// Validity checks
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	if (owner_->IsABoss() && mesh_material_indices_default_.IsEmpty())
 	{
 		UE_LOG(AZMonster, Warning, TEXT("[AZMonsterMeshComponent] Mesh material indices not set for a boss monster!"));
@@ -99,7 +100,7 @@ void UAZMonsterMeshComponent::SetUpBodyPartMaterialMaps()
 
 void UAZMonsterMeshComponent::InitializeMeshVisibilities()
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	// Set up initial material opacities
 	// Hide all damaged meshes
@@ -146,7 +147,7 @@ void UAZMonsterMeshComponent::SetMaterialVisibility(FName slot_name, bool is_vis
 
 void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), false);
 	SetMaterialVisibility(*mesh_material_indices_wounded_.Find(body_part), true);
@@ -155,7 +156,7 @@ void UAZMonsterMeshComponent::OnBodyPartWounded(EMonsterBodyPart body_part)
 
 void UAZMonsterMeshComponent::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	
 	SetMaterialVisibility(*mesh_material_indices_wounded_.Find(body_part), false);
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), true);
@@ -163,7 +164,7 @@ void UAZMonsterMeshComponent::OnBodyPartWoundHealed(EMonsterBodyPart body_part)
 
 void UAZMonsterMeshComponent::OnBodyPartBroken(EMonsterBodyPart body_part)
 {
-	if (!owner_.IsValid()) return;
+	if (!owner_) return;
 	//TEMP
 	if (body_part == EMonsterBodyPart::Back) return;
 
@@ -181,11 +182,37 @@ void UAZMonsterMeshComponent::OnBodyPartSevered(EMonsterBodyPart body_part)
 	SetMaterialVisibility(*mesh_material_indices_cutsurface_.Find(body_part), true);
 	
 	//TODO Add animation
-	//TODO Drop tail mesh
+
+	// Remove collision of the severed part
+	FName bone_name = (body_part == EMonsterBodyPart::Tail) ? FName("BoneFunction_144") : NAME_None; // 원래는 enum 통해서 받아와야 하지만 현재 skeleton 이름이 기본값이라 불가능
+	mesh_->GetBodyInstance(bone_name)->SetShapeCollisionEnabled(0, ECollisionEnabled::NoCollision);
+	
+	// Drop body part mesh
+	FString mesh_filepath = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SM_%s_%s.SM_%s_%s"),
+		*owner_->name_.ToString(), *owner_->name_.ToString(),
+		*UAZUtility::EnumToString(body_part), *owner_->name_.ToString(), *UAZUtility::EnumToString(body_part));
+	UStaticMesh* mesh = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), owner_, *mesh_filepath));
+	if (mesh)
+	{
+		FTransform spawn_transform = mesh_->GetSocketTransform(FName(FString::Printf(TEXT("%sSocket"), *UAZUtility::EnumToString(body_part))));
+		AStaticMeshActor* mesh_actor = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), spawn_transform);
+		if (UStaticMeshComponent* mesh_comp = mesh_actor->GetStaticMeshComponent())
+		{
+			mesh_comp->SetMobility(EComponentMobility::Movable);
+			mesh_comp->SetStaticMesh(mesh);
+			mesh_comp->SetSimulatePhysics(true);
+			mesh_comp->SetEnableGravity(true);
+		}
+	}
+	else
+	{
+		UE_LOG(AZMonster, Error, TEXT("Failed to spawn body part mesh"));
+	}
 }
 
 void UAZMonsterMeshComponent::OnDeath()
 {
+	CloseEyes(true);
 	GetWorld()->GetTimerManager().ClearTimer(blink_eye_timer_handle_);
 }
 
@@ -195,7 +222,7 @@ void UAZMonsterMeshComponent::CloseEyes(bool should_close)
 	SetMaterialVisibility(FName("Eyelid_Default"), should_close);
 }
 
-// Close eyes, wait for 0.2 seconds, the open 
+// Close eyes, wait, then open 
 void UAZMonsterMeshComponent::BlinkEyes()
 {
 	// do not blink if blinded

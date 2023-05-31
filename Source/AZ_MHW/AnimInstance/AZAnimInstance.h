@@ -47,5 +47,5 @@ public:
 	//void AnimNotify_NotifyName();
 	
 	UPROPERTY(BlueprintReadOnly, Category = AZ)
-	TWeakObjectPtr<AAZCharacter> owner_;
+	TObjectPtr<AAZCharacter> owner_;
 };

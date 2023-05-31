@@ -425,15 +425,15 @@ void AAZPlayerController_InGame::ForceInterpolationPlayer_Playable(FVector posit
 void AAZPlayerController_InGame::OpenQuestTemp()
 {
 	if (quest_msgbox_) return;
-	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT("화이팅"), EUIMsgBoxBtnType::Confirm,
-		this, TEXT(""), L"", L"", L"넹");
+	auto msgbox = game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::Basic, TEXT(""), EUIMsgBoxBtnType::Confirm,
+		this, TEXT(""), L"", L"", L"확인");
 
 	if (msgbox)
 	{
 		quest_msgbox_ = Cast<UAZWidget_MsgBoxBasic>(msgbox);
 		if (quest_msgbox_)
 		{
-			quest_msgbox_->SetTitle("Quest");
+			quest_msgbox_->SetTitle(TEXT("불의 용은 숲의 꼭대기에"));
 			quest_msgbox_->AddHandler(EMsgEventButtonType::Left, Cast<AAZGameMode_InGame>(game_instance_->GetGameMode()), FName(TEXT("RequestWarpCombatLevel")));
 		}
 	}
