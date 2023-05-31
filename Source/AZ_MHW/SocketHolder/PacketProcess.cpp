@@ -138,6 +138,14 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UPacketFunction::DevelopPlayerForceUpdateCommand(client_index, packet);
 		}
 		break;
+
+	case PACKET_ID::CS_PLAYER_ORIGIN_GESTURE_REQ:
+		{
+			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_PLAYER_ORIGIN_GESTURE_REQ"));
+			GESTURE_PLAYER_PACKET* packet = (GESTURE_PLAYER_PACKET*)recv_packet;
+			UPacketFunction::GesturePlayerOriginRequest(client_index, packet);
+		}
+		break;
 #pragma endregion
 #pragma region Monster_PART
 	case PACKET_ID::CS_COMBAT_MAP_ENTER_REQ:
@@ -268,7 +276,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			//원격 데이터생성명령
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_REMOTABLE_STATE_CMD"))
 			INITIALIZE_PLAYER_STATE_PACKET* packet = (INITIALIZE_PLAYER_STATE_PACKET*)recv_packet;
-			UPacketFunction::ProcessCreatePlayer_Remotable(packet);
+			UPacketFunction::CreatePlayerStateRemotableCommand(packet);
 		}
 		break;
 	case PACKET_ID::SC_PLAYER_REMOTABLE_CREATE_CMD:
@@ -325,7 +333,27 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UPacketFunction::InterpolationPlayerPositionCommand(packet);
 		}
 		break;
-	
+	case PACKET_ID::SC_PLAYER_REMOTABLE_GESTURE_CMD:
+		{
+			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_REMOTABLE_GESTURE_CMD"));
+			GESTURE_PLAYER_PACKET* packet = (GESTURE_PLAYER_PACKET*) recv_packet;
+			UPacketFunction::GesturePlayerRemotableCommand(packet);
+		}
+		break;
+	case PACKET_ID::SC_PLAYER_PLAYABLE_HIT_CMD:
+		{
+			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_HIT_CMD"));
+			HIT_PLAYER_PACKET* packet = (HIT_PLAYER_PACKET*) recv_packet;
+			UPacketFunction::HitPlayerPlayableHitCommand(packet);
+		}
+		break;
+	case PACKET_ID::SC_PLAYER_REMOTABLE_HIT_CMD:
+		{
+			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_REMOTABLE_HIT_CMD"));
+			HIT_PLAYER_PACKET* packet = (HIT_PLAYER_PACKET*) recv_packet;
+			UPacketFunction::HitPlayerRemotableHitCommand(packet);
+		}
+		break;
 /////////////////////////////////////////////////////////////////////////////////////////
 /// 캐릭터 데이터 (로그인 창)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -333,14 +361,14 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		{
 			//캐릭터 생성 데이터 받기
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES"));
-		
+			//UPacketFunction::
 		}
 		break;
 	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES:
 		{
 			//캐릭터 선택한 데이터 받기
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES"));
-			
+			//UPacketFunction::
 		}
 		break;
 	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES:
@@ -355,7 +383,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			//캐릭터 선택에 대한 서버의 응답(원격 생성후 로컬 생성 허락)
 			//캐릭터 선택을 했으니 로컬에 생성하라
 			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_CHARACTER_SELECT_RES"));
-			UPacketFunction::ProcessCreatePlayer_Playable();
+			UPacketFunction::CreatePlayerPlayableCommand();
 		}
 		break;
 #pragma endregion

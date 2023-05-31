@@ -31,7 +31,10 @@ void AAZPlayerState_Client::SetPlayerCharacter(APlayerState* player_state, APawn
 	if(const auto player_character = Cast<AAZPlayer>(new_pawn))
 	{
 		player_character->player_character_state_ = this;
+
+		//PlayerState의 형태
 		player_character->SetSKMeshParts();//PlayerState의 파츠메시
+		player_character->SetHairColor();//PlayerState의 색상컬러
 		player_character->SetSKMeshSocket();//PlayerState의 소켓메시
 		player_character->SetSKMeshEfxMaterial();//PlayerState의 이펙트 메시 머테리얼 설정
 		player_character->SetEnableSKMeshEfx(false);//PlayerState의 이펙트 머테리얼 끄기

@@ -18,8 +18,6 @@ class USpringArmComponent;
 class UCameraComponent;
 
 class UAZAnimInstance_Player;
-class UAZAnimInstance_Playable;
-class UAZAnimInstance_Remotable;
 
 class AAZPlayerState_Client;
 class AAZPlayer_Playable;
@@ -30,7 +28,6 @@ class AAZPlayer_Remotable;
  * 입력과 플레이어캐릭터 관리
  * 
  * 이 컨트롤러는 매칭이 완료된 게임에 들어간 플레이어의 컨트롤러이다.
- * 
  */
 UCLASS()
 class AZ_MHW_API AAZPlayerController_InGame : public AAZPlayerController
@@ -57,32 +54,20 @@ protected:
 #pragma endregion
 	
 public:
-
-	/** 조작변경에 의한 입력 각도 갱신 */
-	float GetInputAngle();
-	/** 조작변경에 의한 입력 비트마스크 갱신 */
-	int32 GetInputBitMask();
 	/** 장비변경에 의한 근거리, 원거리 조작 매핑 변경 */
 	void SetupWeaponInputMappingContext(int32 weapon_type);
-	/** 소유 폰에 대한 팔로우 카메라 설정 */
-	void SetupFollowCameraOwnPawn(bool on_off);
 
-	
 #pragma region InGame Item Control(SendPacket)
 	/** UI에서 호출하거나, 버튼 이벤트에 심어주세요 */
 	UFUNCTION(BlueprintCallable)
 	void ChangeEquipment(int32 item_id);
-	UFUNCTION(BlueprintCallable)
-	void BuyItem(int32 item_id, int32 item_count = 1);
-	UFUNCTION(BlueprintCallable)
-	void SellItem(int32 item_id, int32 item_count = 1);
 	UFUNCTION(BlueprintCallable)
 	void GetItem(int32 item_id, int32 item_count = 1);
 	UFUNCTION(BlueprintCallable)
 	void UseItem(int32 item_id, int32 item_count =1);
 #pragma endregion
 	
-#pragma region InGame Playable Control(Process)
+#pragma region InGame Send & Recieve
 	/** TODO 임시함수
 	 * 원래는 캐릭터 샐럭트 창에서 호출햇어야함, 현재는 BeginPlay에서 호출한다.
 	 * 원래는 캐릭터 샐럭트 창에서 캐릭터 상태를 초기화해야 한다. */
@@ -93,41 +78,45 @@ public:
 	void TempSendForceUpdatePlayer_Origin();
 	
 	/** 소유 플레이어 캐릭터 */
-	UPROPERTY(VisibleInstanceOnly)
-	AAZPlayer_Playable* playable_player_;
+	UPROPERTY() AAZPlayer_Playable* playable_player_;
 	/** 소유 플레이어 정보 */
-	UPROPERTY(VisibleInstanceOnly)
-	AAZPlayerState_Client* playable_player_state_;
+	UPROPERTY() AAZPlayerState_Client* playable_player_state_;
 	
 	/** 생성한다.*/
 	void AddPlayer_Playable();
 	/** 제거한다.*/
 	void RemovePlayer_Playable();
-	/** 강제 보간적용 */
+	/** 서버의 강제 보간처리 */
 	void ForceInterpolationPlayer_Playable(FVector position);
-	
+	/** 0.1초마다 호출하고 있음.(Event모드일때는 처리안됨)*/
+	void UpdateInput_TimerMode();
+	/** 누를때마다 호출하고 있음.(Timer모드일때는 호출안함)*/
+	void UpdateInput_EventMode();
 #pragma endregion
 
-#pragma region InGame Remotable Control(Process)
-	/** 원격 플레이어 캐릭터 맵*/
-	UPROPERTY(VisibleInstanceOnly)
+#pragma region InGame Recieve
 	TMap<int32, AAZPlayer_Remotable*> remotable_player_map_;
-	/** 액터의 제거를 쉽게 하기 위해서 소유 */
-	UPROPERTY(VisibleInstanceOnly)
 	TMap<int32, AAZPlayerState_Client*> remotable_player_state_map_;
-
+	
 	void AddPlayerState_Remotable(int32 guid, const FAZPlayerCharacterState& character_state, const FAZPlayerEquipmentState& equipment_state);
 	/** 서버에서 호출하여, 클라에 원격 캐릭터 생성 (접속)*/
 	void AddPlayer_Remotable(int32 guid);
 	/** 서버에서 호출하여, 클라에 원격 캐릭터 제거 (접속종료)*/
 	void RemovePlayer_Remotable(int32 guid);
 	/** 서버에서 호출하여, 클라에 원격 캐릭터 조종 (다른 클라의 인풋이벤트->서버 원본 캐릭터를 조종-> 원격 전파)*/
-	void ActionPlayer_Remotable(int32 guid, FVector cur_pos, float cur_dir, float input_dir, int32 input_data);
+	void ActionPlayer_Remotable(int32 guid, FVector cur_pos, float input_dir, int32 input_data);
 	/** */
 	void EquipPlayer_Remotable(int32 guid, int32 item_id);
+	/** */
+	void GesturePlayer_Remotable(int32 guid, int32 gesture_id);
+
+	//서버감지처리
+	void HitPlayer_Remotable(int32 guid, float angle, int32 damage);
 	/** 서버에서 호출하여, 상태 갱신*/
 	void UpdatePlayerState_Remotable(int32 guid, int32 state_type, int32 state_value, int32 anim_bitmask);
-	/** 서버 상태갱신*/
+	
+	void HitPlayer_Playable(float angle, int32 damage);
+	/** 서버에서 로컬 상태갱신*/
 	void UpdatePlayerState_Playable(int32 state_type, int32 state_value, int32 anim_bitmask);
 
 #pragma endregion
@@ -153,19 +142,24 @@ public:
 
 #pragma endregion 
 public:
-	UPROPERTY(VisibleInstanceOnly)
-	USpringArmComponent* spring_arm_comp_;//CameraControll
-	UPROPERTY(VisibleInstanceOnly)
-	UCameraComponent* temp_camera_comp_;//Camera
-	bool is_event_input_mode_ = true;//tickmode(나중에 timer?), eventmode,
+	UPROPERTY() USpringArmComponent* spring_arm_comp_;//camera arm
+	UPROPERTY() UCameraComponent* temp_camera_comp_;//camera
+	FTimerHandle input_packet_timer_handle_;
+	bool is_event_input_mode_ = true;//timer, event mode
 	float final_input_angle = 0;
 	int32 final_input_bitmask = 0;
-	FTimerHandle packet_timer_handle_;
+
+	/** 조작변경에 의한 입력 각도 갱신 */
+	float GetInputAngle();
+	/** 조작변경에 의한 입력 비트마스크 갱신 */
+	int32 GetInputBitMask();
+	/** 소유 폰에 대한 팔로우 카메라 설정 */
+	void SetupFollowCameraOwnPawn(bool on_off);
 	
-	void TimerUpdateInputPacket();
-	void EventUpdateInputPacket();
+	/** TestContext*/
 	void ActionTestFunction();
 
+	/** CameraContext*/
 	void ActionInputLook(const FInputActionValue& value);
 	void ActionInputZoom(const FInputActionValue& value);
 	

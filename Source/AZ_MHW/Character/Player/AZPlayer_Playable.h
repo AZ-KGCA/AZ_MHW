@@ -3,8 +3,6 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "AZ_MHW.h"
-#include <InputActionValue.h>
 #include "AZ_MHW/Character/Player/AZPlayer.h"
 #include "AZPlayer_Playable.generated.h"
 
@@ -36,9 +34,10 @@ protected:
 	/** */
 	virtual void PossessedBy(AController* new_controller) override;
 #pragma endregion
+#pragma region Animation Notify
 public:
 	UFUNCTION() void AnimNotify_OnUseItem();
-
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
-	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
+	
+	UFUNCTION() void AnimNotify_OnGetItem();
+#pragma endregion 
 };

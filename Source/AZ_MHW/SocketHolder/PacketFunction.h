@@ -86,6 +86,7 @@ public:
 
 	void ActionPlayerOriginRequest(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
 	void EquipPlayerOriginRequest(UINT32 client_index, EQUIPMENT_PLAYER_PACKET* packet);
+	void GesturePlayerOriginRequest(UINT32 client_index, GESTURE_PLAYER_PACKET* packet);
 
 	void DevelopPlayerForceUpdateCommand(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
 #pragma endregion
@@ -93,19 +94,23 @@ public:
 	void CreatePlayerCharacterRespone();//플레이어 생성후 데이터받기
 	void DestroyPlayerCharacterRespone();//플레이어 제거후 데이터받기
 	
-	void ProcessCreatePlayer_Playable();
-	void ProcessCreatePlayer_Remotable(INITIALIZE_PLAYER_STATE_PACKET* packet);
+	void CreatePlayerPlayableCommand();
+	void CreatePlayerStateRemotableCommand(INITIALIZE_PLAYER_STATE_PACKET* packet);
 	
 	void CreatePlayerRemotableCommand(CREATE_PLAYER_CHARACTER_PACKET* packet);
 	void DestroyPlayerRemotableCommand(DESTROY_PLAYER_CHARACTER_PACKET* packet);
 
 	void ActionPlayerRemotableCommand(ACTION_PLAYER_PACKET* packet);
 	void EquipPlayerRemotableCommand(EQUIPMENT_PLAYER_PACKET* packet);
+	void GesturePlayerRemotableCommand(GESTURE_PLAYER_PACKET* packet);
+	void HitPlayerRemotableHitCommand(HIT_PLAYER_PACKET* packet);
+	
 
 	void UpdatePlayerStateCommand(UPDATE_PLAYER_STATE_PACKET* packet);
 	void UpdatePlayerStateRemotableCommand(UPDATE_PLAYER_STATE_PACKET* packet);
 	void InterpolationPlayerPositionCommand(ACTION_PLAYER_PACKET* packet);
-
+	void HitPlayerPlayableHitCommand(HIT_PLAYER_PACKET* packet);
+	
 	void DisplayPlayerDemageRequest();//플레이어가 준 데미지 표시
 #pragma endregion 
 

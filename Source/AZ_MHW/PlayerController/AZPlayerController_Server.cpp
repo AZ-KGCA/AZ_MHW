@@ -19,7 +19,8 @@ AAZPlayerController_Server::AAZPlayerController_Server()
 void AAZPlayerController_Server::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+
 }
 
 void AAZPlayerController_Server::SetupInputComponent()
@@ -37,7 +38,7 @@ void AAZPlayerController_Server::OnPossess(APawn* pawn)
 void AAZPlayerController_Server::BeginDestroy()
 {
 	Super::BeginDestroy();
-	//서버가 꺼지면 저장
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +103,7 @@ void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
 		{
 			INITIALIZE_PLAYER_STATE_PACKET init_packet;
 			init_packet.packet_id = (int)PACKET_ID::SC_PLAYER_STATE_REMOTABLE_CREATE_CMD;
-			init_packet.guid = online_player_index;
+			init_packet.guid = online_player_index;//client_index 유저에게 index;
 			init_packet.pos = online_player->player_character_state_->character_state_.character_position;
 			init_packet.dir = online_player->player_character_state_->character_state_.character_direction.Yaw;
 			
@@ -138,9 +139,11 @@ void AAZPlayerController_Server::RemovePlayer_Origin(int32 client_index)
 
 		//서버에서 클라로 해당 id의 원격 캐릭터 제거 명령
 	}
+	
+	BroadCast_RemovePlayer_Remotable(client_index);
 }
 
-void AAZPlayerController_Server::ActionPlayer_Origin(int32 client_index, FVector cur_pos, float cur_dir, float input_dir, int32 input_data)
+void AAZPlayerController_Server::ActionPlayer_Origin(int32 client_index, FVector cur_pos, float input_dir, int32 input_data)
 {
 	//cur_pos이 심하게 차이나면 클라로 ForceInterpolation 전송
 	if(const auto origin_player = online_player_characters_.Find(client_index))
@@ -180,6 +183,15 @@ void AAZPlayerController_Server::EquipPlayer_Origin(int32 client_index, int32 it
 	{
 		(*player)->ChangeEquipment(item_id);
 		BroadCast_EquipPlayer_Remotable(client_index, item_id);
+	}
+}
+
+void AAZPlayerController_Server::GesturePlayer_Origin(int32 client_index, int32 gesture_id)
+{
+	if(const auto player = online_player_characters_.Find(client_index))
+	{
+		(*player)->GetMesh()->GetAnimInstance();
+		BroadCast_GesturePlayer_Remotable(client_index, gesture_id);
 	}
 }
 
@@ -290,7 +302,6 @@ void AAZPlayerController_Server::BroadCast_ActionPlayer_Remotable(int32 client_i
 		ACTION_PLAYER_PACKET packet;
 		packet.packet_id = (int)PACKET_ID::SC_PLAYER_REMOTABLE_ACTION_CMD;
 		packet.guid = client_index;
-		packet.current_direction =(*player)->player_character_state_->character_state_.character_direction.Yaw;
 		packet.current_position = (*player)->player_character_state_->character_state_.character_position;
 		packet.input_direction = (*player)->player_character_state_->action_state_.input_direction.Yaw;
 		packet.input_data = (*player)->player_character_state_->action_state_.input_bitmask;
@@ -330,16 +341,15 @@ void AAZPlayerController_Server::BroadCast_EquipPlayer_Remotable(int32 client_in
 		}
 	}
 }
-
-//상태변화가 있을때
-void AAZPlayerController_Server::BroadCast_UpdatePlayerState_Remotable(int32 client_index, int32 capture_type, int32 capture_value)
+void AAZPlayerController_Server::BroadCast_GesturePlayer_Remotable(int32 client_index, int32 gesture_id)
 {
 	if(const auto player = online_player_characters_.Find(client_index))
 	{
-        //UPDATE_PL
 		//packet
+		GESTURE_PLAYER_PACKET packet;
+		packet.guid = client_index;
+		packet.gesture_id = gesture_id;
 		
-
 		for(auto online_player_pair : online_player_characters_)
 		{
 			const auto& online_player_index = (online_player_pair.Key);
@@ -348,19 +358,86 @@ void AAZPlayerController_Server::BroadCast_UpdatePlayerState_Remotable(int32 cli
 			//자신을 제외한 유저들에게만
 			if(client_index != online_player_index)
 			{
-				//game_instance_->SendPacketFunc(online_player_index, packet.packet_length, (char*)&packet);
+				game_instance_->SendPacketFunc(online_player_index, packet.packet_length, (char*)&packet);
 			}
 		}
 	}
 }
-void AAZPlayerController_Server::Send_UpdatePlayerState_Playable(int32 client_index, int32 capture_type, int32 capture_value)
+
+void AAZPlayerController_Server::BroadCast_HitPlayer_Remotable(int32 client_index, float angle, int32 damage)
 {
 	if(const auto player = online_player_characters_.Find(client_index))
 	{
 		//packet
+		HIT_PLAYER_PACKET packet;
+		packet.guid = client_index;
+		packet.hit_angle = angle;
+		packet.damage = damage;
+		
+		for(auto online_player_pair : online_player_characters_)
+		{
+			const auto& online_player_index = (online_player_pair.Key);
+			const auto& online_player = (online_player_pair.Value);
 
+			//자신을 제외한 유저들에게만
+			if(client_index != online_player_index)
+			{
+				game_instance_->SendPacketFunc(online_player_index, packet.packet_length, (char*)&packet);
+			}
+		}
+	}
+}
+void AAZPlayerController_Server::Send_HitPlayer_Playable(int32 client_index, float angle, int32 damage)
+{
+	if(const auto player = online_player_characters_.Find(client_index))
+	{
+		HIT_PLAYER_PACKET packet;
+		packet.guid = client_index;
+		packet.hit_angle = angle;
+		packet.damage = damage;
+		
 		//자신에게
-		//game_instance_->SendPacketFunc(client_index, packet.packet_length, (char*)&packet);
+		game_instance_->SendPacketFunc(client_index, packet.packet_length, (char*)&packet);
+	}
+}
+
+
+//상태변화가 있을때
+void AAZPlayerController_Server::BroadCast_UpdatePlayerState_Remotable(int32 client_index, int32 capture_type, int32 capture_value, int32 capture_mask)
+{
+	if(const auto player = online_player_characters_.Find(client_index))
+	{
+        UPDATE_PLAYER_STATE_PACKET packet;
+        packet.packet_id = (int)PACKET_ID::SC_PLAYER_REMOTABLE_UPDATE_CMD;
+		packet.state_type = capture_type;
+		packet.state_value = capture_value;
+		packet.state_bitmask= capture_mask;
+		
+		for(auto online_player_pair : online_player_characters_)
+		{
+			const auto& online_player_index = (online_player_pair.Key);
+			const auto& online_player = (online_player_pair.Value);
+
+			//자신을 제외한 유저들에게만
+			if(client_index != online_player_index)
+			{
+				game_instance_->SendPacketFunc(online_player_index, packet.packet_length, (char*)&packet);
+			}
+		}
+	}
+}
+void AAZPlayerController_Server::Send_UpdatePlayerState_Playable(int32 client_index, int32 capture_type, int32 capture_value, int32 capture_mask)
+{
+	if(const auto player = online_player_characters_.Find(client_index))
+	{
+		UPDATE_PLAYER_STATE_PACKET packet;
+		packet.packet_id = (int)PACKET_ID::SC_PLAYER_PLAYABLE_UPDATE_CMD;
+		packet.state_type = capture_type;
+		packet.state_value = capture_value;
+		packet.state_bitmask= capture_mask;
+		
+		//자신에게
+		game_instance_->SendPacketFunc(client_index, packet.packet_length, (char*)&packet);
 	}
 }
 
@@ -376,4 +453,95 @@ void AAZPlayerController_Server::TempDevelopForceUpdatePlayer_Origin(int32 clien
 		BroadCast_ActionPlayer_Remotable(client_index);
 	}
 }
+
+
+
+
+void AAZPlayerController_Server::LoginPlayer(int32 client_index, FVector4d character_list)
+{
+	//접속한 유저의 클라이언트 id와 캐릭터 목록
+	login_player_character_list_.Add(client_index, character_list);
+	
+	//db에서 캐릭터 목록의 id로 조회해 해당 캐릭터의 데이터를 채운다. id 0 은 없는 캐릭터슬롯
+	if(character_list[0] != 0)
+	{
+		auto player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
+		login_player_character_state_.Add(character_list[0],player_state);
+	}
+	if(character_list[1] != 0)
+	{
+		auto player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
+		login_player_character_state_.Add(character_list[1],player_state);
+	}
+	if(character_list[2] != 0)
+	{
+		auto player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
+		login_player_character_state_.Add(character_list[2],player_state);
+	}
+	if(character_list[3] != 0)
+	{
+		auto player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
+		login_player_character_state_.Add(character_list[3],player_state);
+	}
+}
+void AAZPlayerController_Server::LogoutPlayer(int32 client_index)
+{
+	//온라인에 접속한 유저인지
+	if(const auto online_player = online_player_characters_.Find(client_index))
+	{
+		//(*online_player) logout 사전작업: 액터가 사라지기전에 버그나지 않게
+		(*online_player)->Destroy();
+		online_player_characters_.Remove(client_index);
+		if(auto online_player_state = online_player_character_state_.Find(client_index))
+		{
+			(*online_player_state)->Destroy();
+			online_player_character_state_.Remove(client_index);
+		}
+		BroadCast_RemovePlayerState_Remotable(client_index);
+		//브로드 캐스트 로그아웃
+	}
+	else//아직 로그인만 한상태인지
+	{
+		if(auto login_character_list = login_player_character_list_.Find(client_index))
+		{
+			for(int i =0 ; i< 4; i++ )
+			{
+				auto character_id = (*login_character_list)[i];
+				if(auto character_state = login_player_character_state_.Find(character_id))
+				{
+					(*character_state)->Destroy();
+					login_player_character_state_.Remove(character_id);
+				}
+			}
+		}
+		login_player_character_list_.Remove(client_index);
+	}
+}
+void AAZPlayerController_Server::SelectPlayerCharacter(int32 client_index, int32 selected_character_id)
+{
+	//선택한 객체를 온라인으로 넘긴다.
+	if(auto character_state = login_player_character_state_.Find(selected_character_id))
+	{
+		online_player_character_state_.Add(client_index, (*character_state));
+	}
+
+	//나머지 로그인 상태를 모두 제거한다.
+	if(auto login_character_list = login_player_character_list_.Find(client_index))
+	{
+		for(int i =0 ; i< 4; i++ )
+		{
+			auto character_id = (*login_character_list)[i];
+			if(auto character_state = login_player_character_state_.Find(character_id))
+			{
+				if(character_id != selected_character_id)
+				{
+					(*character_state)->Destroy();
+				}
+				login_player_character_state_.Remove(character_id);
+			}
+		}
+		login_player_character_list_.Remove(client_index);
+	}
+}
+
 

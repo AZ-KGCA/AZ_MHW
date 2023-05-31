@@ -3,7 +3,6 @@
 #pragma once
 
 #include <CoreMinimal.h>
-#include "AZ_MHW.h"
 #include "AZ_MHW/Character/Player/AZPlayer.h"
 #include "AZPlayer_Remotable.generated.h"
 
@@ -18,6 +17,7 @@ class AZ_MHW_API AAZPlayer_Remotable : public AAZPlayer
 public:
 	AAZPlayer_Remotable();
 
+#pragma region Inherited function
 protected:
 	/** */
 	virtual void BeginPlay() override;
@@ -29,7 +29,5 @@ protected:
 	//virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
 	/** */
 	//virtual void PossessedBy(AController* new_controller) override;
-	// Damage Processing
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
-	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
+#pragma endregion
 };

@@ -1,4 +1,5 @@
 ﻿#pragma once
+//guid번호는 SC에서만 유효하도록
 
 //캐릭터 생성패킷
 struct CREATE_PLAYER_CHARACTER_PACKET : public PACKET_HEADER
@@ -31,16 +32,16 @@ struct ACTION_PLAYER_PACKET : public PACKET_HEADER
 	int32 guid;
 	
 	FVector current_position;
-	float current_direction;
 	float input_direction;
+	
 	int32 input_data;
 
 	ACTION_PLAYER_PACKET()
 	{
 		packet_length = sizeof(ACTION_PLAYER_PACKET);
 		guid = -1;
+		current_position = FVector::Zero();
 		
-		current_direction = 0.f;
 		input_direction = 0.f;
 		input_data = 0;
 	}
@@ -78,6 +79,47 @@ struct EQUIPMENT_PLAYER_PACKET : public PACKET_HEADER
 		item_id = -1;
 	}
 };
+
+//초기 상태초기전달용 패킷
+struct INITIALIZE_PLAYER_STATE_PACKET : public PACKET_HEADER
+{
+	int32 guid;
+	
+	FVector pos;
+	float dir;
+	
+	int32 head_id;
+	int32 hair_id;
+	FVector hair_color;
+	int32 body_id;
+	int32 waist_id;
+	int32 arm_id;
+	int32 leg_id;
+	int32 weapon_id;
+	int32 first_id;
+	int32 second_id;
+	
+	INITIALIZE_PLAYER_STATE_PACKET()
+	{
+		packet_length = sizeof(INITIALIZE_PLAYER_STATE_PACKET);
+		guid = -1;
+		
+		pos = FVector::ZeroVector;
+		dir = 0;
+
+		hair_color = FVector::ZeroVector;
+		head_id = 0;
+		hair_id=0;
+		body_id=0;
+		waist_id=0;
+		arm_id=0;
+		leg_id=0;
+		
+		weapon_id=0;
+		first_id=0;
+		second_id=0;
+	}
+};
 //SC전용//DB처리를 클라에서 하면
 struct INVENTORY_PLAYER_PACKET : public PACKET_HEADER
 {
@@ -100,41 +142,30 @@ struct INVENTORY_PLAYER_PACKET : public PACKET_HEADER
 		item_pos = -1;
 	}
 };
-//초기 상태초기전달용 패킷
-struct INITIALIZE_PLAYER_STATE_PACKET : public PACKET_HEADER
+struct GESTURE_PLAYER_PACKET : public PACKET_HEADER
 {
 	int32 guid;
-	
-	FVector pos;
-	float dir;
-	
-	int32 head_id;
-	int32 hair_id;
-	int32 body_id;
-	int32 waist_id;
-	int32 arm_id;
-	int32 leg_id;
-	int32 weapon_id;
-	int32 first_id;
-	int32 second_id;
-	
-	INITIALIZE_PLAYER_STATE_PACKET()
+	int32 gesture_id;
+
+	GESTURE_PLAYER_PACKET()
 	{
-		packet_length = sizeof(INITIALIZE_PLAYER_STATE_PACKET);
+		packet_length = sizeof(GESTURE_PLAYER_PACKET);
 		guid = -1;
-		
-		pos = FVector::ZeroVector;
-		dir = 0;
-		
-		head_id = 0;
-		hair_id=0;
-		body_id=0;
-		waist_id=0;
-		arm_id=0;
-		leg_id=0;
-		
-		weapon_id=0;
-		first_id=0;
-		second_id=0;
+		gesture_id = -1;
+	}
+};
+
+struct HIT_PLAYER_PACKET :public PACKET_HEADER
+{
+	int32 guid;
+	float hit_angle;
+	int32 damage;
+	
+	HIT_PLAYER_PACKET()
+	{
+		packet_length = sizeof(HIT_PLAYER_PACKET);
+		guid = -1;
+		hit_angle = 0.f;
+		damage = 1;
 	}
 };

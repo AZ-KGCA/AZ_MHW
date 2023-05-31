@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "AZPlayer.h"
 #include "AZPlayer_Origin.generated.h"
 
@@ -27,20 +27,22 @@ protected:
 	virtual void Tick(float delta_seconds) override;
 	/** */
 	virtual void BeginDestroy() override;
-	
 	/** */
 	//virtual void SetupPlayerInputComponent(class UInputComponent* player_input_component) override;
 	/** */
 	//virtual void PossessedBy(AController* new_controller) override;
 #pragma endregion
+#pragma region Animation Notify
+	UFUNCTION() void AnimNotify_OnUseItem();
 
-
-	
+	UFUNCTION() void AnimNotify_OnGetItem();
+#pragma endregion 
 #pragma region Damage Interface
-	// 해당 결과가 유저에게 전달
-protected:
-	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
 public:
 	virtual float ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info) override;
-#pragma endregion 
+protected:
+	virtual float ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info) override;
+	/** 다이나믹 델리게이트에서 처리되기 때문에 UFUNCTION 처리*/
+	UFUNCTION() virtual void PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info);
+#pragma endregion
 };

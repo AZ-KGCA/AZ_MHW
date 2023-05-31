@@ -5,6 +5,7 @@
 
 AAZPlayer_Remotable::AAZPlayer_Remotable()
 {
+	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
 void AAZPlayer_Remotable::BeginPlay()
@@ -20,18 +21,6 @@ void AAZPlayer_Remotable::Tick(float delta_seconds)
 void AAZPlayer_Remotable::BeginDestroy()
 {
 	Super::BeginDestroy();
-}
-
-float AAZPlayer_Remotable::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result,
-	FAttackInfo attack_info)
-{
-	return 0.f;
-}
-
-float AAZPlayer_Remotable::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result,
-	FAttackInfo attack_info)
-{
-	return 0.f;
 }
 
 

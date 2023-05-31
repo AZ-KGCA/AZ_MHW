@@ -7,6 +7,7 @@
 #include "AZ_MHW/AnimInstance/AZAnimInstance.h"
 #include "AZAnimInstance_Player.generated.h"
 
+//TODO 무기도 애님인스턴스클래스 있어야함.
 
 DECLARE_DELEGATE_RetVal_OneParam(bool, FTriggerEndAnimation, UAZAnimInstance*)//애니메이션 종료조건 트리거 델리게이트
 
@@ -57,50 +58,33 @@ private:
 	//--입력회전보간필요: 입력한 방향 값에 대한 보간처리만 있음.(이동, 턴)
 	//--입력회전보간없음: 애니메이션의 루트 회전처리만 있음.
 public:
-	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
-	bool is_montage_;//현재 애니메이션이 몽타주 모드인지
-	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
-	bool should_transition_;//현재 애니메이션을 전환 해야하는지
-	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
-	bool is_rotation_;//현재 애니메이션이 강제 회전보간(목표 방향으로)인지
-	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
-	bool can_input_control_;//현재 애니메이션을 입력으로 조종이 가능한지
+	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation") bool is_montage_;//현재 애니메이션이 몽타주 모드인지
+	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation") bool should_transition_;//현재 애니메이션을 전환 해야하는지
+	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation") bool is_rotation_;//현재 애니메이션이 강제 회전보간(목표 방향으로)인지
+	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation") bool can_input_control_;//현재 애니메이션을 입력으로 조종이 가능한지
 
-	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
-	int32 anim_state_bitmask_;//애니메이션 상태 비트마스크
-	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation")
-	int32 anim_command_bitmask_;//애니메이션 커맨드 비트마스크
+	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation") int32 anim_state_bitmask_;//애니메이션 상태 비트마스크
+	UPROPERTY(BlueprintReadWrite, Category="AZ|Animation") int32 anim_command_bitmask_;//애니메이션 커맨드 비트마스크
 	
 	/** 매 업데이트마다 애니메이션 종료여부를 반환하는 델리게이트를 검사합니다.*/
 	FTriggerEndAnimation handle_animation_transition_trigger_;//애니메이션 전환 트리거 함수지정
 	
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	FRotator current_forward_direction_; //캐릭터의 전면 방향
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	FRotator next_forward_direction_; //최종 전면 방향
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") FRotator current_forward_direction_; //캐릭터의 전면 방향
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") FRotator next_forward_direction_; //최종 전면 방향
 	
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	UAnimSequence* current_anim_sequence_;//현재 애님 시퀀스
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	UAnimMontage* current_anim_montage_;//현재 애님 몽타주
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") UAnimSequence* current_anim_sequence_;//현재 애님 시퀀스
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") UAnimMontage* current_anim_montage_;//현재 애님 몽타주
 
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	float current_anim_play_rate_;//현재 애님 재생속도
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") float current_anim_play_rate_;//현재 애님 재생속도
 
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	FName current_sequence_name_;//현재 시퀀스 이름
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	FName next_sequence_name_;//다음 시퀀스 이름
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") FName current_sequence_name_;//현재 시퀀스 이름
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") FName next_sequence_name_;//다음 시퀀스 이름
 	
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	FName current_montage_name_;//현재 몽타주 이름
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	FName current_section_name_;//현재 섹션 이름
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") FName current_montage_name_;//현재 몽타주 이름
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") FName current_section_name_;//현재 섹션 이름
 
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	FName next_montage_name_;//다음 몽타주 이름
-	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation")
-	FName next_section_name_;//다음 섹션 이름
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") FName next_montage_name_;//다음 몽타주 이름
+	UPROPERTY(BlueprintReadOnly, Category="AZ|Animation") FName next_section_name_;//다음 섹션 이름
 
 	//즉시 지정 애니메이션으로
 	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
@@ -128,12 +112,37 @@ public:
 	/** 애니메이션을 재개합니다.*/
 	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void ResumeAnimation();
-
 	/** 애니메이션 실행 속도를 조정합니다. 캐릭터 스피드를 표현합니다.*/
 	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
 	void SetAnimPlayRate(int32 play_rate = 20000);
+
+
 	
-	/** 테이블에서 지정한 액션키 값에 해당하는 플레이어 애니메이션값으로 수행합니다.*/
-	UFUNCTION(BlueprintCallable, Category="AZ|Animation")
-	void SetAnimationFromTable(int32 anim_hash_code);
+	// /** 테이블에서 지정한 액션키 값에 해당하는 플레이어 애니메이션값으로 수행합니다.*/
+	// UFUNCTION(BlueprintCallable, Category="AZ|Animation")
+	// void SetAnimationFromTable(int32 anim_code);
+	// UFUNCTION(BlueprintCallable, Category="AZ|Animation")
+	// void SetSequenceFromTable(int32 anim_code);
+
+
+	//테이블 못만들고, 블루프린트로 타협하기
+	UPROPERTY(BlueprintReadWrite)
+	float input_direction_;
+	UPROPERTY(BlueprintReadWrite)
+	int32 input_bitmask_;
+	
+	UFUNCTION(BlueprintCallable)
+	bool CheckInputBitMask(int32 bitmask) const;
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckMontage(FName montage_name) const;
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckSection(FName section_name) const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetAnimationProperty(bool is_rotation, bool can_control);
+
+	UFUNCTION(BlueprintCallable)
+	void ForceImmediatelyRotate();
 };
