@@ -82,19 +82,19 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 	{
 		ChangeSequence(ESequence::ConnectGameServerReady);
 
-		if (game_instance_->GetHUD())
+		/*if (game_instance_->GetHUD())
 		{
 			if (auto waiting_widget = game_instance_->GetHUD()->OpenUI<UAZWidget_Waiting>(EUIName::AZWidget_Waiting, true))
 			{
 				waiting_widget->OnForceWaiting();
 			}
-		}
+		}*/
 		UAZSocketHolder* socket_holder = game_instance_->GetSocketHolder(ESocketHolderType::Game);
 		if (socket_holder == nullptr)
 		{
 			UAZUtility::ShippingLog(FString::Printf(TEXT("[UAZLoginMgr socketHolder null]")));
-			UAZWidget_Waiting::ClearForceWaiting();
-			game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+			//UAZWidget_Waiting::ClearForceWaiting();
+			//game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
 			game_instance_->GetHUD()->OpenMsgBox(EUIMsgBoxType::OvertopBasic, TEXT("111"), EUIMsgBoxBtnType::OkOrCancel,
 				this, TEXT("RetryReconnectRequired"), TEXT("OnServerDisconnected"), TEXT("OnServerDisconnected"), TEXT("종료"));
 			return;
@@ -108,8 +108,8 @@ void UAZLoginMgr::ChangeSequence(ESequence sequence, ESequence login_sequence)
 		// 
 		socket_holder->Connect(server_ip, server_port, [&](ESocketResult socket_result)
 			{
-				UAZWidget_Waiting::ClearForceWaiting();
-				game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
+				//UAZWidget_Waiting::ClearForceWaiting();
+				//game_instance_->GetHUD()->CloseUI(EUIName::AZWidget_Waiting, true);
 				if (socket_result == ESocketResult::Success)
 				{
 					ChangeSequence(ESequence::ConnectGameServerReady);
