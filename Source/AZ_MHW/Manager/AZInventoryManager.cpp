@@ -40,18 +40,15 @@ void UAZInventoryManager::GetTableData()
 {
 	for(auto total_item : instance_->table_mgr->total_item_array_)
 	{
-		if(total_item->count == 1)
-		{
-			FTotalItemDataStruct total_data;
-			total_data.id = total_item->id;
-			total_data.name = total_item->name;
-			total_data.warehouse_max = total_item->warehouse_max;
-			total_data.pocket_max = total_item->pocket_max;
-			total_data.init_count = total_item->init_count;
-			FString type = total_item->type;
-			total_data.type = UAZUtility::StringToEnum<EItemType>(type);
-			total_data_map_.Emplace(total_data.id, total_data);
-		}
+		FTotalItemDataStruct total_data;
+		total_data.id = total_item->id;
+		total_data.name = total_item->name;
+		total_data.warehouse_max = total_item->warehouse_max;
+		total_data.pocket_max = total_item->pocket_max;
+		total_data.init_count = total_item->init_count;
+		FString type = total_item->type;
+		total_data.type = UAZUtility::StringToEnum<EItemType>(type);
+		total_data_map_.Emplace(total_data.id, total_data);
 	}
 	
 	for(auto potion_data : instance_->table_mgr->potion_item_array_)
