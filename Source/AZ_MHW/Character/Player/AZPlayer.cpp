@@ -122,7 +122,7 @@ void AAZPlayer::BeginPlay()
 	//LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/AZ/Effect/BodyAura/M_BodyAura")))
 	hair_material = UMaterialInstanceDynamic::Create(original_material, GetOuter());
 	hair_mesh_->SetMaterial(0, hair_material);
-
+	hair_mesh_->SetSkeletalMesh(nullptr);
 }
 
 void AAZPlayer::Tick(float delta_seconds)

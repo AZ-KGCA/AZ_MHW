@@ -8,6 +8,8 @@
 #include "Components/EditableTextBox.h"
 #include "AZWidget_CharacterCreate.generated.h"
 
+class AAZPlayer_Mannequin;
+class AAZPlayerState_Client;
 /**
  * 
  */
@@ -18,7 +20,9 @@ class AZ_MHW_API UAZWidget_CharacterCreate : public UAZWidget
 	
 private:
 	FCharacterSimpleInfo choose_character_info_;
-
+	
+	UPROPERTY() AAZPlayerState_Client* current_selected_character_state_;
+	UPROPERTY() AAZPlayer_Mannequin* current_selected_character_;
 public:
 	virtual void Init() override;
 	virtual void OnOpen(bool immediately = false) override;

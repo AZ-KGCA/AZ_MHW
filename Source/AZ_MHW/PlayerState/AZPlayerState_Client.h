@@ -107,7 +107,12 @@ struct FAZPlayerCharacterState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bit_die:1;//현재 죽은 상태인지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	uint32 bit_super_armor:1;//피격 경직저항상태인제
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 damage_reduce_rate;//데미지 감소율 10000배(Cast<float>)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	uint32 bit_hit:1;//현재 피격상태인지
+	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//uint32 bit_airborne:1;//현재 체공상태인지
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -164,6 +169,8 @@ struct FAZPlayerCharacterState
 
 		character_action_bitmask = 0;//현재 애니메이션(몽타주+섹션)
 		character_action_priority = -1;//현재 애니메이션 우선도
+
+		bit_hit = false;
 	}
 };
 /** 플레이어 캐릭터의 장비 상태<-서버가 갱신
@@ -179,7 +186,7 @@ struct FAZPlayerEquipmentState
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//int32 FaceItemID;//표정을?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector hair_color;
+	FVector4f hair_color;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 hair_item_id;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -210,8 +217,9 @@ struct FAZPlayerEquipmentState
 	{
 		//FaceItemID = 0;;
 		//gender_type = -1;//-1 F, 1 M
-		hair_color = FVector::ZeroVector;
+		hair_color = FVector4f::Zero();
 
+		/*
 		//테스트 장비
 		const int32& test_set_id = 297;
 		body_item_id = 10000 + test_set_id;
@@ -220,19 +228,19 @@ struct FAZPlayerEquipmentState
 		waist_item_id = 11500 + test_set_id;
 		head_item_id = 12000 + test_set_id;
 		hair_item_id = 12501 + 31;
-		
-		/*
-		TODO: 릴리즈시 각주풀기 
-		body_item_id_ = 10000+500;//Default
-		leg_item_id_ = 10500+500;//Default
-		arm_item_id_ = 11000+500;//Default
-		waist_item_id_ = 11500+500;//Default
-		head_item_id_ = 12000+500;//Default
-		hair_item_id_ = 12501+0;//Default
 		*/
 		
+		//TODO: 릴리즈시 각주풀기 
+		body_item_id = 10000+500;//Default
+		leg_item_id = 10500+500;//Default
+		arm_item_id = 11000+500;//Default
+		waist_item_id = 11500+500;//Default
+		head_item_id = 12000+500;//Default
+		hair_item_id = 12501+0;//Default
+		
+		
 		weapon_type = 0;//0~13 무기종류(14종)
-		first_weapon_item_id = 1000+(weapon_type*500) + 001;//대검
+		first_weapon_item_id = 1000+(weapon_type*500) + 003;//대검
 		second_weapon_item_id = 0;//무기아이디
 		
 		consume_item_id = 101;
@@ -271,7 +279,7 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	int32 uid_;//User ID
 	//UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
-	//int32 cid_;//Character ID
+	int32 cid_;//Character ID
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	FString nickname_;//character Name
 	

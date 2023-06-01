@@ -67,7 +67,7 @@ enum class PACKET_ID : UINT16
 	//CLIENT(UI)
 	//LOGIN SCREEN(UI)
 	//로그인시
-	CS_PLAYER_PLAYABLE_GUID_REQ=9000,//아이디번호 요청(플레이어 번호? GUID)
+	//CS_PLAYER_PLAYABLE_GUID_REQ=9000,//아이디번호 요청(플레이어 번호? GUID)
 
 	//CHARACTER SELECT SCREEN(메인메뉴에서 받아서 가지고 있다가 선택창에서 마네퀸 플레이어 액터생성후)
 	CS_PLAYER_PLAYABLE_CHARACTER_DATA_REQ = 9001,//아이디 번호로 플레이어 캐릭터데이터(생김새만) 요청

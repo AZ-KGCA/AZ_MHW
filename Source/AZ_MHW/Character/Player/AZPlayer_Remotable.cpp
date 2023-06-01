@@ -5,7 +5,7 @@
 
 AAZPlayer_Remotable::AAZPlayer_Remotable()
 {
-	PrimaryActorTick.bStartWithTickEnabled = false;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
 void AAZPlayer_Remotable::BeginPlay()

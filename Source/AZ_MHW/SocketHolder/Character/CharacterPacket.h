@@ -1,4 +1,3 @@
-#pragma once
 //guid번호는 SC에서만 유효하도록
 #pragma once
 #include "AZ_MHW/CommonSource/AZStruct.h"
@@ -80,6 +79,7 @@ struct ACTION_PLAYER_PACKET : public PACKET_HEADER
 	int32 guid;
 	
 	FVector current_position;
+	float current_direction;
 	float input_direction;
 	
 	int32 input_data;
@@ -89,7 +89,7 @@ struct ACTION_PLAYER_PACKET : public PACKET_HEADER
 		packet_length = sizeof(ACTION_PLAYER_PACKET);
 		guid = -1;
 		current_position = FVector::Zero();
-		
+		current_direction = 0.f;
 		input_direction = 0.f;
 		input_data = 0;
 	}
@@ -138,7 +138,7 @@ struct INITIALIZE_PLAYER_STATE_PACKET : public PACKET_HEADER
 	
 	int32 head_id;
 	int32 hair_id;
-	FVector hair_color;
+	FVector4f hair_color;
 	int32 body_id;
 	int32 waist_id;
 	int32 arm_id;
@@ -155,7 +155,7 @@ struct INITIALIZE_PLAYER_STATE_PACKET : public PACKET_HEADER
 		pos = FVector::ZeroVector;
 		dir = 0;
 
-		hair_color = FVector::ZeroVector;
+		hair_color = FVector4f::Zero();
 		head_id = 0;
 		hair_id=0;
 		body_id=0;

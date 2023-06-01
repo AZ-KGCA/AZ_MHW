@@ -9,6 +9,8 @@
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "Kismet/GameplayStatics.h"
+#include "Character/Player/AZPlayer_Mannequin.h"
+#include "PlayerState/AZPlayerState_Client.h"
 
 void UAZWidget_CharacterCreate::Init()
 {
@@ -43,16 +45,34 @@ void UAZWidget_CharacterCreate::Init()
 void UAZWidget_CharacterCreate::OnOpen(bool immediately)
 {
 	Super::OnOpen(immediately);
+	
+	//보여주기용도로 객체 생성
+	current_selected_character_state_ = game_instance_->GetPlayerController()->GetPlayerState<AAZPlayerState_Client>();
+	current_selected_character_ = GetWorld()->SpawnActor<AAZPlayer_Mannequin>();
+	current_selected_character_->GetRootComponent()->SetWorldLocation(FVector(0,0,0));
+	current_selected_character_->SetPlayerState(current_selected_character_state_);
 }
 
 void UAZWidget_CharacterCreate::Update()
 {
+	
 }
 
 void UAZWidget_CharacterCreate::OnConfirm()
 {
 	FString id = nick_->GetText().ToString();
 	FCStringAnsi::Strncpy(choose_character_info_.character_nick_, TCHAR_TO_ANSI(*id), sizeof(choose_character_info_.character_nick_) - 1);
+	current_selected_character_state_->nickname_ = id;
+	choose_character_info_.arm_id_ = current_selected_character_state_->equipment_state_.arm_item_id;
+	choose_character_info_.body_id_ = current_selected_character_state_->equipment_state_.body_item_id;
+	choose_character_info_.leg_id_ = current_selected_character_state_->equipment_state_.leg_item_id;
+	choose_character_info_.waist_id_ = current_selected_character_state_->equipment_state_.waist_item_id;
+	choose_character_info_.head_id_ = current_selected_character_state_->equipment_state_.head_item_id;
+	choose_character_info_.hair_color_ = current_selected_character_state_->equipment_state_.hair_color;
+	choose_character_info_.hair_id_ = current_selected_character_state_->equipment_state_.hair_item_id;
+	choose_character_info_.weapon_id = current_selected_character_state_->equipment_state_.first_weapon_item_id;
+	choose_character_info_.weapon_type = current_selected_character_state_->equipment_state_.weapon_type;
+
 	CS_PLAYER_CHARACTER_CREATE_REQ packet;
 	packet.create_info = choose_character_info_;
 	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet, packet.packet_length);
@@ -63,47 +83,67 @@ void UAZWidget_CharacterCreate::OnBack()
 	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/Map/Map_CharacterSelect"));
 }
 
+
+
+
+
 void UAZWidget_CharacterCreate::OnBlack()
 {
-	choose_character_info_.hair_color_id_ = 1;
+	current_selected_character_state_->equipment_state_.hair_color=FVector4f(0,0,0,1);
+	current_selected_character_->SetHairColor();
+	choose_character_info_.hair_color_ =  current_selected_character_state_->equipment_state_.hair_color;
 }
 
 void UAZWidget_CharacterCreate::OnGray()
 {
-	choose_character_info_.hair_color_id_ = 2;
+	current_selected_character_state_->equipment_state_.hair_color= FVector4f(0.2,0.05,0,1);
+	current_selected_character_->SetHairColor();
+	choose_character_info_.hair_color_ =  current_selected_character_state_->equipment_state_.hair_color;
 }
 
 void UAZWidget_CharacterCreate::OnRed()
 {
-	choose_character_info_.hair_color_id_ = 3;
+	current_selected_character_state_->equipment_state_.hair_color = FVector4f(0.8,0,0,1);
+	current_selected_character_->SetHairColor();
+	choose_character_info_.hair_color_ =  current_selected_character_state_->equipment_state_.hair_color;
 }
 
 void UAZWidget_CharacterCreate::OnBrown()
 {
-	choose_character_info_.hair_color_id_ = 4;
+	current_selected_character_state_->equipment_state_.hair_color =  FVector4f(0.5,0.15,0,1);
+	current_selected_character_->SetHairColor();
+	choose_character_info_.hair_color_ =  current_selected_character_state_->equipment_state_.hair_color;
 }
 
 void UAZWidget_CharacterCreate::OnWhite()
 {
-	choose_character_info_.hair_color_id_ = 5;
+	current_selected_character_state_->equipment_state_.hair_color =  FVector4f(1,1,1,1);
+	current_selected_character_->SetHairColor();
+	choose_character_info_.hair_color_ =  current_selected_character_state_->equipment_state_.hair_color;
 }
+
 
 void UAZWidget_CharacterCreate::OnHair0()
 {
-	choose_character_info_.hair_id_ = 1;
+	current_selected_character_->ChangeEquipment(12501);
+	choose_character_info_.hair_id_ =current_selected_character_state_->equipment_state_.hair_item_id;
 }
 
 void UAZWidget_CharacterCreate::OnHair1()
 {
-	choose_character_info_.hair_id_ = 2;
+	current_selected_character_->ChangeEquipment(12502);
+	choose_character_info_.hair_id_ =current_selected_character_state_->equipment_state_.hair_item_id;
 }
 
 void UAZWidget_CharacterCreate::OnHair2()
 {
-	choose_character_info_.hair_id_ = 3;
+	current_selected_character_->ChangeEquipment(12503);
+	choose_character_info_.hair_id_ =current_selected_character_state_->equipment_state_.hair_item_id;
 }
 
 void UAZWidget_CharacterCreate::OnHair3()
 {
-	choose_character_info_.hair_id_ = 4;
+	int x = FMath::RandRange(12501,12532);
+	current_selected_character_->ChangeEquipment(x);
+	choose_character_info_.hair_id_ =current_selected_character_state_->equipment_state_.hair_item_id;
 }

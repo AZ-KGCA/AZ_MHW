@@ -15,20 +15,22 @@
 #include <Camera/CameraComponent.h>
 #include <GameFramework/SpringArmComponent.h>
 
+#include "AnimInstance/AZAnimInstance_Player.h"
 #include "GameMode/AZGameMode_InGame.h"
 #include "HUD/AZHUD.h"
 #include "HUD/AZHUDDefine.h"
+#include "Manager/AZGameCacheInfo.h"
 #include "Widget/MsgBox/AZWidget_MsgBoxBasic.h"
 //#include <Components/SkinnedMeshComponent.h>
 
 AAZPlayerController_InGame::AAZPlayerController_InGame()
 {
 	spring_arm_comp_ = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	temp_camera_comp_ = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	camera_comp_ = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	spring_arm_comp_->SetupAttachment(GetRootComponent());
-	temp_camera_comp_->SetupAttachment(spring_arm_comp_);
+	camera_comp_->SetupAttachment(spring_arm_comp_);
 	spring_arm_comp_->bUsePawnControlRotation = true;
-	temp_camera_comp_->bUsePawnControlRotation = false;
+	camera_comp_->bUsePawnControlRotation = false;
 
 	bit_move_forward=false;
 	bit_move_left=false;
@@ -59,9 +61,6 @@ void AAZPlayerController_InGame::SetupInputComponent()
 	Super::SetupInputComponent();
 	playable_player_state_ = GetPlayerState<AAZPlayerState_Client>();
 	if(playable_player_state_  == nullptr) UE_LOG(AZ_PLAYER, Warning, TEXT("PlayerController_InGame: Cast Failed Player State"));
-	
-	//TODO 임시 캐릭터 샐럭트 창에서 호출햇어야함.
-	TempSendAddPlayer_Origin();
 	
 	game_instance_->input_mgr_->AddInputMappingContext(TEXT("InGame"));
 	SetupWeaponInputMappingContext(playable_player_state_->equipment_state_.weapon_type);
@@ -161,10 +160,24 @@ void AAZPlayerController_InGame::BeginDestroy()
 
 void AAZPlayerController_InGame::AddPlayer_Playable()
 {
+	const auto& info =game_instance_->game_cache_info_->GetCharacterSimpleInfo(game_instance_->game_cache_info_->current_character_index_);
+	playable_player_state_->cid_ = info.character_index_;
+	playable_player_state_->nickname_ = info.character_nick_;
+	playable_player_state_->equipment_state_.hair_color =info.hair_color_;
+	playable_player_state_->equipment_state_.hair_item_id =info.hair_id_;
+	playable_player_state_->equipment_state_.head_item_id =info.head_id_;
+	playable_player_state_->equipment_state_.arm_item_id = info.arm_id_;
+	playable_player_state_->equipment_state_.body_item_id =info.body_id_;
+	playable_player_state_->equipment_state_.leg_item_id =info.leg_id_;
+	playable_player_state_->equipment_state_.waist_item_id =info.waist_id_;
+	playable_player_state_->equipment_state_.weapon_type =info.weapon_type;
+	playable_player_state_->equipment_state_.first_weapon_item_id =info.weapon_id;
+	
+	
 	if(playable_player_ == nullptr)
 	{
 		auto player_character = GetWorld()->SpawnActor<AAZPlayer_Playable>();
-
+		
 		playable_player_ = player_character;
 		
 		Possess(player_character);
@@ -194,7 +207,6 @@ float AAZPlayerController_InGame::GetInputAngle()
 	
 	//현재 카메라방향
 	FRotator yaw_rotation(0, GetControlRotation().Yaw, 0);
-	//UE_LOG(AZ_TEST,Warning,TEXT("%f"), yaw_rotation.Yaw);
 	FVector forward_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::X);//월드의 전후벡터
 	FVector right_direction = FRotationMatrix(yaw_rotation).GetUnitAxis(EAxis::Y);//월드의 좌우벡터
 	
@@ -276,8 +288,8 @@ void AAZPlayerController_InGame::SetupFollowCameraOwnPawn(bool on_off)
 			spring_arm_comp_->Rename(nullptr, pawn);
 			
 			spring_arm_comp_->AttachToComponent(pawn->GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
-			temp_camera_comp_->Rename(nullptr, pawn);
-			temp_camera_comp_->AttachToComponent(spring_arm_comp_, FAttachmentTransformRules::KeepRelativeTransform);
+			camera_comp_->Rename(nullptr, pawn);
+			camera_comp_->AttachToComponent(spring_arm_comp_, FAttachmentTransformRules::KeepRelativeTransform);
 			spring_arm_comp_->TargetArmLength = 400.f;
 		}
 	}
@@ -285,8 +297,8 @@ void AAZPlayerController_InGame::SetupFollowCameraOwnPawn(bool on_off)
 	{
 		spring_arm_comp_->Rename(nullptr,this);
 		spring_arm_comp_->AttachToComponent(this->GetRootComponent(),FAttachmentTransformRules::KeepRelativeTransform);
-		temp_camera_comp_->Rename(nullptr,this);
-		temp_camera_comp_->AttachToComponent(spring_arm_comp_, FAttachmentTransformRules::KeepRelativeTransform);
+		camera_comp_->Rename(nullptr,this);
+		camera_comp_->AttachToComponent(spring_arm_comp_, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 }
 
@@ -329,13 +341,14 @@ void AAZPlayerController_InGame::RemovePlayer_Remotable(int32 guid)
 	}
 }
 
-void AAZPlayerController_InGame::ActionPlayer_Remotable(int32 guid, FVector cur_pos, float input_dir, int32 input_data)
+void AAZPlayerController_InGame::ActionPlayer_Remotable(int32 guid, FVector cur_pos, float cur_dir, float input_dir, int32 input_data)
 {
 	if(const auto& found_player = remotable_player_map_.Find(guid))
 	{
 		//원본 객체에 있는 위치 강제보간
 		(*found_player)->GetRootComponent()->SetWorldLocation(cur_pos);
-
+		(*found_player)->GetRootComponent()->SetWorldRotation(FRotator(0,cur_dir,0));
+		
 		if((*found_player)->player_character_state_ != nullptr)
 		{
 			(*found_player)->player_character_state_->action_state_.input_direction.Yaw = input_dir;
@@ -441,8 +454,7 @@ void AAZPlayerController_InGame::OpenQuestTemp()
 
 void AAZPlayerController_InGame::ActionTestFunction()
 {
-	playable_player_state_->character_state_.bit_hit = true;
-	playable_player_state_->character_state_.current_health_point -= 40.f;
+	
 }
 void materialTEst()
 {
@@ -479,28 +491,46 @@ void materialTEst()
 	// playable_player_->SpawnNiagaraEfx();
 	// onoff = !onoff;
 }
-
-void AAZPlayerController_InGame::TempSendAddPlayer_Origin()
+void hit_process()
 {
-	//TODO 이미 인게임에 들어가기전에 접속을 했을때 서버에 보냇어야 함.
-	//UI에서 처리하도록 변경하기
-	//CS_PLAYER_CHARACTER_SELECT_REQ->Server
-	CREATE_PLAYER_CHARACTER_PACKET packet;
-	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_CREATE_REQ;
-	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet, packet.packet_length);
-
-	//Server->SC_PLAYER_CHARACTER_SELECT_RES
-
-	//SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES
+	/* if(player_state.character_state.bit_superarmor)
+	 * {
+	 *		total_damage*=(player_state.character_state.damage_reduce_rate/10000.f)
+	 *		process_damage(total_damage);
+	 * }
+	 * else
+	 * {
+		 *	player_state.character_state.bit_hit = true;
+		 *	process_damage(total_damage);
+	 * }
+	 */
 }
+
 
 void AAZPlayerController_InGame::TempSendForceUpdatePlayer_Origin()
 {
 	ACTION_PLAYER_PACKET packet;
 	packet.packet_id = (int)PACKET_ID::CS_DEVELOP_PLAYER_FORCE_UPDATE_CMD;
 	packet.current_position = playable_player_->GetRootComponent()->GetComponentLocation();
+	packet.current_direction = playable_player_->GetRootComponent()->GetComponentRotation().Yaw;
 	
 	game_instance_->GetSocketHolder(ESocketHolderType::Game)->SendPacket(&packet,packet.packet_length);
+}
+
+void AAZPlayerController_InGame::TempRecieveVictory_All()
+{
+	for(const auto& remotable_player_pair :remotable_player_map_)
+	{
+		if(const auto& anim_instance =Cast<UAZAnimInstance_Player>(remotable_player_pair.Value->GetMesh()->GetAnimClass()))
+		{
+			//anim_instance->SetDirectAnimSequence();
+		}
+	}
+	const auto& anim_instance = Cast<UAZAnimInstance_Player>(playable_player_->GetMesh()->GetAnimClass());
+	//anim_instance->SetDirectAnimSequence();
+
+	//조작해제
+	UnPossess();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -529,6 +559,8 @@ void AAZPlayerController_InGame::UpdateInput_EventMode()
 	packet.packet_id = (int)PACKET_ID::CS_PLAYER_ORIGIN_ACTION_REQ;
 
 	packet.current_position = playable_player_->GetRootComponent()->GetComponentLocation();
+	packet.current_direction = playable_player_->GetRootComponent()->GetComponentRotation().Yaw;
+	
 	packet.input_direction = final_input_angle;
 	packet.input_data = final_input_bitmask;
 	

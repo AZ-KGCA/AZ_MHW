@@ -5,11 +5,14 @@
 
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/HUD/AZHUD_CharacterSelect.h"
+#include "PlayerState/AZPlayerState_Client.h"
 
 AAZGameMode_CharacterSelect::AAZGameMode_CharacterSelect()
 {
 	game_mode_flag_ = EGameModeFlag::CharacterCreate;
 	HUDClass = AAZHUD_CharacterSelect::StaticClass();
+	PlayerStateClass = AAZPlayerState_Client::StaticClass();
+	DefaultPawnClass = nullptr;
 }
 
 void AAZGameMode_CharacterSelect::InitGame(const FString& map_name, const FString& options, FString& error_message)

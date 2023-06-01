@@ -28,6 +28,7 @@ void AAZPlayerState_Client::SetPlayerCharacter(APlayerState* player_state, APawn
 	{
 		player_character->player_character_state_ = nullptr;
 	}
+	
 	if(const auto player_character = Cast<AAZPlayer>(new_pawn))
 	{
 		player_character->player_character_state_ = this;

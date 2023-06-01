@@ -43,7 +43,6 @@ void UPacketFunction::PlayerCharacterCreateResponse(SC_PLAYER_CHARACTER_CREATE_R
 		UE_LOG(LogTemp, Warning, TEXT("캐릭터 생성 실패"));
 		return;
 	}
-
 	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/AZ/Map/Map_CharacterSelect"));
 }
 
@@ -123,6 +122,7 @@ void UPacketFunction::ActionPlayerRemotableCommand(ACTION_PLAYER_PACKET* packet)
 	player_controller->ActionPlayer_Remotable(
 		packet->guid,
 		packet->current_position,
+		packet->current_direction,
 		packet->input_direction,
 		packet->input_data);
 }

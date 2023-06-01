@@ -8,6 +8,7 @@
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/PlayerState/AZPlayerState_Client.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
+#include "Manager/AZGameCacheInfo.h"
 
 
 AAZPlayerController_Server::AAZPlayerController_Server()
@@ -43,24 +44,26 @@ void AAZPlayerController_Server::BeginDestroy()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AAZPlayerController_Server::AddPlayerState_Origin(int32 client_index)
+void AAZPlayerController_Server::AddPlayerState_Origin(int32 client_index, int32 character_id)
 {
 	AAZPlayerState_Client* origin_player_state = nullptr;
-	// if(auto const found_player_state = login_player_character_state_.Find(client_index))
-	// {
-	// 	origin_player_state = (*found_player_state);
-	// 	//로그인한 플레어어의 선택한 캐릭터 상태를 온라인 플레이어 캐릭터 상태 map으로 넘기기
-	// }
-
-	//임시
 	origin_player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
+	const auto& info =game_instance_->game_cache_info_->GetCharacterSimpleInfo(character_id);
 	
-	//DB에서 가져와서 채우기
-	//origin_player_state->equipment_state_.
-	//origin_player_state->character_state_.
+	origin_player_state->equipment_state_.hair_color = info.hair_color_;
+	origin_player_state->equipment_state_.hair_item_id = info.hair_id_;
+	origin_player_state->equipment_state_.head_item_id = info.head_id_;
+	origin_player_state->equipment_state_.body_item_id = info.body_id_;
+	origin_player_state->equipment_state_.arm_item_id = info.arm_id_;
+	origin_player_state->equipment_state_.leg_item_id = info.leg_id_;
+	origin_player_state->equipment_state_.waist_item_id = info.waist_id_;
+	origin_player_state->equipment_state_.weapon_type = info.weapon_type;
+	origin_player_state->equipment_state_.first_weapon_item_id = info.weapon_id;
 	origin_player_state->uid_ = client_index;
+	
 	online_player_character_state_.Add(client_index, origin_player_state);
 }
+
 void AAZPlayerController_Server::RemovePlayerState_Origin(int32 client_index)
 {
 	if(const auto found_player_state_origin = online_player_character_state_.Find(client_index))
@@ -70,10 +73,10 @@ void AAZPlayerController_Server::RemovePlayerState_Origin(int32 client_index)
 	}
 }
 
-void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
+void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index,int32 character_id)
 {
 	//TODO TEMP임시(인게임 접속전에 호출햇어야함)
-	AddPlayerState_Origin(client_index);
+	AddPlayerState_Origin(client_index, character_id);
 
 	//원본 캐릭터 생성
 	auto player_origin = GetWorld()->SpawnActor<AAZPlayer_Origin>();
@@ -86,7 +89,7 @@ void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
 		online_player_characters_.Add(client_index, player_origin);
 	}
 
-	//원본 캐릭터 생성후 로컬 생성 호출
+	//원본 캐릭터 생성후 로컬 생성 명령
 	{
 		CREATE_PLAYER_CHARACTER_PACKET packet;
 		packet.packet_id = (int)PACKET_ID::SC_PLAYER_CHARACTER_SELECT_RES;
@@ -103,10 +106,11 @@ void AAZPlayerController_Server::AddPlayer_Origin(int32 client_index)
 		{
 			INITIALIZE_PLAYER_STATE_PACKET init_packet;
 			init_packet.packet_id = (int)PACKET_ID::SC_PLAYER_STATE_REMOTABLE_CREATE_CMD;
-			init_packet.guid = online_player_index;//client_index 유저에게 index;
+			init_packet.guid = online_player_index;//client_index 유저의 remotable_index;
 			init_packet.pos = online_player->player_character_state_->character_state_.character_position;
 			init_packet.dir = online_player->player_character_state_->character_state_.character_direction.Yaw;
-			
+
+			init_packet.hair_color = online_player->player_character_state_->equipment_state_.hair_color;
 			init_packet.head_id = online_player->player_character_state_->equipment_state_.head_item_id;
 			init_packet.body_id = online_player->player_character_state_->equipment_state_.body_item_id;
 			init_packet.waist_id = online_player->player_character_state_->equipment_state_.waist_item_id;
@@ -143,12 +147,12 @@ void AAZPlayerController_Server::RemovePlayer_Origin(int32 client_index)
 	BroadCast_RemovePlayer_Remotable(client_index);
 }
 
-void AAZPlayerController_Server::ActionPlayer_Origin(int32 client_index, FVector cur_pos, float input_dir, int32 input_data)
+void AAZPlayerController_Server::ActionPlayer_Origin(int32 client_index, const FVector& cur_pos, float cur_dir, float input_dir, int32 input_data)
 {
 	//cur_pos이 심하게 차이나면 클라로 ForceInterpolation 전송
 	if(const auto origin_player = online_player_characters_.Find(client_index))
 	{
-	    //TEMP 보간
+	    //강제 위치보간
 		const float& interpolation = 50.f;
 		const FVector& origin_pos = (*origin_player)->GetRootComponent()->GetComponentLocation();
 		ACTION_PLAYER_PACKET packet;
@@ -170,10 +174,11 @@ void AAZPlayerController_Server::ActionPlayer_Origin(int32 client_index, FVector
 			packet.current_position = origin_pos;
 			game_instance_->SendPacketFunc(client_index,packet.packet_length,(char*)&packet);
 		}
-		//원격 플레이어는 이미 서버와 완전 동기화되어 있기 때문에 유저에게만
+		//원격 플레이어는 이미 서버와 완전 동기화되어 있기 때문에 플레이어블 유저에게만 보간 처리를 하면 된다.
 	
 		(*origin_player)->player_character_state_->action_state_.input_direction.Yaw = input_dir;
 		(*origin_player)->player_character_state_->action_state_.input_bitmask = input_data;
+		
 		BroadCast_ActionPlayer_Remotable(client_index);
 	}
 }
@@ -190,7 +195,7 @@ void AAZPlayerController_Server::GesturePlayer_Origin(int32 client_index, int32 
 {
 	if(const auto player = online_player_characters_.Find(client_index))
 	{
-		(*player)->GetMesh()->GetAnimInstance();
+		//(*player)->GetMesh()->GetAnimInstance();
 		BroadCast_GesturePlayer_Remotable(client_index, gesture_id);
 	}
 }
@@ -245,11 +250,12 @@ void AAZPlayerController_Server::BroadCast_AddPlayer_Remotable(int32 client_inde
 		init_packet.guid = client_index;
 		init_packet.pos = (*player)->player_character_state_->character_state_.character_position;
 		init_packet.dir = (*player)->player_character_state_->character_state_.character_direction.Yaw;
-		
+
+		init_packet.hair_color = (*player)->player_character_state_->equipment_state_.hair_color;
+		init_packet.hair_id = (*player)->player_character_state_->equipment_state_.hair_item_id;
 		init_packet.head_id = (*player)->player_character_state_->equipment_state_.head_item_id;
 		init_packet.body_id = (*player)->player_character_state_->equipment_state_.body_item_id;
 		init_packet.waist_id = (*player)->player_character_state_->equipment_state_.waist_item_id;
-		init_packet.hair_id = (*player)->player_character_state_->equipment_state_.hair_item_id;
 		init_packet.arm_id = (*player)->player_character_state_->equipment_state_.arm_item_id;
 		init_packet.leg_id = (*player)->player_character_state_->equipment_state_.leg_item_id;
 			
@@ -303,6 +309,8 @@ void AAZPlayerController_Server::BroadCast_ActionPlayer_Remotable(int32 client_i
 		packet.packet_id = (int)PACKET_ID::SC_PLAYER_REMOTABLE_ACTION_CMD;
 		packet.guid = client_index;
 		packet.current_position = (*player)->player_character_state_->character_state_.character_position;
+		packet.current_direction = (*player)->player_character_state_->character_state_.character_direction.Yaw;
+		
 		packet.input_direction = (*player)->player_character_state_->action_state_.input_direction.Yaw;
 		packet.input_data = (*player)->player_character_state_->action_state_.input_bitmask;
 
@@ -453,95 +461,4 @@ void AAZPlayerController_Server::TempDevelopForceUpdatePlayer_Origin(int32 clien
 		BroadCast_ActionPlayer_Remotable(client_index);
 	}
 }
-
-
-
-
-void AAZPlayerController_Server::LoginPlayer(int32 client_index, FVector4d character_list)
-{
-	//접속한 유저의 클라이언트 id와 캐릭터 목록
-	login_player_character_list_.Add(client_index, character_list);
-	
-	//db에서 캐릭터 목록의 id로 조회해 해당 캐릭터의 데이터를 채운다. id 0 은 없는 캐릭터슬롯
-	if(character_list[0] != 0)
-	{
-		auto player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
-		login_player_character_state_.Add(character_list[0],player_state);
-	}
-	if(character_list[1] != 0)
-	{
-		auto player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
-		login_player_character_state_.Add(character_list[1],player_state);
-	}
-	if(character_list[2] != 0)
-	{
-		auto player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
-		login_player_character_state_.Add(character_list[2],player_state);
-	}
-	if(character_list[3] != 0)
-	{
-		auto player_state = GetWorld()->SpawnActor<AAZPlayerState_Client>();
-		login_player_character_state_.Add(character_list[3],player_state);
-	}
-}
-void AAZPlayerController_Server::LogoutPlayer(int32 client_index)
-{
-	//온라인에 접속한 유저인지
-	if(const auto online_player = online_player_characters_.Find(client_index))
-	{
-		//(*online_player) logout 사전작업: 액터가 사라지기전에 버그나지 않게
-		(*online_player)->Destroy();
-		online_player_characters_.Remove(client_index);
-		if(auto online_player_state = online_player_character_state_.Find(client_index))
-		{
-			(*online_player_state)->Destroy();
-			online_player_character_state_.Remove(client_index);
-		}
-		BroadCast_RemovePlayerState_Remotable(client_index);
-		//브로드 캐스트 로그아웃
-	}
-	else//아직 로그인만 한상태인지
-	{
-		if(auto login_character_list = login_player_character_list_.Find(client_index))
-		{
-			for(int i =0 ; i< 4; i++ )
-			{
-				auto character_id = (*login_character_list)[i];
-				if(auto character_state = login_player_character_state_.Find(character_id))
-				{
-					(*character_state)->Destroy();
-					login_player_character_state_.Remove(character_id);
-				}
-			}
-		}
-		login_player_character_list_.Remove(client_index);
-	}
-}
-void AAZPlayerController_Server::SelectPlayerCharacter(int32 client_index, int32 selected_character_id)
-{
-	//선택한 객체를 온라인으로 넘긴다.
-	if(auto character_state = login_player_character_state_.Find(selected_character_id))
-	{
-		online_player_character_state_.Add(client_index, (*character_state));
-	}
-
-	//나머지 로그인 상태를 모두 제거한다.
-	if(auto login_character_list = login_player_character_list_.Find(client_index))
-	{
-		for(int i =0 ; i< 4; i++ )
-		{
-			auto character_id = (*login_character_list)[i];
-			if(auto character_state = login_player_character_state_.Find(character_id))
-			{
-				if(character_id != selected_character_id)
-				{
-					(*character_state)->Destroy();
-				}
-				login_player_character_state_.Remove(character_id);
-			}
-		}
-		login_player_character_list_.Remove(client_index);
-	}
-}
-
 

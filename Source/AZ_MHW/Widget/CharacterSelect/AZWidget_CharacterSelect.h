@@ -6,6 +6,8 @@
 #include "AZ_MHW/Widget/AZWidget.h"
 #include "AZWidget_CharacterSelect.generated.h"
 
+class AAZPlayer_Mannequin;
+class AAZPlayerState_Client;
 /**
  * 
  */
@@ -41,4 +43,12 @@ public:
 	UFUNCTION() void OnHoverCharacter_0();
 	UFUNCTION() void OnHoverCharacter_1();
 	UFUNCTION() void OnHoverCharacter_2();
+
+
+public:
+	
+	UPROPERTY()
+	AAZPlayerState_Client* current_selected_character_state_;
+	UPROPERTY()
+	AAZPlayer_Mannequin* current_selected_character_;
 };

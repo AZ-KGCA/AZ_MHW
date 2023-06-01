@@ -76,7 +76,8 @@ public:
 	 * 원래는 클라에서 로딩이 끝난후에 서버에서 패킷전송후,
 	 * Origin을 움직인후에 서버에서 패킷을 받아서 Update패킷으로 처리되어야 한다. */
 	void TempSendForceUpdatePlayer_Origin();
-	
+
+	void TempRecieveVictory_All();
 	/** 소유 플레이어 캐릭터 */
 	UPROPERTY() AAZPlayer_Playable* playable_player_;
 	/** 소유 플레이어 정보 */
@@ -104,7 +105,7 @@ public:
 	/** 서버에서 호출하여, 클라에 원격 캐릭터 제거 (접속종료)*/
 	void RemovePlayer_Remotable(int32 guid);
 	/** 서버에서 호출하여, 클라에 원격 캐릭터 조종 (다른 클라의 인풋이벤트->서버 원본 캐릭터를 조종-> 원격 전파)*/
-	void ActionPlayer_Remotable(int32 guid, FVector cur_pos, float input_dir, int32 input_data);
+	void ActionPlayer_Remotable(int32 guid, FVector cur_pos, float cur_dir, float input_dir, int32 input_data);
 	/** */
 	void EquipPlayer_Remotable(int32 guid, int32 item_id);
 	/** */
@@ -143,7 +144,7 @@ public:
 #pragma endregion 
 public:
 	UPROPERTY() USpringArmComponent* spring_arm_comp_;//camera arm
-	UPROPERTY() UCameraComponent* temp_camera_comp_;//camera
+	UPROPERTY() UCameraComponent* camera_comp_;//camera
 	FTimerHandle input_packet_timer_handle_;
 	bool is_event_input_mode_ = true;//timer, event mode
 	float final_input_angle = 0;

@@ -16,22 +16,46 @@ struct FCharacterSimpleInfo
 	
 	int32 character_index_;
 	char character_nick_[33];
-	UPROPERTY() int32 hair_color_id_;
+	UPROPERTY() FVector4f hair_color_;
 	UPROPERTY() int32 hair_id_;
+	UPROPERTY() int32 head_id_;
+	UPROPERTY() int32 body_id_;
+	UPROPERTY() int32 arm_id_;
+	UPROPERTY() int32 leg_id_;
+	UPROPERTY() int32 waist_id_;
+	UPROPERTY() int32 weapon_type;
+	UPROPERTY() int32 weapon_id;
+	
 	FCharacterSimpleInfo()
 	{
 		character_index_;
 		memset(character_nick_, 0, sizeof(character_nick_));
-		hair_color_id_ = 0;
-		hair_id_ = 0;
+		hair_color_ = FVector4f(1,1,1,1);
+		hair_id_= 12601;
+		head_id_= 12500;
+		body_id_= 10500;
+		arm_id_= 11500;
+		leg_id_= 11000;
+		waist_id_ = 12000;
+
+		weapon_type = 0;
+		weapon_id = 1001;
 	}
 
 	FCharacterSimpleInfo& operator=(const FCharacterSimpleInfo& ref)
 	{
 		character_index_ = ref.character_index_;
 		memcpy(character_nick_, ref.character_nick_, sizeof(character_nick_));
-		hair_color_id_ = ref.hair_color_id_;
-		hair_id_ = hair_id_;
+		hair_color_ = ref.hair_color_;
+		hair_id_ = ref.hair_id_;
+		head_id_= ref.head_id_;
+		body_id_= ref.body_id_;
+		arm_id_= ref.arm_id_;
+		leg_id_= ref.leg_id_;
+		waist_id_ = ref.waist_id_;
+
+		weapon_type = ref.weapon_type;
+		weapon_id = ref.weapon_id;
 		return *this;
 	}
 };

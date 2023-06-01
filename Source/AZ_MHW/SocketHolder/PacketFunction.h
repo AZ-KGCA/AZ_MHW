@@ -81,10 +81,10 @@ public:
 	void PlayerPlayableCharacterDataRequest(UINT32 client_index);
 	void PlayerCharacterCreateRequest(UINT32 client_index, CS_PLAYER_CHARACTER_CREATE_REQ* packet);
 
-	void CreatePlayerCharacterRequest(UINT32 client_index);
-	void DestroyPlayerCharacterRequest(UINT32 client_index);
+	//void CreatePlayerCharacterRequest(UINT32 client_index);
+	//void DestroyPlayerCharacterRequest(UINT32 client_index);
 	
-	void CreatePlayerOriginRequest(UINT32 client_index);
+	void CreatePlayerOriginRequest(UINT32 client_index, CREATE_PLAYER_CHARACTER_PACKET* packet);
 	void DestroyPlayerOriginRequest(UINT32 client_index);
 
 	void ActionPlayerOriginRequest(UINT32 client_index, ACTION_PLAYER_PACKET* packet);
@@ -97,8 +97,8 @@ public:
 	void PlayableCharacterDataResponse(SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet);
 	void PlayerCharacterCreateResponse(SC_PLAYER_CHARACTER_CREATE_RES* packet);
 
-	void CreatePlayerCharacterRespone();//플레이어 생성후 데이터받기
-	void DestroyPlayerCharacterRespone();//플레이어 제거후 데이터받기
+	//void CreatePlayerCharacterRespone();//플레이어 생성후 데이터받기
+	//void DestroyPlayerCharacterRespone();//플레이어 제거후 데이터받기
 	
 	void CreatePlayerPlayableCommand();
 	void CreatePlayerStateRemotableCommand(INITIALIZE_PLAYER_STATE_PACKET* packet);
