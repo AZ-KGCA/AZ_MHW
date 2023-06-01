@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Widget/AZWidget.h"
+#include "Components/Button.h"
 #include "AZWidget_Inventory.generated.h"
 
 /**
@@ -23,8 +24,24 @@ public:
 	virtual bool DifferenceBackButton() override;
 	virtual void OnTouchEmptySpace() override;
 	virtual void OnAlphaTimeFinished() override;
+	virtual void ForceHide() override;
 	virtual void RestoreFromForceHidden() override;
-	virtual int32 GetSearchTouchMaskContentIndex(UWidget* widget, ETouchMaskSearchType search_type, int32 index) override;
 
+public:
+	UPROPERTY(meta = (BindWidget)) UButton* item_check_button_;
+	UPROPERTY(meta = (BindWidget)) UButton* item_move_button_;
+	UPROPERTY(meta = (BindWidget)) UButton* item_equip_check_button_;
+	UPROPERTY(meta = (BindWidget)) UButton* item_equip_move_button_;
 
+public:
+	UFUNCTION() void OnItemCheck();
+	UFUNCTION() void OnItemMove();
+	UFUNCTION() void OnEquipCheck();
+	UFUNCTION() void OnEquipMove();
+
+public:
+	UAZWidget* item_check_;
+	UAZWidget* item_move_;
+	UAZWidget* equip_check_;
+	UAZWidget* equip_move_;
 };

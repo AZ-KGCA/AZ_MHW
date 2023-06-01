@@ -13,6 +13,7 @@ void UAZWidget_InGame::Init()
 
 void UAZWidget_InGame::OnOpen(bool immediately)
 {
+	return;
 }
 
 void UAZWidget_InGame::OnClose(bool immediately)
@@ -25,8 +26,10 @@ void UAZWidget_InGame::Update()
 
 void UAZWidget_InGame::ForceHide()
 {
+	SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UAZWidget_InGame::RestoreFromForceHidden()
 {
+	SetVisibility(ESlateVisibility::Visible);
 }

@@ -105,8 +105,7 @@ void UAZWidget_CharacterSelect::OnSelectCharacter_0()
 	auto array = game_instance_->game_cache_info_->GetCurrentCharacterSimpleInfoArray();
 	game_instance_->game_cache_info_->current_character_index_ = array[0].character_index_;
 	array[0];
-	//TODO
-	// CharacterIndex 담아서 로그인 및 맵 이동(현수 부탁함)
+	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/TestMap/TestMap"));
 }
 
 void UAZWidget_CharacterSelect::OnSelectCharacter_1()
@@ -114,8 +113,7 @@ void UAZWidget_CharacterSelect::OnSelectCharacter_1()
 	auto array = game_instance_->game_cache_info_->GetCurrentCharacterSimpleInfoArray();
 	game_instance_->game_cache_info_->current_character_index_ = array[1].character_index_;
 	array[1];
-	//TODO
-// CharacterIndex 담아서 로그인 및 맵 이동(현수 부탁함)
+	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/TestMap/TestMap"));
 }
 
 void UAZWidget_CharacterSelect::OnSelectCharacter_2()
@@ -123,8 +121,7 @@ void UAZWidget_CharacterSelect::OnSelectCharacter_2()
 	auto array = game_instance_->game_cache_info_->GetCurrentCharacterSimpleInfoArray();
 	game_instance_->game_cache_info_->current_character_index_ = array[2].character_index_;
 	array[2];
-	//TODO
-// CharacterIndex 담아서 로그인 및 맵 이동(현수 부탁함)
+	UGameplayStatics::OpenLevel(GetWorld(), FName("/Game/TestMap/TestMap"));
 }
 
 void UAZWidget_CharacterSelect::OnHoverCharacter_0()

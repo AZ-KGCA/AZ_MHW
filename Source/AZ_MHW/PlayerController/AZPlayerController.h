@@ -39,6 +39,7 @@ public:
 	 *  NoneCapture -> Capture
 	 */
 	void ActionChangeControlMode();
+	void ActionCloseScene();
 	
 	//UPROPERTY(BlueprintReadOnly)
 	//AAZCameraManager* CameraMgr;

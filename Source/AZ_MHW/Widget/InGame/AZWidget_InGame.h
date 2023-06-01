@@ -20,10 +20,5 @@ public:
 	virtual void OnClose(bool immediately = false) override;
 	virtual void Update() override;
 	virtual void ForceHide() override;
-	//virtual void OnTouchEmptySpace() override;
-	//virtual void OnTouchEmptySpace() override;
 	virtual void RestoreFromForceHidden() override;
-	//virtual bool DifferenceBackButton() override;
-
-	
 };
