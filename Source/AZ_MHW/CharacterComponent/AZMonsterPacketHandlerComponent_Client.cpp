@@ -127,7 +127,7 @@ void UAZMonsterPacketHandlerComponent_Client::Receive_SC_MONSTER_HIT_CMD(const F
 {
 	if (auto character = UGameplayStatics::GetPlayerCharacter(owner_->GetWorld(), 0))
 	{
-		AAZPlayer_Origin* player = Cast<AAZPlayer_Origin>(character);
+		AAZPlayer_Playable* player = Cast<AAZPlayer_Playable>(character);
 		if (player)
 		{
 			owner_->OnHit.Broadcast(player, hit_info);

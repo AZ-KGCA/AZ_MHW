@@ -76,11 +76,9 @@ public:
 	virtual void AnimNotify_EndOfAction() override;
 	virtual void AnimNotify_JumpToAnimation(FString next_animation_name, FString next_montage_section_name) override;
 	virtual void AnimNotify_SetMovementMode(EMovementMode movement_mode) override;
-	virtual void AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration) override;
-	virtual void AnimNotifyState_DoBodyOverlap_Begin();
-	UFUNCTION() virtual void AnimNotifyState_DoBodyOverlap_AddOverlappedActor(UPrimitiveComponent* overlapped_component, AActor* other_actor,
-		UPrimitiveComponent* other_comp, int32 other_body_index, bool is_from_sweep, const FHitResult & sweep_result);
-	virtual void AnimNotifyState_DoBodyOverlap_End();
+	virtual void AnimNotify_DoSphereOverlap(FName socket_name, float radius) override;
+	virtual void AnimNotifyState_DoCapsuleOverlap_Begin();
+	virtual void AnimNotifyState_DoCapsuleOverlap_Tick(FName socket_name, float radius, float half_height);
 	
 	// Validity Checkers
 	bool IsABoss() const;

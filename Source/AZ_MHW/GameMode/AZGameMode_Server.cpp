@@ -10,7 +10,11 @@
 #include "AZ_MHW/PlayerState/AZGameState_Server.h"
 #include "AZ_MHW/PlayerState/AZPlayerState_Server.h"
 #include "AZ_MHW/Manager/AZObjectMgr_Server.h"
+#include "Character/Monster/AZMonster.h"
+#include "Character/Player/AZPlayer_Origin.h"
+#include "CharacterComponent/AZMonsterHealthComponent.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "PlayerState/AZPlayerState_Client.h"
 
 
 AAZGameMode_Server::AAZGameMode_Server()
@@ -61,6 +65,22 @@ void AAZGameMode_Server::InitGame(const FString& map_name, const FString& option
 void AAZGameMode_Server::Tick(float delta_seconds)
 {
 	Super::Tick(delta_seconds);
+
+	// Debug log
+	if (GEngine && !object_mgr_->object_map_.IsEmpty())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::White, FString::Printf(TEXT("---------------------")));
+		for (const auto monster : object_mgr_->spawned_monsters_array_)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Green,
+				FString::Printf(TEXT("  Monster[%d] HP: %d"), monster->object_serial_, monster->health_component_->current_hp_));
+		}
+		for (const auto player_pair : object_mgr_->player_map_)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::Purple,
+				FString::Printf(TEXT("  Player[%d] HP: %d"),
+					player_pair.Key, player_pair.Value->player_character_state_->character_state_.current_health_point));
+		}
+		GEngine->AddOnScreenDebugMessage(-1, GetWorld()->GetDeltaSeconds(), FColor::White, FString::Printf(TEXT("---------------------")));
+	}
 }
-
-

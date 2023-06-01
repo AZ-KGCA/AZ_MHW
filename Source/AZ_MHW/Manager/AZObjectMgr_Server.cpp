@@ -12,10 +12,7 @@ UAZObjectMgr_Server::UAZObjectMgr_Server()
 	object_serial_ = -1;
 	
 	// TEMP
-	//spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(-100,11000,200), FRotator::ZeroRotator));
 	spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(2010,-110,200), FRotator(0,180,0)));
-	//spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(-1200,7000,200), FRotator::ZeroRotator));
-	//spawn_array_.Add(FMonsterSpawnInfo(0, EBossRank::Low, FVector(3000,7000,200), FRotator::ZeroRotator));
 }
 
 void UAZObjectMgr_Server::BeginDestroy()
@@ -31,6 +28,10 @@ void UAZObjectMgr_Server::AddObject(AAZCharacter* character)
 	if (AAZMonster* monster = Cast<AAZMonster>(character))
 	{
 		spawned_monsters_array_.Add(monster);
+	}
+	else if (AAZPlayer_Origin* player = Cast<AAZPlayer_Origin>(character))
+	{
+		player_map_.Add(object_serial_, player);
 	}
 	UE_LOG(AZ, Log, TEXT("[UAZObjectMgr_Server] %s added. Serial No: %d"), *character->GetName(), object_serial_);
 }

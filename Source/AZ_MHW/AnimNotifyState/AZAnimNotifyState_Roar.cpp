@@ -10,6 +10,13 @@ void UAZAnimNotifyState_Roar::NotifyBegin(USkeletalMeshComponent* mesh_comp, UAn
 	UE_LOG(AZMonster, Warning, TEXT("ROAR begin"));
 }
 
+void UAZAnimNotifyState_Roar::NotifyTick(USkeletalMeshComponent* mesh_comp, UAnimSequenceBase* animation,
+	float total_duration)
+{
+	Super::NotifyTick(mesh_comp, animation, total_duration);
+	
+}
+
 void UAZAnimNotifyState_Roar::NotifyEnd(USkeletalMeshComponent* mesh_comp, UAnimSequenceBase* animation, const FAnimNotifyEventReference& event_reference)
 {
 	Super::NotifyEnd(mesh_comp, animation, event_reference);

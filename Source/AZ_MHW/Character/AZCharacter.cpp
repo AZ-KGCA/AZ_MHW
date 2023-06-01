@@ -44,7 +44,7 @@ void AAZCharacter::AnimNotify_SetMovementMode(EMovementMode movement_mode)
 	// empty in base class
 }
 
-void AAZCharacter::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration)
+void AAZCharacter::AnimNotify_DoSphereOverlap(FName socket_name, float radius)
 {
 	// empty in base class
 }

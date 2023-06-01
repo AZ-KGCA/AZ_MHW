@@ -41,17 +41,11 @@ AAZMonster::AAZMonster()
 	AutoPossessAI = EAutoPossessAI::Disabled;
 		
 	// Create components
-	body_capsule_component_ = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BodyCapsuleComponent"));
 	aggro_component_ = CreateDefaultSubobject<UAZMonsterAggroComponent>(TEXT("AggroComponent"));
 	health_component_ = CreateDefaultSubobject<UAZMonsterHealthComponent>(TEXT("HealthComponent"));
 	mesh_component_ = CreateDefaultSubobject<UAZMonsterMeshComponent>(TEXT("MeshComponent"));
 	packet_handler_component_ = CreateDefaultSubobject<UAZMonsterPacketHandlerComponent>(TEXT("PacketHandlerComponent"));
-
-	// Set up properties
-	body_capsule_component_->SetCollisionProfileName(TEXT("AZMonsterBodyCapsule"));
-	body_capsule_component_->CanCharacterStepUpOn = ECB_No;
-	body_capsule_component_->SetGenerateOverlapEvents(false);
-	body_capsule_component_->SetupAttachment(GetCapsuleComponent());
+	
 	GetMesh()->CanCharacterStepUpOn = ECB_No;
 }
 
@@ -77,10 +71,6 @@ void AAZMonster::SetMeshAndColliders()
 	GetCapsuleComponent()->SetCapsuleRadius(185.0f);
 	GetCapsuleComponent()->SetCapsuleHalfHeight(150.0f); 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("AZMonsterCapsule"));
-
-	// Body capsule
-	body_capsule_component_->SetCapsuleRadius(260.0f);
-	body_capsule_component_->SetCapsuleHalfHeight(292.0f); 
 	
 	// Set skeletal mesh
 	FString sk_path = FString::Printf(TEXT("/Game/AZ/Monsters/%s/Meshes/SK_%s"), *name, *name);
@@ -430,7 +420,7 @@ void AAZMonster::AnimNotify_SetMovementMode(EMovementMode movement_mode)
 	if (is_flying_ && movement_mode != MOVE_Flying) is_flying_ = false; 
 }
 
-void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffectDurationType duration_type, float duration)
+void AAZMonster::AnimNotify_DoSphereOverlap(FName socket_name, float radius)
 {
 	TArray<AActor*, FDefaultAllocator> ignore_actors;
 	TArray<AActor*> overlapped_actors;
@@ -448,61 +438,50 @@ void AAZMonster::AnimNotify_DoSphereTrace(FName socket_name, float radius, EEffe
 	}
 
 	// Do Sphere overlap
-	if (duration_type == EEffectDurationType::Instant)
-	{
-		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), trace_start_loc, radius, hit_object_types_, AAZCharacter::StaticClass(), ignore_actors, overlapped_actors);
-#if WITH_EDITOR
-		DrawDebugSphere(GetWorld(), trace_start_loc, radius, 24, FColor::Red, false, 5.0f, 0U, 2.f);
-#endif WITH_EDITOR
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), trace_start_loc, radius, hit_object_types_, AAZCharacter::StaticClass(), ignore_actors, overlapped_actors);
+	DrawDebugSphere(GetWorld(), trace_start_loc, radius, 24, FColor::Red, false, 5.0f, 0U, 2.f);
 
-		for (auto actor : overlapped_actors)
+	for (auto actor : overlapped_actors)
+	{
+		UE_LOG(AZMonster, Log, TEXT("[AAZMonster] Sphere trace overlapped %s"), *actor->GetName());
+		AAZPlayer_Origin* overlapped_player = Cast<AAZPlayer_Origin>(actor);
+		if (overlapped_player->GetClass()->ImplementsInterface(UAZDamageAgentInterface::StaticClass()))
 		{
-			UE_LOG(AZMonster, Log, TEXT("[AAZMonster] Sphere trace overlapped %s"), *actor->GetName());
-			AAZPlayer_Origin* overlapped_player = Cast<AAZPlayer_Origin>(actor);
-			if (overlapped_player->GetClass()->ImplementsInterface(UAZDamageAgentInterface::StaticClass()))
-			{
-				DoDamage(overlapped_player, FHitResult());
-			}
-		}
-	}
-	else if (duration_type == EEffectDurationType::ForDuration)
-	{
-		//@TODO
-	}
-}
-
-void AAZMonster::AnimNotifyState_DoBodyOverlap_Begin()
-{
-	overlapped_actors_.Empty();
-	body_capsule_component_->OnComponentBeginOverlap.AddDynamic(this, &AAZMonster::AnimNotifyState_DoBodyOverlap_AddOverlappedActor);
-	body_capsule_component_->SetGenerateOverlapEvents(true);
-}
-
-void AAZMonster::AnimNotifyState_DoBodyOverlap_AddOverlappedActor(UPrimitiveComponent* overlapped_component,
-	AActor* other_actor, UPrimitiveComponent* other_comp, int32 other_body_index, bool is_from_sweep,
-	const FHitResult& sweep_result)
-{
-	if (AAZPlayer_Origin* player = Cast<AAZPlayer_Origin>(other_actor))
-	{
-		if (overlapped_actors_.Find(other_actor) == INDEX_NONE)
-		{
-			overlapped_actors_.Add(other_actor);
-
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("OVERLAP")));
-			}
-			
-			DoDamage(player, FHitResult());
+			DoDamage(overlapped_player, FHitResult());
 		}
 	}
 }
 
-void AAZMonster::AnimNotifyState_DoBodyOverlap_End()
+void AAZMonster::AnimNotifyState_DoCapsuleOverlap_Begin()
 {
 	overlapped_actors_.Empty();
-	body_capsule_component_->OnComponentBeginOverlap.RemoveAll(this);
-	body_capsule_component_->SetGenerateOverlapEvents(false);
+}
+
+void AAZMonster::AnimNotifyState_DoCapsuleOverlap_Tick(FName socket_name, float radius, float half_height)	
+{
+	TArray<AActor*, FDefaultAllocator> ignore_actors;
+	TArray<AActor*> overlapped_actors;
+	ignore_actors.Add(this);
+
+	// Get the location to trace at
+	FVector trace_start_loc = GetMesh()->GetSocketLocation(socket_name);
+	if (socket_name.IsEqual(FName("None")) || socket_name.IsEqual(FName("Root")))
+	{
+		trace_start_loc = (GetMesh()->GetSocketLocation(FName("LeftFootSocket")) + GetMesh()->GetSocketLocation(FName("RightFootSocket"))) / 2.0f;
+	}
+	
+	// Do capsule overlap
+	UKismetSystemLibrary::CapsuleOverlapActors(GetWorld(), trace_start_loc, radius, half_height, hit_object_types_, AAZCharacter::StaticClass(), ignore_actors, overlapped_actors);
+	DrawDebugSphere(GetWorld(), trace_start_loc, radius, 24, FColor::Red, false, 5.0f, 0U, 2.f);
+
+	for (auto actor : overlapped_actors)
+	{
+		AAZPlayer_Origin* overlapped_player = Cast<AAZPlayer_Origin>(actor);
+		if (overlapped_player && overlapped_actors_.AddUnique(overlapped_player) == INDEX_NONE)
+		{
+			DoDamage(overlapped_player, FHitResult());
+		}
+	}
 }
 
 #pragma endregion

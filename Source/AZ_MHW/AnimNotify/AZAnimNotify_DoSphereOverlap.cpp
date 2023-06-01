@@ -1,10 +1,10 @@
 // Copyright Team AZ. All Rights Reserved.
 
 
-#include "AZ_MHW/AnimNotify/AZAnimNotify_DoSphereTrace.h"
+#include "AZ_MHW/AnimNotify/AZAnimNotify_DoSphereOverlap.h"
 #include "AZ_MHW/Character/AZCharacter.h"
 
-void UAZAnimNotify_DoSphereTrace::Notify(USkeletalMeshComponent* mesh_comp, UAnimSequenceBase* animation, const FAnimNotifyEventReference& event_reference)
+void UAZAnimNotify_DoSphereOverlap::Notify(USkeletalMeshComponent* mesh_comp, UAnimSequenceBase* animation, const FAnimNotifyEventReference& event_reference)
 {
 	Super::Notify(mesh_comp, animation, event_reference);
 
@@ -16,7 +16,7 @@ void UAZAnimNotify_DoSphereTrace::Notify(USkeletalMeshComponent* mesh_comp, UAni
 		AAZCharacter* character = Cast<AAZCharacter>(mesh_comp->GetOwner());
 		if (character)
 		{
-			character->AnimNotify_DoSphereTrace(socket_name_, radius_, duration_type_, duration_);
+			character->AnimNotify_DoSphereOverlap(socket_name_, radius_);
 		}
 	}
 }

@@ -33,7 +33,6 @@ public:
 	void SpawnAllMonsters();
 	
 private:
-	UPROPERTY() TMap<int32, TObjectPtr<AAZCharacter>> object_map_;
 	int32 object_serial_;
 	//TEMP 맵 하나니까 그냥 통일 -> TODO 테이블로드
 	UPROPERTY() TArray<FMonsterSpawnInfo> spawn_array_;
@@ -41,5 +40,7 @@ private:
 public:
 	//TEMP 일단 한번에 스폰
 	bool spawn_finished_;
+	UPROPERTY() TMap<int32, TObjectPtr<AAZCharacter>> object_map_;
 	UPROPERTY(BlueprintReadOnly) TArray<AAZMonster*> spawned_monsters_array_;
+	UPROPERTY() TMap<int32, TObjectPtr<AAZPlayer_Origin>> player_map_;
 };

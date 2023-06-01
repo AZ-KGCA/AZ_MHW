@@ -5,7 +5,7 @@
 #include "AZ_MHW/CommonSource/AZStruct.h"
 #include "AZMonster_Client.generated.h"
 
-class AAZPlayer_Origin;
+class AAZPlayer_Playable;
 // Forward declaration of classes
 class UAZAnimInstance_Monster;
 class UAZMonsterMeshComponent_Client;
@@ -40,7 +40,7 @@ public:
 
 	// Dynamic delegates
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnragedSignature);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHitSignature, AAZPlayer_Origin*, player, FHitResultInfo, hit_result);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHitSignature, AAZPlayer_Playable*, player, FHitResultInfo, hit_result);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnrageEndedSignature);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterCombatSignature);

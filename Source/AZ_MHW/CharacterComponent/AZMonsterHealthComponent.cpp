@@ -69,10 +69,6 @@ void UAZMonsterHealthComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, owner_->GetWorld()->GetDeltaSeconds(), FColor::Black, FString::Printf(TEXT("Monster HP: %d"), current_hp_));
-	}
 }
 
 void UAZMonsterHealthComponent::InitializeRuntimeValues()
