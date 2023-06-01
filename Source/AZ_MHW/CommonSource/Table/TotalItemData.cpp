@@ -13,11 +13,6 @@ void UTotalItemData::Load(TMap<FString, FString>& data)
 	{
 		name = **value_ptr;
 	}
-	value_ptr = data.Find("count");
-	if (value_ptr != nullptr)
-	{
-		count = FCString::Atoi(**value_ptr);
-	}
 	value_ptr = data.Find("value");
 	if (value_ptr != nullptr)
 	{
@@ -42,5 +37,35 @@ void UTotalItemData::Load(TMap<FString, FString>& data)
 	if (value_ptr != nullptr)
 	{
 		type = **value_ptr;
+	}
+	value_ptr = data.Find("description");
+	if (value_ptr != nullptr)
+	{
+		description = **value_ptr;
+	}
+	value_ptr = data.Find("kor_name");
+	if (value_ptr != nullptr)
+	{
+		kor_name = **value_ptr;
+	}
+	value_ptr = data.Find("image_path");
+	if (value_ptr != nullptr)
+	{
+		image_path = **value_ptr;
+	}
+	value_ptr = data.Find("grade_image_path");
+	if (value_ptr != nullptr)
+	{
+		grade_image_path = **value_ptr;
+	}
+	value_ptr = data.Find("color");
+	if (value_ptr != nullptr)
+	{
+		TArray<FString> result;
+		(*value_ptr).ParseIntoArray(result, TEXT("|"));
+		for (auto& str : result)
+		{
+			color.Add(FCString::Atof(*str));
+		}
 	}
 }

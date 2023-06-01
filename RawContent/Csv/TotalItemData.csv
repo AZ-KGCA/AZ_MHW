@@ -1,56 +1,72 @@
-id,name,count,value,warehouse_max,pocket_max,init_count,type
-int,string,int,string,int,int,int,string
-101,potion,1,health,99,15,10,potion
-102,great_potion,1,health,99,10,5,potion
-103,demon_drug,1,damage,99,5,2,potion
-201,nomal_bottle,1,normal,99,99,99,ammo
-202,power_bottle,1,damage,99,15,5,ammo
-1001,normal_sword,1,this_is_normal_sword,1,1,1,weapon
-1002,power_sword,1,this_is_power_sword,1,1,1,weapon
-6501,normal_bow,1,this_is_normal_bow,1,1,1,weapon
-6502,power_bow,1,this_is_power_bow,1,1,1,weapon
-10001,body_IronArmor,0,Iron_Armor,-1,-1,0,armor
-10500,body_default,1,blank,-1,-1,1,armor
-10501,leg_IronCoil,0,this_is_iron_coil,-1,-1,0,armor
-11000,leg_default,1,blank,-1,-1,1,armor
-11001,arm_IronGlove,0,this_is_iron_glove,-1,-1,0,armor
-11500,arm_default,1,blank,-1,-1,1,armor
-11501,waist_IronBelt,0,this_is_iron_belt,-1,-1,0,armor
-12000,waist_default,1,blank,-1,-1,1,armor
-12001,head_IronHelmet,0,this_is_iron_helmet,-1,-1,0,armor
-12500,head_default,1,blank,-1,-1,1,armor
-12501,femail_hair_0,1,blank,-1,-1,-1,hair
-12502,femail_hair_1,1,blank,-1,-1,-1,hair
-12503,femail_hair_2,1,blank,-1,-1,-1,hair
-12504,femail_hair_3,1,blank,-1,-1,-1,hair
-12505,femail_hair_4,1,blank,-1,-1,-1,hair
-12506,femail_hair_5,1,blank,-1,-1,-1,hair
-12507,femail_hair_6,1,blank,-1,-1,-1,hair
-12508,femail_hair_7,1,blank,-1,-1,-1,hair
-12509,femail_hair_8,1,blank,-1,-1,-1,hair
-12510,femail_hair_9,1,blank,-1,-1,-1,hair
-12511,femail_hair_10,1,blank,-1,-1,-1,hair
-12512,femail_hair_11,1,blank,-1,-1,-1,hair
-12513,femail_hair_12,1,blank,-1,-1,-1,hair
-12514,femail_hair_13,1,blank,-1,-1,-1,hair
-12515,femail_hair_14,1,blank,-1,-1,-1,hair
-12516,femail_hair_15,1,blank,-1,-1,-1,hair
-12517,femail_hair_16,1,blank,-1,-1,-1,hair
-12518,femail_hair_17,1,blank,-1,-1,-1,hair
-12519,femail_hair_18,1,blank,-1,-1,-1,hair
-12520,femail_hair_19,1,blank,-1,-1,-1,hair
-12521,femail_hair_20,1,blank,-1,-1,-1,hair
-12522,femail_hair_21,1,blank,-1,-1,-1,hair
-12523,femail_hair_22,1,blank,-1,-1,-1,hair
-12524,femail_hair_23,1,blank,-1,-1,-1,hair
-12525,femail_hair_24,1,blank,-1,-1,-1,hair
-12526,femail_hair_25,1,blank,-1,-1,-1,hair
-12527,femail_hair_26,1,blank,-1,-1,-1,hair
-12528,femail_hair_27,1,blank,-1,-1,-1,hair
-12529,femail_hair_28,1,blank,-1,-1,-1,hair
-12530,femail_hair_29,1,blank,-1,-1,-1,hair
-12531,femail_hair_30,1,blank,-1,-1,-1,hair
-12532,femail_hair_31,1,blank,-1,-1,-1,hair
-12533,femail_hair_32,1,blank,-1,-1,-1,hair
-12534,femail_hair_33,1,blank,-1,-1,-1,hair
-12535,femail_hair_34,1,blank,-1,-1,-1,hair
+id,name,value,warehouse_max,pocket_max,init_count,type,description,kor_name,image_path,grade_image_path,color
+int,string,string,int,int,int,string,string,string,string,string,array_float
+101,potion,health,99,15,10,potion,체력을 약간 회복시켜주는 약,회복약,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_5,none,0.068|0.165|0.104|1.0
+102,greatPotion,health,99,10,5,potion,체력을 적당히 회복시켜주는 약,그레이트 회복약,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_5,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_195,0.068|0.165|0.104|1.0
+103,demonDrug,damage,99,5,2,potion,공격력을 상승시키는 약,귀인약,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_5,none,1.0|0.0|0.0|1.0
+201,normalBottle,normal,99,99,0,ammo,none,none,,,
+202,powerBottle,damage,99,15,0,ammo,none,none,,,
+1001,guildSword,this_is_guild_sword,1,1,1,weapon,대검,궁정왕검 [금성],/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_234,none,
+1002,tunaSword,this_is_power_sword,1,1,1,weapon,대검,꽁꽁 순간냉동 참치,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_235,none,
+1003,batSword,,1,1,1,weapon,대검,귀신금봉 [원마왕],/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_236,none,
+6501,normalBow,this_is_normal_bow,1,1,0,weapon,없음,없음,,,
+6502,powerBow,this_is_power_bow,1,1,0,weapon,없음,없음,,,
+10001,IronArmor,Iron_Armor,1,1,1,armor,아머,얼로이 메일,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_217.cmn_item00_ID_png_Sprite_217,,
+10203,AnjanathArmor,,1,1,1,armor,아머,쟈나프 메일,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_217.cmn_item00_ID_png_Sprite_218,,
+10241,PaolumuArmor,,1,1,1,armor,아머,우르무 메일,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_217.cmn_item00_ID_png_Sprite_219,,
+10297,OdogaronArmor,Odogaron_armor,1,1,1,armor,아머,데스가론 메일,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_217.cmn_item00_ID_png_Sprite_220,,
+10500,body_default,blank,-1,-1,0,armor,없음,없음,,,
+10501,IronCoil,this_is_iron_coil,1,1,1,armor,코일,얼로이 코일,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_219.cmn_item00_ID_png_Sprite_219,,
+10703,AnjanathCoil,,1,1,1,armor,코일,쟈나프 코일,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_219.cmn_item00_ID_png_Sprite_220,,
+10741,PaolumuCoil,,1,1,1,armor,코일,우르무 코일,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_219.cmn_item00_ID_png_Sprite_221,,
+10797,OdogaronCoil,Odogaron_coil,1,1,1,armor,코일,데스가론 코일,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_219.cmn_item00_ID_png_Sprite_222,,
+11000,leg_default,blank,-1,-1,0,armor,없음,없음,,,
+11001,IronGlove,this_is_iron_Glove,1,1,1,armor,글러브,얼로이 암,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_218.cmn_item00_ID_png_Sprite_218,,
+11203,AnjanathGlove,,1,1,1,armor,글러브,쟈나프 암,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_218.cmn_item00_ID_png_Sprite_219,,
+11241,PaolumuGlove,,1,1,1,armor,글러브,우르무 암,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_218.cmn_item00_ID_png_Sprite_220,,
+11297,OdogaronGlove,Odogaron_Glove,1,1,1,armor,글러브,데스가론 암,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_218.cmn_item00_ID_png_Sprite_221,,
+11500,arm_default,blank,-1,-1,0,armor,없음,없음,,,
+11501,IronGreave,this_is_iron_Greave,1,1,1,armor,그리브,얼로이 그리브,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_220.cmn_item00_ID_png_Sprite_220,,
+11703,AnjanathGreave,,1,1,1,armor,그리브,쟈나프 그리브,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_220.cmn_item00_ID_png_Sprite_221,,
+11741,PaolumuGreave,,1,1,1,armor,그리브,우르무 그리브,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_220.cmn_item00_ID_png_Sprite_222,,
+11797,OdogaronGreave,Odogaron_Greave,1,1,1,armor,그리브,데스가론 그리브,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_220.cmn_item00_ID_png_Sprite_223,,
+12000,waist_default,blank,-1,-1,0,armor,없음,없음,,,
+12001,IronHelmet,this_is_iron_helmet,1,1,1,armor,헬멧,얼로이 헬멧,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_216.cmn_item00_ID_png_Sprite_216,,
+12203,AnjanathHelmet,,1,1,1,armor,헬멧,쟈나프 헬멧,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_216.cmn_item00_ID_png_Sprite_217,,
+12241,PaolumuHelmet,,1,1,1,armor,헬멧,우르무 헬멧,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_216.cmn_item00_ID_png_Sprite_218,,
+12297,OdogaronHelmet,Odogaron_helmet,1,1,1,armor,헬멧,데스가론 헬멧,/Game/AZ/UI/az_item/cmn_item00_ID_png_Sprite_216.cmn_item00_ID_png_Sprite_219,,
+12500,head_default,blank,-1,-1,0,armor,,,,,
+12501,femail_hair_0,blank,-1,-1,0,hair,,,,,
+12502,femail_hair_1,blank,-1,-1,0,hair,,,,,
+12503,femail_hair_2,blank,-1,-1,0,hair,,,,,
+12504,femail_hair_3,blank,-1,-1,0,hair,,,,,
+12505,femail_hair_4,blank,-1,-1,0,hair,,,,,
+12506,femail_hair_5,blank,-1,-1,0,hair,,,,,
+12507,femail_hair_6,blank,-1,-1,0,hair,,,,,
+12508,femail_hair_7,blank,-1,-1,0,hair,,,,,
+12509,femail_hair_8,blank,-1,-1,0,hair,,,,,
+12510,femail_hair_9,blank,-1,-1,0,hair,,,,,
+12511,femail_hair_10,blank,-1,-1,0,hair,,,,,
+12512,femail_hair_11,blank,-1,-1,0,hair,,,,,
+12513,femail_hair_12,blank,-1,-1,0,hair,,,,,
+12514,femail_hair_13,blank,-1,-1,0,hair,,,,,
+12515,femail_hair_14,blank,-1,-1,0,hair,,,,,
+12516,femail_hair_15,blank,-1,-1,0,hair,,,,,
+12517,femail_hair_16,blank,-1,-1,0,hair,,,,,
+12518,femail_hair_17,blank,-1,-1,0,hair,,,,,
+12519,femail_hair_18,blank,-1,-1,0,hair,,,,,
+12520,femail_hair_19,blank,-1,-1,0,hair,,,,,
+12521,femail_hair_20,blank,-1,-1,0,hair,,,,,
+12522,femail_hair_21,blank,-1,-1,0,hair,,,,,
+12523,femail_hair_22,blank,-1,-1,0,hair,,,,,
+12524,femail_hair_23,blank,-1,-1,0,hair,,,,,
+12525,femail_hair_24,blank,-1,-1,0,hair,,,,,
+12526,femail_hair_25,blank,-1,-1,0,hair,,,,,
+12527,femail_hair_26,blank,-1,-1,0,hair,,,,,
+12528,femail_hair_27,blank,-1,-1,0,hair,,,,,
+12529,femail_hair_28,blank,-1,-1,0,hair,,,,,
+12530,femail_hair_29,blank,-1,-1,0,hair,,,,,
+12531,femail_hair_30,blank,-1,-1,0,hair,,,,,
+12532,femail_hair_31,blank,-1,-1,0,hair,,,,,
+12533,femail_hair_32,blank,-1,-1,0,hair,,,,,
+12534,femail_hair_33,blank,-1,-1,0,hair,,,,,
+12535,femail_hair_34,blank,-1,-1,0,hair,,,,,
