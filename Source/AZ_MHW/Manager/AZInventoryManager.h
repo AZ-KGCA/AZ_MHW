@@ -24,6 +24,9 @@ private:
 	UPROPERTY() TMap<int32, FPotionDataStruct> potion_data_map_;
 	UPROPERTY() TMap<int32, FBuffDataStruct> buff_data_map_;
 	UPROPERTY() TMap<int32, FBottleDataStruct> bottle_data_map_;
+	UPROPERTY() TMap<int32, FMeleeWeaponDataStruct> melee_weapon_data_map_;
+	UPROPERTY() TMap<int32, FArmorDataStruct> armor_data_map_;
+	UPROPERTY() class UAZGameSingleton* instance_;
 public:
 	UPROPERTY() TMap<int32, UAZPotionItem*> potion_pocket_;
 	UPROPERTY() TMap<int32, UAZPotionItem*> potion_warehouse_;
@@ -31,12 +34,12 @@ public:
 	UPROPERTY() TMap<int32, UAZAmmoItem*> bottle_warehouse_;
 	UPROPERTY() TMap<int32, UAZWeaponItem*> weapon_warehouse_;
 	UPROPERTY() TMap<int32, UAZArmorItem*> armor_warehouse_;
-	UPROPERTY() class UAZGameSingleton* instance_;
 
 	//UI 
 	UPROPERTY() TArray<UAZPotionItem*> potion_slot_;
 	UPROPERTY() TArray<UAZAmmoItem*> bottle_slot_;
-	
+	UPROPERTY() TArray<UAZWeaponItem*> weapon_slot_;
+	UPROPERTY() TArray<UAZArmorItem*> total_armor_slot_;
 	
 	void					Init();
 	void					ResetMgr();
@@ -49,8 +52,11 @@ public:
 	void					SortPocket();
 	void					CreateStartItem();
 	void					RemoveItem(int32 item_key, EItemType item_type,EStorageType type);
+	
 	TArray<UAZPotionItem*>	GetPotionSlot();
 	TArray<UAZAmmoItem*>	GetBottleSlot();
+	TArray<UAZWeaponItem*>	GetWeaponSlot();
+	TArray<UAZArmorItem*>	GetArmorSlot();
 	
 	//potion
 	bool				AddWarehousePotion(FPotionInfo& info);
@@ -69,27 +75,23 @@ public:
 	UAZAmmoItem*		CreateBottle(FAmmoInfo& info);
 	
 	//weapon
-	UAZWeaponItem*		CreateWeapon(FWeaponInfo& info);
-	bool				AddWarehouseWeapon(FWeaponInfo& info);
-	void				EquipWeapon(int32 item_key);
+	UAZWeaponItem*			CreateWeapon(FWeaponInfo& info);
+	UAZWeaponItem*			GetEquipWeapon();
+	bool					AddWarehouseWeapon(FWeaponInfo& info);
+	void					ChangeWeaponEquipState(int32 item_key);
+	void					SetWeaponSlot();
+	FWeaponInfo				GetEquipWeaponInfo();
+	int32					GetEquipWeaponKey();
 	
-	//UAZPotionItem*	GetPotionItem(FPotionInfo& info);
-	/*
-	bool		AddWarehouseItem(const FItemInfo& item_info);
-	bool		AddPocketItem(const FItemInfo& item_info);
-	bool		RemoveItem(const FItemInfo& item_info);
-	bool		ChangeItem(const FItemInfo& item_info, EStorageType type, int32  move_count = 1);
-	bool		UseItem(int32 pocket_index);
-	bool		IsInventoryFUll(EStorageType type);
-	void		SortInventoryByIndex();
-	void		InitInventoryCount();
-	void		RemoveAll(int32 item_index, EStorageType type);
-	void		CreateDefaultItem();
-	UAZPotionItem*	FindItem(const FItemInfo& item_info);
-	UAZPotionItem*	InitializeItem(const FItemInfo &ItemInfo);
-	int32		GetInventoryMaxCount(EStorageType type);
-	int32		GetInventoryCurCount(EStorageType type);
-	*/
+	//armor
+	UAZArmorItem*			CreateArmor(FArmorInfo& info);
+	UAZArmorItem*			GetEquipArmorToType(int32 armor_index);
+	UAZArmorItem*			FindEquipArmor(EArmorType type);
+	bool					AddWarehouseArmor(FArmorInfo& info);
+	void					ChangeArmorEquipState(int32 item_key);
+	void					SetArmorSlot();
+	int32					GetEquipArmorKey(EArmorType type);
+	
 private:
 	int32 potion_warehouse_max_count;
 	int32 potion_pocket_max_count;

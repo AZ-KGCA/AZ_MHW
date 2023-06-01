@@ -16,14 +16,16 @@ void UAZInventoryManager::Init()
 	CreateStartItem();
 	SetPotionSlot();
 	SetBottleSlot();
-
-	UsePotion(0);
 }
 
 void UAZInventoryManager::ResetMgr()
 {
 	potion_pocket_.Empty();
 	potion_warehouse_.Empty();
+	bottle_pocket_.Empty();
+	bottle_warehouse_.Empty();
+	weapon_warehouse_.Empty();
+	armor_warehouse_.Empty();
 }
 
 void UAZInventoryManager::SetMaxCount()
@@ -77,6 +79,27 @@ void UAZInventoryManager::GetTableData()
 		buff_struct.calc = UAZUtility::StringToEnum<ECalculation>(buff_data->calculation);
 		buff_data_map_.Emplace(buff_struct.id,buff_struct);
 	}
+	for(auto melee_weapon : instance_->table_mgr->melee_weapon_array_)
+	{
+		FMeleeWeaponDataStruct m_weapon_struct;
+		m_weapon_struct.id = melee_weapon->id;
+		m_weapon_struct.name = melee_weapon->name;
+		m_weapon_struct.type = UAZUtility::StringToEnum<EWeaponType>(melee_weapon->type);
+		m_weapon_struct.damage = melee_weapon->damage;
+		m_weapon_struct.hone = melee_weapon->hone;
+		m_weapon_struct.critical = melee_weapon->critical;
+		melee_weapon_data_map_.Emplace(m_weapon_struct.id, m_weapon_struct);
+	
+	}
+	for(auto armor : instance_->table_mgr->armor_array_)
+	{
+		FArmorDataStruct armor_struct;
+		armor_struct.id = armor->id;
+		armor_struct.type = UAZUtility::StringToEnum<EArmorType>(armor->type);
+		armor_struct.defense = armor->defense;
+		armor_data_map_.Emplace(armor_struct.id, armor_struct);
+	}
+
 }
 
 void UAZInventoryManager::CreateStartItem()
@@ -121,6 +144,38 @@ void UAZInventoryManager::CreateStartItem()
 				info.effect_type = buff_data->target;
 			}
 			AddPocketBottle(info);
+		}
+		else if(item.Value.type == EItemType::weapon)
+		{
+			FWeaponInfo info;
+			info.item_key = item.Value.id;
+			info.item_name = item.Value.name;
+			info.item_type = item.Value.type;
+			if(melee_weapon_data_map_.Contains(info.item_key))
+			{
+				FMeleeWeaponDataStruct* m_weapon = melee_weapon_data_map_.Find(info.item_key);
+				info.damage = m_weapon->damage;
+				info.hone = m_weapon->hone;
+				info.is_equip = false;
+				info.weapon_type = m_weapon->type;
+				
+			}
+			AddWarehouseWeapon(info);
+		}
+		else if(item.Value.type == EItemType::armor)
+		{
+			FArmorInfo info;
+			info.item_key = item.Value.id;
+			info.item_name = item.Value.name;
+			info.item_type = item.Value.type;
+			if(armor_data_map_.Contains(info.item_key))
+			{
+				FArmorDataStruct* armor = armor_data_map_.Find(info.item_key);
+				info.is_equip = false;
+				info.defense = armor->defense;
+				info.armor_type = armor->type;
+			}
+			AddWarehouseArmor(info);
 		}
 	}
 }
@@ -251,6 +306,12 @@ void UAZInventoryManager::RemoveItem(int32 item_key, EItemType item_type, EStora
 			bottle_pocket_.Remove(item_key);
 		}
 		break;
+	case EItemType::weapon:
+		weapon_warehouse_.Remove(item_key);
+		break;
+	case EItemType::armor:
+		armor_warehouse_.Remove(item_key);
+		break;
 	}
 }
 
@@ -263,6 +324,17 @@ TArray<UAZPotionItem*> UAZInventoryManager::GetPotionSlot()
 TArray<UAZAmmoItem*> UAZInventoryManager::GetBottleSlot()
 {
 	return bottle_slot_;
+}
+
+TArray<UAZWeaponItem*> UAZInventoryManager::GetWeaponSlot()
+{
+	return weapon_slot_;
+}
+
+
+TArray<UAZArmorItem*> UAZInventoryManager::GetArmorSlot()
+{
+	return total_armor_slot_;
 }
 
 bool UAZInventoryManager::AddWarehousePotion(FPotionInfo& info)
@@ -371,12 +443,6 @@ FBuffDataStruct UAZInventoryManager::UsePotion(int32 item_index)
 		potion_pocket_.Remove(potion->GetItemInfo().item_key);
 	}
 	buff = *buff_data_map_.Find(potion->GetItemInfo().item_key);
-	UAZPotionItem** temp =  potion_pocket_.Find(buff.id);
-	if(temp != nullptr)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,  FString::Printf(TEXT("item : %s , count : %d"),
-			*((*temp)->GetItemInfo().item_name),(*temp)->GetItemInfo().item_count));
-	}
 	return buff;
 }
 
@@ -451,9 +517,150 @@ bool UAZInventoryManager::AddWarehouseWeapon(FWeaponInfo& info)
 	return true;
 }
 
-void UAZInventoryManager::EquipWeapon(int32 item_key)
+void UAZInventoryManager::ChangeWeaponEquipState(int32 item_key)
 {
 	UAZWeaponItem** weapon = weapon_warehouse_.Find(item_key);
+	if(weapon == nullptr)
+	{
+		return;
+	}
+	if((*weapon)->GetEquipState() == false)
+	{
+		(*weapon)->EquipStateChange(true);
+	}
+	else if((*weapon)->GetEquipState() == true)
+	{
+		(*weapon)->EquipStateChange(false);
+	}
+}
+
+
+void UAZInventoryManager::SetWeaponSlot()
+{
+	for(auto weapon : weapon_warehouse_)
+	{
+		weapon_slot_.Emplace(weapon.Value);
+	}
+}
+
+FWeaponInfo UAZInventoryManager::GetEquipWeaponInfo()
+{
+	FWeaponInfo info;
+	for(auto weapon : weapon_warehouse_)
+	{
+		if(weapon.Value->GetWeaponInfo().is_equip == true)
+		{
+			info = weapon.Value->GetWeaponInfo();
+		}
+	}
+	return info;
+}
+
+int32 UAZInventoryManager::GetEquipWeaponKey()
+{
+
+	FWeaponInfo info;
+	for(auto weapon : weapon_warehouse_)
+	{
+		if(weapon.Value->GetWeaponInfo().is_equip == true)
+		{
+			info = weapon.Value->GetWeaponInfo();
+		}
+	}
+	return info.item_key;
+}
+
+UAZWeaponItem* UAZInventoryManager::GetEquipWeapon()
+{
+	UAZWeaponItem* equip_weapon = nullptr;
+	for(auto weapon : weapon_warehouse_)
+	{
+		if(weapon.Value->GetEquipState() == true)
+		{
+			equip_weapon = weapon.Value;
+		}
+	}
+	return equip_weapon;
+}
+
+UAZArmorItem* UAZInventoryManager::CreateArmor(FArmorInfo& info)
+{
+	UAZArmorItem* armor = NewObject<UAZArmorItem>();
+	armor->InitItem(info);
+	return armor;
+}
+
+UAZArmorItem* UAZInventoryManager::GetEquipArmorToType(int32 armor_index)
+{
+	UAZArmorItem* armor = nullptr;
+	EArmorType armor_type_ = static_cast<EArmorType>(armor_index);
+	armor = FindEquipArmor(armor_type_);
+	
+	return armor;
+}
+
+UAZArmorItem* UAZInventoryManager::FindEquipArmor(EArmorType type)
+{
+	UAZArmorItem* item = nullptr;
+	for(auto armor : armor_warehouse_)
+	{
+		if(armor.Value->GetItemInfo().armor_type == type)
+		{
+			if(armor.Value->GetItemInfo().is_equip == true)
+			{
+				item = armor.Value;
+			}
+		}
+	}
+	return item;
+}
+
+bool UAZInventoryManager::AddWarehouseArmor(FArmorInfo& info)
+{
+	UAZArmorItem** armor = armor_warehouse_.Find(info.item_key);
+
+	if(armor != nullptr)
+	{
+		return false;
+	}
+	armor_warehouse_.Emplace(info.item_key, CreateArmor(info));
+	return true;
+}
+
+void UAZInventoryManager::ChangeArmorEquipState(int32 item_key)
+{
+	UAZArmorItem** armor = armor_warehouse_.Find(item_key);
+	if(armor == nullptr)
+	{
+		return;
+	}
+	if((*armor)->GetEquipState() == false)
+	{
+		(*armor)->EquipStateChange(true);
+	}
+	else if((*armor)->GetEquipState() == true)
+	{
+		(*armor)->EquipStateChange(false);
+	}
+}
+
+
+void UAZInventoryManager::SetArmorSlot()
+{
+	for(auto armor : armor_warehouse_)
+	{
+		total_armor_slot_.Emplace(armor.Value);
+	}
+}
+
+int32 UAZInventoryManager::GetEquipArmorKey(EArmorType type)
+{
+	auto armor = FindEquipArmor(type);
+	if(armor == nullptr)
+	{
+		return 0;
+	}
+	return armor->GetItemInfo().item_key;
 }
 
 bool UAZInventoryManager::ChangeBottleStorage(int32 item_key, EStorageType type, int32 move_count)
@@ -525,237 +732,3 @@ FBuffDataStruct UAZInventoryManager::UseBottle(int32 index)
 	return buff;
 }
 
-/*
-void UAZItemInventoryManager::InitInventoryCount()
-{
-	warehouse_max_count = 50;
-	pocket_max_count = 15;
-}
-
-void UAZItemInventoryManager::RemoveAll(int32 item_index, EStorageType type)
-{
-	/*if (type == EStorageType::Warehouse)
-	{
-		warehouse_map.Remove(item_index);
-	}
-	else if (type == EStorageType::Pocket)
-	{
-		pocket_map.Remove(item_index);
-	}#1#
-}
-
-void UAZItemInventoryManager::CreateDefaultItem()
-{
-	/*FItemInfo info;
-	for(int i = 0 ; i<instance->table_mgr->total_item_array.Num(); i++)
-	{
-		info.item_key = instance->table_mgr->total_item_array[i]->id;
-		info.item_name = instance->table_mgr->total_item_array[i]->name;
-		info.storage_type = EStorageType::Pocket;
-		info.item_count = instance->table_mgr->total_item_array[i]->init_count;
-		std::string str = TCHAR_TO_UTF8(*instance->table_mgr->total_item_array[i]->type);
-		info.item_type = magic_enum::enum_cast<EItemType>(str).value();
-		AddPocketItem(info);
-	}
-	UE_LOG(LogTemp, Warning, TEXT("%d"), pocket_map.Num());#1#
-}
-
-bool UAZItemInventoryManager::AddWarehouseItem(const FItemInfo& item_info)
-{
-	/*FItemInfo new_info = item_info;
-	bool is_full = IsInventoryFUll(EStorageType::Warehouse);
-	if (is_full == true)
-	{
-		return false;
-	}
-	UAZItem** item = warehouse_map.Find(new_info.item_key);
-	if (item != nullptr)
-	{
-		(*item)->IncreaseCount();
-	} 
-	else
-	{
-		warehouse_map.Emplace(new_info.item_key, InitializeItem(new_info));
-	}
-	return true;#1#
-}
-
-bool UAZItemInventoryManager::AddPocketItem(const FItemInfo& item_info)
-{
-	/*FItemInfo info = item_info;
-	bool is_full = IsInventoryFUll(EStorageType::Pocket);
-	if (is_full == true)
-	{
-		bool check_warehouse = IsInventoryFUll(EStorageType::Warehouse);
-		if (check_warehouse == true)
-		{
-			//아이템 제거
-			return false;
-		}
-		UAZItem** item = warehouse_map.Find(info.item_key);
-		if (item != nullptr)
-		{
-			(*item)->IncreaseCount();
-		}
-		else
-		{
-			warehouse_map.Emplace(info.item_key, InitializeItem(info));
-		}
-	}
-	else
-	{
-		UAZItem** item = pocket_map.Find(info.item_key);
-		if (item != nullptr)
-		{
-			(*item)->IncreaseCount();
-		}
-		else
-		{
-			pocket_map.Emplace(info.item_key, InitializeItem(info));
-		}
-	}#1#
-	return true;
-}
-
-bool UAZItemInventoryManager::RemoveItem(const FItemInfo& item_info)
-{
-	/*FItemInfo info = item_info;
-	UAZItem* item = FindItem(info);
-
-	if (item != nullptr)
-	{
-		item->DecreaseCount();
-		if (item->GetItemCount() <= 0)
-		{
-			RemoveAll(item->GetItemIndex(), item->GetItemStorageType());
-		}
-	}#1#
-	return true;
-}
-
-bool UAZItemInventoryManager::ChangeItem(const FItemInfo& item_info, EStorageType type, int32 move_count)
-{
-	/*FItemInfo info = item_info;
-	EStorageType before_state = type;
-	if (before_state == EStorageType::Warehouse)
-	{
-		if (warehouse_map.Contains(info.item_key))
-		{
-			info.item_count-=move_count;
-
-			if (info.item_count <= 0)
-			{
-				warehouse_map.Remove(info.item_key);
-				info.item_count = move_count;
-				info.storage_type = EStorageType::Pocket;
-			}
-			else
-			{
-				info.item_count = move_count;
-				info.storage_type = EStorageType::Pocket;
-			}
-			AddPocketItem(info);
-		}
-	}
-	else if (before_state == EStorageType::Pocket)
-	{
-		if (pocket_map.Contains(info.item_key))
-		{
-			info.item_count--;
-			if (info.item_count <= 0)
-			{
-				pocket_map.Remove(info.item_key);
-				info.item_count = move_count;
-				info.storage_type = EStorageType::Warehouse;
-			}
-			else
-			{
-				info.item_count = move_count;
-				info.storage_type = EStorageType::Pocket;
-			}
-			AddWarehouseItem(info);
-		}
-	}#1#
-	return true;
-}
-
-bool UAZItemInventoryManager::UseItem(int32 pocket_index)
-{
-	/*UAZItem* use_item = pocket_map[pocket_index];
-	use_item->DecreaseCount();
-	if (use_item->GetItemCount() <= 0)
-	{
-		pocket_map.Remove(use_item->GetItemIndex());
-	}#1#
-	return true;
-}
-
-
-bool UAZItemInventoryManager::IsInventoryFUll(EStorageType type)
-{
-	/*int32 max_count = GetInventoryMaxCount(type);
-	int32 cur_count = GetInventoryCurCount(type);
-	if (max_count == cur_count)
-	{
-		return true;
-		
-	}#1#
-	return false;
-}
-
-void UAZItemInventoryManager::SortInventoryByIndex()
-{
-	warehouse_map.KeySort([](int32 left, int32 right)
-	{
-		return left < right;
-	});
-}
-
-UAZPotionItem* UAZItemInventoryManager::FindItem(const FItemInfo& item_info)
-{
-	/*FItemInfo info = item_info;
-	UAZItem** find_item = nullptr;
-	if (info.storage_type == EStorageType::Warehouse)
-	{
-		find_item = warehouse_map.Find(info.item_key);
-	}
-	else if (info.storage_type == EStorageType::Pocket)
-	{
-		find_item = pocket_map.Find(info.item_key);
-	}#1#
-	return nullptr;
-}
-
-UAZPotionItem* UAZItemInventoryManager::InitializeItem(const FItemInfo& ItemInfo)
-{
-	/*UAZItem* item = NewObject<UAZItem>();
-	item->InitItem(ItemInfo);
-	return item;#1#
-	return nullptr;
-}
-
-int32 UAZItemInventoryManager::GetInventoryMaxCount(EStorageType type)
-{
-	/*if (type == EStorageType::Warehouse)
-	{
-		return warehouse_max_count;
-	}
-	else
-	{
-		return pocket_max_count;
-	}#1#
-}
-
-int32 UAZItemInventoryManager::GetInventoryCurCount(EStorageType type)
-{
-	/*if (type == EStorageType::Warehouse)
-	{
-		return warehouse_map.Num();
-	}
-	else
-	{
-		return pocket_map.Num();
-		
-	}#1#
-}
-*/

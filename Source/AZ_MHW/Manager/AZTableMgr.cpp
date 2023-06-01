@@ -21,6 +21,9 @@ void UAZTableMgr::LoadComplete()
 	LoadPotionTable();
 	LoadBuffTable();
 	LoadBottleTable();
+	LoadWeaponTable();
+	LoadArmorTable();
+
 }
 
 void UAZTableMgr::LoadTotalItemTable()
@@ -59,6 +62,21 @@ void UAZTableMgr::LoadBuffTable()
 void UAZTableMgr::LoadBottleTable()
 {
 	bottle_array_ = GetData<UBottleData>([](const UBottleData* bottle)
+	{
+		return true;
+	});
+}
+void UAZTableMgr::LoadWeaponTable()
+{
+	melee_weapon_array_ = GetData<UMeleeWeaponData>([](const UMeleeWeaponData* m_weapon)
+	{
+		return true;
+	});
+}
+
+void UAZTableMgr::LoadArmorTable()
+{
+	armor_array_ = GetData<UArmorData>([](const UArmorData* armor)
 	{
 		return true;
 	});
