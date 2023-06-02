@@ -138,7 +138,7 @@ void AAZPlayerController_InGame::OnPossess(APawn* pawn)
 	//폰에게 카메라 할당
 	SetupFollowCameraOwnPawn(true);
 	//타이머 인풋패킷
-	GetWorld()->GetTimerManager().SetTimer(input_packet_timer_handle_, this, &AAZPlayerController_InGame::UpdateInput_TimerMode, 1/10.f, true);
+	GetWorld()->GetTimerManager().SetTimer(input_packet_timer_handle_, this, &AAZPlayerController_InGame::UpdateInput_TimerMode, 0.1f, true);
 }
 
 void AAZPlayerController_InGame::OnUnPossess()
@@ -416,7 +416,6 @@ void AAZPlayerController_InGame::HitPlayer_Playable(float angle, int32 damage)
 {
 	playable_player_->SetActorRotation(FRotator(0,angle,0));
 	playable_player_->player_character_state_->character_state_.bit_hit = true;
-
 	
 	playable_player_->player_character_state_->character_state_.current_health_point -= damage;
 	if(playable_player_->player_character_state_->character_state_.current_health_point < 0)
@@ -779,3 +778,15 @@ void AAZPlayerController_InGame::ActionInteract_End()
 		UpdateInput_EventMode();
 	}
 }
+
+// void ActionOpenChest()
+// {
+// 	if(can_open_chest_)
+// 	{
+// 		//GetHud가져와서 OpenScene("")매개변수
+// 	}
+// 	else
+// 	{
+// 		
+// 	}
+// }

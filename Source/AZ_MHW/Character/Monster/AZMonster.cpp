@@ -477,7 +477,7 @@ void AAZMonster::AnimNotifyState_DoCapsuleOverlap_Tick(FName socket_name, float 
 	for (auto actor : overlapped_actors)
 	{
 		AAZPlayer_Origin* overlapped_player = Cast<AAZPlayer_Origin>(actor);
-		if (overlapped_player && overlapped_actors_.AddUnique(overlapped_player) == INDEX_NONE)
+		if (overlapped_player && (overlapped_actors_.AddUnique(overlapped_player) == 0))
 		{
 			DoDamage(overlapped_player, FHitResult());
 		}
@@ -518,6 +518,8 @@ bool AAZMonster::IsAValidMonster() const
 
 void AAZMonster::DoDamage(AActor* damaged_actor, const FHitResult hit_result)
 {
+	//구르기 같은 개념을 생각해본다면, 첫 피격처리 할때 오버랩으로 들어가서 체크를 피하는게 아니라,
+	//지속적으로 체크하다가 중간에 피격되는 경우도 있을거같다는 생각은 함.
 	FAttackInfo* attack_info = UAZGameSingleton::instance()->monster_mgr_->GetAttackInfo(active_action_id_);
 	if (attack_info)
 	{

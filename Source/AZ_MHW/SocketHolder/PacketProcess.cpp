@@ -1,6 +1,5 @@
 #include "AZ_MHW/SocketHolder/PacketFunction.h"
 #include "AZ_MHW/GameInstance/CommonPacket.h"
-#include "AZ_MHW/SocketHolder/PacketFunction.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/SocketHolder/AZSocketHolder.h"
 #include "AZ_MHW/CommonSource/AZLog.h"
@@ -86,20 +85,11 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		}
 		break;
 	case PACKET_ID::CS_PLAYER_CHARACTER_CREATE_REQ:
-	{
-		CS_PLAYER_CHARACTER_CREATE_REQ* packet = (CS_PLAYER_CHARACTER_CREATE_REQ*)recv_packet;
-		UPacketFunction::PlayerCharacterCreateRequest(client_index, packet);
-	}
-	break;
-
-	// 일단 패킷 이름 바꿈 남겨는 놓음
-	/*case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ:
 		{
-			//플레이어 캐릭터 데이터를 생성해주세요.
-			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ"));
-			//UPacketFunction::
+			CS_PLAYER_CHARACTER_CREATE_REQ* packet = (CS_PLAYER_CHARACTER_CREATE_REQ*)recv_packet;
+			UPacketFunction::PlayerCharacterCreateRequest(client_index, packet);
 		}
-		break;*/
+		break;
 	case PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ:
 		{
 			//플레이어 캐릭터 데이터를 제거해주세요.
@@ -140,7 +130,6 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UPacketFunction::ActionPlayerOriginRequest(client_index, packet);
 		}
 		break;
-		
 	case PACKET_ID::CS_DEVELOP_PLAYER_FORCE_UPDATE_CMD:
 		{
 			//개발자용 클라 투 서버 동기화 패킷
@@ -149,7 +138,6 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UPacketFunction::DevelopPlayerForceUpdateCommand(client_index, packet);
 		}
 		break;
-
 	case PACKET_ID::CS_PLAYER_ORIGIN_GESTURE_REQ:
 		{
 			UE_LOG(AZ_PLAYER,Warning,TEXT("CS_PLAYER_ORIGIN_GESTURE_REQ"));
@@ -321,7 +309,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			ACTION_PLAYER_PACKET* packet = (ACTION_PLAYER_PACKET*) recv_packet;
 			UPacketFunction::ActionPlayerRemotableCommand(packet);
 		}
-		
+		break;
 	case PACKET_ID::SC_PLAYER_REMOTABLE_UPDATE_CMD:
 		{
 			//원격 갱신명령
@@ -329,6 +317,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 			UPDATE_PLAYER_STATE_PACKET* packet = (UPDATE_PLAYER_STATE_PACKET*) recv_packet;
 			UPacketFunction::UpdatePlayerStateRemotableCommand(packet);
 		}
+		break;
 	case PACKET_ID::SC_PLAYER_PLAYABLE_UPDATE_CMD:
 		{
 			//플레이어 갱신명령
@@ -368,14 +357,6 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 /////////////////////////////////////////////////////////////////////////////////////////
 /// 캐릭터 데이터 (로그인 창)
 /////////////////////////////////////////////////////////////////////////////////////////
-	/*case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES:
-		{
-			//캐릭터 생성 데이터 받기
-			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_CREATE_RES"));
-			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
-				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_CREATE_REQ, out_request_protocol);
-		}
-		break;*/
 	case PACKET_ID::SC_PLAYER_CHARACTER_CREATE_RES:
 		{
 			SC_PLAYER_CHARACTER_CREATE_RES* packet = (SC_PLAYER_CHARACTER_CREATE_RES*)recv_packet;
@@ -385,7 +366,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		break;
 	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES:
 		{
-			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES"));
+			//UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES"));
 			//캐릭터 선택한 데이터 받기
 			SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES* packet = (SC_PLAYER_PLAYABLE_CHARACTER_DATA_RES*)recv_packet;
 			UPacketFunction::PlayableCharacterDataResponse(packet);
@@ -396,7 +377,7 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 	case PACKET_ID::SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES:
 		{
 			//캐릭터 파괴 데이터 받기
-			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES"));
+			//UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_PLAYABLE_CHARACTER_DESTROY_RES"));
 			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
 				PACKET_ID::CS_PLAYER_PLAYABLE_CHARACTER_DESTROY_REQ, out_request_protocol);
 		}
@@ -405,8 +386,10 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		{
 			//캐릭터 선택에 대한 서버의 응답(원격 생성후 로컬 생성 허락)
 			//캐릭터 선택을 했으니 로컬에 생성하라
-			UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_CHARACTER_SELECT_RES"));
+			//UE_LOG(AZ_PLAYER,Warning,TEXT("SC_PLAYER_CHARACTER_SELECT_RES"));
 			UPacketFunction::CreatePlayerPlayableCommand();
+			game_instance_->GetSocketHolder(ESocketHolderType::Game)->OutRequestProtocol(
+				PACKET_ID::CS_PLAYER_CHARACTER_SELECT_REQ, out_request_protocol);
 		}
 		break;
 #pragma endregion
@@ -480,8 +463,8 @@ bool UPacketFunction::ProcessPacket(UINT32 client_index, PACKET_HEADER* recv_pac
 		break;
 	case PACKET_ID::SC_MONSTER_DIE_CMD:
 		{
-		const SC_MONSTER_DIE_CMD* packet = reinterpret_cast<SC_MONSTER_DIE_CMD*>(recv_packet);
-		UPacketFunction::Receive_SC_MONSTER_DIE_CMD(packet);
+			const SC_MONSTER_DIE_CMD* packet = reinterpret_cast<SC_MONSTER_DIE_CMD*>(recv_packet);
+			UPacketFunction::Receive_SC_MONSTER_DIE_CMD(packet);
 		}
 		break;
 #pragma endregion 

@@ -12,9 +12,15 @@
 #include "AZ_MHW/Item/AZItemData.h"
 #include <Components/CapsuleComponent.h>
 
+#include "AnimInstance/AZAnimInstance_Player.h"
+#include "Character/Monster/AZMonster.h"
+#include "PlayerController/AZPlayerController_Server.h"
+
 AAZPlayer_Origin::AAZPlayer_Origin()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 }
 
 void AAZPlayer_Origin::BeginPlay()
@@ -38,17 +44,30 @@ void AAZPlayer_Origin::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-
+void AAZPlayer_Origin::SetActiveSuperArmor(bool enable, int32 reduce_rate)
+{
+	player_character_state_->character_state_.bit_super_armor = enable;
+	if(enable)
+	{
+		player_character_state_->character_state_.damage_reduce_rate = reduce_rate;
+	}
+	else
+	{
+		player_character_state_->character_state_.damage_reduce_rate = 0;
+	}
+}
 
 
 float AAZPlayer_Origin::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
+	UE_LOG(AZ_PLAYER,Warning,TEXT("때림"));
 	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
 	
 }
 
 float AAZPlayer_Origin::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
+	UE_LOG(AZ_PLAYER,Warning,TEXT("맞은듯"));
 	return Super::ProcessDamage(damage_instigator, hit_result, attack_info);
 	//float angle
 	//characterstate - bithit =true
@@ -58,37 +77,61 @@ float AAZPlayer_Origin::ProcessDamage(AActor* damage_instigator, const FHitResul
 void AAZPlayer_Origin::PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result,
 	FAttackInfo attack_info)
 {
-	//최종 데미지처리후에 체력이 0이하라면 죽음처리..<<애님노티파이에서도 확인 함
+	const auto anim_instance = Cast<UAZAnimInstance_Player>(GetMesh()->GetAnimInstance());
+	if(anim_instance->current_montage_name_ == TEXT("Hit")) return;
 	
-	// //Origin과 Playable
-	// AAZMonster* instigator_monster = Cast<AAZMonster>(damage_instigator);
-	// if (!instigator_monster)
-	// {
-	// 	UE_LOG(AZMonster, Warning, TEXT("[AAZPlayer] Damage dealt by non-AZMonster actor %s"), *instigator_monster->GetName());
-	// 	return;
-	// }
-	// 	
-	// //함수화하기
-	// const FVector forward_direction = GetActorForwardVector();
-	// const FVector from_hit_direction = (instigator_monster->GetActorLocation());
-	// const FVector to_hit_direction = (from_hit_direction - GetActorLocation()).GetSafeNormal();
+	AAZMonster* instigator_monster = Cast<AAZMonster>(damage_instigator);
+	if (!instigator_monster)
+	{
+		UE_LOG(AZMonster, Warning, TEXT("[AAZPlayer] Damage dealt by non-AZMonster actor %s"), *instigator_monster->GetName());
+		return;
+	}
+
+	const float angle =GetRelativeAngleToLocation(instigator_monster->GetActorLocation());
+	
+
+	const FRotator hit_direction = FRotator(0,angle,0);
+	SetActorRotation(hit_direction);
+	player_character_state_->character_state_.character_direction = hit_direction;
+	player_character_state_->action_state_.input_direction = hit_direction;
+	
+	if(player_character_state_->character_state_.bit_super_armor)
+	{
+		player_character_state_->character_state_.bit_hit = false;
+	}
+	else
+	{
+		player_character_state_->character_state_.bit_hit = true;
+	}
+	
+	int32 total_damage = attack_info.GetDamageTotal();
+
+#pragma region 거대한 기획...
+	//기획상으로는
+	//약,중,강의 세기로 공격받을 수 있다.
+	//강일시 플레이어 캐릭터의 방향이 공격받은 방향의 크게 영향을 받고(앞, 뒤), 공격받은 방향으로의 애니메이션 처리
+	//중일시 플레이어 캐릭터의 방향이 공격받은 방향의 영향을 받고(앞, 뒤), 공격받은 방향으로의 애니메이션처리
+	//약일시 플레이어 캐릭터 방향은 변하지않고, 공격받은 방향으로의 애니메이션처리(일반적으로 4방향)
 	//
+	//monster위치, character 위치
+	//const FVector damaged_position = GetActorLocation();//player 위치
+	// const FVector forward_direction = GetActorForwardVector();//player 위치
+	// const FVector from_hit_position = instigator_monster->GetActorLocation();//몬스터 위치
+	// const FVector to_hit_direction = (from_hit_position - forward_direction).GetSafeNormal();//상대 방향
 	// const double cos_theta = FVector::DotProduct(forward_direction,to_hit_direction);
 	// double theta = FMath::Acos(cos_theta);
 	// theta = FMath::RadiansToDegrees(theta);
-	//
 	// const FVector cross_vector = FVector::CrossProduct(forward_direction,to_hit_direction);
 	// if(cross_vector.Z<0)
 	// {
 	// 	theta *=-1.f;
 	// }
-	// //피해 타입(약(살짝경직),중(날라가지만 자세),강(날라가서구르기))에 따라 강제회전타입(앞뒤 넉백 에어본)도 넣기
+	// //구르기태클2차구르기
 	// //Default Back
 	// if(theta >=-45.f && theta < 45.f)
 	// {
 	// 	//Front
 	// 	UE_LOG(AZ_DAMAGE,Error,TEXT("Front"));
-	// 	//Cast<UAZAinmInstance_Player>(GetMesh()->GetAnimInstance())->SetMontageName(TEXT(Hit Front));
 	// }
 	// else if(theta >= -135.f && theta <-45.f)
 	// {
@@ -100,26 +143,34 @@ void AAZPlayer_Origin::PostProcessDamage(AActor* damage_instigator, const FHitRe
 	// 	//Right
 	// 	UE_LOG(AZ_DAMAGE,Error,TEXT("Right"));
 	// }
-	// 	
-	// 	
-	// if(const auto player_state = GetPlayerState<AAZPlayerState_Client>())
-	// {
-	// 	//TODO 공격타입별로 데미지 계산, attack_info.damage_array에 TTuple<EDamageType, int32> 꼴로 있습니다
-	// 	player_state->character_state_.current_health_point -= attack_info.GetDamageTotal();
-	// 	if(player_state->character_state_.current_health_point <= 0)
-	// 	{
-	// 		player_state->character_state_.current_health_point = 0;
-	// 	}
-	//
-	// 	if (GEngine)
-	// 	{
-	// 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Player Health: %d"),
-	// 			player_state->character_state_.current_health_point));
-	// 	}
-	// }
-	//
-	//
-	//
+
+#pragma endregion 
+	
+	if(const auto player_state = GetPlayerState<AAZPlayerState_Client>())
+	{
+		total_damage -= player_character_state_->character_state_.armor;//고정감소
+		total_damage *= 1-(player_character_state_->character_state_.damage_reduce_rate/10000.f);//비율감소
+		player_character_state_->character_state_.current_health_point -= total_damage;//적용
+		
+		if(player_state->character_state_.current_health_point <= 0)
+		{
+			player_state->character_state_.current_health_point = 0;
+		}
+		
+		if(const auto& server_controller = Cast<AAZPlayerController_Server>(game_instance_->GetPlayerController()))
+		{
+			server_controller->Send_HitPlayer_Playable(player_character_state_->uid_,angle,total_damage);
+			server_controller->BroadCast_HitPlayer_Remotable(player_character_state_->uid_,angle,total_damage);
+		}
+		
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Player Health: %d"),
+				player_state->character_state_.current_health_point));
+		}
+	}
+
+	
 }
 
 

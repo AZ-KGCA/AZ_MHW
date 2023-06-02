@@ -378,6 +378,7 @@ void AAZPlayerController_Server::BroadCast_HitPlayer_Remotable(int32 client_inde
 	{
 		//packet
 		HIT_PLAYER_PACKET packet;
+		packet.packet_id = (int)PACKET_ID::SC_PLAYER_REMOTABLE_HIT_CMD;
 		packet.guid = client_index;
 		packet.hit_angle = angle;
 		packet.damage = damage;
@@ -400,6 +401,7 @@ void AAZPlayerController_Server::Send_HitPlayer_Playable(int32 client_index, flo
 	if(const auto player = online_player_characters_.Find(client_index))
 	{
 		HIT_PLAYER_PACKET packet;
+		packet.packet_id = (int)PACKET_ID::SC_PLAYER_PLAYABLE_HIT_CMD;
 		packet.guid = client_index;
 		packet.hit_angle = angle;
 		packet.damage = damage;

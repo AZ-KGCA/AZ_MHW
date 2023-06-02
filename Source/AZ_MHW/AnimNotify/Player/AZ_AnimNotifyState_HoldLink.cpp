@@ -25,14 +25,14 @@ void UAZ_AnimNotifyState_HoldLink::NotifyTick(USkeletalMeshComponent* mesh_comp,
 {
 	Super::NotifyTick(mesh_comp, animation, frame_delta_time, event_reference);
 	
-	if((owner_->player_character_state_->action_state_.input_bitmask ^ input_bitmask_) == 0 || !is_next_link_)
-	{
-		//hold 중
-	}
-	else
-	{
-		is_next_link_ = true;
-	}
+	// if((owner_->player_character_state_->action_state_.input_bitmask ^ input_bitmask_) == 0 || !is_next_link_)
+	// {
+	// 	//hold 중
+	// }
+	// else
+	// {
+	// 	is_next_link_ = true;
+	// }
 }
 
 void UAZ_AnimNotifyState_HoldLink::NotifyEnd(USkeletalMeshComponent* mesh_comp, UAnimSequenceBase* animation,

@@ -67,7 +67,7 @@ public:
 #pragma endregion
 
 #pragma region Send Part(server->client)
-private:
+public:
 	void BroadCast_AddPlayerState_Remotable(int32 client_index);
 	void BroadCast_RemovePlayerState_Remotable(int32 client_index);
 	
