@@ -27,6 +27,7 @@ public:
 
 public:
 	void DisplaySampleSlots(int display_slot_count = 50);
+	void SetInventory();
 	UUniformGridPanel* GetUniformGridFromPanel(int32 panel_slot);
 
 public:
@@ -55,4 +56,7 @@ public:
 	UPROPERTY(meta = (BindWidget)) UTextBlock* item_inventory_count_; // 인벤토리 갯수
 
 	UPROPERTY() TArray<class UAZWidget_Inventory_Slot*> item_slot_array_;
+
+public:
+	UFUNCTION() void OnItemHover();
 };

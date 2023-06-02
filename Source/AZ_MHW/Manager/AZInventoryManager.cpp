@@ -124,6 +124,7 @@ void UAZInventoryManager::CreateStartItem()
 				info.target = buff_data->target;
 			}
 			AddPocketPotion(info);
+			AddWarehousePotion(info);
 		}
 		else if(item.Value.type == EItemType::ammo)
 		{
