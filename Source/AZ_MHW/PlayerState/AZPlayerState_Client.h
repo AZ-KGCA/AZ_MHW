@@ -88,6 +88,8 @@ struct FAZPlayerCharacterState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 current_sharpness;//현재 예리도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 current_attack_point;//현재 공격력
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 speed_rate;//스피드 10000배 (Cast<float>)
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int32 critical_rate;//회심율? 치명타인가 10000배 (Cast<float>)
@@ -159,6 +161,7 @@ struct FAZPlayerCharacterState
 		max_sharpness = 100;
 		current_sharpness = 50;
 
+		current_attack_point = 100;
 		critical_rate = 0;//10000배
 		speed_rate = 20000;//10000배
 		armor = 1;

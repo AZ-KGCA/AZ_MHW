@@ -6,6 +6,7 @@
 #include "AZ_MHW/Manager/AZPlayerMgr.h"
 #include "Character/AZCharacter.h"
 #include "Character/Player/AZPlayer.h"
+#include "Character/Player/AZPlayer_Origin.h"
 #include "PlayerState/AZPlayerState_Client.h"
 
 UAZAnimInstance_Player::UAZAnimInstance_Player()
@@ -251,9 +252,19 @@ void UAZAnimInstance_Player::SetAnimPlayRate(int32 play_rate)
 	//SequencePlayer의 AnimPlayRate는 AnimGraph에서 바인딩되어서 실행
 }
 
+void UAZAnimInstance_Player::AnimNotify_OnUseItem()
+{
+	if(const auto& player = Cast<AAZPlayer_Origin>(owner_))
+	{
+		player->AnimNotify_OnUseItem();
+	}
+}
 
 
-
+bool UAZAnimInstance_Player::CorrectInputBitMask(int32 bitmask) const
+{
+	return ((input_bitmask_ & ~bitmask) > 0);
+}
 
 bool UAZAnimInstance_Player::CheckInputBitMask(int32 bitmask) const
 {
@@ -271,6 +282,28 @@ void UAZAnimInstance_Player::SetAnimationProperty(bool is_rotation, bool can_con
 {
 	is_rotation_ = is_rotation;
 	can_input_control_ = can_control;
+}
+
+void UAZAnimInstance_Player::RecoverStamina(int recover_stamina)
+{
+	const auto& player = Cast<AAZPlayer>(owner_);
+	if(player->player_character_state_->character_state_.current_stamina > player->player_character_state_->character_state_.max_stamina)
+	{
+		player->player_character_state_->character_state_.current_stamina = player->player_character_state_->character_state_.max_stamina;
+		return;
+	}
+	player->player_character_state_->character_state_.current_stamina += recover_stamina;
+}
+
+bool UAZAnimInstance_Player::CheckCostAnimation()
+{
+	const auto& player = Cast<AAZPlayer>(owner_);
+	if(player->player_character_state_->character_state_.current_stamina>30)
+	{
+		player->player_character_state_->character_state_.current_stamina -= 30;
+		return true;
+	}
+	return false;
 }
 
 void UAZAnimInstance_Player::ForceImmediatelyRotate()

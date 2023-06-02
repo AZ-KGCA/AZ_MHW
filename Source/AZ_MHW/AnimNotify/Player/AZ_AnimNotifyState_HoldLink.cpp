@@ -17,6 +17,7 @@ void UAZ_AnimNotifyState_HoldLink::NotifyBegin(USkeletalMeshComponent* mesh_comp
 	}
 	if(const auto& player = Cast<AAZPlayer>(mesh_comp->GetOwner()))
 	{
+		owner_ = player;
 	}
 }
 
@@ -25,14 +26,14 @@ void UAZ_AnimNotifyState_HoldLink::NotifyTick(USkeletalMeshComponent* mesh_comp,
 {
 	Super::NotifyTick(mesh_comp, animation, frame_delta_time, event_reference);
 	
-	// if((owner_->player_character_state_->action_state_.input_bitmask ^ input_bitmask_) == 0 || !is_next_link_)
-	// {
-	// 	//hold 중
-	// }
-	// else
-	// {
-	// 	is_next_link_ = true;
-	// }
+	if((owner_->player_character_state_->action_state_.input_bitmask ^ input_bitmask_) == 0 || !is_next_link_)
+	{
+		//is_next_link_ = false;
+	}
+	else
+	{
+		is_next_link_ = true;
+	}
 }
 
 void UAZ_AnimNotifyState_HoldLink::NotifyEnd(USkeletalMeshComponent* mesh_comp, UAnimSequenceBase* animation,
@@ -44,6 +45,6 @@ void UAZ_AnimNotifyState_HoldLink::NotifyEnd(USkeletalMeshComponent* mesh_comp, 
 	{
 		owner_anim_instance_->next_montage_name_ = target_montage_name_;
 		owner_anim_instance_->next_section_name_ = target_section_name_;
-		//owner_anim_instance_->
+		owner_anim_instance_->should_transition_ = true;
 	}
 }

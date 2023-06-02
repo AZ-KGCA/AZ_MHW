@@ -33,11 +33,11 @@ protected:
 	//virtual void PossessedBy(AController* new_controller) override;
 #pragma endregion
 #pragma region Animation Notify
+public:
 	UFUNCTION(BlueprintCallable) void SetActiveSuperArmor(bool enable, int32 reduce_rate);
 
 	UFUNCTION() void AnimNotify_OnUseItem();
 
-	UFUNCTION() void AnimNotify_OnGetItem();
 #pragma endregion 
 #pragma region Damage Interface
 public:

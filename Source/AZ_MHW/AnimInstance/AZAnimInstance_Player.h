@@ -117,6 +117,8 @@ public:
 	void SetAnimPlayRate(int32 play_rate = 20000);
 
 
+	UFUNCTION()
+	void AnimNotify_OnUseItem();
 	
 	// /** 테이블에서 지정한 액션키 값에 해당하는 플레이어 애니메이션값으로 수행합니다.*/
 	// UFUNCTION(BlueprintCallable, Category="AZ|Animation")
@@ -132,6 +134,9 @@ public:
 	int32 input_bitmask_;
 	
 	UFUNCTION(BlueprintCallable)
+	bool CorrectInputBitMask(int32 bitmask) const;
+	
+	UFUNCTION(BlueprintCallable)
 	bool CheckInputBitMask(int32 bitmask) const;
 
 	UFUNCTION(BlueprintCallable)
@@ -143,6 +148,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetAnimationProperty(bool is_rotation, bool can_control);
 
+	UFUNCTION(BlueprintCallable)
+	void RecoverStamina(int recover_stamina);
+	
+	UFUNCTION(BlueprintCallable)
+	bool CheckCostAnimation();
+	
 	UFUNCTION(BlueprintCallable)
 	void ForceImmediatelyRotate();
 };

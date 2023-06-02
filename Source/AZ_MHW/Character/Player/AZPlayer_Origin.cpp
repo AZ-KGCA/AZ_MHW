@@ -60,18 +60,14 @@ void AAZPlayer_Origin::SetActiveSuperArmor(bool enable, int32 reduce_rate)
 
 float AAZPlayer_Origin::ApplyDamage_Implementation(AActor* damaged_actor, const FHitResult hit_result, FAttackInfo attack_info)
 {
-	UE_LOG(AZ_PLAYER,Warning,TEXT("때림"));
+	attack_info.damage_array[0].amount = player_character_state_->character_state_.current_attack_point;
 	return Super::ApplyDamage_Implementation(damaged_actor, hit_result, attack_info);
 	
 }
 
 float AAZPlayer_Origin::ProcessDamage(AActor* damage_instigator, const FHitResult hit_result, FAttackInfo attack_info)
 {
-	UE_LOG(AZ_PLAYER,Warning,TEXT("맞은듯"));
 	return Super::ProcessDamage(damage_instigator, hit_result, attack_info);
-	//float angle
-	//characterstate - bithit =true
-	//broadcast, send
 }
 
 void AAZPlayer_Origin::PostProcessDamage(AActor* damage_instigator, const FHitResult hit_result,
@@ -173,34 +169,46 @@ void AAZPlayer_Origin::PostProcessDamage(AActor* damage_instigator, const FHitRe
 	
 }
 
-
-
 void AAZPlayer_Origin::AnimNotify_OnUseItem()
 {
 	//서버처리
-	//on_use_item_.Broadcast();
-	//const auto& item_index;// ui manager한테서 가져오기
-	const auto& buff = game_instance_->game_cache_info_->GetCurrentCharacterItem()->UsePotion(0);
+	//FIXME
+	//정보따로,
+	//사용갯수처리 따로?
+	//game_cache_info_에서 잘못된 주소 오류나옴.
+	//const auto& buff = game_instance_->game_cache_info_->GetCurrentCharacterItem()->UsePotion(0);
 
-	switch (buff.target)
+	//TEMP
+	FBuffDataStruct tempbuff;
+	tempbuff.calc = ECalculation::plus;
+	tempbuff.target = EItemTarget::health;
+	tempbuff.effect = 30;
+	
+	switch (tempbuff.target)
 	{
 	case EItemTarget::health:
 		if(auto player_state = GetPlayerState<AAZPlayerState_Client>())
 		{
 			int32 result_health_point = 0;
-			switch (buff.calc)
+			switch (tempbuff.calc)
 			{
 			case ECalculation::plus:
-				result_health_point = player_state->character_state_.current_health_point + (int)buff.effect;
-				if(player_state->character_state_.max_health_point < result_health_point)
 				{
-					player_state->character_state_.current_health_point = player_state->character_state_.max_health_point;
+					result_health_point = player_state->character_state_.current_health_point + (int)tempbuff.effect;
+					if(player_state->character_state_.max_health_point < result_health_point)
+					{
+						player_state->character_state_.current_health_point = player_state->character_state_.max_health_point;
+					}
+					else
+					{
+						player_state->character_state_.current_health_point = result_health_point;
+					}
+					
+					int client_index = player_character_state_->uid_;
+					const auto server_controller = Cast<AAZPlayerController_Server>(game_instance_->GetPlayerController());
+					server_controller->BroadCast_UpdatePlayerState_Remotable(client_index,0,result_health_point,0);
+					server_controller->Send_UpdatePlayerState_Playable(client_index,0,result_health_point,0);
 				}
-				else
-				{
-					player_state->character_state_.current_health_point = result_health_point;
-				}
-				UE_LOG(AZ_TEST,Warning,TEXT("%d"),player_state->character_state_.current_health_point);
 				break;
 			case ECalculation::multi:
 				break;
@@ -212,7 +220,7 @@ void AAZPlayer_Origin::AnimNotify_OnUseItem()
 		{
 			if(auto az_player_state = Cast<AAZPlayerState_Client>(player_state))
 			{
-				switch (buff.calc)
+				switch (tempbuff.calc)
 				{
 				case ECalculation::plus:
 					UE_LOG(AZ_TEST,Warning,TEXT("공격력 더해짐"));
@@ -225,16 +233,4 @@ void AAZPlayer_Origin::AnimNotify_OnUseItem()
 		}
 		break;
 	}
-	//사용한 아이템을 id로 넘겨줘야한다면 oneparam쓰기
-	//또는 플레이어스테이트를 캐싱해서 사용한 아이템 체크하기
 }
-
-void AAZPlayer_Origin::AnimNotify_OnGetItem()
-{
-}
-
-
-
-
-
-

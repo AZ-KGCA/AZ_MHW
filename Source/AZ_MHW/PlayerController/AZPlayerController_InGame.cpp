@@ -391,7 +391,10 @@ void AAZPlayerController_InGame::UpdatePlayerState_Remotable(int32 guid, int32 s
 		const auto& remotable_player= (*found_player);
 
 		//캐릭터 상태 전환하기
-		//remotable_player->player_character_state_->character_state_. ;
+		if(state_type == 0)
+		{
+			remotable_player->player_character_state_->character_state_.current_health_point = state_value;
+		}
 	}
 }
 
@@ -429,7 +432,10 @@ void AAZPlayerController_InGame::UpdatePlayerState_Playable(int32 state_type, in
 	if(playable_player_)
 	{
 		//캐릭터 상태 전환하기
-		//playable_player_->player_character_state_->character_state_. ;
+		if(state_type == 0)
+		{
+			playable_player_->player_character_state_->character_state_.current_health_point = state_value;
+		}
 	}
 }
 
