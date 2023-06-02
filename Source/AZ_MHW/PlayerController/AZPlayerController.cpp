@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "AZ_MHW/GameInstance/AZGameInstance.h"
 #include "AZ_MHW/Manager/AZInputMgr.h"
+#include "AZ_MHW/HUD/AZHUD.h"
 
 
 AAZPlayerController::AAZPlayerController()
@@ -34,7 +35,9 @@ void AAZPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
 		//TAP
-		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("ChangeControlMode"), ETriggerEvent::Triggered, this, &AAZPlayerController:: ActionChangeControlMode);
+		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("ChangeControlMode"), ETriggerEvent::Triggered, this, &AAZPlayerController::ActionChangeControlMode);
+		// BackSlash
+		EnhancedInputComponent->BindAction(input_mgr->GetInputAction("CloseScene"), ETriggerEvent::Triggered, this, &AAZPlayerController::ActionCloseScene);
 	}
 }
 
@@ -72,6 +75,16 @@ void AAZPlayerController::ActionChangeControlMode()
 		
 		viewport->CaptureMouse(false);
 	}
+}
+
+void AAZPlayerController::ActionCloseScene()
+{
+	auto current_hud = Cast<AAZHUD>(GetHUD());
+	if (current_hud == nullptr)
+	{
+		return;
+	}
+	current_hud->CloseScene(true);
 }
 
 

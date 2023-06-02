@@ -458,7 +458,7 @@ void AAZHUD::_OpenUI(UAZWidget* widget, FAZWidgetData* widget_data, bool is_imme
 				return;
 			}
 
-			if (cur_scene_data->child_widget_names.Contains((EUIName)widget_data->widget_id))
+			if (!cur_scene_data->child_widget_names.Contains((EUIName)widget_data->widget_id))
 			{
 				if (0 < cur_scene_data->child_widget_names.Num())
 				{
@@ -676,14 +676,11 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 	// FIXME Later implementation to call Exit popup when trying to pop when there is only one stack left
 	if (1 >= scenes_stack.Num() && is_back_button == true)
 	{
-		// FIXME Confirm when going back
-		//if (ScenesStack[0] == EUIName::LHWidget_CharacterCreate)
-		//    LHGameInstance->LoginMgr->ChangeSequenceLoginPage();
 		//else
 		//{
 		//    // FIXME open popup
 		//}
-		//return;
+		return;
 	}
 
 	for (int32 i = cur_scene_data->child_widget_names.Num() - 1; i >= 0; --i)
@@ -725,6 +722,7 @@ void AAZHUD::CloseScene(EUIName widget_name_enum, bool is_stack_delete, bool is_
 			}
 		}
 	}
+
 	UpdateWorldRender();
 
 	OnSceneClosed();

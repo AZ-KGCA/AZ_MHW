@@ -23,6 +23,12 @@
 #include "Widget/MsgBox/AZWidget_MsgBoxBasic.h"
 //#include <Components/SkinnedMeshComponent.h>
 
+////////////////////////////////////////////////////권성호 테스트 코드
+#include "AZ_MHW/HUD/AZHUD.h"
+#include "AZ_MHW/Widget/Inventory/AZWidget_Inventory.h"
+#include "AZ_MHW/Widget/InGame/AZWidget_InGame.h"
+////////////////////////////////////////////////////
+
 AAZPlayerController_InGame::AAZPlayerController_InGame()
 {
 	spring_arm_comp_ = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -454,7 +460,19 @@ void AAZPlayerController_InGame::OpenQuestTemp()
 
 void AAZPlayerController_InGame::ActionTestFunction()
 {
-	
+	auto myhud = Cast<AAZHUD>(GetHUD());
+	if (myhud == nullptr)
+	{
+		return;
+	}
+
+	myhud->OpenScene<UAZWidget_InGame>(EUIName::AZWidget_InGame);
+	myhud->OpenScene<UAZWidget_Inventory>(EUIName::AZWidget_Inventory);
+	//myhud->CloseScene();
+	//myhud->CloseScene();
+
+	//playable_player_state_->character_state_.bit_hit = true;
+	//playable_player_state_->character_state_.current_health_point -= 40.f;
 }
 void materialTEst()
 {

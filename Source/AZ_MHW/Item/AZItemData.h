@@ -17,8 +17,8 @@ UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	none,
-	greatSword=0,
-	bow=11,
+	greatSword,
+	bow,
 };
 
 UENUM(BlueprintType)
@@ -47,10 +47,11 @@ enum class ECalculation :uint8
 UENUM(BlueprintType)
 enum class EArmorType : uint8
 {
+	None,
 	Helmet,
-	Chest,
-	Arm,
-	Belt,
+	Armor,
+	Glove,
+	Coil,
 	Leg,
 };
 
@@ -58,8 +59,8 @@ UENUM(BlueprintType)
 enum class EBottleType : uint8
 {
 	None,
-	NormalBottle,//빈 병
-	PowerBottle,// 데미지 업
+	nor,//normal bottle
+	pow,//damage bottle
 };
 
 
@@ -128,7 +129,7 @@ struct FAmmoInfo : public FItemInfo
 		item_name = "none";
 		item_count = 0;
 		effect_type = EItemTarget::None;
-		
+		storage_type = EStorageType::None;
 		item_effect = 0;
 		calc_type = ECalculation::multi;
 	}
@@ -140,6 +141,8 @@ struct FWeaponInfo : public FItemInfo
 	GENERATED_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 damage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) EWeaponType weapon_type;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) int hone;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<EBottleType> bottle_type_array;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 bottle_count;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) bool is_equip;
@@ -148,6 +151,7 @@ struct FWeaponInfo : public FItemInfo
 		item_key = 0;
 		item_name = "none";
 		damage = 0;
+		hone = 0;
 		weapon_type  = EWeaponType::none;
 		bottle_count = 0;
 		is_equip = false;
@@ -186,6 +190,7 @@ struct FTotalItemDataStruct
 		id = 0;
 		name = "none";
 		warehouse_max = 0;
+		type = EItemType::info;
 		pocket_max = 0;
 		init_count = 0;
 	}
@@ -218,6 +223,7 @@ struct FBuffDataStruct
 	{
 		id = 0;
 		target = EItemTarget::None;
+		calc = ECalculation::plus;
 		effect = 0.0f;
 	}
 };
@@ -239,5 +245,54 @@ USTRUCT()
 struct FMeleeWeaponDataStruct
 {
 	GENERATED_BODY()
-	
+	int32 id;
+	FString name;
+	EWeaponType type;
+	int32 damage;
+	int32 hone;
+	int32 critical;
+	FMeleeWeaponDataStruct()
+	{
+		id = 0;
+		name = "none";
+		type = EWeaponType::none;
+		damage = 0;
+		hone = 0;
+		critical = 0;
+	}
+};
+
+USTRUCT()
+struct FRangeWeaponDataStruct
+{
+	GENERATED_BODY()
+	int32 id;
+	FString name;
+	EWeaponType type;
+	TArray<EBottleType> bottle_array;
+	int32 damage;
+	int32 critical;
+	FRangeWeaponDataStruct()
+	{
+		id = 0;
+		name = "none";
+		type = EWeaponType::bow;
+		damage = 0;
+		critical = 0;
+	}
+};
+
+USTRUCT()
+struct FArmorDataStruct
+{
+	GENERATED_BODY()
+	int32 id;
+	EArmorType type;
+	int32 defense;
+	FArmorDataStruct()
+	{
+		id = 0;
+		type = EArmorType::None;
+		defense = 0;
+	}
 };

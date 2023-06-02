@@ -4,19 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "AZItemData.h"
+
 #include "AZArmorItem.generated.h"
 
 /**
  * 
  */
-struct FArmorInfo;
 UCLASS()
 class AZ_MHW_API UAZArmorItem : public UObject
 {
 	GENERATED_BODY()
 private:
-	FArmorInfo* info_;
+	FArmorInfo info_;
 public:
 	void InitItem(FArmorInfo& info);
-	FArmorInfo* GetItemInfo();
+	FArmorInfo GetItemInfo();
+	EArmorType GetArmorType();
+	bool	GetEquipState();
+	void	EquipStateChange(bool equip); 
 };
