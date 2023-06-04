@@ -16,18 +16,18 @@ void UPacketFunction::LoginSigninRequest(UINT32 client_index, CS_LOGIN_SIGNIN_RE
 	login_res_packet.packet_id = (short)PACKET_ID::SC_LOGIN_SIGNIN_RES;
 	login_res_packet.packet_length = sizeof(login_res_packet);
 	login_res_packet.client_index = client_index;
-	if (game_instance_->odbc->LoginCheckSQL(P_user_id, P_user_pw))
+	login_res_packet.success = 0;
+	FString id(packet->user_id);
+	game_instance_->game_cache_info_->LoginRequest(client_index, id);
+	/*if (game_instance_->odbc->LoginCheckSQL(P_user_id, P_user_pw))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
-		login_res_packet.success = 0;
-		FString id(packet->user_id);
-		game_instance_->game_cache_info_->LoginRequest(client_index, id);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessLogin_Gameinstance] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 		login_res_packet.success = 1;
-	}
+	}*/
 	game_instance_->SendPacketFunc(client_index, sizeof(login_res_packet), (char*)&login_res_packet);
 }
 
@@ -46,7 +46,7 @@ void UPacketFunction::LoginSignupRequest(UINT32 client_index, CS_LOGIN_SIGNUP_RE
 	SC_LOGIN_SIGNUP_RES login_res_packet;
 	login_res_packet.packet_id = (short)PACKET_ID::SC_LOGIN_SIGNUP_RES;
 	login_res_packet.packet_length = sizeof(login_res_packet);
-	if (game_instance_->Fclient_connect_.IsBound() == true)	game_instance_->Fclient_connect_.Execute();
+	/*if (game_instance_->Fclient_connect_.IsBound() == true)	game_instance_->Fclient_connect_.Execute();
 	if (game_instance_->odbc->AddSQL(record))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] (If) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
@@ -56,10 +56,10 @@ void UPacketFunction::LoginSignupRequest(UINT32 client_index, CS_LOGIN_SIGNUP_RE
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ProcessSignup_GameInstance] (Else) Id : %s / PW : %s\n"), P_user_id, P_user_pw);
 		login_res_packet.success = 1;
-	}
+	}*/
 
 	FString id(packet->user_id);
-	if (game_instance_->game_cache_info_->SignupRequest(id) != false)
+	if (game_instance_->game_cache_info_->SignupRequest(id) == false)
 	{
 		login_res_packet.success = 1;
 	}

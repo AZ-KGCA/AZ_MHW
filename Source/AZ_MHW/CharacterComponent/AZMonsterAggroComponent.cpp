@@ -63,7 +63,7 @@ void UAZMonsterAggroComponent::Reset()
 void UAZMonsterAggroComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	owner_->OnDeath.AddDynamic(this, &UAZMonsterAggroComponent::InactivateSystem);
+	//owner_->OnDeath.AddDynamic(this, &UAZMonsterAggroComponent::InactivateSystem);
 }
 
 void UAZMonsterAggroComponent::ForceSetBestTarget(AAZPlayer_Origin* character)

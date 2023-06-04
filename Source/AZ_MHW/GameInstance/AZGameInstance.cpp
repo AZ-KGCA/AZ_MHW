@@ -424,12 +424,12 @@ void UAZGameInstance::PacketEnd()
 	}
 }
 
-void UAZGameInstance::DbRun()
+/*void UAZGameInstance::DbRun()
 {
 	odbc->Init();
 	odbc->ConnectMssql(L"odbc_test.dsn");
 	odbc->Load();
-}
+}*/
 
 void UAZGameInstance::ReceivePacketData(const UINT32 client_index, const UINT32 size, char* P_data)
 {

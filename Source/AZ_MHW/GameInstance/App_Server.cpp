@@ -58,7 +58,7 @@ void UApp_Server::Run(const UINT32 max_client)
 	P_packet_manager_->PacketInit(max_client);
 
 	// DB 접속
-	P_packet_manager_->DbRun();
+	//P_packet_manager_->DbRun();
 
 	StartServer(max_client);
 }

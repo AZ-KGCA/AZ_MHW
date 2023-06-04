@@ -74,7 +74,7 @@ public:
 
 	void PacketEnd();
 
-	void DbRun();
+	//void DbRun();
 
 	void ReceivePacketData(const UINT32 client_index, const UINT32 size, char* P_data);
 
